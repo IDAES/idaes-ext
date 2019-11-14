@@ -1,7 +1,6 @@
 
 # Make a directory to work in
-
-cd $IDAES_SRC
+export IDAES_SRC=`pwd`
 
 # get stuff
 wget https://ampl.com/netlib/ampl/solvers.tgz
