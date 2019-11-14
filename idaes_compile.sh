@@ -29,7 +29,7 @@ cd $IDAES_SRC
 # Compile IDAES function libraries
 
 cd idaes-dev/src
-make
+make LDFLAGS="-all-static"
 cd $IDAES_SRC
 
 # Compile IPOPT
