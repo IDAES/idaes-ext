@@ -59,6 +59,7 @@ mkdir dist
 cd dist
 cp ../idaes-dev/src/dist/*.so ./
 cp ../Ipopt-3.12.13/Ipopt/src/Apps/AmplSolver/ipopt ./
+cp $IDAES_SRC/license.txt ./
 
 # here you zip files
 
