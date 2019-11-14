@@ -50,7 +50,7 @@ cd ../HSL
 cp -r $IDAES_SRC/coinhsl ./
 cd ../../
 ./configure CFLAGS="-static"
-make LDFLAGS="-all_static"
+make LDFLAGS="--static"
 
 # Collect files
 
