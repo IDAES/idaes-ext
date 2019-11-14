@@ -46,7 +46,7 @@ Setup the build environment:
 
 ```sh
 sudo apt-get update
-sudo apt-get build-essential libboost-dev-all git gfortran
+sudo apt-get install build-essential libboost-all-dev git gfortran
 ```
 
 ### OSX Build Environment
