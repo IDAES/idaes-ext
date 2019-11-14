@@ -2,6 +2,13 @@
 # Make a directory to work in
 export IDAES_SRC=`pwd`
 
+# Set a few basic things
+
+export CLONE_IDAES="git clone --single-branch --branch cmd https://github.com/eslickj/idaes-dev"
+export CLONE_IPOPT="git clone --single-branch --branch idaes-3.12.13 https://github.com/idaes/Ipopt"
+export IPOPT_VER=Ipopt-3.12.13
+export PATCH_IPOPT="cp Ipopt/Ipopt/src/Algorithm/IpIpoptAlg.cpp Ipopt-3.12.13/Ipopt/src/Algorithm/IpIpoptAlg.cpp"
+
 # get stuff
 wget https://ampl.com/netlib/ampl/solvers.tgz
 wget https://www.coin-or.org/download/source/Ipopt/$IPOPT_VER.tgz
