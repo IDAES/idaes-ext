@@ -29,7 +29,7 @@ cd $IDAES_SRC
 # Compile IDAES function libraries
 
 cd idaes-dev/src
-make LDFLAGS="-all-static"
+make
 cd $IDAES_SRC
 
 # Compile IPOPT
@@ -50,7 +50,7 @@ cd ../HSL
 cp -r $IDAES_SRC/coinhsl ./
 cd ../../
 ./configure CFLAGS="-static"
-make LDFLAGS="-all-static"
+make
 
 # Collect files
 
