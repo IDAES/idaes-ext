@@ -49,7 +49,7 @@ cd ../Mumps
 cd ../HSL
 cp -r $IDAES_SRC/coinhsl ./
 cd ../../
-./configure CFLAGS="-static" "LDFLAGS"="-static-libgcc" --enable-shared=no
+./configure --enable-shared=no
 make
 
 # Collect files
