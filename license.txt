@@ -18,7 +18,7 @@ See http://mumps.enseeiht.fr/index.php?page=dwnld.
 METIS
 -----
 
-METIS is currently not included.
+METIS is included with permission.
 
 
 Lapack
