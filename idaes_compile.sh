@@ -66,4 +66,5 @@ cp $IDAES_SRC/license.txt ./
 
 # here you zip files
 
-zip idaes-bin.zip
+zip idaes-lib.zip *.so *.dll
+zip idaes-ipopt.zip ipopt*
