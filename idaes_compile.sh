@@ -8,7 +8,7 @@ export IDAES_SRC=`pwd`
 
 # Set a few basic things
  
-export CLONE_IDAES="git clone https://github.com/ideas/idaes-dev"
+export CLONE_IDAES="git clone https://github.com/idaes/idaes-dev"
 export CLONE_IPOPT="git clone --single-branch --branch idaes-3.12.13 https://github.com/idaes/Ipopt"
 export IPOPT_VER=Ipopt-3.12.13
 export PATCH_IPOPT="cp Ipopt/Ipopt/src/Algorithm/IpIpoptAlg.cpp Ipopt-3.12.13/Ipopt/src/Algorithm/IpIpoptAlg.cpp"
