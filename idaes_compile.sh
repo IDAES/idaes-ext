@@ -47,9 +47,8 @@ cd ../ASL
 ./get.ASL
 cd ../Mumps
 ./get.Mumps
-# Waiting to resolve METIS license issue
-#cd ../Metis
-#./get.Metis
+cd ../Metis
+./get.Metis
 cd ../HSL
 cp -r $IDAES_SRC/coinhsl ./
 cd ../../
