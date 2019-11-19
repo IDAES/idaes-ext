@@ -74,5 +74,7 @@ if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
 fi
 
 # here you pack files
-tar -czvf idaes-lib.zip *.so *.dll *.txt
-tar -czvf idaes-solvers.zip ipopt* *.txt
+# You still have the manually rename these with 
+# *-{windows, linux, or darwin}-{32 or 64}.tar.gz
+tar -czvf idaes-lib.tar.gz *.so *.dll *.txt
+tar -czvf idaes-solvers.tar.gz ipopt* *.txt
