@@ -32,22 +32,11 @@ the default, which is all.:
 pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost unzip patch make git zip
 ```
 
-While MinGW does produce Windows native binaries, depending on linking options, some DLLs may 
-be required. Add the MinWG/MSYS2 DLLs to your path. For example if MSYS2 was installed in the 
-default location you would probably want to add C:\msys64\mingw64\bin.
-
 ### Linux
 
-#### Ubuntu
-
-On Windows, on the Ubuntu LTS quick install with Hyper-V. Otherwise Ubuntu LTS VM.
-
-Setup the build environment:
-
-```sh
-sudo apt-get update
-sudo apt-get install build-essential libboost-all-dev git gfortran
-```
+We are currently building the Linux binaries with CentOS 7.  These generally seem to be
+compatable with newer versions of Linux regardless of distribution.  We could buld on
+CentOS 6, but there are some minor compatablity issues with C++11. 
 
 ### OSX Build Environment
 
@@ -67,4 +56,6 @@ cd build-bin
 sh idaes_compile.sh
 ```
 
+Once the tar files are created, rename for the arciteture.  The files are formatted like ```idaes-*-{os}-{bits}.tar.gz```.  Where os is in {windows, linux, darwin} and bits is in {32, 64}.  For now
+we are only building 64 bit.
 
