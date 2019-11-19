@@ -64,14 +64,15 @@ cp ../idaes-dev/src/dist/*.so ./
 cp ../Ipopt-3.12.13/Ipopt/src/Apps/AmplSolver/ipopt ./
 cp ../license.txt ./
 
-# Winodws MinGW linked libraries 
-# cp /mingw64/bin/libstdc++-6.dll ./
-# cp /mingw64/bin/libgcc_s_seh-1.dll ./
-# cp /mingw64/bin/libwinpthread-1.dll ./
-# cp /mingw64/bin/libgfortran-5.dll ./
-# cp /mingw64/bin/libquadmath-0.dll ./
+if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
+    # Winodws MinGW linked libraries 
+    cp /mingw64/bin/libstdc++-6.dll ./
+    cp /mingw64/bin/libgcc_s_seh-1.dll ./
+    cp /mingw64/bin/libwinpthread-1.dll ./
+    cp /mingw64/bin/libgfortran-5.dll ./
+    cp /mingw64/bin/libquadmath-0.dll ./
+fi
 
-# here you zip files
-
+# here you pack files
 tar -czvf idaes-lib.zip *.so *.dll *.txt
 tar -czvf idaes-solvers.zip ipopt* *.txt
