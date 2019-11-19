@@ -1,10 +1,15 @@
-This file contains the license information for the third-party libraries and solvers included in the IDAES binary distribution: idaes-lib.zip and idaes-solvers.zip
+This file contains the license information for the third-party libraries and 
+solvers included in the IDAES binary distribution: idaes-lib.zip and 
+idaes-solvers.zip.
 
 Ipopt:
-Eclipse Public License 1.0
+Eclipse Public License 1.0, https://github.com/coin-or/Ipopt
 
 HSL:
-All technical papers, sales and publicity material resulting from use of the HSL codes within IPOPT must contain the following acknowledgement: HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk.
+All technical papers, sales and publicity material resulting from use of 
+the HSL codes within IPOPT must contain the following acknowledgement: HSL, a 
+collection of Fortran codes for large-scale scientific computation. See 
+http://www.hsl.rl.ac.uk.
 
 MUMPS:
 See http://mumps.enseeiht.fr/index.php?page=dwnld.
