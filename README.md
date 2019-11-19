@@ -36,7 +36,8 @@ pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost unzip patch make git
 
 We are currently building the Linux binaries with CentOS 7.  These generally seem to be
 compatable with newer versions of Linux regardless of distribution.  We could buld on
-CentOS 6, but there are some minor compatablity issues with C++11. 
+CentOS 6, but there are some minor compatablity issues with C++11, and you need to update
+the git client to 2.x at least for the sript to work.
 
 ### OSX Build Environment
 
