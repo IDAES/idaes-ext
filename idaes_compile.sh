@@ -62,7 +62,7 @@ mkdir dist
 cd dist
 cp ../idaes-dev/src/dist/*.so ./
 cp ../Ipopt-3.12.13/Ipopt/src/Apps/AmplSolver/ipopt ./
-cp $IDAES_SRC/license.txt ./
+cp ../license.txt ./
 
 # Winodws MinGW linked libraries 
 # cp /mingw64/bin/libstdc++-6.dll ./
@@ -73,5 +73,5 @@ cp $IDAES_SRC/license.txt ./
 
 # here you zip files
 
-zip idaes-lib.zip *.so *.dll
-zip idaes-solvers.zip ipopt*
+zip idaes-lib.zip *.so *.dll *.txt
+zip idaes-solvers.zip ipopt* *.txt
