@@ -77,5 +77,9 @@ fi
 # You still have the manually rename these with 
 # *-{windows, linux, or darwin}-{32 or 64}.tar.gz
 # I'm not building 32 bit, but who knows ma need it.
-tar -czvf idaes-lib.tar.gz *.so *.dll *.txt
+if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
+  tar -czvf idaes-lib.tar.gz *.so *.dll *.txt
+else;
+  tar -czvf idaes-lib.tar.gz *.so *.txt
+fi
 tar -czvf idaes-solvers.tar.gz ipopt* *.txt
