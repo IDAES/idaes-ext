@@ -79,7 +79,7 @@ fi
 # I'm not building 32 bit, but who knows ma need it.
 if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
   tar -czvf idaes-lib.tar.gz *.so *.dll *.txt
-else;
+else
   tar -czvf idaes-lib.tar.gz *.so *.txt
 fi
 tar -czvf idaes-solvers.tar.gz ipopt* *.txt
