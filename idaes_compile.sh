@@ -73,5 +73,5 @@ cp ../license.txt ./
 
 # here you zip files
 
-zip idaes-lib.zip *.so *.dll *.txt
-zip idaes-solvers.zip ipopt* *.txt
+tar -czvf idaes-lib.zip *.so *.dll *.txt
+tar -czvf idaes-solvers.zip ipopt* *.txt
