@@ -32,8 +32,8 @@ cd $IDAES_SRC
 # Collect files
 
 cd $IDAES_SRC
-mkdir dist
-cd dist
+mkdir dist-lib
+cd dist-lib
 cp ../idaes-dev/src/dist/*.so ./
 cp ../license.txt ./
 
@@ -47,11 +47,4 @@ if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
 fi
 
 # here you pack files
-# You still have the manually rename these with 
-# *-{windows, linux, or darwin}-{32 or 64}.tar.gz
-# I'm not building 32 bit, but who knows ma need it.
-if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
-  tar -czvf idaes-lib.tar.gz *.so *.dll *.txt
-else
-  tar -czvf idaes-lib.tar.gz *.so *.txt
-fi
+tar -czvf idaes-lib.tar.gz *
