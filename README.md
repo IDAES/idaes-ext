@@ -54,9 +54,9 @@ This will be copied to the Ipopt third party libraries before building.
 
 ```sh
 cd build-bin
-sh idaes_compile.sh
+sh compile_libs.sh
+sh compile_solvers.sh
 ```
 
 Once the tar files are created, rename for the arciteture.  The files are formatted like ```idaes-*-{os}-{bits}.tar.gz```.  Where os is in {windows, linux, darwin} and bits is in {32, 64}.  For now
 we are only building 64 bit.
-
