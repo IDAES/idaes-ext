@@ -40,10 +40,10 @@ make
 # Collect files
 
 cd $IDAES_SRC
-mkdir dist
-cd dist
+mkdir dist-solvers
+cd dist-solvers
 cp ../Ipopt-3.12.13/Ipopt/src/Apps/AmplSolver/ipopt ./
 cp ../license.txt ./
 
 # here you pack files
-tar -czvf idaes-solvers.tar.gz ipopt* *.txt
+tar -czvf idaes-solvers.tar.gz *
