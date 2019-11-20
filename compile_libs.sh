@@ -11,7 +11,7 @@ export IDAES_SRC=`pwd`
 export CLONE_IDAES="git clone https://github.com/idaes/idaes-dev"
 
 # get stuff
-wget https://www.coin-or.org/download/source/Ipopt/$IPOPT_VER.tgz
+wget https://ampl.com/netlib/ampl/solvers.tgz
 eval $CLONE_IDAES
 tar -zxvf solvers.tgz
 
