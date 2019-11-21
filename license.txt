@@ -34,4 +34,4 @@ idaes-solvers-*.tar.gz:
   See http://www.netlib.org/blas/#_licensing.
   
   MinGW:
-  For Windows, MinGW runtime liraries are included. See http://www.mingw.org/license.
+  For Windows, MinGW runtime libraries are included. See http://www.mingw.org/license.
