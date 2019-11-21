@@ -2,7 +2,7 @@
 
 This repository hosts IDAES binary extensions.  These extensions include solvers and function libraries written in C.  These binary extensions are intended for use with the IDAES Prosess Modeling Framework https://github.com/IDAES/idaes-pse. 
 
-# Getting Extensions
+## Getting Extensions
 
 If you have the IDAES framework installed, you can get the extensions by running the following command:
 
