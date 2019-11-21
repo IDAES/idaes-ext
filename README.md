@@ -1,62 +1,30 @@
-# Building IDAES Binaries for Distribution
+# IDAES Extensions
 
-This is a script to compile solvers and function libraries for the IDAES biniary distribution.  
-This script is just for IDAES team internal use.
+This repository hosts IDAES binary extensions.  These extensions include solvers and function libraries written in C.  These binary extensions are intended for use with the IDAES Prosess Modeling Framework https://github.com/IDAES/idaes-pse. 
 
-## Setup a Build Environment
+# Getting Extensions
 
-### Windows
-
-Install MSYS2. MSYS2 provides a shell which will allow use of Linux style build tools. It also 
-provides a convenient package manager (pacman) which allows for easy installation of build tools.
-
-1. Go to https://www.msys2.org/
-2. Download the x86_64 installer
-3. Run the installer (the default options should be okay)
-
-Open the MSYS2 MinGW 64-bit terminal (go to: start menu/MSYS2 64Bit/MSYS2 MinGW 64Bit).
-
-Update the MSYS2 software:
+If you have the IDAES framework installed, you can get the extensions by running the following command:
 
 ```sh
-pacman -Syu
+idaes get-extensions
 ```
 
-Repeat the previous step until there are no more updates.
-
-Install the build tools and libraries. Some packages installed are group packages, and 
-pacman will prompt to select which packages you would like to install. Press "enter" for 
-the default, which is all.:
+You can also download a particular release of the extensions by providing a URL:
 
 ```sh
-pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost unzip patch make git zip
+idaes get-extensions --url <url>
 ```
 
-### Linux
+If you wish to get a particular version for the idaes extensions
 
-We are currently building the Linux binaries with CentOS 7.  These generally seem to be
-compatable with newer versions of Linux regardless of distribution.  We could build on
-CentOS 6, but there are some minor compatablity issues with C++11, and you need to update
-the git client to 2.x at least for the sript to work.
+## Contents
 
-### OSX Build Environment
+The extension contain a version of the IPOPT solver compiled the HSL linear solver library, for which IDAES has obtained 
+a distribution license. All technical papers, sales and publicity material resulting from use of the HSL codes within IPOPT 
+must contain the following acknowledgement: HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk.
 
-TBD
+See https://github.com/IDAES/idaes-ext/blob/master/license.txt for additional information on thrird-party code contained 
+in the binaries.
 
-## Run the Build Script
-
-```sh
-git clone https://github.com/idaes/build-bin
-```
-
-If you have HSL library code copy the coinhsl directory the the ```build-bin``` directory.  
-This will be copied to the Ipopt third party libraries before building.
-
-```sh
-cd build-bin
-sh compile_libs.sh
-sh compile_solvers.sh
-```
-
-Once the tar files are created, rename for the arciteture.  The files are formatted like ```idaes-*-{os}-{bits}.tar.gz```.  Where os is in {windows, linux, darwin} and bits is in {32, 64}.  For now
-we are only building 64 bit.
+The binries also include property librairy functions compiled from source at https://github.com/IDAES/idaes-pse/tree/master/src.
