@@ -20,7 +20,8 @@ idaes get-extensions --url <url>
 
 The extensions contain a version of the IPOPT solver compiled the HSL linear solver library, for which IDAES has obtained 
 a distribution license. All technical papers, sales and publicity material resulting from use of the HSL codes within IPOPT 
-must contain the following acknowledgement: HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk.
+must contain the following acknowledgement: HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk. The Ipopt source code for IDAES was modified only to add addtional messages as required by the HSL 
+distribution license.  The modified Ipopt code is available here https://github.com/IDAES/Ipopt/tree/idaes-3.12.13. 
 
 See https://github.com/IDAES/idaes-ext/blob/master/license.txt for additional information on third-party code contained 
 in the binaries.
