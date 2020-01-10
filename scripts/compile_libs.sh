@@ -40,6 +40,7 @@ if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
     cp /mingw64/bin/libgfortran-5.dll ./
     cp /mingw64/bin/libquadmath-0.dll ./
     cp /mingw64/bin/liblapack.dll ./
+    cp /mingw64/bin/libblas.dll ./
 fi
 
 # here you pack files
