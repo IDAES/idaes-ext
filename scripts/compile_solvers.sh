@@ -19,7 +19,7 @@ bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 cd $IDAES_SRC
 mkdir dist-solvers
 cd dist-solvers
-cp ../Ipopt-3.12.13/Ipopt/src/Apps/AmplSolver/ipopt ./
+cp ../coinbrew/dist/bin/ipopt ./
 cp ../license.txt ./
 
 # here you pack files
