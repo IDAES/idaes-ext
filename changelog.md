@@ -4,4 +4,3 @@
  - IDAES property function libraries
 ## 1.0.1
  - Fix bug in cubic root finder extended root implementation
- 
