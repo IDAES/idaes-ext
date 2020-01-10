@@ -36,7 +36,7 @@ To build the IDAES binaries.
   3) Copy the HSL files to ```coinhsl``` in ```idaes-ext```
   4) ```bash scripts/compile_solvers.sh```
   5) ```bash scripts/compile_libs.sh```
-  6) There should be to tar.gz files one with executable solvers and the other with shared libraries.  These can be installed with the ```idaes get-extension``` script
+  6) There should be to tar.gz files one with executable solvers and the other with shared libraries in the dist-lib and dist-solvers directories. Add the operating system postfix to the file names. These can be installed with the ```idaes get-extension``` script
 
 ## Build Environments
 
