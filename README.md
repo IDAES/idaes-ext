@@ -34,8 +34,8 @@ To build the IDAES binaries.
   1) Clone this repo to idaes-ext.
   2) ```cd ./ideas-ext```
   3) Copy the HSL files to ```coinhsl``` in ```idaes-ext```
-  4) ```bash compile_solvers.sh```
-  5) ```bash compile_libs.sh```
+  4) ```bash scripts/compile_solvers.sh```
+  5) ```bash scripts/compile_libs.sh```
   6) There should be to tar.gz files one with executable solvers and the other with shared libraries.  These can be installed with the ```idaes get-extension``` script
 
 ## Build Environments
