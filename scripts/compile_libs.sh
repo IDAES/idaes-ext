@@ -1,8 +1,5 @@
 #/bin/sh
 
-# This could be improved a lot.  We should at least split up the solvers and the AMPL user functions.
-# At this point keeping it together is a bit easier to get the initial builds going.
-
 # Make a directory to work in
 export IDAES_SRC=`pwd`
 
