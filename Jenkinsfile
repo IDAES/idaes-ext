@@ -38,7 +38,7 @@ pipeline {
         sh '''
          ls
          source activate idaes
-         conda install -c anaconda boost
+         conda install -c conda-forge boost-cpp
          rm -rf coinbrew
          rm -rf dist-lib
          rm -rf dist-solvers
