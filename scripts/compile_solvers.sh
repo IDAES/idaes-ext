@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Make a directory to work in
-export IDAES_SRC=`pwd`
+export IDAES_EXT=`pwd`
 
 # Set a few basic things
 
@@ -13,10 +13,10 @@ cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 echo -n >ThirdParty/HSL/.build
-cp -r $IDAES_SRC/coinhsl ThirdParty/HSL/coinhsl
+cp -r $IDAES_EXT/coinhsl ThirdParty/HSL/coinhsl
 bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 
-cd $IDAES_SRC
+cd $IDAES_EXT
 mkdir dist-solvers
 cd dist-solvers
 cp ../coinbrew/dist/bin/ipopt ./

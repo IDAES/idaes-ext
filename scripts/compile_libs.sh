@@ -1,7 +1,7 @@
 #/bin/sh
 
 # Make a directory to work in
-export IDAES_SRC=`pwd`
+export IDAES_EXT=`pwd`
 
 # get stuff
 wget https://ampl.com/netlib/ampl/solvers.tgz
@@ -13,17 +13,17 @@ cd solvers
 ./configure
 make
 export ASL_BUILD=`pwd`/sys.`uname -m`.`uname -s`
-cd $IDAES_SRC
+cd $IDAES_EXT
 
 # Compile IDAES function libraries
 
 cd src
 make
-cd $IDAES_SRC
+cd $IDAES_EXT
 
 # Collect files
 
-cd $IDAES_SRC
+cd $IDAES_EXT
 mkdir dist-lib
 cd dist-lib
 cp ../src/dist/*.so ./
