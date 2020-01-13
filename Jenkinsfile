@@ -40,7 +40,6 @@ pipeline {
         sh '''
          ls
          source activate idaes
-         // conda install -c conda-forge boost
          rm -rf coinbrew dist-lib dist-solvers
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
