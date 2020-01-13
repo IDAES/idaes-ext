@@ -5,25 +5,6 @@ pipeline {
     } 
   }
   stages {
-    // Commented out for an example until we start using these parameters
-    // stage('cron-nightly-test') {
-    //   when {
-    //     expression { params.BUILD_SCHEDULE == 'Nightly'}
-    //   }
-    //   steps {
-    //     sh 'echo "nightly works"'
-    //   }
-    // }
-    // stage('cron-weekly-test') {
-    //   when {
-    //     expression { params.BUILD_SCHEDULE == 'Weekly'}
-    //   }
-    //   steps {
-    //     sh 'echo "weekly works"'
-    //   }
-    // }
-
-    // Until I get access to an HSL license, I'm just going to run the idaes-tests
     stage('root-setup') {
       steps {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
@@ -34,7 +15,7 @@ pipeline {
         }
       }
     }
-    stage('3.7-setup') {
+    stage('idaes-dev 3.7-setup') {
       steps {
         sh '''
          cd idaes-dev
@@ -53,11 +34,24 @@ pipeline {
          '''
       }
     }
-    stage('3.7-test') {
+    // stage('idaes-ext build') {
+    //   steps {
+    //     sh 'cd ..'
+    //     sh 'ls'
+    //     sh 'bash scripts/compile_solvers.sh'
+    //     sh 'bash scripts/compile_libs.sh'
+    //     sh 'ls'
+    //     sh 'ls dist-lib'
+    //     ls 'dist-solvers'
+    //   }
+    // }
+    stage('idaes-dev 3.7-test') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
           sh '''
            source activate idaes3.7
+           ls
+           pwd
            pylint -E --ignore-patterns="test_.*" idaes || true
            pytest -c pytest.ini idaes -m "not nocircleci"
            source deactivate
