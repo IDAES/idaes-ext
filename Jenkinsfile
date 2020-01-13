@@ -27,24 +27,26 @@ pipeline {
          export LC_ALL=en_US.utf-8
          export LANG=en_US.utf-8
          python setup.py develop
-         idaes get-extensions
          export LC_ALL=$TEMP_LC_ALL
          export LANG=$TEMP_LANG
          source deactivate
          '''
       }
     }
-    // stage('idaes-ext build') {
-    //   steps {
-    //     sh 'cd ..'
-    //     sh 'ls'
-    //     sh 'bash scripts/compile_solvers.sh'
-    //     sh 'bash scripts/compile_libs.sh'
-    //     sh 'ls'
-    //     sh 'ls dist-lib'
-    //     ls 'dist-solvers'
-    //   }
-    // }
+    stage('idaes-ext build') {
+      steps {
+        sh 'cd ..'
+        sh 'ls'
+        sh 'source activate idaes3.7'
+        sh 'bash scripts/compile_solvers.sh'
+        sh 'bash scripts/compile_libs.sh'
+        sh 'ls'
+        sh 'ls dist-lib'
+        sh 'ls dist-solvers'
+        sh 'idaes get-extensions'
+        sh 'source deactivate'
+      }
+    }
     stage('idaes-dev 3.7-test') {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
