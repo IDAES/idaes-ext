@@ -28,15 +28,12 @@ pipeline {
       steps {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         sh 'yum install -y gcc g++ git gcc-gfortran libboost-dev make'
-        sh 'ls idaes-ext'
-        sh 'cd idaes-ext'
       }
     }
     stage('Clone idaes-dev to subdir') {
       steps {
-        sh 'mkdir -p idaes-dev'
-        dir('deps') {
-            checkout resolveScm(source: git('https://github.com/makaylas/idaes-dev.git'), targets: [BRANCH_NAME, 'master'])
+        dir('artifacts') {
+          git url: 'https://github.com/makaylas/idaes-dev.git'
         }
       }
     }
