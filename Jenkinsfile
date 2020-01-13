@@ -49,9 +49,8 @@ pipeline {
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
           sh '''
+           cd idaes-dev
            source activate idaes3.7
-           ls
-           pwd
            pylint -E --ignore-patterns="test_.*" idaes || true
            pytest -c pytest.ini idaes -m "not nocircleci"
            source deactivate
