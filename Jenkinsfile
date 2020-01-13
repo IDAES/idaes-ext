@@ -24,21 +24,16 @@ pipeline {
     // }
 
     // Until I get access to an HSL license, I'm just going to run the idaes-tests
-    stage('Clone idaes-dev to subdir') {
+    stage('root-setup') {
       steps {
+        slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+        sh 'yum install -y gcc g++ git gcc-gfortran libboost-dev make'
         dir('idaes-dev') {
           git url: 'https://github.com/makaylas/idaes-dev.git',
           credentialsId: '6ca01274-150a-4dd4-96ec-f0d117b0ea95'
         }
       }
     }
-    stage('root-setup') {
-      steps {
-        slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
-        sh 'yum install -y gcc g++ git gcc-gfortran libboost-dev make'
-      }
-    }
-    
     stage('3.7-setup') {
       steps {
         sh '''
