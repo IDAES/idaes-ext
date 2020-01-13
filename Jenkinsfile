@@ -38,6 +38,9 @@ pipeline {
         sh '''
          ls
          source activate idaes3.7
+         rm -rf coinbrew
+         rm -rf dist-lib
+         rm -rf dist-solvers
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
          ls
