@@ -21,7 +21,7 @@
  For references see iapws95.h
 
  Author: John Eslick
- File iapws95.h
+ File iapws95_external.h
 ------------------------------------------------------------------------------*/
 
 #include "iapws95_config.h"

@@ -21,7 +21,7 @@
  For references see iapws95.h
 
  Author: John Eslick
- File iapws95.cpp
+ File iapws95_external.cpp
 ------------------------------------------------------------------------------*/
 #include<stdio.h>
 #include<cmath>
