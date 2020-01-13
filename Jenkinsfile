@@ -8,9 +8,9 @@ pipeline {
     stage('root-setup') {
       steps {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
-        sh 'yum update'
+        sh 'yum update -y'
         sh 'yum install -y epel-release'
-        sh 'yum install -y gcc gcc-c++ git gcc-gfortran libboost-dev make wget'
+        sh 'yum install -y gcc gcc-c++ git gcc-gfortran libboost-dev make wget boost boost-thread boost-devel'
         dir('idaes-dev') {
           git url: 'https://github.com/makaylas/idaes-dev.git',
           credentialsId: '6ca01274-150a-4dd4-96ec-f0d117b0ea95'
@@ -40,7 +40,7 @@ pipeline {
         sh '''
          ls
          conda activate idaes
-         conda install -c conda-forge boost
+         // conda install -c conda-forge boost
          rm -rf coinbrew dist-lib dist-solvers
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
