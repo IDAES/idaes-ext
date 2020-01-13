@@ -35,16 +35,19 @@ pipeline {
     }
     stage('idaes-ext build') {
       steps {
-        sh 'cd ..'
-        sh 'ls'
-        sh 'source activate idaes3.7'
-        sh 'bash scripts/compile_solvers.sh'
-        sh 'bash scripts/compile_libs.sh'
-        sh 'ls'
-        sh 'ls dist-lib'
-        sh 'ls dist-solvers'
-        sh 'idaes get-extensions'
-        sh 'source deactivate'
+        sh '''
+         cd ..
+         ls
+         g++ --version
+         source activate idaes3.7
+         bash scripts/compile_solvers.sh
+         bash scripts/compile_libs.sh
+         ls
+         ls dist-lib
+         ls dist-solvers
+         idaes get-extensions
+         source deactivate
+         '''
       }
     }
     stage('idaes-dev 3.7-test') {
