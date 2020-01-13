@@ -36,7 +36,6 @@ pipeline {
     stage('idaes-ext build') {
       steps {
         sh '''
-         cd ..
          ls
          source activate idaes3.7
          bash scripts/compile_solvers.sh
