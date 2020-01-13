@@ -9,7 +9,6 @@
 #include <time.h>
 #include <math.h>
 #include "funcadd.h"
-#undef fprintf
 #include <stdio.h>
 
 /***********************************************************************
