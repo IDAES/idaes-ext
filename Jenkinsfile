@@ -8,7 +8,9 @@ pipeline {
     stage('root-setup') {
       steps {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
-        sh 'yum install -y gcc gcc-c++ git gcc-gfortran libboost-dev make wget'
+        sh 'yum update'
+        sh 'yum install -y epel-release'
+        sh 'yum install -y gcc gcc-c++ git gcc-gfortran libboost-dev make wget boost boost-thread boost-devel'
         dir('idaes-dev') {
           git url: 'https://github.com/makaylas/idaes-dev.git',
           credentialsId: '6ca01274-150a-4dd4-96ec-f0d117b0ea95'
@@ -20,7 +22,7 @@ pipeline {
         sh '''
          cd idaes-dev
          conda create -n idaes python=3.7 pytest
-         source activate idaes
+         conda activate idaes
          pip install -r requirements-dev.txt --user jenkins
          export TEMP_LC_ALL=$LC_ALL
          export TEMP_LANG=$LANG
@@ -29,7 +31,7 @@ pipeline {
          python setup.py develop
          export LC_ALL=$TEMP_LC_ALL
          export LANG=$TEMP_LANG
-         source deactivate
+         conda deactivate
          '''
       }
     }
@@ -37,18 +39,13 @@ pipeline {
       steps {
         sh '''
          ls
-         source activate idaes
-         conda install -c conda-forge boost-cpp
-         rm -rf coinbrew
-         rm -rf dist-lib
-         rm -rf dist-solvers
+         conda activate idaes
+         // conda install -c conda-forge boost
+         rm -rf coinbrew dist-lib dist-solvers
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
-         ls
-         ls dist-lib
-         ls dist-solvers
          idaes get-extensions
-         source deactivate
+         conda deactivate
          '''
       }
     }
