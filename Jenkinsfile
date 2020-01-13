@@ -15,12 +15,12 @@ pipeline {
         }
       }
     }
-    stage('idaes-dev 3.7-setup') {
+    stage('idaes-dev setup') {
       steps {
         sh '''
          cd idaes-dev
-         conda create -n idaes3.7 python=3.7 pytest
-         source activate idaes3.7
+         conda create -n idaes python=3.7 pytest
+         source activate idaes
          pip install -r requirements-dev.txt --user jenkins
          export TEMP_LC_ALL=$LC_ALL
          export TEMP_LANG=$LANG
@@ -33,11 +33,12 @@ pipeline {
          '''
       }
     }
-    stage('idaes-ext build') {
+    stage('idaes-ext setup') {
       steps {
         sh '''
          ls
-         source activate idaes3.7
+         source activate idaes
+         conda install -c anaconda boost
          rm -rf coinbrew
          rm -rf dist-lib
          rm -rf dist-solvers
@@ -51,19 +52,19 @@ pipeline {
          '''
       }
     }
-    stage('idaes-dev 3.7-test') {
-      steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          sh '''
-           cd idaes-dev
-           source activate idaes3.7
-           pylint -E --ignore-patterns="test_.*" idaes || true
-           pytest -c pytest.ini idaes -m "not nocircleci"
-           source deactivate
-           '''
-        }
-      }   
-    }
+    // stage('idaes-dev test') {
+    //   steps {
+    //     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+    //       sh '''
+    //        cd idaes-dev
+    //        source activate idaes
+    //        pylint -E --ignore-patterns="test_.*" idaes || true
+    //        pytest -c pytest.ini idaes -m "not nocircleci"
+    //        source deactivate
+    //        '''
+    //     }
+    //   }   
+    // }
   }
   post {
     success {
