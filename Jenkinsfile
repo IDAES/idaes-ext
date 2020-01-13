@@ -32,9 +32,20 @@ pipeline {
         sh 'cd idaes-ext'
       }
     }
+    stage('Clone idaes-dev to subdir') {
+      steps {
+        sh 'rm idaes-dev -rf; mkdir idaes-dev'
+        dir ('idaes-dev') {
+          git branch: 'master',
+          credentialsId: '6ca01274-150a-4dd4-96ec-f0d117b0ea95',
+          url: 'git@github.com:makaylas/idaes-dev.git'
+        }
+      }
+    }
     stage('3.7-setup') {
       steps {
         sh '''
+         cd idaes-dev
          conda create -n idaes3.7 python=3.7 pytest
          source activate idaes3.7
          pip install -r requirements-dev.txt --user jenkins
