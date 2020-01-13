@@ -29,8 +29,8 @@ pipeline {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         sh 'yum install -y gcc g++ git gcc-gfortran libboost-dev make'
         sh 'pwd'
-        sh 'ls'
-        sh 'cd idaes-dev'
+        sh 'ls ..'
+        sh 'cd ../idaes-dev'
       }
     }
     stage('3.7-setup') {
