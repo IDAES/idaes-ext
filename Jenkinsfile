@@ -22,11 +22,15 @@ pipeline {
     //     sh 'echo "weekly works"'
     //   }
     // }
+    
+    // Until I get access to an HSL license, I'm just going to run the idaes-tests
     stage('root-setup') {
       steps {
         slackSend (message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         sh 'yum install -y gcc g++ git gcc-gfortran libboost-dev make'
-        sh 'mkdir -p /tmp'
+        sh 'cd ..'
+        sh 'git clone https://github.com/IDAES/idaes-ext.git/'
+        sh 'cd idaes-dev'
       }
     }
     stage('3.6-setup') {
