@@ -34,11 +34,9 @@ pipeline {
     }
     stage('Clone idaes-dev to subdir') {
       steps {
-        sh 'rm idaes-dev -rf; mkdir idaes-dev'
-        dir ('idaes-dev') {
-          git branch: 'master',
-          credentialsId: '6ca01274-150a-4dd4-96ec-f0d117b0ea95',
-          url: 'git@github.com:makaylas/idaes-dev.git'
+        sh 'mkdir -p idaes-dev'
+        dir('deps') {
+            checkout resolveScm(source: git('https://github.com/makaylas/idaes-dev.git'), targets: [BRANCH_NAME, 'master'])
         }
       }
     }
