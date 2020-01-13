@@ -22,7 +22,7 @@ pipeline {
         sh '''
          cd idaes-dev
          conda create -n idaes python=3.7 pytest
-         conda activate idaes
+         source activate idaes
          pip install -r requirements-dev.txt --user jenkins
          export TEMP_LC_ALL=$LC_ALL
          export TEMP_LANG=$LANG
@@ -39,7 +39,7 @@ pipeline {
       steps {
         sh '''
          ls
-         conda activate idaes
+         source activate idaes
          // conda install -c conda-forge boost
          rm -rf coinbrew dist-lib dist-solvers
          bash scripts/compile_solvers.sh
@@ -54,7 +54,7 @@ pipeline {
     //     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
     //       sh '''
     //        cd idaes-dev
-    //        conda activate idaes
+    //        source activate idaes
     //        pylint -E --ignore-patterns="test_.*" idaes || true
     //        pytest -c pytest.ini idaes -m "not nocircleci"
     //        conda deactivate
