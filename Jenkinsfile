@@ -44,7 +44,7 @@ pipeline {
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
          cp dist-solvers/idaes-solvers.tar.gz dist-lib/idaes-solvers-linux-64.tar.gz
-         mv dist-lib/idaes-lib.tar.gz dist-lib/idaes-lib-liux-64.tar.gz
+         mv dist-lib/idaes-lib.tar.gz dist-lib/idaes-lib-linux-64.tar.gz
          ls dist-lib
          idaes get-extensions --url file://`pwd`/dist-lib
          conda deactivate
