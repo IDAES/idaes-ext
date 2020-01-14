@@ -62,7 +62,7 @@ pipeline {
            '''
         }
       }   
-    // }
+    }
   }
   post {
     success {
