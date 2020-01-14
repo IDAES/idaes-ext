@@ -45,24 +45,23 @@ pipeline {
          bash scripts/compile_libs.sh
          cp dist-solvers/idaes-solvers.tar.gz dist-lib/idaes-solvers-linux-64.tar.gz
          mv dist-lib/idaes-lib.tar.gz dist-lib/idaes-lib-linux-64.tar.gz
-         ls dist-lib
          idaes get-extensions --url file://`pwd`/dist-lib
          conda deactivate
          '''
       }
     }
-    // stage('idaes-dev test') {
-    //   steps {
-    //     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-    //       sh '''
-    //        cd idaes-dev
-    //        source activate idaes
-    //        pylint -E --ignore-patterns="test_.*" idaes || true
-    //        pytest -c pytest.ini idaes -m "not nocircleci"
-    //        conda deactivate
-    //        '''
-    //     }
-    //   }   
+    stage('idaes-dev test') {
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          sh '''
+           cd idaes-dev
+           source activate idaes
+           pylint -E --ignore-patterns="test_.*" idaes || true
+           pytest -c pytest.ini idaes -m "not nocircleci"
+           conda deactivate
+           '''
+        }
+      }   
     // }
   }
   post {
