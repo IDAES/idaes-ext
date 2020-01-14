@@ -43,6 +43,7 @@ pipeline {
          rm -rf coinbrew dist-lib dist-solvers
          bash scripts/compile_solvers.sh
          bash scripts/compile_libs.sh
+         ls dist-lib dist-solvers
          idaes get-extensions
          conda deactivate
          '''
