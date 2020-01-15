@@ -52,15 +52,13 @@ pipeline {
     }
     stage('idaes-dev test') {
       steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-          sh '''
-           cd idaes-dev
-           source activate idaes
-           pylint -E --ignore-patterns="test_.*" idaes || true
-           pytest -c pytest.ini idaes -m "not nocircleci"
-           conda deactivate
-           '''
-        }
+        sh '''
+         cd idaes-dev
+         source activate idaes
+         pylint -E --ignore-patterns="test_.*" idaes || true
+         pytest -c pytest.ini idaes -m "not nocircleci"
+         conda deactivate
+         '''
       }   
     }
   }
