@@ -5,7 +5,7 @@ export IDAES_EXT=`pwd`
 
 # Set a few basic things
 
-export IPOPT_BRANCH="idaes-3.13.0"
+export IPOPT_BRANCH="idaes-3.12.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
 
 mkdir coinbrew
