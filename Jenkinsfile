@@ -28,7 +28,7 @@ pipeline {
          export TEMP_LANG=$LANG
          export LC_ALL=en_US.utf-8
          export LANG=en_US.utf-8
-         python setup.py develop
+         python setup.py install
          export LC_ALL=$TEMP_LC_ALL
          export LANG=$TEMP_LANG
          conda deactivate
@@ -56,7 +56,7 @@ pipeline {
          cd idaes-dev
          source activate idaes
          pylint -E --ignore-patterns="test_.*" idaes || true
-         pytest -c pytest.ini idaes -m "not nocircleci"
+         pytest -c pytest.ini idaes
          conda deactivate
          '''
       }   
