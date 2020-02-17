@@ -15,6 +15,8 @@
 s_real delta_p_tau(s_real p, s_real tau, s_real delta_0, s_real tol=1e-10,
                    int *nit=NULL, s_real *grad=NULL, s_real *hes=NULL);
 
+s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect);
+
 /*------------------------------------------------------------------------------
   Functions for saturation pressure and density as a function to tau (T_c/T).
   These use the method of Akasaka (2008), which is good at least up to 647.093 K
