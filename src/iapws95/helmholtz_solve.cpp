@@ -12,24 +12,22 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- Main IAPWS R6-95(2016) steam calculations. This file contains functions to
- solve for liquid and vapor denstiy from temperature and pressure.  It also
- contains functions for solving for saturation conditions.
-
- For references see iapws95.h
+ This file contains functions to solve for liquid and vapor denstiy from
+ temperature and pressure.  It also contains functions for solving for
+ saturation conditions (pressure, liquid density and vapor density).
 
  Author: John Eslick
- File iapws95_solve.cpp
+ File helmholtz_solve.cpp
 ------------------------------------------------------------------------------*/
 
 #include<stdio.h>
 #include<cmath>
 #include<iostream>
 
-#include"iapws95_memo.h"
-#include"iapws95_config.h"
-#include"iapws95_deriv_parts.h"
-#include "iapws95_solve.h"
+#include"helmholtz_memo.h"
+#include"helmholtz_config.h"
+#include"helmholtz_deriv_parts.h"
+#include"helmholtz_solve.h"
 
 /*------------------------------------------------------------------------------
 In this section you will find function for calculating density from pressure
@@ -109,6 +107,10 @@ inline s_real delta_sat_l_approx(s_real tau){ //approximate saturated vapor dens
            - 45.5170352*pow(XX,43.0/3.0)
            - 6.74694450e5*pow(XX,110.0/3.0);
   return delta_p_tau(p_sat_iapws97(tau), tau, delta);
+}
+
+s_real delta_p_tau_vap_guess(s_real p, s_real tau){
+  return 0.0001; // this guess should work for vapor region
 }
 
 s_real delta_p_tau_liq_guess(s_real p, s_real tau){
@@ -254,7 +256,7 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  delta0 = 0.0001; // this guess should work for vapor region
+  delta0 = delta_p_tau_vap_guess(p, tau);
   delta = delta_p_tau(p, tau, delta0, TOL_DELTA_VAP, nit, grad, hes);
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
     // This is just to avoid evaluation errors.  Want to be able to calucalte

@@ -36,14 +36,14 @@
 #ifndef _INCLUDE_IAPWS95_PARAM_H_
 #define _INCLUDE_IAPWS95_PARAM_H_
 
-#include "iapws95_config.h"
+#include "helmholtz_config.h"
 
-static const s_real R = 0.46151805;  // Gas constant (kJ/kg/K)
+const s_real R = 0.46151805;  // Gas constant (kJ/kg/K)
 
 // Critiacal point for water and R
-static const s_real T_c = 647.096;   // Critical T (K)
-static const s_real rho_c = 322;     // Critical density (kg/m^3)
-static const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
+const s_real T_c = 647.096;   // Critical T (K)
+const s_real rho_c = 322;     // Critical density (kg/m^3)
+const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
 
 // To generalize the equation of state there are parmeters to set the number
 // of terms in each sumation.  So far we are looking at IAPWS95 and Span-Wagner
@@ -59,7 +59,7 @@ const unsigned char S4_set[2] = {55, 56};  // we don't currently use these
 // psat curve parameters from IAPWS-97 (industial formulation)
 // Use this as an initial guess when solving for the saturation curve using the
 // more consitent set of IAPWS-95 (scientific formulation) equations.
-static const s_real n_psat[] = {
+const s_real n_psat[] = {
    0.11670521452767e4, //1
   -0.72421316703206e6, //2
   -0.17073846940092e2, //3
@@ -76,7 +76,7 @@ static const s_real n_psat[] = {
 // Constants from IAPWS95 (R6 2016) from here to end
 //
 
-static const s_real param0[] = {  //ideal gas parameters n0 and gamma0
+const s_real param0[] = {  //ideal gas parameters n0 and gamma0
      0.0,              //pad,    0   (nonexistant n0)
     -8.3204464837497,  //n1,     1
      6.6832105275932,  //n2,     2
@@ -96,7 +96,7 @@ static const s_real param0[] = {  //ideal gas parameters n0 and gamma0
 static const s_real *n0 = param0;
 static const s_real *gamma0 = param0 + 5;
 
-static const s_real param[] = {
+const s_real param[] = {
     0,   //0,    c0
     0,   //1,    c1
     0,   //2,    c2

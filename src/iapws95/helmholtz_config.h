@@ -15,11 +15,11 @@
  This file provides some configuration parameters.
 
  Author: John Eslick
- File: iapws95_config.h
+ File: helmholtz_config.h
 ------------------------------------------------------------------------------*/
 
-#ifndef _INCLUDE_IAPWS95_CONFIG_H_
-#define _INCLUDE_IAPWS95_CONFIG_H_
+#ifndef _INCLUDE_HELMHOLTZ_CONFIG_H_
+#define _INCLUDE_HELMHOLTZ_CONFIG_H_
 
 #include<cmath>
 
@@ -29,6 +29,9 @@
 // that depends on the machine and compiler.
 //#define PRECISION_LONG_DOUBLE
 #define PRECISION_DOUBLE
+//If the percision is other than double, define CAST_DERIVATIVES to have the
+//ASL functions cast the derivatives to double
+//#define CAST_DERIVATIVES
 // Redidual abs tolerance for solving for vapor reduced density from p, tau
 #define TOL_DELTA_VAP 1e-12
 // Residual abs tolerance for solving for liquid reduced density from p, tau
@@ -39,9 +42,9 @@
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-4
+#define TOL_BRACKET 1e-5
 // Bracketing methods iteration limit
-#define MAX_IT_BRACKET 5
+#define MAX_IT_BRACKET 6
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
 #define TOL_REL_SAT_G 1e-11
 // Saturation curve max iterations
@@ -72,6 +75,7 @@
 #endif
 
 inline void zero_derivs2(s_real *grad, s_real *hes){
+  // Set the derivatives to zero
   if(grad!=NULL){
     grad[0] = 0;
     grad[1] = 0;

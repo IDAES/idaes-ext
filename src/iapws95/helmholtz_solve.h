@@ -1,7 +1,7 @@
-#ifndef _INCLUDE_IAPWS95_SOLVE_H_
-#define _INCLUDE_IAPWS95_SOLVE_H_
+#ifndef _INCLUDE_HELMHOLTZ_SOLVE_H_
+#define _INCLUDE_HELMHOLTZ_SOLVE_H_
 
-#include "iapws95_config.h"
+#include "helmholtz_config.h"
 
 
 /*------------------------------------------------------------------------------

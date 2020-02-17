@@ -12,25 +12,21 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- Main IAPWS R6-95(2016) steam calculations. For now, the non-analytic terms are
- not included, because they cause a singularity at the critical point.  It is
- assumed that we will generally not be operating very near the critical point,
- so well behaved calculations are prefered to high accuracy in near the critical
- point.
-
- For references see iapws95.h
+ Main Helmholtz calculations. For now, the non-analytic terms are not included,
+ because they cause a singularity at the critical point.  Well behaved
+ calculations are prefered to extreme accuracy in near the critical point.
 
  Author: John Eslick
- File iapws95_external.cpp
+ File helmholtz_external.cpp
 ------------------------------------------------------------------------------*/
 #include<stdio.h>
 #include<cmath>
 #include<iostream>
 
-#include"iapws95_memo.h"
-#include"iapws95_external.h"
-#include"iapws95_config.h"
-#include"iapws95_deriv_parts.h"
+#include"helmholtz_memo.h"
+#include"helmholtz_external.h"
+#include"helmholtz_config.h"
+#include"helmholtz_deriv_parts.h"
 
 #define TAU_LOW 0.15
 #define TAU_HIGH 4.0

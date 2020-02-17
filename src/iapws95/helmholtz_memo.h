@@ -12,17 +12,17 @@
 ------------------------------------------------------------------------------*/
 
 /*-------------------------------------------------
- Simple memoization for IAPWS95 calcualtions
+ Simple memoization for helmholtz calcualtions
 
  Author: John Eslick
 -------------------------------------------------*/
 
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
-#include"iapws95_config.h"
+#include"helmholtz_config.h"
 
-#ifndef _INCLUDE_IAPWS95_MEMO_H_
-#define _INCLUDE_IAPWS95_MEMO_H_
+#ifndef _INCLUDE_HELMHOLTZ_MEMO_H_
+#define _INCLUDE_HELMHOLTZ_MEMO_H_
 
 namespace memoize{
   static const unsigned int max_memo=MAX_MEMO;

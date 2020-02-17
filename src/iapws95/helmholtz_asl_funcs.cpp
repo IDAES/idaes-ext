@@ -12,18 +12,18 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- This provides the ASL function interface for IAPWS R6-95(2016) property
- functions.
+ This provides the ASL function interface for Helmholtz equations of state.
 
  Author: John Eslick
- File: iapws95_asl_funcs.cpp
+ File: helmholtz_asl_funcs.cpp
 ------------------------------------------------------------------------------*/
 
 #include<stdio.h>
 #include<math.h>
-#include"iapws95_external.h"
-#include"iapws95_phi.h"
-#include"iapws95_asl_funcs.h"
+#include"helmholtz_external.h"
+#include"helmholtz_phi.h"
+#include"helmholtz_asl_funcs.h"
+#include"helmholtz_config.h"
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -65,7 +65,7 @@ void funcadd(AmplExports *ae){
     addfunc("phir_delta_tau", (rfunc)phir_delta_tau_asl, typ, 2, NULL);
 }
 
-void cast_deriv2(s_real *g1, double *g2, s_real *h1, double *h2){
+inline void cast_deriv2(s_real *g1, double *g2, s_real *h1, double *h2){
   if(g2 != NULL){
     g2[0] = (double)g1[0];
     g2[1] = (double)g1[1];
@@ -77,7 +77,7 @@ void cast_deriv2(s_real *g1, double *g2, s_real *h1, double *h2){
   }
 }
 
-void cast_deriv1(s_real *g1, double *g2, s_real *h1, double *h2){
+inline void cast_deriv1(s_real *g1, double *g2, s_real *h1, double *h2){
   if(g2 != NULL) g2[0] = (double)g1[0];
   if(h2 != NULL) h2[0] = (double)h1[0];
 }
@@ -88,7 +88,9 @@ double p_asl(arglist *al){
     return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -99,7 +101,9 @@ double u_asl(arglist *al){
     return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -110,7 +114,9 @@ double s_asl(arglist *al){
     return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -121,7 +127,9 @@ double h_asl(arglist *al){
     return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -132,7 +140,9 @@ double g_asl(arglist *al){
     return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -143,7 +153,9 @@ double f_asl(arglist *al){
     return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -154,7 +166,9 @@ double cv_asl(arglist *al){
     return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -165,7 +179,9 @@ double cp_asl(arglist *al){
     return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -176,7 +192,9 @@ double w_asl(arglist *al){
     return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -187,7 +205,9 @@ double hvpt_asl(arglist *al){
     return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -198,7 +218,9 @@ double hlpt_asl(arglist *al){
     return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -209,7 +231,9 @@ double tau_asl(arglist *al){
     return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -220,7 +244,9 @@ double vf_asl(arglist *al){
     return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -231,7 +257,9 @@ double delta_sat_l_asl(arglist *al){
     return sat_delta_liq_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
     f = sat_delta_liq_with_derivs(al->ra[al->at[0]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv1(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -242,7 +270,9 @@ double delta_sat_v_asl(arglist *al){
     return sat_delta_vap_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
     f = sat_delta_vap_with_derivs(al->ra[al->at[0]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv1(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -253,7 +283,9 @@ double p_sat_asl(arglist *al){
     return sat_p_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
     f = sat_p_with_derivs(al->ra[al->at[0]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv1(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -264,7 +296,9 @@ double tau_sat_asl(arglist *al){
     return sat_tau_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
     f = sat_tau_with_derivs(al->ra[al->at[0]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv1(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -275,7 +309,9 @@ double delta_liq_asl(arglist *al){
     return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }
@@ -286,7 +322,9 @@ double delta_vap_asl(arglist *al){
     return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     f = delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+    #ifdef CAST_DERIVATIVES
     cast_deriv2(grad, al->derivs, hes, al->hes);
+    #endif
     return f;
   }
 }

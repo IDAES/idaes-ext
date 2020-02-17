@@ -24,12 +24,12 @@
  File iapws95_external.h
 ------------------------------------------------------------------------------*/
 
-#include "iapws95_config.h"
-#include "iapws95_phi.h"
-#include "iapws95_solve.h"
+#include "helmholtz_config.h"
+#include "helmholtz_phi.h"
+#include "helmholtz_solve.h"
 
-#ifndef _INCLUDE_IAPWS95_H_
-#define _INCLUDE_IAPWS95_H_
+#ifndef _INCLUDE_HELMHOLTZ_EXTERNAL_H_
+#define _INCLUDE_HELMHOLTZ_EXTERNAL_H_
 
 /*------------------------------------------------------------------------------
   Basic thermodynamic quantities as functions of delta (rho/rho_c) and

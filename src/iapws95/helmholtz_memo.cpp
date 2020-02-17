@@ -12,12 +12,12 @@
 ------------------------------------------------------------------------------*/
 
 /*-------------------------------------------------
- Simple memoization for IAPWS95 calcualtions
+ Simple memoization for Helmholtz calcualtions
 
  Author: John Eslick
 -------------------------------------------------*/
 
-#include"iapws95_memo.h"
+#include"helmholtz_memo.h"
 
 using namespace memoize;
 
