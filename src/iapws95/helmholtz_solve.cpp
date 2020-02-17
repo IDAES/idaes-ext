@@ -76,6 +76,18 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
 
 inline s_real p_sat_iapws97(s_real tau){ //saturation pressure from tau IAPWS-97 eq.
   //the IAPWS-97 isn't as consitent as IAPWS-95, but this provides a good guess
+  static const s_real n_psat[] = {
+     0.11670521452767e4, //1
+    -0.72421316703206e6, //2
+    -0.17073846940092e2, //3
+     0.12020824702470e5, //4
+    -0.32325550322333e7, //5
+     0.14915108613530e2, //6
+    -0.48232657361591e4, //7
+     0.40511340542057e6, //8
+    -0.23855557567849,   //9
+     0.65017534844798e3  //10
+  };
   s_real T = T_c/tau;
   s_real tt = T + n_psat[8]/(T - n_psat[9]);
   s_real A = tt*tt + n_psat[0]*tt + n_psat[1];
@@ -321,7 +333,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     else{
       // okay so you've decided to solve this thing
       delta_l = DELTA_LIQ_SAT_GUESS;
-      delta_v = DELTA_VAP_SAT_GUESS; 
+      delta_v = DELTA_VAP_SAT_GUESS;
     }
     // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
     // the relative differnce in g as a convergence criteria, that is easy to

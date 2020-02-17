@@ -61,47 +61,25 @@ const unsigned char S2_set[2] = {8, 51};
 const unsigned char S3_set[2] = {52, 54};
 const unsigned char S4_set[2] = {55, 56};  // we don't currently use these
 
-// psat curve parameters from IAPWS-97 (industial formulation)
-// Use this as an initial guess when solving for the saturation curve using the
-// more consitent set of IAPWS-95 (scientific formulation) equations.
-const s_real n_psat[] = {
-   0.11670521452767e4, //1
-  -0.72421316703206e6, //2
-  -0.17073846940092e2, //3
-   0.12020824702470e5, //4
-  -0.32325550322333e7, //5
-   0.14915108613530e2, //6
-  -0.48232657361591e4, //7
-   0.40511340542057e6, //8
-  -0.23855557567849,   //9
-   0.65017534844798e3  //10
-};
-
 //
 // Constants from IAPWS95 (R6 2016) from here to end
 //
 
-const s_real param0[] = {  //ideal gas parameters n0 and gamma0
-     0.0,              //pad,    0   (nonexistant n0)
-    -8.3204464837497,  //n1,     1
-     6.6832105275932,  //n2,     2
-     3.00632,          //n3,     3
-     0.012436,         //n4,     4
-     0.97315,          //n5,     5  (nonexistant gamma0)
-     1.27950,          //n6,     6  (nonexistant gamma1)
-     0.96956,          //n7,     7  (nonexistant gamma2)
-     0.24873,          //n8,     8  (nonexistant gamma3)
-     1.28728967,       //gamma4, 9
-     3.53734222,       //gamma5, 10
-     7.74073708,       //gamma6, 11
-     9.24437796,       //gamma7, 12
-     27.5075105        //gamma8, 13
-};
-
-static const s_real *n0 = param0;
-static const s_real *gamma0 = param0 + 5;
-
 const s_real param[] = {
+  0.0,              //pad,    0   (nonexistant n0)
+ -8.3204464837497,  //n1,     1
+  6.6832105275932,  //n2,     2
+  3.00632,          //n3,     3
+  0.012436,         //n4,     4
+  0.97315,          //n5,     5  (nonexistant gamma0)
+  1.27950,          //n6,     6  (nonexistant gamma1)
+  0.96956,          //n7,     7  (nonexistant gamma2)
+  0.24873,          //n8,     8  (nonexistant gamma3)
+  1.28728967,       //gamma4, 9
+  3.53734222,       //gamma5, 10
+  7.74073708,       //gamma6, 11
+  9.24437796,       //gamma7, 12
+  27.5075105,       //gamma8, 13
     0,   //0,    c0
     0,   //1,    c1
     0,   //2,    c2
@@ -334,14 +312,16 @@ const s_real param[] = {
      0.3,                  //229,  beta56
 };
 
-static const s_real *c = param + 0;
-static const s_real *d = param + 51;
-static const s_real *t = param + 105;
-static const s_real *n = param + 159;
-static const s_real *alpha = param + 216 - 52;
-static const s_real *theta = param + 219 - 52;
-static const s_real *eps = param + 222 - 52;
-static const s_real *beta = param + 225 -52;
+static const s_real *n0 = param;
+static const s_real *gamma0 = param + 5;
+static const s_real *c = param + 14;
+static const s_real *d = param + 51 + 14;
+static const s_real *t = param + 105 + 14;
+static const s_real *n = param + 159 + 14;
+static const s_real *alpha = param + 216 - 52 + 14;
+static const s_real *theta = param + 219 - 52 + 14;
+static const s_real *eps = param + 222 - 52 + 14;
+static const s_real *beta = param + 225 - 52 + 14;
 
 // Functions to convert to dimensionless state variables from T and Rho.
 // temperature and density
