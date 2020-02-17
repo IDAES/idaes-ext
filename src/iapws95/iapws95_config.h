@@ -30,18 +30,18 @@
 //#define PRECISION_LONG_DOUBLE
 #define PRECISION_DOUBLE
 // Redidual abs tolerance for solving for vapor reduced density from p, tau
-#define TOL_DELTA_VAP 1e-11
+#define TOL_DELTA_VAP 1e-12
 // Residual abs tolerance for solving for liquid reduced density from p, tau
-#define TOL_DELTA_LIQ 1e-11
+#define TOL_DELTA_LIQ 1e-12
 // Max iterations for solving for delta (reduced density) from p, tau
-#define MAX_IT_DELTA 20
+#define MAX_IT_DELTA 25
 // Use bracketing methods in particularly difficult areas when solving for
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-9
+#define TOL_BRACKET 1e-4
 // Bracketing methods iteration limit
-#define MAX_IT_BRACKET 30
+#define MAX_IT_BRACKET 5
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
 #define TOL_REL_SAT_G 1e-11
 // Saturation curve max iterations
@@ -70,6 +70,18 @@
   #define s_sqrt sqrtl
   #define s_fabs fabsl
 #endif
+
+inline void zero_derivs2(s_real *grad, s_real *hes){
+  if(grad!=NULL){
+    grad[0] = 0;
+    grad[1] = 0;
+    if(hes!=NULL){
+      hes[0] = 0;
+      hes[1] = 0;
+      hes[2] = 0;
+    }
+  }
+}
 
 
 #endif

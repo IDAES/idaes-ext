@@ -6,12 +6,15 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC -I$(BOOST)
 endif
 
-OBJECTS = iapws95_external.o iapws95_phi.o iapws95_asl_funcs.o iapws95_memo.o
+OBJECTS = iapws95_external.o iapws95_solve.o iapws95_phi.o iapws95_asl_funcs.o iapws95_memo.o
 
 ALL: iapws95_external.so
 
 iapws95_external.o: iapws95_external.cpp
 		$(CXX) $(CXXFLAGS) iapws95_external.cpp -o iapws95_external.o
+
+iapws95_solve.o: iapws95_solve.cpp
+		$(CXX) $(CXXFLAGS) iapws95_solve.cpp -o iapws95_solve.o
 
 iapws95_phi.o: iapws95_phi.cpp
 	  $(CXX) $(CXXFLAGS) iapws95_phi.cpp -o iapws95_phi.o

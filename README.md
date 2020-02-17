@@ -40,4 +40,24 @@ To build the IDAES binaries.
 
 ## Build Environments
 
+### Windows
+
+Install MSYS2 from https://www.msys2.org/.
+
+Launch the MinGW64 terminal.
+
+Update MSYS2
+
+``pacman -Syu``
+
+Install the MinGW build tools and development libraries.
+
+``pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost unzip patch make mingw-w64-x86_64-lapack``
+
+### LINUX
+
+**TODO**
+
+### OSX
+
 **TODO**
