@@ -84,7 +84,7 @@ inline s_real p_sat_iapws97(s_real tau){ //saturation pressure from tau IAPWS-97
   return 1000*pow(2*C/(-B + pow(B*B - 4*A*C, 0.5)), 4);
 }
 
-inline s_real delta_sat_v_approx(s_real tau){ //approximate saturated vapor density
+inline s_real delta_sat_v_approx_iapws95(s_real tau){ //approximate saturated vapor density
   // This equation is from the original IAPWS-95 paper
   s_real XX = 1 - 1.0/tau;
   s_real delta = exp(-2.03150240*pow(XX,2.0/6.0)
@@ -96,7 +96,7 @@ inline s_real delta_sat_v_approx(s_real tau){ //approximate saturated vapor dens
   return delta_p_tau(p_sat_iapws97(tau), tau, delta);
 }
 
-inline s_real delta_sat_l_approx(s_real tau){ //approximate saturated vapor density
+inline s_real delta_sat_l_approx_iapws95(s_real tau){ //approximate saturated vapor density
   // This equation is from the original IAPWS-95 paper.
   s_real XX = 1 - 1.0/tau;
   s_real delta = 1.001
@@ -109,11 +109,7 @@ inline s_real delta_sat_l_approx(s_real tau){ //approximate saturated vapor dens
   return delta_p_tau(p_sat_iapws97(tau), tau, delta);
 }
 
-s_real delta_p_tau_vap_guess(s_real p, s_real tau){
-  return 0.0001; // this guess should work for vapor region
-}
-
-s_real delta_p_tau_liq_guess(s_real p, s_real tau){
+s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
   s_real delta0, a=265, b=435;
   bool use_rf = 0;
   if(tau <= 1.0 || p >= P_c){
@@ -211,7 +207,7 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
   s_real delta, delta0, tol=TOL_DELTA_LIQ;
-  delta0 = delta_p_tau_liq_guess(p, tau);
+  delta0 = LIQUID_DELTA_GUESS;
   delta = delta_p_tau(p, tau, delta0, tol, nit, grad, hes); //solve
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
     // This is just to avoid evaluation errors.  Want to be able to calucalte
@@ -256,7 +252,7 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  delta0 = delta_p_tau_vap_guess(p, tau);
+  delta0 = VAPOR_DELTA_GUESS;
   delta = delta_p_tau(p, tau, delta0, TOL_DELTA_VAP, nit, grad, hes);
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
     // This is just to avoid evaluation errors.  Want to be able to calucalte
@@ -324,8 +320,8 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     }
     else{
       // okay so you've decided to solve this thing
-      delta_l = delta_sat_l_approx(tau); // guess based on IAPWS-97
-      delta_v = delta_sat_v_approx(tau); // guess based on IAPWS-97
+      delta_l = DELTA_LIQ_SAT_GUESS;
+      delta_v = DELTA_VAP_SAT_GUESS; 
     }
     // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
     // the relative differnce in g as a convergence criteria, that is easy to

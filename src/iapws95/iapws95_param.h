@@ -38,6 +38,11 @@
 
 #include "helmholtz_config.h"
 
+#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_iapws95(p, tau)
+#define VAPOR_DELTA_GUESS 0.0001
+#define DELTA_LIQ_SAT_GUESS delta_sat_l_approx_iapws95(tau)
+#define DELTA_VAP_SAT_GUESS delta_sat_v_approx_iapws95(tau)
+
 const s_real R = 0.46151805;  // Gas constant (kJ/kg/K)
 
 // Critiacal point for water and R
