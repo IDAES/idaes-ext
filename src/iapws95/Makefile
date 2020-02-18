@@ -1,3 +1,4 @@
+SOLIB = iapws95_external.so
 include ../Makefile.in
 
 ifeq ($(BOOST),)
@@ -8,7 +9,7 @@ endif
 
 OBJECTS = helmholtz_external.o helmholtz_solve.o helmholtz_phi.o helmholtz_asl_funcs.o helmholtz_memo.o
 
-ALL: iapws95_external.so
+ALL: helmholtz_external.so
 
 helmholtz_external.o: helmholtz_external.cpp
 		$(CXX) $(CXXFLAGS) helmholtz_external.cpp -o helmholtz_external.o
@@ -25,8 +26,8 @@ helmholtz_memo.o: helmholtz_memo.cpp
 helmholtz_asl_funcs.o: helmholtz_asl_funcs.cpp
 	  $(CXX) $(CXXFLAGS) helmholtz_asl_funcs.cpp -o helmholtz_asl_funcs.o
 
-iapws95_external.so: $(OBJECTS)
-	  $(LINK) $(LDFLAGS) $(OBJECTS) -o iapws95_external.so
+helmholtz_external.so: $(OBJECTS)
+	  $(LINK) $(LDFLAGS) $(OBJECTS) -o $(SOLIB)
 
 clean:
 	rm -f *.o

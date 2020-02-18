@@ -20,7 +20,7 @@
 ------------------------------------------------------------------------------*/
 
 #include "helmholtz_external.h"
-#include "iapws95_param.h"
+#include "helmholtz_param.h"
 
 #ifndef _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
 #define _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
