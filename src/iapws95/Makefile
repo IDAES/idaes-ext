@@ -1,4 +1,4 @@
-SOLIB = iapws95_external.so
+SOLIB = swco2_external.so
 include ../Makefile.in
 
 ifeq ($(BOOST),)
