@@ -89,7 +89,7 @@ s_real delta_p_tau_supercritical_guess_swco2(s_real p, s_real tau){
   else if(p < -202040.1487 + 782.056835*T - 0.144729326*T*T){ //rho < 900
     return delta_p_tau_rf(p, tau, 795, 905, 0);
   }
-  return 1100/rho_c;
+  return 1180/rho_c;
 }
 
 s_real delta_p_tau_vap_guess_swco2(s_real p, s_real tau){
@@ -102,13 +102,6 @@ s_real delta_p_tau_vap_guess_swco2(s_real p, s_real tau){
 
   if (p >= P_c && tau <= 1){
     return delta_p_tau_supercritical_guess_swco2(p, tau);
-  }
-  else if(p > 5068.8 && p <= P_c && T > 288.0 && tau > 1.0){
-    //This area is at the top end of the saturation curve near the critical
-    //point. Know the vapor density is <= critical density, and know the lowest
-    //possible density in this box, so use bracketing method to get a very close
-    //guess.
-    return delta_p_tau_rf(p, tau, 150, rho_c, 0);
   }
   // for the rest just use a guess between isochors
   else if(p < 1.38648E-09 + 1.88923E-06*T + 1.14747E-14*T*T){ //rho < 1e-5
@@ -157,13 +150,6 @@ s_real delta_p_tau_liq_guess_swco2(s_real p, s_real tau){
   if (p >= P_c && tau <= 1){
     return delta_p_tau_supercritical_guess_swco2(p, tau);
   }
-  else if(p > 5068.8 && p <= P_c && T > 288.0 && tau > 1.0){
-    //This area is at the top end of the saturation curve near the critical
-    //point. Know the vapor density is <= critical density, and know the lowest
-    //possible density in this box, so use bracketing method to get a very close
-    //guess.
-    return delta_p_tau_rf(p, tau, rho_c, 850, 0);
-  }
   // for the rest just use a guess between isochors
   else if(p < -54964.94489 + 209.5598894*T - 0.017302282*T*T){ //rho < 500
     return delta_p_tau_rf(p, tau, rho_c, 505, 0);
@@ -186,5 +172,5 @@ s_real delta_p_tau_liq_guess_swco2(s_real p, s_real tau){
   else if(p < -312602.0898 + 1436.311945*T - 0.38689172*T*T){ //rho < 1100
     return delta_p_tau_rf(p, tau, 995, 1105, 0);
   }
-  return 1170/rho_c;
+  return 1180/rho_c;
 }
