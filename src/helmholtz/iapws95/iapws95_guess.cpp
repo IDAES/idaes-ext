@@ -32,7 +32,7 @@ s_real delta_sat_v_approx_iapws95(s_real tau){ //approximate saturated vapor den
             - 17.2991605*pow(XX,18.0/6.0)
             - 44.7586581*pow(XX,37.0/6.0)
             - 63.9201063*pow(XX,71.0/6.0));
-  return delta_p_tau(p_sat_iapws97(tau), tau, delta);
+  return delta;
 }
 
 s_real delta_sat_l_approx_iapws95(s_real tau){ //approximate saturated vapor density
@@ -45,7 +45,7 @@ s_real delta_sat_l_approx_iapws95(s_real tau){ //approximate saturated vapor den
            - 1.75493479*pow(XX,16.0/3.0)
            - 45.5170352*pow(XX,43.0/3.0)
            - 6.74694450e5*pow(XX,110.0/3.0);
-  return delta_p_tau(p_sat_iapws97(tau), tau, delta);
+  return delta;
 }
 
 s_real delta_p_tau_supercritical_guess_iapws95(s_real p, s_real tau){

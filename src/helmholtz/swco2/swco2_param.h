@@ -35,8 +35,8 @@
 
 #define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_swco2(p, tau)
 #define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_swco2(p, tau)
-#define DELTA_LIQ_SAT_GUESS delta_sat_l_approx_iapws95(tau)
-#define DELTA_VAP_SAT_GUESS delta_sat_v_approx_iapws95(tau)
+#define DELTA_LIQ_SAT_GUESS delta_sat_l_approx(tau)
+#define DELTA_VAP_SAT_GUESS delta_sat_v_approx(tau)
 
 const s_real R = 0.1889241;  // Specific gas constant (kJ/kg/K)
 

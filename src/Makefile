@@ -50,4 +50,4 @@ install:
 dist_clean:
 	$(RM) -rf dist
 
-clean: iapws95_clean cubic_clean functions_clean dist_clean dist_clean
+clean: iapws95_clean swco2_clean cubic_clean functions_clean dist_clean dist_clean

@@ -1,6 +1,38 @@
 #include"helmholtz_solve.h"
 #include"swco2_param.h"
 
+s_real p_sat_approx(s_real tau){
+  s_real tt = 1 - 1/tau;
+  return P_c*exp(tau*(
+      -7.0602087*tt +
+      1.9391218*pow(tt, 1.5) -
+      1.6463597*pow(tt, 2.0) -
+      3.2995634*pow(tt, 4.0)
+    )
+  );
+}
+
+s_real delta_sat_v_approx(s_real tau){
+  s_real tt = 1 - 1/tau;
+  return exp(
+    -1.7074879*pow(tt, 0.340) -
+    0.82274670*pow(tt, 0.5) -
+    4.6008549*pow(tt, 1.0) -
+    10.111178*pow(tt, 7.0/3.0) -
+    29.742252*pow(tt, 14.0/3.0)
+  );
+}
+
+s_real delta_sat_l_approx(s_real tau){
+  s_real tt = 1 - 1/tau;
+  return exp(
+    1.9245108*pow(tt, 0.34) -
+    0.62385555*pow(tt, 0.5) -
+    0.32731127*pow(tt, 10.0/6.0) +
+    0.39245142*pow(tt, 11.0/6.0)
+  );
+}
+
 s_real delta_p_tau_supercritical_guess_swco2(s_real p, s_real tau){
 
   /* This uses approximate isochors to get a reasonable initial guess for the
