@@ -5,18 +5,18 @@ include Makefile.in
 
 ALL: iapws95 swco2 cubic functions dist
 
-.PHONY: iapws95
+.PHONY: iapws95 iapws95_clean
 iapws95:
 	$(MAKE) -C ./helmholtz/iapws95
 
 iapws95_clean:
 	$(MAKE) -C ./helmholtz/iapws95 clean
 
-.PHONY: iapws95
-iapws95:
+.PHONY: swco2 swco2_clean
+swco2:
 	$(MAKE) -C ./helmholtz/swco2
 
-iapws95_clean:
+swco2_clean:
 	$(MAKE) -C ./helmholtz/swco2 clean
 
 .PHONY: cubic

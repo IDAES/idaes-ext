@@ -16,7 +16,7 @@ ALL: get_common helmholtz_external.so
 .PHONY: get_common clean
 
 get_common:
-	cp ../helmholtz* ./
+	cp ../common/helmholtz* ./
 	echo '#include"iapws95_param.h"' > helmholtz_param.h
 
 swco2_guess.o: swco2_guess.cpp
