@@ -1,6 +1,6 @@
 SOLIB = swco2_external.so
 GUESS = swco2_guess.o
-include ../Makefile.in
+include ../../Makefile.in
 
 ifeq ($(BOOST),)
     CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC
@@ -11,7 +11,13 @@ endif
 OBJECTS = helmholtz_external.o helmholtz_solve.o helmholtz_phi.o \
           helmholtz_asl_funcs.o helmholtz_memo.o $(GUESS)
 
-ALL: helmholtz_external.so
+ALL: get_common helmholtz_external.so
+
+.PHONY: get_common clean
+
+get_common:
+	cp ../helmholtz* ./
+	echo '#include"swco2_param.h"' > helmholtz_param.h
 
 swco2_guess.o: swco2_guess.cpp
 	  $(CXX) $(CXXFLAGS) swco2_guess.cpp -o swco2_guess.o
