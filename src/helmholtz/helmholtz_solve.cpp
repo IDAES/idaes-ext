@@ -74,87 +74,6 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
   return (a+b)/2.0;
 }
 
-inline s_real p_sat_iapws97(s_real tau){ //saturation pressure from tau IAPWS-97 eq.
-  //the IAPWS-97 isn't as consitent as IAPWS-95, but this provides a good guess
-  static const s_real n_psat[] = {
-     0.11670521452767e4, //1
-    -0.72421316703206e6, //2
-    -0.17073846940092e2, //3
-     0.12020824702470e5, //4
-    -0.32325550322333e7, //5
-     0.14915108613530e2, //6
-    -0.48232657361591e4, //7
-     0.40511340542057e6, //8
-    -0.23855557567849,   //9
-     0.65017534844798e3  //10
-  };
-  s_real T = T_c/tau;
-  s_real tt = T + n_psat[8]/(T - n_psat[9]);
-  s_real A = tt*tt + n_psat[0]*tt + n_psat[1];
-  s_real B = n_psat[2]*tt*tt + n_psat[3]*tt + n_psat[4];
-  s_real C = n_psat[5]*tt*tt + n_psat[6]*tt + n_psat[7];
-  return 1000*pow(2*C/(-B + pow(B*B - 4*A*C, 0.5)), 4);
-}
-
-inline s_real delta_sat_v_approx_iapws95(s_real tau){ //approximate saturated vapor density
-  // This equation is from the original IAPWS-95 paper
-  s_real XX = 1 - 1.0/tau;
-  s_real delta = exp(-2.03150240*pow(XX,2.0/6.0)
-            - 2.68302940*pow(XX,4.0/6.0)
-            - 5.38626492*pow(XX,8.0/6.0)
-            - 17.2991605*pow(XX,18.0/6.0)
-            - 44.7586581*pow(XX,37.0/6.0)
-            - 63.9201063*pow(XX,71.0/6.0));
-  return delta_p_tau(p_sat_iapws97(tau), tau, delta);
-}
-
-inline s_real delta_sat_l_approx_iapws95(s_real tau){ //approximate saturated vapor density
-  // This equation is from the original IAPWS-95 paper.
-  s_real XX = 1 - 1.0/tau;
-  s_real delta = 1.001
-           + 1.99274064*pow(XX,1.0/3.0)
-           + 1.09965342*pow(XX,2.0/3.0)
-           - 0.510839303*pow(XX,5.0/3.0)
-           - 1.75493479*pow(XX,16.0/3.0)
-           - 45.5170352*pow(XX,43.0/3.0)
-           - 6.74694450e5*pow(XX,110.0/3.0);
-  return delta_p_tau(p_sat_iapws97(tau), tau, delta);
-}
-
-s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
-  s_real delta0, a=265, b=435;
-  bool use_rf = 0;
-  if(tau <= 1.0 || p >= P_c){
-    //over critical T or P
-    s_real T = T_c/tau;
-    if(p >= 201.130822*T - 108125.908560 && p <= 513.615856*T - 308340.302065){
-       //Supercritical and above 230 kg/m3 below and 500 kg/m3
-      use_rf = 1; a = 210; b = 515;
-    }
-    else if(p >= -0.030275366391367*T*T + 800.362108600627*T - 468414.629148942){//rho >= 600
-      delta0 = 1100.0/rho_c;}
-    else if(p >= 0.456576012809866*T*T - 224.822653977863*T - 23457.7703540548){ //rho >= 425
-      delta0 = 500/rho_c;}
-    else if(p <= -2.26154966031622E-06*T*T + 0.467571780470989*T - 4.3044421839477){//rho <= 1
-      delta0 = 0.5/rho_c;}
-    else if(p <= -0.001481257848455*T*T + 15.4473970626314*T - 2739.92167514421){//rho <= 25
-      delta0 = 10.0/rho_c;}
-    else {
-      a = 10;
-      b = 450;
-      use_rf = 1;
-    }
-  }
-  else if(p > 21.5 && tau < T_c/645){
-    use_rf = 1;
-    a = 322;
-    b = 480;
-  }
-  else delta0=1100/rho_c;
-  if(use_rf) delta0 = delta_p_tau_rf(p, tau, a, b, 0); //bracket for better i.g.
-  return delta0;
-}
-
 s_real delta_p_tau(s_real pr, s_real tau, s_real delta_0, s_real tol, int *nit,
   s_real *grad, s_real *hes){
   /*----------------------------------------------------------------------------
@@ -259,7 +178,7 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   s_real delta, delta0 = 0.01;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // If supercritical use the liquid calculation, which includes sc region
-  if(tau <= 1.0 || p >= P_c) return delta_liq(p, tau, grad, hes);
+  //if(tau <= 1.0 || p >= P_c) return delta_liq(p, tau, grad, hes);
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
