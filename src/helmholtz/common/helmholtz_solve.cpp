@@ -178,7 +178,7 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   s_real delta, delta0 = 0.01;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // If supercritical use the liquid calculation, which includes sc region
-  //if(tau <= 1.0 || p >= P_c) return delta_liq(p, tau, grad, hes);
+  if(tau <= 1.0 || p >= P_c) return delta_liq(p, tau, grad, hes);
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
@@ -285,7 +285,6 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
               + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
               + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
-
     memoize::add_un(memoize::DL_SAT_FUNC, tau, delta_l, gradl, hesl);
     memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
     return n;

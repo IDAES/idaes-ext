@@ -83,249 +83,287 @@ inline void cast_deriv1(s_real *g1, double *g2, s_real *h1, double *h2){
 }
 
 double p_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double u_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      return f;
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+    #else
+      return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double s_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double h_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double g_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double f_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double cv_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double cp_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double w_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double hvpt_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double hlpt_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      f = hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      return f;
+    #else
+      return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double tau_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double vf_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double delta_sat_l_asl(arglist *al){
-  s_real f, grad[1], hes[1];
   if(al->derivs==NULL && al->hes==NULL){
     return sat_delta_liq_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
-    f = sat_delta_liq_with_derivs(al->ra[al->at[0]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv1(grad, al->derivs, hes, al->hes);
+      s_real f, grad[1], hes[1];
+      f = sat_delta_liq_with_derivs(al->ra[al->at[0]], grad, hes);
+      cast_deriv1(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return sat_delta_liq_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double delta_sat_v_asl(arglist *al){
-  s_real f, grad[1], hes[1];
   if(al->derivs==NULL && al->hes==NULL){
     return sat_delta_vap_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
-    f = sat_delta_vap_with_derivs(al->ra[al->at[0]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv1(grad, al->derivs, hes, al->hes);
+      s_real f, grad[1], hes[1];
+      f = sat_delta_vap_with_derivs(al->ra[al->at[0]], grad, hes);
+      cast_deriv1(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return sat_delta_vap_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double p_sat_asl(arglist *al){
-  s_real f, grad[1], hes[1];
   if(al->derivs==NULL && al->hes==NULL){
     return sat_p_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
-    f = sat_p_with_derivs(al->ra[al->at[0]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv1(grad, al->derivs, hes, al->hes);
+      s_real f, grad[1], hes[1];
+      f = sat_p_with_derivs(al->ra[al->at[0]], grad, hes);
+      cast_deriv1(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return sat_p_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double tau_sat_asl(arglist *al){
-  s_real f, grad[1], hes[1];
   if(al->derivs==NULL && al->hes==NULL){
     return sat_tau_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
-    f = sat_tau_with_derivs(al->ra[al->at[0]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv1(grad, al->derivs, hes, al->hes);
+      s_real f, grad[1], hes[1];
+      f = sat_tau_with_derivs(al->ra[al->at[0]], grad, hes);
+      cast_deriv1(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return sat_tau_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double delta_liq_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 
 double delta_vap_asl(arglist *al){
-  s_real f, grad[2], hes[3];
   if(al->derivs==NULL && al->hes==NULL){
     return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
-    f = delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
     #ifdef CAST_DERIVATIVES
-    cast_deriv2(grad, al->derivs, hes, al->hes);
+      s_real f, grad[2], hes[3];
+      f = delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
-    return f;
   }
 }
 

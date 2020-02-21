@@ -29,22 +29,19 @@
 // that depends on the machine and compiler.
 //#define PRECISION_LONG_DOUBLE
 #define PRECISION_DOUBLE
-//If the percision is other than double, define CAST_DERIVATIVES to have the
-//ASL functions cast the derivatives to double
-//#define CAST_DERIVATIVES
 // Redidual abs tolerance for solving for vapor reduced density from p, tau
-#define TOL_DELTA_VAP 1e-12
+#define TOL_DELTA_VAP 1e-11
 // Residual abs tolerance for solving for liquid reduced density from p, tau
-#define TOL_DELTA_LIQ 1e-12
+#define TOL_DELTA_LIQ 1e-11
 // Max iterations for solving for delta (reduced density) from p, tau
-#define MAX_IT_DELTA 25
+#define MAX_IT_DELTA 20
 // Use bracketing methods in particularly difficult areas when solving for
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-7
+#define TOL_BRACKET 1e-9
 // Bracketing methods iteration limit
-#define MAX_IT_BRACKET 8
+#define MAX_IT_BRACKET 30
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
 #define TOL_REL_SAT_G 1e-11
 // Saturation curve max iterations
