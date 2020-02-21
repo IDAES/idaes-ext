@@ -132,14 +132,13 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::delta_liq, p, tau, grad, hes);
   if(!std::isnan(val)) return val;
+  s_real delta;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  s_real delta, delta0, tol=TOL_DELTA_LIQ;
-  delta0 = LIQUID_DELTA_GUESS;
-  delta = delta_p_tau(p, tau, delta0, tol, nit, grad, hes); //solve
+  delta = delta_p_tau(p, tau, LIQUID_DELTA_GUESS, TOL_DELTA_LIQ, nit, grad, hes); //solve
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
     // This is just to avoid evaluation errors.  Want to be able to calucalte
     // vapor properties even when vapor doesn't exist.  In the IDAES Framework
@@ -175,16 +174,13 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DV_FUNC, p, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
-  s_real delta, delta0 = 0.01;
+  s_real delta;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
-  // If supercritical use the liquid calculation, which includes sc region
-  if(tau <= 1.0 || p >= P_c) return delta_liq(p, tau, grad, hes);
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  delta0 = VAPOR_DELTA_GUESS;
-  delta = delta_p_tau(p, tau, delta0, TOL_DELTA_VAP, nit, grad, hes);
+  delta = delta_p_tau(p, tau, VAPOR_DELTA_GUESS, TOL_DELTA_VAP, nit, grad, hes);
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
     // This is just to avoid evaluation errors.  Want to be able to calucalte
     // vapor properties even when vapor doesn't exist.  In the IDAES Framework
