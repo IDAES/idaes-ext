@@ -53,8 +53,8 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
   Returns:
     delta: reduced density at pr and tau (more or less approximate)
   ----------------------------------------------------------------------------*/
-  s_real c=a, fa, fb, fc;
-  int it = 0;
+  s_real c=a, fa, fb, fc, ftest;
+  int it = 0, i=0;
   // If right by critical point guess critical density. (okay this isn't part
   // of a backeting method but it was conveneint).
   if( fabs(T_c/tau - T_c) < 1e-7 && fabs(pr - P_c) < 1e-4) return 1;
@@ -63,7 +63,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
   b /= rho_c; // convert to reduced density
   fa = p(a, tau) - pr; // initial f(a, tau)
   fb = p(b, tau) - pr; // initial f(b, tau)
-  while(it < MAX_IT_BRACKET && (a - b)*(a - b) > TOL_BRACKET){
+  while(it < MAX_IT_BRACKET && (b - a) > TOL_BRACKET){
     if(bisect) c = (a + b)/2.0; // bisection
     else c = b - fb*(b - a)/(fb - fa); //regula falsi
     fc = p(c, tau) - pr; // calcualte f(c)

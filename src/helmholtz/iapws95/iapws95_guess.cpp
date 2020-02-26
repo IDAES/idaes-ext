@@ -1,6 +1,10 @@
 #include"helmholtz_solve.h"
 #include"iapws95_param.h"
 
+#include<stdio.h>
+#include<cmath>
+#include<iostream>
+
 s_real p_sat_iapws97(s_real tau){ //saturation pressure from tau IAPWS-97 eq.
   //the IAPWS-97 isn't as consitent as IAPWS-95, but this provides a good guess
   static const s_real n_psat[] = {
@@ -169,26 +173,8 @@ s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
     return delta_p_tau_supercritical_guess_iapws95(p, tau);
   }
   // for the rest just use a guess between isochors
-  else if(p < -245383.5357 + 428.1316342*T - 0.027047284*T*T){ //rho < 400
-    return delta_p_tau_rf(p, tau, 295, 405, 0);
+  else if(T > 645.0 && p > 21500.0){
+    return delta_p_tau_rf(p, tau, 322.0, 450.0, 1);
   }
-  else if(p < -350195.9623 + 593.7310153*T - 0.02847895*T*T){ //rho < 500
-    return delta_p_tau_rf(p, tau, 395, 505, 0);
-  }
-  else if(p < -490776.283 + 849.812898*T - 0.056037941*T*T){ //rho < 600
-    return delta_p_tau_rf(p, tau, 495, 605, 0);
-  }
-  else if(p < -652011.1617 + 1201.907668*T - 0.113244604*T*T){ //rho < 700
-    return delta_p_tau_rf(p, tau, 595, 705, 0);
-  }
-  else if(p < -801476.7975 + 1633.589044*T - 0.19012386*T*T){ //rho < 800
-    return delta_p_tau_rf(p, tau, 695, 805, 0);
-  }
-  else if(p < -850674.915 + 2003.358868*T - 0.196401469*T*T){ //rho < 900
-    return delta_p_tau_rf(p, tau, 795, 905, 0);
-  }
-  else if(p < -417462.7784 + 1107.467347*T + 0.884115157*T*T){ //rho < 1000
-    return delta_p_tau_rf(p, tau, 895, 1005, 0);
-  }
-  return 1100/rho_c;
+  return 1000.0/rho_c;
 }

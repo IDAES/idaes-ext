@@ -207,15 +207,61 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     s_real fun, tau, gradh[2], hesh[3], tol = 1e-11;
     int it = 0, max_it = 20;
     if(hl > ht){
-      tau = tau_sat + 0.2;
+      tau = 2.5;
+      if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0){
+        // Unfotunatly if the initial guess isn't good you can get on the wrong
+        // side of Tsat, then you have trouble. This false position method up
+        // front keeps the temperature on the right side while refining the
+        // guess.  With the better guess the newton method shouldn't get out of
+        // control
+        s_real a, b, c, fa, fb, fc;
+        a = tau_sat;
+        b = tau;
+        fa = hlpt_with_derivs(pr, a, gradh, hesh) - ht;
+        fb = hlpt_with_derivs(pr, b, gradh, hesh) - ht;
+        for(it=0;it<5;++it){
+          c = b - fb*(b - a)/(fb - fa);
+          fc = hlpt_with_derivs(pr, c, gradh, hesh) - ht;
+          if(fc*fa >= 0){a = c; fa = fc;}
+          else{b = c; fb = fc;}
+          if(b - a < 1e-4) {break;}
+        }
+        tau = (a+b)/2.0;
+      }
+      std::cout << "finding liquid tau = " << tau << "\n";
       fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
         tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
+        std::cout << "finding liquid tau = " << tau << "\n";
         fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
         ++it;
       }
     }
     else if(hv < ht){
+      tau = 0.75;
+      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0){
+        // Unfotunatly if the initial guess isn't good you can get on the wrong
+        // side of Tsat, then you have trouble. This false position method up
+        // front keeps the temperature on the right side while refining the
+        // guess.  With the better guess the newton method shouldn't get out of
+        // control
+        s_real a, b, c, fa, fb, fc;
+        a = tau;
+        b = tau_sat;
+        fa = hvpt_with_derivs(pr, a, gradh, hesh) - ht;
+        fb = hvpt_with_derivs(pr, b, gradh, hesh) - ht;
+        for(it=0;it<5;++it){
+          c = b - fb*(b - a)/(fb - fa);
+          fc = hvpt_with_derivs(pr, c, gradh, hesh) - ht;
+          if(fc*fa >= 0){a = c; fa = fc;}
+          else{b = c; fb = fc;}
+          if(b - a < 1e-4) {break;}
+        }
+        tau = (a+b)/2.0;
+      }
+      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
+
+
       tau = tau_sat - 0.1*(ht - hv)/1000;
       fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
