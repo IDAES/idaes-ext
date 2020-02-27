@@ -303,20 +303,35 @@ s_real w_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
       cv_hes_ptr = cv_hes;}}
   cv = cv_with_derivs(delta, tau, cv_grad_ptr, cv_hes_ptr);
   if(grad!=NULL){
-    s_real A_t, A_tt;
-    A_t = -R*T_c/(tau*tau)*(XE + XD*R/cv) +
+    s_real A_t, A_tt, A_d, A_dd, A_dt;
+    A_t = -R*T_c/tau/tau*(XE + XD*R/cv) +
            R*T_c/tau*(XE_t + R*XD_t/cv - cv_grad[1]*R*XD/(cv*cv));
+    A_d =  R*T_c/tau*(XE_d + R*XD_d/cv - cv_grad[0]*R*XD/(cv*cv));
     A_tt = 2*R*T_c/(tau*tau*tau)*(XE + XD*R/cv) -
-           2*R*T_c/(tau*tau)*(XE_t + R*XD_t/cv - cv*R*XD/(cv*cv)) +
-           R*T_c/tau*(XE_tt + R*XD_tt/cv - 2*cv_grad[1]*R*XD_t/(cv*cv) -
-                      R*cv_hes[2]*XD/(cv*cv) +
-                      2*(cv_grad[1]*cv_grad[1])*R*XD/(cv*cv*cv));
-    grad[0] = 0;
-    grad[1] = 1000*(0.5/ww) * A_t;  //the 1000 if from km to m
+           2*R*T_c/(tau*tau)*(XE_t + R*XD_t/cv - cv_grad[1]*R*XD/(cv*cv)) +
+           R*T_c/tau*(XE_tt +
+                      R*XD_tt/cv -
+                      2*cv_grad[1]*R*XD_t/(cv*cv) -
+                      R*XD*cv_hes[2]/(cv*cv) +
+                      2*cv_grad[1]*cv_grad[1]*R*XD/(cv*cv*cv));
+    A_dd = R*T_c/tau*(XE_dd +
+                      R*XD_dd/cv -
+                      2*cv_grad[0]*R*XD_d/(cv*cv) -
+                      R*XD*cv_hes[0]/(cv*cv) +
+                      2*cv_grad[0]*cv_grad[0]*R*XD/(cv*cv*cv));
+    A_dt = -R*T_c/tau/tau*(XE_d + R*XD_d/cv - cv_grad[0]*R*XD/(cv*cv)) +
+            R*T_c/tau*(XE_dt +
+                       R*XD_dt/cv -
+                       cv_grad[1]*R*XD_d/(cv*cv) -
+                       cv_grad[0]*R*XD_t/(cv*cv) -
+                       R*XD*cv_hes[1]/(cv*cv) +
+                       2*cv_grad[0]*cv_grad[1]*R*XD/(cv*cv*cv));
+    grad[0] = 1000*(0.5/ww) * A_d; //the 1000 if from km to m
+    grad[1] = 1000*(0.5/ww) * A_t; //the 1000 if from km to m
     if(hes!=NULL){
-      hes[0] = 0;
-      hes[1] = 0;
-      hes[2] = 1000*(-0.25/s_pow(ww,3))*A_t*A_t + 1000*(0.5/ww)*A_tt;}}
+      hes[0] = -1e6*(0.25/(ww*ww*ww))*A_d*A_d + 1000*(0.5/ww)*A_dd;
+      hes[1] = -1e6*(0.25/(ww*ww*ww))*A_t*A_d + 1000*(0.5/ww)*A_dt;
+      hes[2] = -1e6*(0.25/(ww*ww*ww))*A_t*A_t + 1000*(0.5/ww)*A_tt;}}
   return ww;
 }
 
@@ -349,21 +364,11 @@ s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes){
 }
 
 s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
-  //Before getting into the real calculation, check if outside the allowed range
-  //of 240K to T_c, the low end of this range doen't mean anything.  Its too cold
-  //to expect liquid, but the calculations hold up there so for numerical reasons
-  //I'll allow it.  Above the critical temperature there is only a single phase
-  if(tau > 647.096/240.0 && limit){ // below 270 K
-    if(grad != NULL) grad[0] = 0;
-    if(hes != NULL) hes[0] = 0;
-    return +3.76195238e-02;
-  }
-  else if(tau < 1.0 && limit){ // above critical T
+  if(tau < 1.0 && limit){ // above critical T
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_c;
   }
-
   //Now check if there is a stored value
   s_real val = memoize::get_un(memoize::P_SAT_FUNC, tau, grad, hes);
   if(!std::isnan(val)) return val;
