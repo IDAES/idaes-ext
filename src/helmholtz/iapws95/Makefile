@@ -9,7 +9,8 @@ else
 endif
 
 OBJECTS = helmholtz_external.o helmholtz_solve.o helmholtz_phi.o \
-          helmholtz_asl_funcs.o helmholtz_memo.o $(GUESS)
+          helmholtz_asl_funcs.o helmholtz_memo.o helmholtz_param_common.o \
+					$(GUESS)
 
 ALL: get_common helmholtz_external.so
 
@@ -39,6 +40,9 @@ helmholtz_memo.o: helmholtz_memo.cpp
 
 helmholtz_asl_funcs.o: helmholtz_asl_funcs.cpp
 	  $(CXX) $(CXXFLAGS) helmholtz_asl_funcs.cpp -o helmholtz_asl_funcs.o
+	
+helmholtz_param_common.o: helmholtz_helmholtz_param_common.cpp
+	  $(CXX) $(CXXFLAGS) helmholtz_param_common.cpp -o helmholtz_param_common.o
 
 helmholtz_external.so: $(OBJECTS)
 	  $(LINK) $(LDFLAGS) $(OBJECTS) -o $(SOLIB)

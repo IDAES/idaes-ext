@@ -316,20 +316,16 @@ const s_real param[] = {
      0.3,                  //229,  beta56
 };
 
-static const s_real *n0 = param;
-static const s_real *gamma0 = param + 5;
-static const s_real *c = param + 14;
-static const s_real *d = param + 51 + 14;
-static const s_real *t = param + 105 + 14;
-static const s_real *n = param + 159 + 14;
-static const s_real *alpha = param + 216 - 52 + 14;
-static const s_real *theta = param + 219 - 52 + 14;
-static const s_real *eps = param + 222 - 52 + 14;
-static const s_real *beta = param + 225 - 52 + 14;
-
-// Functions to convert to dimensionless state variables from T and Rho.
-// temperature and density
-inline s_real f_tau(s_real T){return T_c/T;}
-inline s_real f_delta(s_real rho){return rho/rho_c;}
+// Offset for the zero index of each parameter in the param array
+const unsigned int n0_offset = 0;
+const unsigned int gamma0_offset = 5;
+const unsigned int c_offset = 14;
+const unsigned int d_offset = 51 + 14;
+const unsigned int t_offset = 105 + 14;
+const unsigned int n_offset = 159 + 14;
+const unsigned int alpha_offset = 216 - 52 + 14;
+const unsigned int theta_offset = 219 - 52 + 14;
+const unsigned int eps_offset = 222 - 52 + 14;
+const unsigned int beta_offset = 225 - 52 + 14;
 
 #endif
