@@ -29,4 +29,9 @@ s_real sat_delta_vap(s_real tau); // saturated vapor density at tau
 s_real sat_p(s_real tau);         // saturation pressure at tau
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol); //sat solver
 
+
+s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit=NULL);
+s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
+
+
 #endif

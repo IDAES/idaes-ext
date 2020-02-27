@@ -68,8 +68,13 @@ namespace memoize{
     P_FUNC = 1,
     H_FUNC = 2,
     S_FUNC = 3,
-    delta_liq = 3,
-    DV_FUNC = 4;
+    DL_FUNC = 4,
+    DV_FUNC = 5,
+    TAU_FUNC = 6,
+    U_FUNC = 7,
+    HVPT_FUNC = 8,
+    HLPT_FUNC = 9,
+    VF_FUNC = 10;
   // unary functions with derivatives
   static const unsigned char
     P_SAT_FUNC = 1,

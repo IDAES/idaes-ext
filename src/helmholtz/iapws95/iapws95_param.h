@@ -44,6 +44,9 @@
 #define DELTA_LIQ_SAT_GUESS delta_sat_l_approx_iapws95(tau)
 #define DELTA_VAP_SAT_GUESS delta_sat_v_approx_iapws95(tau)
 
+#define TAU_LOW 0.15
+#define TAU_HIGH 4.0
+
 const s_real R = 0.46151805;  // Specific gas constant (kJ/kg/K)
 
 // Critiacal point for water and R

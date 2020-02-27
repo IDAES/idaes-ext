@@ -85,25 +85,14 @@ Basic Properties Calaculations, 1st and 2nd derivatives
 ------------------------------------------------------------------------------*/
 
 s_real p_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
-  //pressure derivatives are extra important in here, so gonna keep s_real, and
-  //convert to s_real in ASL function
-  s_real val = memoize::get_bin(memoize::P_FUNC, delta, tau, grad, hes);
-  if(!std::isnan(val)) return val;
-  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
-  // Since I'm going to cache results, grad and hes will get calculated
-  // whether requested or not.  If they were NULL allocate space.
-  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
-  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  grad[0] = XA_d + XA_d*XC + XA*XC_d;
-  grad[1] = XA_t + XA_t*XC + XA*XC_t;
-  hes[0] = XA_dd + XA_dd*XC + 2*XA_d*XC_d + XA*XC_dd;
-  hes[1] = XA_dt + XA_dt*XC + XA_d*XC_t + XA_t*XC_d + XA*XC_dt;
-  hes[2] = XA_tt + XA_tt*XC + 2*XA_t*XC_t + XA*XC_tt;
-  s_real pr = p(delta, tau);
-  memoize::add_bin(memoize::P_FUNC, delta, tau, pr, grad, hes);
-  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
-  if(free_hes) delete[] hes; //   function
-  return pr;
+  if(grad!=NULL){
+    grad[0] = XA_d + XA_d*XC + XA*XC_d;
+    grad[1] = XA_t + XA_t*XC + XA*XC_t;
+    if(hes!=NULL){
+      hes[0] = XA_dd + XA_dd*XC + 2*XA_d*XC_d + XA*XC_dd;
+      hes[1] = XA_dt + XA_dt*XC + XA_d*XC_t + XA_t*XC_d + XA*XC_dt;
+      hes[2] = XA_tt + XA_tt*XC + 2*XA_t*XC_t + XA*XC_tt;}}
+  return p(delta, tau);
 }
 
 s_real u_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
@@ -139,39 +128,68 @@ s_real h_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
   return h(delta, tau);
 }
 
+
 s_real hvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::HVPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
   s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
   s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
   s_real delta, h;
   delta = delta_vap(pr, tau, gradd, hesd);
   h = h_with_derivs(delta, tau, gradh, hesh);
-  if(grad!=NULL){
-    grad[0] = gradh[0]*gradd[0];
-    grad[1] = gradh[1] + gradh[0]*gradd[1];
-    if(hes!=NULL){
-      hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
-      hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
-      hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];}}
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::HVPT_FUNC, pr, tau, h, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
   return h;
 }
 
 s_real hlpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::HLPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
   s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
   s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
   s_real delta, h;
   delta = delta_liq(pr, tau, gradd, hesd);
   h = h_with_derivs(delta, tau, gradh, hesh);
-  if(grad!=NULL){
-    grad[0] = gradh[0]*gradd[0];
-    grad[1] = gradh[1] + gradh[0]*gradd[1];
-    if(hes!=NULL){
-      hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
-      hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
-      hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];}}
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::HLPT_FUNC, pr, tau, h, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
   return h;
 }
 
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::VF_FUNC, ht, pr, grad, hes);
+    if(!std::isnan(val)) return val;
+    bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+    // Since I'm going to cache results, grad and hes will get calculated
+    // whether requested or not.  If they were NULL allocate space.
+    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
     s_real tau, gradt[1], hest[1], gradhv[2], heshv[3], gradhl[2], heshl[3];
     tau = sat_tau_with_derivs(pr, gradt, hest);
     s_real hv = hvpt_with_derivs(pr, tau, gradhv, heshv);
@@ -181,119 +199,22 @@ s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     else if(hl > ht){ zero_derivs2(grad, hes); return 0.0;}
     else if(hv < ht){ zero_derivs2(grad, hes); return 1.0;}
 
-    if(grad != NULL){
-        s_real dhvdp = gradhv[0] + gradhv[1]*gradt[0];
-        s_real dhldp = gradhl[0] + gradhl[1]*gradt[0];
-        grad[0] = 1.0/(hv - hl);
-        grad[1] = -dhldp/(hv - hl) - (ht - hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
-        if(hes != NULL){
-          s_real d2hvdp2 = heshv[0] + 2*heshv[1]*gradt[0] + heshv[2]*gradt[0]*gradt[0] + gradhv[1]*hest[0];
-          s_real d2hldp2 = heshl[0] + 2*heshl[1]*gradt[0] + heshl[2]*gradt[0]*gradt[0] + gradhl[1]*hest[0];
-          hes[0] = 0;
-          hes[1] = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
-          hes[2] = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
-                    2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
-                    (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
-        }
-    }
-    return (ht - hl)/(hv - hl);
-}
-
-s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
-    s_real tau_sat;
-    tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
-    s_real hv = hvpt_with_derivs(pr, tau_sat, NULL, NULL);
-    s_real hl = hlpt_with_derivs(pr, tau_sat, NULL, NULL);
-    s_real fun, tau, gradh[2], hesh[3], tol = 1e-11;
-    int it = 0, max_it = 20;
-    if(hl > ht){
-      tau = 2.5;
-      if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
-        // side of Tsat, then you have trouble. This false position method up
-        // front keeps the temperature on the right side while refining the
-        // guess.  With the better guess the newton method shouldn't get out of
-        // control
-        s_real a, b, c, fa, fb, fc;
-        a = tau_sat;
-        b = tau;
-        fa = hlpt_with_derivs(pr, a, gradh, hesh) - ht;
-        fb = hlpt_with_derivs(pr, b, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
-          c = b - fb*(b - a)/(fb - fa);
-          fc = hlpt_with_derivs(pr, c, gradh, hesh) - ht;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
-        }
-        tau = (a+b)/2.0;
-      }
-      std::cout << "finding liquid tau = " << tau << "\n";
-      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-      while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-        std::cout << "finding liquid tau = " << tau << "\n";
-        fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        ++it;
-      }
-    }
-    else if(hv < ht){
-      tau = 0.75;
-      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
-        // side of Tsat, then you have trouble. This false position method up
-        // front keeps the temperature on the right side while refining the
-        // guess.  With the better guess the newton method shouldn't get out of
-        // control
-        s_real a, b, c, fa, fb, fc;
-        a = tau;
-        b = tau_sat;
-        fa = hvpt_with_derivs(pr, a, gradh, hesh) - ht;
-        fb = hvpt_with_derivs(pr, b, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
-          c = b - fb*(b - a)/(fb - fa);
-          fc = hvpt_with_derivs(pr, c, gradh, hesh) - ht;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
-        }
-        tau = (a+b)/2.0;
-      }
-      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-
-
-      tau = tau_sat - 0.1*(ht - hv)/1000;
-      fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-      while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-        fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        ++it;
-      }
-    }
-    else{
-      zero_derivs2(grad, hes);
-      return tau_sat;
-    }
-    if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "IAPWS LOW T CLIP WARNING: h = " << ht << " P= " << pr << " tau = " << tau << "\n";
-        tau = TAU_HIGH;
-        fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-    }
-    else if(tau < TAU_LOW){
-        std::cerr << "IAPWS HIGH T CLIP WARNING: h = " << ht << " P= " << pr << " tau = " << tau << "\n";
-        tau = TAU_LOW;
-        fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-    }
-    if(grad != NULL){
-        grad[0] = 1.0/gradh[1];
-        grad[1] = -grad[0]*gradh[0];
-        if(hes != NULL){
-          hes[0] = -grad[0]*grad[0]*grad[0]*hesh[2];
-          hes[1] = -grad[0]*grad[0]*(hesh[1] + hesh[2]*grad[1]);
-          hes[2] = -hes[1]*gradh[0] - grad[0]*(hesh[0] + hesh[1]*grad[1]);
-        }
-    }
-    return tau;
+    s_real dhvdp = gradhv[0] + gradhv[1]*gradt[0];
+    s_real dhldp = gradhl[0] + gradhl[1]*gradt[0];
+    grad[0] = 1.0/(hv - hl);
+    grad[1] = -dhldp/(hv - hl) - (ht - hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+    s_real d2hvdp2 = heshv[0] + 2*heshv[1]*gradt[0] + heshv[2]*gradt[0]*gradt[0] + gradhv[1]*hest[0];
+    s_real d2hldp2 = heshl[0] + 2*heshl[1]*gradt[0] + heshl[2]*gradt[0]*gradt[0] + gradhl[1]*hest[0];
+    hes[0] = 0;
+    hes[1] = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+    hes[2] = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+              2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
+              (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
+    s_real vf = (ht - hl)/(hv - hl);
+    memoize::add_bin(memoize::VF_FUNC, ht, pr, vf, grad, hes);
+    if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+    if(free_hes) delete[] hes; //   function
+    return vf;
 }
 
 s_real g_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
@@ -444,47 +365,4 @@ s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
   if(free_hes) delete[] hes;   // function
   return Psat;
-}
-
-s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
-  //Before getting into the real calculation, check if outside the allowed range
-  //of 240K to T_c, the low end of this range doen't mean anything.  Its too cold
-  //to expect liquid, but the calucations hold up there so for numerical reasons
-  //I'll allow it.  Above the critical temperture there is only a single phase
-  if(pr < +3.76195238e-02){ // below 270 K
-    if(grad != NULL) grad[0] = 0;
-    if(hes != NULL) hes[0] = 0;
-    return 647.096/240.0;
-  }
-  else if(pr > P_c){ // above critical T
-    if(grad != NULL) grad[0] = 0;
-    if(hes != NULL) hes[0] = 0;
-    return 1.0;
-  }
-
-  //Now check if there is a stored value
-  s_real val = memoize::get_un(memoize::TAU_SAT_FUNC, pr, grad, hes);
-  if(!std::isnan(val)) return val;
-  // grad and/or hes not provided so allocate for memoization
-  bool free_grad = 0, free_hes = 0;
-  if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
-  if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
-  s_real tau = 1.5, fun, gradp[1], hesp[1], tol=TOL_SAT_TAU;
-  if(P_c - pr < 1e-3){
-    pr = P_c - 1e-3;
-  }
-  int it = 0; // iteration count
-  fun = sat_p_with_derivs(tau, gradp, hesp, 0) - pr;
-  while(fabs(fun) > tol && it < MAX_IT_SAT_TAU){
-    tau = tau - fun*gradp[0]/(gradp[0]*gradp[0] - 0.5*fun*hesp[0]);
-    fun = sat_p_with_derivs(tau, gradp, hesp, 0) - pr;
-    ++it;
-  }
-  grad[0] = 1.0/gradp[0];
-  hes[0] = -grad[0]*grad[0]*grad[0]*hesp[0];
-  memoize::add_un(memoize::TAU_SAT_FUNC, pr, tau, grad, hes);
-  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
-  if(free_hes) delete[] hes;   // function
-  if(nit != NULL) *nit = it;
-  return tau;
 }

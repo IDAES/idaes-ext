@@ -24,7 +24,7 @@
 #include<cmath>
 
 // max memo table size (0 deactivates memoization)
-#define MAX_MEMO 100000000
+#define MAX_MEMO 1000000
 // Precision: {PRECISION_LONG_DOUBLE, PRECISION_DOUBLE} the exact meaning of
 // that depends on the machine and compiler.
 //#define PRECISION_LONG_DOUBLE
