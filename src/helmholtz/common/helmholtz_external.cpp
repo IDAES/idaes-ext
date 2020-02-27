@@ -293,7 +293,6 @@ s_real cp_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
 }
 
 s_real w_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
-  //TODO<jce> hey you forgot one
   s_real ww = w(delta, tau), cv;
   s_real cv_grad[2], cv_hes[3];
   s_real *cv_grad_ptr=NULL, *cv_hes_ptr=NULL;
