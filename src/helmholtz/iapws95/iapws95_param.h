@@ -54,10 +54,10 @@ const s_real T_c = 647.096;   // Critical T (K)
 const s_real rho_c = 322;     // Critical density (kg/m^3)
 const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
 
-// To generalize the equation of state there are parmeters to set the number
-// of terms in each sumation.  So far we are looking at IAPWS95 and Span-Wagner
+// To generalize the equation of state there are parameters to set the number
+// of terms in each summation.  So far we are looking at IAPWS95 and Span-Wagner
 // They have the same types of terms but different numbers of term.  For both,
-// we are currently droping the nonanalytic terms, which we've labed S4 there
+// we are currently dropping the nonanalytic terms, which we've labed S4 there
 // See docs for the form of the terms in S1, S2, S3, and S4.
 
 const unsigned char S1_set[2] = {1, 7};

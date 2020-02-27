@@ -6,7 +6,7 @@
 #include<iostream>
 
 s_real p_sat_iapws97(s_real tau){ //saturation pressure from tau IAPWS-97 eq.
-  //the IAPWS-97 isn't as consitent as IAPWS-95, but this provides a good guess
+  //the IAPWS-97 isn't as consistent as IAPWS-95, but this provides a good guess
   static const s_real n_psat[] = {
      0.11670521452767e4, //1
     -0.72421316703206e6, //2
@@ -55,7 +55,7 @@ s_real delta_sat_l_approx_iapws95(s_real tau){ //approximate saturated vapor den
 s_real delta_p_tau_supercritical_guess_iapws95(s_real p, s_real tau){
 
   /* This uses approximate isochors to get a reasonable initial guess for the
-  density solvution for a vapor at a particular temperature and pressure.  If
+  density solution for a vapor at a particular temperature and pressure.  If
   there are tricky regions where a really good guess is needed, a bracketing
   method can be used to refine the guess.*/
   s_real T=T_c/tau;
@@ -117,7 +117,7 @@ s_real delta_p_tau_supercritical_guess_iapws95(s_real p, s_real tau){
 s_real delta_p_tau_vap_guess_iapws95(s_real p, s_real tau){
 
   /* This uses approximate isochors to get a reasonable initial guess for the
-  density solvution for a vapor at a particular temperature and pressure.  If
+  density solution for a vapor at a particular temperature and pressure.  If
   there are tricky regions where a really good guess is needed, a bracketing
   method can be used to refine the guess.*/
   s_real T=T_c/tau;
@@ -164,7 +164,7 @@ s_real delta_p_tau_vap_guess_iapws95(s_real p, s_real tau){
 
 s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
   /* This uses approximate isochors to get a reasonable initial guess for the
-  density solvution for a vapor at a particular temperature and pressure.  If
+  density solution for a vapor at a particular temperature and pressure.  If
   there are tricky regions where a really good guess is needed, a bracketing
   method can be used to refine the guess.*/
   s_real T=T_c/tau;

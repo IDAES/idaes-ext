@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- This file contains functions to solve for liquid and vapor denstiy from
+ This file contains functions to solve for liquid and vapor density from
  temperature and pressure.  It also contains functions for solving for
  saturation conditions (pressure, liquid density and vapor density).
 
@@ -31,7 +31,7 @@
 
 /*------------------------------------------------------------------------------
 In this section you will find function for calculating density from pressure
-and teperature. This lets you calculate properties in the more standard way as
+and temperature. This lets you calculate properties in the more standard way as
 a function of temperature and pressure instead of density and pressure.
 
 Unfortunatly this is difficult and a bit messy.
@@ -40,7 +40,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
   /*----------------------------------------------------------------------------
   Bracketing methods, false position and bisection, for finding a better initial
   guess for density when solving for density from temperature and pressure. This
-  is only used in particularly diffucult areas.  At this point it probably
+  is only used in particularly difficult areas.  At this point it probably
   overused, but there are places where it is probably necessary.
 
   Args:
@@ -56,14 +56,14 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
   s_real c=a, fa, fb, fc;
   int it = 0;
   // If right by critical point guess critical density. (okay this isn't part
-  // of a backeting method but it was conveneint).
+  // of a bracketing method but it was conveneint).
   if( fabs(T_c/tau - T_c) < 1e-7 && fabs(pr - P_c) < 1e-4) return 1;
   // solve f(delta, tau) = 0; f(delta, tau) = p(delta, tau) - pr
   fa = p(a, tau) - pr; // initial f(a, tau)
   fb = p(b, tau) - pr; // initial f(b, tau)
   while(it < MAX_IT_BRACKET && (b - a) > TOL_BRACKET){
     if(bisect) c = (a + b)/2.0; // bisection
-    else c = b - fb*(b - a)/(fb - fa); //regula falsi
+    else c = b - fb*(b - a)/(fb - fa); //false position
     fc = p(c, tau) - pr; // calcualte f(c)
     if(fc*fa >= 0){a = c; fa = fc;}
     else{b = c; fb = fc;}
@@ -86,7 +86,7 @@ s_real delta_p_tau(s_real pr, s_real tau, s_real delta_0, s_real tol, int *nit,
    grad: location to return gradient of delta wrt pr and tau or NULL
    hes: location to return hessian (upper triangle) or NULL
   Returns:
-   delta: reduced density (accuracy depends on tolarance and function shape)
+   delta: reduced density (accuracy depends on tolerance and function shape)
   ----------------------------------------------------------------------------*/
   s_real delta = delta_0, fun, gradp[2], hesp[3];
   int it = 0; // iteration count
@@ -100,7 +100,7 @@ s_real delta_p_tau(s_real pr, s_real tau, s_real delta_0, s_real tol, int *nit,
   if(grad != NULL){ // calculate gradient if needed
     grad[0] = 1.0/gradp[0];
     grad[1] = -gradp[1]*grad[0]; //triple product
-    if(hes != NULL){ // calculate hession if needed.
+    if(hes != NULL){ // calculate Hessian if needed.
       hes[0] = -hesp[0]*grad[0]/gradp[0]/gradp[0];
       hes[1] = -(hesp[1] + hesp[0]*grad[1])/gradp[0]/gradp[0];
       hes[2] = -(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);}}
@@ -109,9 +109,9 @@ s_real delta_p_tau(s_real pr, s_real tau, s_real delta_0, s_real tol, int *nit,
 
 s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   /*----------------------------------------------------------------------------
-  Get a good liquid or super critical inital density guess then call
+  Get a good liquid or super critical initial density guess then call
   delta_p_tau() to calculate density. In difficult cases an interval with the
-  desired soultion is used with a backeting method to produce a better inital
+  desired soultion is used with a bracketing method to produce a better initial
   guess.  There is a area around the critical point and in the super critical
   region where this is hard to solve so there is some pretty extensive code for
   guessing.
@@ -126,7 +126,7 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
    hes: location to return hessian (upper triangle) of NULL
    nit: pointer to return number of iterations to, or NULL
   Returns:
-   delta: reduced density (accuracy depends on tolarance and function shape)
+   delta: reduced density (accuracy depends on tolerance and function shape)
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DL_FUNC, p, tau, grad, hes);
   if(!std::isnan(val)) return val;
@@ -138,10 +138,10 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
   delta = delta_p_tau(p, tau, LIQUID_DELTA_GUESS, TOL_DELTA_LIQ, nit, grad, hes); //solve
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
-    // This is just to avoid evaluation errors.  Want to be able to calucalte
+    // This is just to avoid evaluation errors.  Want to be able to calculate
     // vapor properties even when vapor doesn't exist.  In the IDAES Framework
     // these properties may be calculated and multipled by a zero liquid fraction,
-    // so it doesn't mater that they are wrong.
+    // so it doesn't matter that they are wrong.
     delta = 3.1;
     zero_derivs2(grad, hes);
   }
@@ -153,9 +153,9 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
 
 s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   /*----------------------------------------------------------------------------
-  Get a good vapor or super critical inital density guess then call
+  Get a good vapor or super critical initial density guess then call
   delta_p_tau() to calculate density. In the supercritical region this just
-  calls the liquid function. In the rest of the vapor region the inital guess
+  calls the liquid function. In the rest of the vapor region the initial guess
   is pretty easy.
 
   Since solving this takes some time and this function is called a lot with the
@@ -168,7 +168,7 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
    hes: location to return hessian (upper triangle) of NULL
    nit: pointer to return number of iterations to, or NULL
   Returns:
-   delta: reduced density (accuracy depends on tolarance and function shape)
+   delta: reduced density (accuracy depends on tolerance and function shape)
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DV_FUNC, p, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
@@ -180,10 +180,10 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
   delta = delta_p_tau(p, tau, VAPOR_DELTA_GUESS, TOL_DELTA_VAP, nit, grad, hes);
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
-    // This is just to avoid evaluation errors.  Want to be able to calucalte
+    // This is just to avoid evaluation errors.  Want to be able to calculate
     // vapor properties even when vapor doesn't exist.  In the IDAES Framework
     // these properties may be calculated and multipled by a zero vapor fraction,
-    // so it doesn't mater that they are wrong.
+    // so it doesn't matter that they are wrong.
     delta = 0.001;
     zero_derivs2(grad, hes);
   }
@@ -196,15 +196,15 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
 
 /*------------------------------------------------------------------------------
 In this section you will find functions for calculating the saturation curve.
-Staturation pressure and density as a function of temperature.
+Saturation pressure and density as a function of temperature.
 *-----------------------------------------------------------------------------*/
-s_real sat_delta_liq(s_real tau){ //caculate saturated liquid density from tau
+s_real sat_delta_liq(s_real tau){ //calculate saturated liquid density from tau
   s_real delta_l, delta_v;
   sat(tau, &delta_l, &delta_v);
   return delta_l;
 }
 
-s_real sat_delta_vap(s_real tau){ //caculate saturated vapor density from tau
+s_real sat_delta_vap(s_real tau){ //calculate saturated vapor density from tau
   s_real delta_l, delta_v;
   sat(tau, &delta_l, &delta_v);
   return delta_v;
@@ -234,7 +234,7 @@ inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
 }
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
-    //Get stautated phase densities at tau by Akasaka (2008) method
+    //Get saturated phase densities at tau by Akasaka (2008) method
     s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1];
     int n=0, max_it=MAX_IT_SAT;
 
@@ -249,8 +249,8 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
       delta_v = DELTA_VAP_SAT_GUESS;
     }
     // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
-    // the relative differnce in g as a convergence criteria, that is easy to
-    // understand.  fg < tol for convergence, fg is calucalted upfront in the
+    // the relative difference in g as a convergence criteria, that is easy to
+    // understand.  fg < tol for convergence, fg is calculated upfront in the
     // off chance that the guess is the solution
     *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
     *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
@@ -292,8 +292,8 @@ calculatig Tsat from P and T from H and P below
 s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
   //Before getting into the real calculation, check if outside the allowed range
   //of 240K to T_c, the low end of this range doen't mean anything.  Its too cold
-  //to expect liquid, but the calucations hold up there so for numerical reasons
-  //I'll allow it.  Above the critical temperture there is only a single phase
+  //to expect liquid, but the calculations hold up there so for numerical reasons
+  //I'll allow it.  Above the critical temperature there is only a single phase
   if(pr > P_c){ // above critical T
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;

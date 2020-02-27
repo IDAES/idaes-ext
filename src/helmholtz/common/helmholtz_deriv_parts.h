@@ -29,7 +29,7 @@
 /*This next set of macros lets me use the functions for derivative parts without
 typing the arguments.  The goal is to make the derivative equations more readable.
 Of course, that means where these macros are used you need to have variable names
-i, delta, and tau. Luckly no one should need to use these.
+i, delta, and tau. Luckily no one should need to use these.
 
 Look below this section for the actual functions*/
 #define Ea      Ea_F(i, delta)

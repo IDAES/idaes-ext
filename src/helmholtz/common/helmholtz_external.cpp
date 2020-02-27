@@ -81,7 +81,7 @@ s_real w(s_real delta, s_real tau){ // Speed of sound (m/s)
 }
 
 /*------------------------------------------------------------------------------
-Basic Properties Calaculations, 1st and 2nd derivatives
+Basic Properties Calculations, 1st and 2nd derivatives
 ------------------------------------------------------------------------------*/
 
 s_real p_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
@@ -278,8 +278,8 @@ s_real cp_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
     cv_grad_ptr = cv_grad;
     if(hes!=NULL){
       cv_hes_ptr = cv_hes;}}
+  cv_with_derivs(delta, tau, cv_grad_ptr, cv_hes_ptr);
   if(grad!=NULL){
-    cv_with_derivs(delta, tau, cv_grad_ptr, cv_hes_ptr);
     grad[0] = cv_grad[0] + R*XD_d/XE - R*XD*XE_d/XE/XE;
     grad[1] = cv_grad[1] + R*XD_t/XE - R*XD*XE_t/XE/XE;
     if(hes!=NULL){
@@ -294,20 +294,36 @@ s_real cp_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
 
 s_real w_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
   //TODO<jce> hey you forgot one
+  s_real ww = w(delta, tau), cv;
+  s_real cv_grad[2], cv_hes[3];
+  s_real *cv_grad_ptr=NULL, *cv_hes_ptr=NULL;
   if(grad!=NULL){
+    cv_grad_ptr = cv_grad;
+    if(hes!=NULL){
+      cv_hes_ptr = cv_hes;}}
+  cv = cv_with_derivs(delta, tau, cv_grad_ptr, cv_hes_ptr);
+  if(grad!=NULL){
+    s_real A_t, A_tt;
+    A_t = -R*T_c/(tau*tau)*(XE + XD*R/cv) +
+           R*T_c/tau*(XE_t + R*XD_t/cv - cv_grad[1]*R*XD/(cv*cv));
+    A_tt = 2*R*T_c/(tau*tau*tau)*(XE + XD*R/cv) -
+           2*R*T_c/(tau*tau)*(XE_t + R*XD_t/cv - cv*R*XD/(cv*cv)) +
+           R*T_c/tau*(XE_tt + R*XD_tt/cv - 2*cv_grad[1]*R*XD_t/(cv*cv) -
+                      R*cv_hes[2]*XD/(cv*cv) +
+                      2*(cv_grad[1]*cv_grad[1])*R*XD/(cv*cv*cv));
     grad[0] = 0;
-    grad[1] = 0;
+    grad[1] = 1000*(0.5/ww) * A_t;  //the 1000 if from km to m
     if(hes!=NULL){
       hes[0] = 0;
       hes[1] = 0;
-      hes[2] = 0;}}
-  return w(delta, tau);
+      hes[2] = 1000*(-0.25/s_pow(ww,3))*A_t*A_t + 1000*(0.5/ww)*A_tt;}}
+  return ww;
 }
 
 s_real sat_delta_liq_with_derivs(s_real tau, s_real *grad, s_real *hes){
-  // For efficency I'm requiring memoization here.  Delta_v and delta_l are
+  // For efficiency I'm requiring memoization here.  Delta_v and delta_l are
   // calculated together so should just remember both.  This will break if you
-  // turn off memoiztion.
+  // turn off memoization.
   s_real delta_l, delta_v;
   s_real val = memoize::get_un(memoize::DL_SAT_FUNC, tau, grad, hes);
   if(!std::isnan(val)) return val;
@@ -319,9 +335,9 @@ s_real sat_delta_liq_with_derivs(s_real tau, s_real *grad, s_real *hes){
 }
 
 s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes){
-  // For efficency I'm requiring memoization here.  Delta_v and delta_l are
+  // For efficiency I'm requiring memoization here.  Delta_v and delta_l are
   // calculated together so should just remember both.  This will break if you
-  // turn off memoiztion.
+  // turn off memoization.
   s_real delta_l, delta_v;
   s_real val = memoize::get_un(memoize::DV_SAT_FUNC, tau, grad, hes);
   if(!std::isnan(val)) return val;
@@ -335,8 +351,8 @@ s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes){
 s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
   //Before getting into the real calculation, check if outside the allowed range
   //of 240K to T_c, the low end of this range doen't mean anything.  Its too cold
-  //to expect liquid, but the calucations hold up there so for numerical reasons
-  //I'll allow it.  Above the critical temperture there is only a single phase
+  //to expect liquid, but the calculations hold up there so for numerical reasons
+  //I'll allow it.  Above the critical temperature there is only a single phase
   if(tau > 647.096/240.0 && limit){ // below 270 K
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;

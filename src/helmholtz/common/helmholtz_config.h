@@ -22,6 +22,7 @@
 #define _INCLUDE_HELMHOLTZ_CONFIG_H_
 
 #include<cmath>
+#include<stdlib.h>
 
 // max memo table size (0 deactivates memoization)
 #define MAX_MEMO 1000000
