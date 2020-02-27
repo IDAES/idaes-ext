@@ -20,19 +20,11 @@
 ------------------------------------------------------------------------------*/
 
 #include "helmholtz_external.h"
+#include "helmholtz_param_common.h"
 #include "helmholtz_param.h"
 
 #ifndef _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
 #define _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
-
-/*I know this is probably sort of lazy, but I know there are three parameters
-that I'm not going to use here and since they are declared as static in the
-parameters header file, I get local copies of the pointers anyway.  I'm going to
-define a function with those parameters just to avoid the unused variable warning.
-I guess it's my stupid way of saying yeah I know, don't worry it's cool.*/
-inline s_real _dummy_unused(unsigned char i){
-  return n[i] + n0[i] + gamma0[i];
-}
 
 /*This next set of macros lets me use the functions for derivative parts without
 typing the arguments.  The goal is to make the derivative equations more readable.

@@ -41,7 +41,7 @@ helmholtz_memo.o: helmholtz_memo.cpp
 helmholtz_asl_funcs.o: helmholtz_asl_funcs.cpp
 	  $(CXX) $(CXXFLAGS) helmholtz_asl_funcs.cpp -o helmholtz_asl_funcs.o
 
-helmholtz_param_common.o: helmholtz_helmholtz_param_common.cpp
+helmholtz_param_common.o: helmholtz_param_common.cpp
 	  $(CXX) $(CXXFLAGS) helmholtz_param_common.cpp -o helmholtz_param_common.o
 
 helmholtz_external.so: $(OBJECTS)
