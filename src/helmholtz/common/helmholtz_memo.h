@@ -12,17 +12,17 @@
 ------------------------------------------------------------------------------*/
 
 /*-------------------------------------------------
- Simple memoization for IAPWS95 calcualtions
+ Simple memoization for helmholtz calcualtions
 
  Author: John Eslick
 -------------------------------------------------*/
 
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
-#include"iapws95_config.h"
+#include"helmholtz_config.h"
 
-#ifndef _INCLUDE_IAPWS95_MEMO_H_
-#define _INCLUDE_IAPWS95_MEMO_H_
+#ifndef _INCLUDE_HELMHOLTZ_MEMO_H_
+#define _INCLUDE_HELMHOLTZ_MEMO_H_
 
 namespace memoize{
   static const unsigned int max_memo=MAX_MEMO;
@@ -68,8 +68,13 @@ namespace memoize{
     P_FUNC = 1,
     H_FUNC = 2,
     S_FUNC = 3,
-    delta_liq = 3,
-    DV_FUNC = 4;
+    DL_FUNC = 4,
+    DV_FUNC = 5,
+    TAU_FUNC = 6,
+    U_FUNC = 7,
+    HVPT_FUNC = 8,
+    HLPT_FUNC = 9,
+    VF_FUNC = 10;
   // unary functions with derivatives
   static const unsigned char
     P_SAT_FUNC = 1,

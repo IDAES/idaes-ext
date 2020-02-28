@@ -12,20 +12,20 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- IAPWS R6-95(2016) dimensionless Helmholtz free enegy calcuations and up to 4th
- derivatives phi0 is the ideal part phir is the residual part. Memoization of all
- phir functions is included. Non-analytic terms (55 and 56) were not included.
- Accuracy is slightly decreased near the critical point, but the function is
- much better behaved, so it will work better for optimization.
+ Dimensionless Helmholtz free enegy calcuations and up to 4th derivatives phi0
+ is the ideal part phir is the residual part. Memoization of all phir functions
+ is included. Non-analytic terms (55 and 56) were not included. Accuracy is
+ slightly decreased near the critical point, but the function is much better
+ behaved, so it will work better for optimization.
 
  Author: John Eslick
- File: iapws95_phi.h
+ File: helmholtz_phi.h
 ------------------------------------------------------------------------------*/
 
-#include "iapws95_config.h"
+#include "helmholtz_config.h"
 
-#ifndef _INCLUDE_IAPWS95_PHI_H_
-#define _INCLUDE_IAPWS95_PHI_H_
+#ifndef _INCLUDE_HELMHOLTZ_PHI_H_
+#define _INCLUDE_HELMHOLTZ_PHI_H_
 
 
 // Ideal part and derivatives of dimensionless Helmholtz

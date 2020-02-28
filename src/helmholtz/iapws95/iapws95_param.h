@@ -36,19 +36,28 @@
 #ifndef _INCLUDE_IAPWS95_PARAM_H_
 #define _INCLUDE_IAPWS95_PARAM_H_
 
-#include "iapws95_config.h"
+#include "helmholtz_config.h"
+#include "iapws95_guess.h"
 
-static const s_real R = 0.46151805;  // Gas constant (kJ/kg/K)
+#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_iapws95(p, tau)
+#define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_iapws95(p, tau)
+#define DELTA_LIQ_SAT_GUESS delta_sat_l_approx_iapws95(tau)
+#define DELTA_VAP_SAT_GUESS delta_sat_v_approx_iapws95(tau)
+
+#define TAU_LOW 0.15
+#define TAU_HIGH 4.0
+
+const s_real R = 0.46151805;  // Specific gas constant (kJ/kg/K)
 
 // Critiacal point for water and R
-static const s_real T_c = 647.096;   // Critical T (K)
-static const s_real rho_c = 322;     // Critical density (kg/m^3)
-static const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
+const s_real T_c = 647.096;   // Critical T (K)
+const s_real rho_c = 322;     // Critical density (kg/m^3)
+const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
 
-// To generalize the equation of state there are parmeters to set the number
-// of terms in each sumation.  So far we are looking at IAPWS95 and Span-Wagner
+// To generalize the equation of state there are parameters to set the number
+// of terms in each summation.  So far we are looking at IAPWS95 and Span-Wagner
 // They have the same types of terms but different numbers of term.  For both,
-// we are currently droping the nonanalytic terms, which we've labed S4 there
+// we are currently dropping the nonanalytic terms, which we've labed S4 there
 // See docs for the form of the terms in S1, S2, S3, and S4.
 
 const unsigned char S1_set[2] = {1, 7};
@@ -56,47 +65,25 @@ const unsigned char S2_set[2] = {8, 51};
 const unsigned char S3_set[2] = {52, 54};
 const unsigned char S4_set[2] = {55, 56};  // we don't currently use these
 
-// psat curve parameters from IAPWS-97 (industial formulation)
-// Use this as an initial guess when solving for the saturation curve using the
-// more consitent set of IAPWS-95 (scientific formulation) equations.
-static const s_real n_psat[] = {
-   0.11670521452767e4, //1
-  -0.72421316703206e6, //2
-  -0.17073846940092e2, //3
-   0.12020824702470e5, //4
-  -0.32325550322333e7, //5
-   0.14915108613530e2, //6
-  -0.48232657361591e4, //7
-   0.40511340542057e6, //8
-  -0.23855557567849,   //9
-   0.65017534844798e3  //10
-};
-
 //
 // Constants from IAPWS95 (R6 2016) from here to end
 //
 
-static const s_real param0[] = {  //ideal gas parameters n0 and gamma0
-     0.0,              //pad,    0   (nonexistant n0)
-    -8.3204464837497,  //n1,     1
-     6.6832105275932,  //n2,     2
-     3.00632,          //n3,     3
-     0.012436,         //n4,     4
-     0.97315,          //n5,     5  (nonexistant gamma0)
-     1.27950,          //n6,     6  (nonexistant gamma1)
-     0.96956,          //n7,     7  (nonexistant gamma2)
-     0.24873,          //n8,     8  (nonexistant gamma3)
-     1.28728967,       //gamma4, 9
-     3.53734222,       //gamma5, 10
-     7.74073708,       //gamma6, 11
-     9.24437796,       //gamma7, 12
-     27.5075105        //gamma8, 13
-};
-
-static const s_real *n0 = param0;
-static const s_real *gamma0 = param0 + 5;
-
-static const s_real param[] = {
+const s_real param[] = {
+  0.0,              //pad,    0   (nonexistant n0)
+ -8.3204464837497,  //n1,     1
+  6.6832105275932,  //n2,     2
+  3.00632,          //n3,     3
+  0.012436,         //n4,     4
+  0.97315,          //n5,     5  (nonexistant gamma0)
+  1.27950,          //n6,     6  (nonexistant gamma1)
+  0.96956,          //n7,     7  (nonexistant gamma2)
+  0.24873,          //n8,     8  (nonexistant gamma3)
+  1.28728967,       //gamma4, 9
+  3.53734222,       //gamma5, 10
+  7.74073708,       //gamma6, 11
+  9.24437796,       //gamma7, 12
+  27.5075105,       //gamma8, 13
     0,   //0,    c0
     0,   //1,    c1
     0,   //2,    c2
@@ -329,18 +316,16 @@ static const s_real param[] = {
      0.3,                  //229,  beta56
 };
 
-static const s_real *c = param + 0;
-static const s_real *d = param + 51;
-static const s_real *t = param + 105;
-static const s_real *n = param + 159;
-static const s_real *alpha = param + 216 - 52;
-static const s_real *theta = param + 219 - 52;
-static const s_real *eps = param + 222 - 52;
-static const s_real *beta = param + 225 -52;
-
-// Functions to convert to dimensionless state variables from T and Rho.
-// temperature and density
-inline s_real f_tau(s_real T){return T_c/T;}
-inline s_real f_delta(s_real rho){return rho/rho_c;}
+// Offset for the zero index of each parameter in the param array
+const unsigned int n0_offset = 0;
+const unsigned int gamma0_offset = 5;
+const unsigned int c_offset = 14;
+const unsigned int d_offset = 51 + 14;
+const unsigned int t_offset = 105 + 14;
+const unsigned int n_offset = 159 + 14;
+const unsigned int alpha_offset = 216 - 52 + 14;
+const unsigned int theta_offset = 219 - 52 + 14;
+const unsigned int eps_offset = 222 - 52 + 14;
+const unsigned int beta_offset = 225 - 52 + 14;
 
 #endif

@@ -15,16 +15,17 @@
  This file provides some configuration parameters.
 
  Author: John Eslick
- File: iapws95_config.h
+ File: helmholtz_config.h
 ------------------------------------------------------------------------------*/
 
-#ifndef _INCLUDE_IAPWS95_CONFIG_H_
-#define _INCLUDE_IAPWS95_CONFIG_H_
+#ifndef _INCLUDE_HELMHOLTZ_CONFIG_H_
+#define _INCLUDE_HELMHOLTZ_CONFIG_H_
 
 #include<cmath>
+#include<stdlib.h>
 
 // max memo table size (0 deactivates memoization)
-#define MAX_MEMO 100000000
+#define MAX_MEMO 1000000
 // Precision: {PRECISION_LONG_DOUBLE, PRECISION_DOUBLE} the exact meaning of
 // that depends on the machine and compiler.
 //#define PRECISION_LONG_DOUBLE
@@ -39,9 +40,9 @@
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-9
+#define TOL_BRACKET 1e-6
 // Bracketing methods iteration limit
-#define MAX_IT_BRACKET 30
+#define MAX_IT_BRACKET 10
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
 #define TOL_REL_SAT_G 1e-11
 // Saturation curve max iterations
@@ -70,6 +71,19 @@
   #define s_sqrt sqrtl
   #define s_fabs fabsl
 #endif
+
+inline void zero_derivs2(s_real *grad, s_real *hes){
+  // Set the derivatives to zero
+  if(grad!=NULL){
+    grad[0] = 0;
+    grad[1] = 0;
+    if(hes!=NULL){
+      hes[0] = 0;
+      hes[1] = 0;
+      hes[2] = 0;
+    }
+  }
+}
 
 
 #endif

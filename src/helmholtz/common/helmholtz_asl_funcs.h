@@ -12,17 +12,17 @@
 ------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
- This provides the ASL function interface for IAPWS R6-95(2016) property
- functions.
+ This provides the ASL function interface for Helmholtz equation of state
+ property functions.
 
  Author: John Eslick
- File: iapws95_asl_funcs.h
+ File: helmholtz_asl_funcs.h
 ------------------------------------------------------------------------------*/
 
 #include <funcadd.h>
 
-#ifndef _INCLUDE_IAPWS95_ASL_FUNCS_H_
-#define _INCLUDE_IAPWS95_ASL_FUNCS_H_
+#ifndef _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
+#define _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
 
 double p_asl(arglist *al);
 double u_asl(arglist *al);

@@ -16,35 +16,22 @@
  documentation to explan calculations at some point.
 
  Author: John Eslick
- File: iapws95_deriv_parts.h
+ File: helmholtz_deriv_parts.h
 ------------------------------------------------------------------------------*/
 
-#include "iapws95_external.h"
-#include "iapws95_param.h"
+#include "helmholtz_external.h"
+#include "helmholtz_param_common.h"
+#include "helmholtz_param.h"
 
-#ifndef _INCLUDE_IAPWS95_DERIV_PARTS_H_
-#define _INCLUDE_IAPWS95_DERIV_PARTS_H_
+#ifndef _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
+#define _INCLUDE_HELMHOLTZ_DERIV_PARTS_H_
 
-/*
-ok I know this is probably sort of lazy, but I know there are three parameters
-I'm not going to use here and since they are declared as static in the
-parameters header file, I get local copies of the pointers anyway.  I'm going to
-define a function with those parameter just to avoid the unused variable warning.
-I guess it's my stupid way of saying yeah I know, don't worry it's cool.
-*/
-inline s_real _dummy_unused(unsigned char i){
-  return n[i] + n0[i] + gamma0[i];
-}
+/*This next set of macros lets me use the functions for derivative parts without
+typing the arguments.  The goal is to make the derivative equations more readable.
+Of course, that means where these macros are used you need to have variable names
+i, delta, and tau. Luckily no one should need to use these.
 
-
-/*
-This next set of macros lets me use the functions for derivative parts without
-typing the arguments.  The goal is to make the derivative equations more
-readable. Of course, that means where these macros are used you need to have
-variable names i, delta, and tau. Luckly no one should need to use these.
-
-Look below this section for the actual functions
-*/
+Look below this section for the actual functions*/
 #define Ea      Ea_F(i, delta)
 #define Ea_d    Ea_d_F(i, delta)
 #define Ea_dd   Ea_dd_F(i, delta)
@@ -220,7 +207,6 @@ Look below this section for the actual functions
 
 
 // Functions for derivative parts, eventually will document in a paper or report
-
 inline s_real Ea_F(unsigned char i, s_real delta){
   return s_exp(-s_pow(delta,c[i]));}
 
