@@ -250,13 +250,13 @@ const s_real param[] = {
 // Offset for the zero index of each parameter in the param array
 const unsigned int n0_offset = 0;
 const unsigned int gamma0_offset = 5;
-const unsigned int c_offset = 13;
+const unsigned int c_offset = 126;
 const unsigned int d_offset = 55;
 const unsigned int t_offset = 94;
-const unsigned int n_offset = 126;
+const unsigned int n_offset = 13;
 const unsigned int alpha_offset = 126;
-const unsigned int theta_offset = 131;
-const unsigned int eps_offset = 136;
-const unsigned int beta_offset = 141;
+const unsigned int theta_offset = 136;
+const unsigned int eps_offset = 141;
+const unsigned int beta_offset = 131;
 
 #endif
