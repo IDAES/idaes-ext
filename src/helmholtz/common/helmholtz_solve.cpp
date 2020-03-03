@@ -364,11 +364,9 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
         }
         tau = (a+b)/2.0;
       }
-      std::cout << "finding liquid tau = " << tau << "\n";
       fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
         tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-        std::cout << "finding liquid tau = " << tau << "\n";
         fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
         ++it;
       }
