@@ -408,12 +408,12 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
       return tau_sat;
     }
     if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "IAPWS LOW T CLIP WARNING: h = " << ht << " P= " << pr << " tau = " << tau << "\n";
+        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << std::endl;
         tau = TAU_HIGH;
         fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
     }
     else if(tau < TAU_LOW){
-        std::cerr << "IAPWS HIGH T CLIP WARNING: h = " << ht << " P= " << pr << " tau = " << tau << "\n";
+        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << std::endl;
         tau = TAU_LOW;
         fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
     }
