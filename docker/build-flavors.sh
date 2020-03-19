@@ -39,11 +39,11 @@ function imdoing() {
 }
 
 # main loop
+cid="x"
 for d in ${dirs}; do
   printf "+=========================================\n"
   printf "|  $d\n"
   printf "+=========================================\n"
-  success=0
   cd $d || ifailed "no such directory: $d"
   # build
   imdoing build
@@ -55,9 +55,16 @@ for d in ${dirs}; do
   # cp
   imdoing cp
   cd ..
-  docker cp ${cid}:/repo/idaes-ext/dist-lib/idaes-lib-${d}.tar.gz . ||
+  docker cp ${cid}:/repo/idaes-ext/dist-lib/idaes-lib-${d}.tar.gz .
+  if [ $? -ne 0 ]
+  then
+    imdoing stop
+    docker stop ${cid}
     ifailed "docker cp"
+  fi
   # done with this one
+  imdoing stop
+  docker stop ${cid}
   printf "=== SUCCESS: $d ===\n"
 done
 
