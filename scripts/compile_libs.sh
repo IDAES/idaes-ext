@@ -1,4 +1,6 @@
 #/bin/sh
+# First argument is OS name
+osname=$1; shift
 
 # Make a directory to work in
 export IDAES_EXT=`pwd`
@@ -41,4 +43,4 @@ if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
 fi
 
 # here you pack files
-tar -czvf idaes-lib.tar.gz *
+tar -czvf idaes-lib-${osname}.tar.gz *
