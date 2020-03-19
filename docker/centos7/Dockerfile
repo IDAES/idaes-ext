@@ -10,9 +10,14 @@ RUN yum -y install wget
 ##
 RUN mkdir repo; \
     cd repo; \
-    git clone https://github.com/dangunter/idaes-ext/tree/dockerfiles-13 ;\
-    # git clone https://github.com/IDAES/idaes-ext.git; \
-    cd idaes-ext
+    # debug mode: clone from a fork
+    # git clone https://github.com/dangunter/idaes-ext.git ; \
+    # normal mode: clone from IDAES
+    git clone https://github.com/IDAES/idaes-ext.git; \
+    cd idaes-ext ; \
+    # debug mode: check out PR branch
+    # git checkout dockerfiles-13; \
+    echo "cloned repo"
 
 ##
 # Build all the things
