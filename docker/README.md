@@ -1,16 +1,18 @@
 # Instructions
 
-Get Docker version
+This directory can build Docker containers that compile the
+binary extensions for various Linux flavors.
 
-    # docker version
+To build all flavors (sequentially)
 
-To build:
+    # ./build-flavors.sh
 
-Change to appropriate directory, e.g. "centos7"
+To build one flavor directory, e.g. "centos7"
 
-    # cd centos7
+    # ./build-flavors.sh centos7
 
-Copy the sources down and do the build:
+Look for "=== SUCCESS" or "*** FAILURE" at the bottom of the output.
 
-    # docker build -rm -t idaes:centos7 .
-
+If it succeeeds, the result(s) will be files in this
+directory, named for each flavor. For example, for centos7 you will
+get `idaes-lib-centos7.tar.gz`.
