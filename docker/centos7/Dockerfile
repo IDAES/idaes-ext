@@ -17,12 +17,13 @@ RUN mkdir repo; \
     # git clone https://github.com/IDAES/idaes-ext.git; \
     cd idaes-ext ; \
     # debug mode: check out PR branch
-    # git checkout dockerfiles-13; \
+    git checkout dock; \
     echo "cloned repo"
 
 ##
 # Build all the things
 ##
 RUN pwd; cd repo/idaes-ext; \
-    bash scripts/compile_solvers.sh centos7; \
+    # don't need to compile solvers for now
+    # bash scripts/compile_solvers.sh centos7; \
     bash scripts/compile_libs.sh centos7
