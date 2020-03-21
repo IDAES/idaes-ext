@@ -43,4 +43,4 @@ if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
 fi
 
 # here you pack files
-tar -czvf idaes-lib-${osname}.tar.gz *
+tar -czvf idaes-lib-${osname}-64.tar.gz *

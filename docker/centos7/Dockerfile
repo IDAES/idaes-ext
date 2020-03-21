@@ -12,8 +12,9 @@ RUN mkdir repo; \
     cd repo; \
     # debug mode: clone from a fork
     # git clone https://github.com/dangunter/idaes-ext.git ; \
+    git clone https://github.com/eslickj/idaes-ext.git ; \
     # normal mode: clone from IDAES
-    git clone https://github.com/IDAES/idaes-ext.git; \
+    # git clone https://github.com/IDAES/idaes-ext.git; \
     cd idaes-ext ; \
     # debug mode: check out PR branch
     # git checkout dockerfiles-13; \
@@ -23,5 +24,5 @@ RUN mkdir repo; \
 # Build all the things
 ##
 RUN pwd; cd repo/idaes-ext; \
-    bash scripts/compile_solvers.sh; \
+    bash scripts/compile_solvers.sh centos7; \
     bash scripts/compile_libs.sh centos7
