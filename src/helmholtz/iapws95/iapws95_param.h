@@ -53,6 +53,8 @@ const s_real R = 0.46151805;  // Specific gas constant (kJ/kg/K)
 const s_real T_c = 647.096;   // Critical T (K)
 const s_real rho_c = 322;     // Critical density (kg/m^3)
 const s_real P_c = 2.2064e4;  // Critical Pressure (kPa)
+const s_real T_t = 273.16;    // Tripple point temperature (K)
+const s_real P_t = 0.611;     //Tripple point pressure (kPa)
 
 // To generalize the equation of state there are parameters to set the number
 // of terms in each summation.  So far we are looking at IAPWS95 and Span-Wagner

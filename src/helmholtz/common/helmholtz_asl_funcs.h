@@ -36,8 +36,11 @@ double w_asl(arglist *al);
 
 double hvpt_asl(arglist *al);
 double hlpt_asl(arglist *al);
+double svpt_asl(arglist *al);
+double slpt_asl(arglist *al);
 double vf_asl(arglist *al);
 double tau_asl(arglist *al);
+double tau_sp_asl(arglist *al);
 
 double delta_sat_l_asl(arglist *al);
 double delta_sat_v_asl(arglist *al);
