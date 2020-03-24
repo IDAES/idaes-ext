@@ -21,7 +21,7 @@ then
   cd ThirdParty/
   git clone -b stable/2.0 https://github.com/coin-or-tools/ThirdParty-HSL HSL
   echo -n >HSL/.build
-  mkdir ThirdParty/HSL/coinhsl
+  mkdir HSL/coinhsl
   cd HSL/coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
