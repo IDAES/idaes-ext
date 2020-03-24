@@ -22,13 +22,13 @@ RUN 'exit'; \
     'pacman -Su   --needed --noconfirm --noprogressbar'; \
     'pacman -Scc --noconfirm';
 
-RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain'
+RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils'
 RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git mingw-w64-x86_64-lapack'
 
 RUN 'mkdir /c/repo/'
 COPY ./extras/ c:/repo/
 RUN 'export PATH=/c/msys64/mingw64/bin:$PATH && cd /c/repo/ && git clone $repo && cd idaes-ext && git checkout $branch && sh scripts/compile_libs.sh windows';
-RUN 'export PATH=/c/msys64/mingw64/bin:$PATH && cd /c/repo/ && sh scripts/compile_solvers.sh windows';
+RUN 'export PATH=/c/msys64/mingw64/bin:$PATH && cd /c/repo/idaes-ext && sh scripts/compile_solvers.sh windows';
 
 
 WORKDIR c:/repo/
