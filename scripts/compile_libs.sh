@@ -31,7 +31,8 @@ cd dist-lib
 cp ../src/dist/*.so ./
 cp ../license.txt ./
 
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]; then
+if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ] || [ "$(expr substr $(uname -s) 1 4)" == "MSYS" ]
+then
     # Winodws MinGW linked libraries
     cp /mingw64/bin/libstdc++-6.dll ./
     cp /mingw64/bin/libgcc_s_seh-1.dll ./
