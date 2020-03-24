@@ -11,8 +11,11 @@ RUN yum -y install wget
 ##
 # Pull down the repo
 ##
-RUN mkdir repo; \
-    cd repo; \
+RUN mkdir repo
+
+COPY ./extras/ /repo/
+
+RUN cd repo; \
     git clone ${repo} ; \
     cd idaes-ext ; \
     git checkout ${branch}; \
