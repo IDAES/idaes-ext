@@ -61,6 +61,8 @@ s_real w_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes);
 
 s_real hvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real hlpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
+s_real svpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
+s_real slpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
 
 /*------------------------------------------------------------------------------

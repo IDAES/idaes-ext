@@ -181,6 +181,58 @@ s_real hlpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
   return h;
 }
 
+s_real svpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::SVPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+  s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
+  s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
+  s_real delta, s;
+  delta = delta_vap(pr, tau, gradd, hesd);
+  s = s_with_derivs(delta, tau, gradh, hesh);
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::SVPT_FUNC, pr, tau, s, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
+  return s;
+}
+
+s_real slpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::SLPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+  s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
+  s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
+  s_real delta, s;
+  delta = delta_liq(pr, tau, gradd, hesd);
+  s = s_with_derivs(delta, tau, gradh, hesh);
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::SLPT_FUNC, pr, tau, s, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
+  return s;
+}
+
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     s_real val = memoize::get_bin(memoize::VF_FUNC, ht, pr, grad, hes);
     if(!std::isnan(val)) return val;
@@ -196,6 +248,7 @@ s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     s_real hl = hlpt_with_derivs(pr, tau, gradhl, heshl);
 
     if(pr >= P_c){zero_derivs2(grad, hes); return 0.0;} //Classify supercritical as liquid
+    else if(pr <= P_t){zero_derivs2(grad, hes); return 1.0;} //below tripple point going to assume vapor, because it's that or a solid and I'm not dealing with solids.
     else if(hl > ht){ zero_derivs2(grad, hes); return 0.0;}
     else if(hv < ht){ zero_derivs2(grad, hes); return 1.0;}
 
@@ -367,6 +420,11 @@ s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_c;
+  }
+  if(tau > T_c/T_t && limit){ // below tripple
+    if(grad != NULL) grad[0] = 0;
+    if(hes != NULL) hes[0] = 0;
+    return P_t;
   }
   //Now check if there is a stored value
   s_real val = memoize::get_un(memoize::P_SAT_FUNC, tau, grad, hes);
