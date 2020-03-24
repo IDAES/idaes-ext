@@ -17,10 +17,13 @@ bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
   # If the HSL isn't there then just compile without.
-  mkdir ThirdParty/HSL/coinhsl
+  mkdir ThirdParty/HSL
   echo -n >ThirdParty/HSL/.build
   cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
-  cd ThirdParty/HSL/coinhsl/
+  cd ThirdParty/HSL
+  git clone https://github.com/coin-or-tools/ThirdParty-HSL:stable/2.0 HSL
+  mkdir ThirdParty/HSL/coinhsl
+  cd coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
 else
