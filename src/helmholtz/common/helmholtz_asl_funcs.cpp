@@ -44,7 +44,10 @@ void funcadd(AmplExports *ae){
     addfunc("w", (rfunc)w_asl, typ, 2, NULL);
     addfunc("hvpt", (rfunc)hvpt_asl, typ, 2, NULL);
     addfunc("hlpt", (rfunc)hlpt_asl, typ, 2, NULL);
+    addfunc("svpt", (rfunc)svpt_asl, typ, 2, NULL);
+    addfunc("slpt", (rfunc)slpt_asl, typ, 2, NULL);
     addfunc("tau", (rfunc)tau_asl, typ, 2, NULL);
+    addfunc("tau_sp", (rfunc)tau_sp_asl, typ, 2, NULL);
     addfunc("vf", (rfunc)vf_asl, typ, 2, NULL);
     addfunc("delta_liq", (rfunc)delta_liq_asl, typ, 2, NULL);
     addfunc("delta_vap", (rfunc)delta_vap_asl, typ, 2, NULL);
@@ -247,6 +250,36 @@ double hlpt_asl(arglist *al){
   }
 }
 
+double svpt_asl(arglist *al){
+  if(al->derivs==NULL && al->hes==NULL){
+    return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+  else{
+    #ifdef CAST_DERIVATIVES
+      s_real f, grad[2], hes[3];
+      f = svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+    #endif
+  }
+}
+
+double slpt_asl(arglist *al){
+  if(al->derivs==NULL && al->hes==NULL){
+    return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+  else{
+    #ifdef CAST_DERIVATIVES
+      s_real f, grad[2], hes[3];
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      f = slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      return f;
+    #else
+      return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+    #endif
+  }
+}
+
 double tau_asl(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
@@ -258,6 +291,21 @@ double tau_asl(arglist *al){
       return f;
     #else
       return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+    #endif
+  }
+}
+
+double tau_sp_asl(arglist *al){
+  if(al->derivs==NULL && al->hes==NULL){
+    return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+  else{
+    #ifdef CAST_DERIVATIVES
+      s_real f, grad[2], hes[3];
+      f = tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
   }
 }
