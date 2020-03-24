@@ -1,9 +1,13 @@
-$flavor = "windows"
+$flavor = $args[0]
 
 IF ($flavor -eq "windows"){
   $repo = "c:/repo/idaes-ext/dist-lib"
-} ELSE{
+} ELSEIF ($flavor -eq "centos7"){
   $repo = "/repo/idaes-ext/dist-lib"
+}
+ELSE{
+  echo "Please specify a flavor in {windows, centos7}."
+  exit 1
 }
 
 cd ${flavor}
