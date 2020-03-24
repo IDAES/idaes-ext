@@ -1,6 +1,9 @@
 FROM centos:centos7
 MAINTAINER The CentOS Project <cloud-ops@centos.org>
 
+ENV repo https://github.com/eslickj/idaes-ext.git
+ENV branch dock
+
 RUN yum -y update; yum clean all
 RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel
 RUN yum -y install wget
@@ -10,14 +13,9 @@ RUN yum -y install wget
 ##
 RUN mkdir repo; \
     cd repo; \
-    # debug mode: clone from a fork
-    # git clone https://github.com/dangunter/idaes-ext.git ; \
-    git clone https://github.com/eslickj/idaes-ext.git ; \
-    # normal mode: clone from IDAES
-    # git clone https://github.com/IDAES/idaes-ext.git; \
+    git clone ${repo} ; \
     cd idaes-ext ; \
-    # debug mode: check out PR branch
-    git checkout dock; \
+    git checkout ${branch}; \
     echo "cloned repo"
 
 ##
