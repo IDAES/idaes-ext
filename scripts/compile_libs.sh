@@ -37,7 +37,7 @@ then
     cp /mingw64/bin/libstdc++-6.dll ./
     cp /mingw64/bin/libgcc_s_seh-1.dll ./
     cp /mingw64/bin/libwinpthread-1.dll ./
-    cp /mingw64/bin/libgfortran-5.dll ./
+    cp /mingw64/bin/libgfortran-4.dll ./
     cp /mingw64/bin/libquadmath-0.dll ./
     cp /mingw64/bin/liblapack.dll ./
     cp /mingw64/bin/libblas.dll ./
