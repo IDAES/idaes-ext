@@ -15,6 +15,11 @@ __pycache__/
 auto-save-list
 .\#*
 
+# zip
+*.zip
+*.tar
+*.gz
+
 # C extensions
 *.so
 *.o
@@ -115,4 +120,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-

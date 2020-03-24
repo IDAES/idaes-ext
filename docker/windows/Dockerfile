@@ -28,5 +28,7 @@ RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip
 RUN 'mkdir /c/repo/'
 COPY ./extras/ c:/repo/
 RUN 'export PATH=/c/msys64/mingw64/bin:$PATH && cd /c/repo/ && git clone $repo && cd idaes-ext && git checkout $branch && sh scripts/compile_libs.sh windows';
+RUN 'export PATH=/c/msys64/mingw64/bin:$PATH && cd /c/repo/ && sh scripts/compile_solvers.sh windows';
 
-WORKDIR c:/repo/idaes-ext/dist-lib
+
+WORKDIR c:/repo/
