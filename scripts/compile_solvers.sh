@@ -21,7 +21,7 @@ then
   echo -n >ThirdParty/HSL/.build
   cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
   cd ThirdParty/HSL
-  git clone https://github.com/coin-or-tools/ThirdParty-HSL:stable/2.0 HSL
+  git clone -b stable/2.0 https://github.com/coin-or-tools/ThirdParty-HSL HSL
   mkdir ThirdParty/HSL/coinhsl
   cd coinhsl
   unzip coinhsl.zip
