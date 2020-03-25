@@ -27,7 +27,7 @@ else
   # If the HSL isn't there then just compile without.
   echo "HSL Not Available, BUILDING WITHOUT HSL" >&2
 fi
-bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt --fully-static
+bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt --disable-shared
 
 cd $IDAES_EXT
 mkdir dist-solvers
