@@ -20,11 +20,11 @@ then
   cd ThirdParty/
   # git clone -b stable/2.0 https://github.com/coin-or-tools/ThirdParty-HSL HSL
   mkdir HSL
-  echo -n >HSL/.build
-  mkdir HSL/coinhsl
-  cp $IDAES_EXT/../coinhsl.zip HSL/coinhsl/
-  cd HSL/coinhsl
-  unzip coinhsl.zip
+  #echo -n >HSL/.build
+  #mkdir HSL/coinhsl
+  #cp $IDAES_EXT/../coinhsl.zip HSL/coinhsl/
+  #cd HSL/coinhsl
+  #unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
 else
   echo "HSL Not Available, BUILDING WITHOUT HSL" >&2
