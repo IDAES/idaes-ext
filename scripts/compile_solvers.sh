@@ -20,7 +20,7 @@ then
   cd ThirdParty/
   # git clone -b stable/2.0 https://github.com/coin-or-tools/ThirdParty-HSL HSL
   mkdir HSL
-  #echo -n >HSL/.build
+  echo -n >HSL/.build
   #mkdir HSL/coinhsl
   #cp $IDAES_EXT/../coinhsl.zip HSL/coinhsl/
   #cd HSL/coinhsl
