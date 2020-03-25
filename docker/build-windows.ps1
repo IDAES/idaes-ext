@@ -11,7 +11,7 @@ ELSE{
 }
 
 cd ${flavor}
-docker build --no-cache --rm -t ${flavor}_build .
+docker build --rm -t ${flavor}_build .
 docker run --name ${flavor}_build_tmp -dt ${flavor}_build:latest
 docker stop ${flavor}_build_tmp
 docker cp ${flavor}_build_tmp:${repo}/idaes-ext/dist-lib/idaes-lib-${flavor}-64.tar.gz .
