@@ -12,25 +12,22 @@ export IPOPT_REPO="https://github.com/idaes/Ipopt"
 
 mkdir coinbrew
 cd coinbrew
-wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+wget https://raw.githubusercontent.com/idaes/coinbrew/idaes-stable/coinbrew
+bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
-  # If the HSL isn't there then just compile without.
-  mkdir ThirdParty
-  cd ThirdParty/
-  # git clone -b stable/2.0 https://github.com/coin-or-tools/ThirdParty-HSL HSL
-  mkdir HSL
-  echo -n >HSL/.build
-  #mkdir HSL/coinhsl
-  #cp $IDAES_EXT/../coinhsl.zip HSL/coinhsl/
-  #cd HSL/coinhsl
-  #unzip coinhsl.zip
+  # if the HSL source zip is in place...
+  echo -n >ThirdParty/HSL/.build
+  mkdir ThirdParty/HSL/coinhsl
+  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
+  cd ThirdParty/HSL/coinhsl
+  unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
 else
+  # If the HSL isn't there then just compile without.
   echo "HSL Not Available, BUILDING WITHOUT HSL" >&2
 fi
-bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
-bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt --disable-shared
+bash coinbrew build $IPOPT_REPO:$IPOPT_BRANCH --no-prompt --fully-static
 
 cd $IDAES_EXT
 mkdir dist-solvers
