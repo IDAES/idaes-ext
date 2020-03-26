@@ -25,9 +25,10 @@ then
   cd $IDAES_EXT/coinbrew
 else
   # If the HSL isn't there then just compile without.
-  echo "HSL Not Available, BUILDING WITHOUT HSL" >&2
+  echo "HSL Not Available, NOT BUILDING SOLVERS" >&2
+  exit 0
 fi
-bash coinbrew build Ipopt --no-prompt --disable-shared
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS=-lgfortran
 
 cd $IDAES_EXT
 mkdir dist-solvers

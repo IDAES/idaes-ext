@@ -26,5 +26,5 @@ RUN cd repo; \
 ##
 RUN pwd; cd repo/idaes-ext; \
     # don't need to compile solvers for now
-    # bash scripts/compile_solvers.sh centos7; \
-    bash scripts/compile_libs.sh centos7
+    bash scripts/compile_libs.sh centos7; \
+    bash scripts/compile_solvers.sh centos7
