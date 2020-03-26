@@ -5,8 +5,8 @@ ENV repo https://github.com/eslickj/idaes-ext.git
 ENV branch dock
 
 RUN yum -y update; yum clean all
-RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel wget unzip patch which
-
+RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel
+RUN yum -y install wget unzip patch which file lapack-devel blas-devel
 ##
 # Pull down the repo
 ##
