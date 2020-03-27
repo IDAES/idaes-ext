@@ -18,6 +18,7 @@
 -------------------------------------------------*/
 
 #include<unordered_map>
+#include<tuple>
 #include<boost/functional/hash.hpp>
 #include"helmholtz_config.h"
 
