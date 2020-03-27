@@ -9,8 +9,11 @@ ELSEIF ($flavor -eq "centos6"){
 ELSEIF ($flavor -eq "centos7"){
   $repo = "/repo"
 }
+ELSEIF ($flavor -eq "centos8"){
+  $repo = "/repo"
+}
 ELSE{
-  echo "Please specify a flavor in {windows, centos6, centos7}."
+  echo "Please specify a flavor in {windows, centos6, centos7, centos8}."
   exit 1
 }
 
