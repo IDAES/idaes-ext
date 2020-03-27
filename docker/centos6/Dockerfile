@@ -24,9 +24,9 @@ RUN cd repo; \
     git checkout ${branch}; \
     echo "cloned repo"
 
-RUN cd repo/idaes-ext; \
+RUN cd /repo; \
     wget https://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2;\
-    tar --bzip2 -xf /boost_1_61_0.tar.bz2
+    tar --bzip2 -xf boost_1_61_0.tar.bz2
 
 ##
 # Build all the things
