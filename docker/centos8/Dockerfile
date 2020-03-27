@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:centos8
 MAINTAINER The CentOS Project <cloud-ops@centos.org>
 
 ENV repo https://github.com/eslickj/idaes-ext.git
@@ -24,5 +24,5 @@ RUN cd repo; \
 # Build all the things
 ##
 RUN pwd; cd repo/idaes-ext; \
-    bash scripts/compile_libs.sh centos7; \
-    bash scripts/compile_solvers.sh centos7
+    bash scripts/compile_libs.sh centos8; \
+    bash scripts/compile_solvers.sh centos8
