@@ -39,6 +39,9 @@ then
     cp /mingw64/bin/libwinpthread-1.dll ./
     cp /mingw64/bin/libgfortran-4.dll ./
     cp /mingw64/bin/libquadmath-0.dll ./
+    cp /mingw64/bin/libgomp-1.dll ./
+    cp /mingw64/bin/liblapack.dll ./
+    cp /mingw64/bin/libblas.dll ./
 fi
 
 # here you pack files
