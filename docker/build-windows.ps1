@@ -12,17 +12,21 @@ ELSEIF ($flavor -eq "centos7"){
 ELSEIF ($flavor -eq "centos8"){
   $repo = "/repo"
 }
+ELSEIF ($flavor -eq "ubuntu1804"){
+  $repo = "/repo"
+}
 ELSE{
-  echo "Please specify a flavor in {windows, centos6, centos7, centos8}."
+  echo "Please specify a flavor in {windows, centos6, centos7, centos8,"
+  echo "                            ubuntu1804}."
   exit 1
 }
 
 
-xcopy /E extras ${flavor}\extras\
+xcopy /y /E extras ${flavor}\extras\
 
 cd ${flavor}
 docker build --rm -t ${flavor}_build .
-rmdir /Q /S ${flavor}\extras\
+Remove-Item extras -Recurse -Force -Confirm:$false
 docker run --name ${flavor}_build_tmp -dt ${flavor}_build:latest
 docker stop ${flavor}_build_tmp
 docker cp ${flavor}_build_tmp:${repo}/idaes-ext/dist-lib/idaes-lib-${flavor}-64.tar.gz .

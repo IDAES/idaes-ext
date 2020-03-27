@@ -6,7 +6,10 @@ ENV branch dock
 
 RUN yum -y update; yum clean all
 RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel
-RUN yum -y install wget unzip patch which file lapack-devel blas-devel
+RUN yum -y install wget unzip patch which file
+RUN yum -y install dnf-plugins-core
+RUN yum config-manager --set-enabled PowerTools
+RUN dnf --enablerepo=PowerTools -y install lapack-devel
 ##
 # Pull down the repo
 ##
