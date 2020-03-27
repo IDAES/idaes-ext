@@ -3,9 +3,9 @@ GUESS = iapws95_guess.o
 include ../../Makefile.in
 
 ifeq ($(BOOST),)
-    CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC
+    CXXFLAGS = -c $(CFLAGS) -fPIC
 else
-    CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC -I$(BOOST)
+    CXXFLAGS = -c $(CFLAGS) -fPIC -I$(BOOST)
 endif
 
 OBJECTS = helmholtz_external.o helmholtz_solve.o helmholtz_phi.o \

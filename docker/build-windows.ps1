@@ -2,16 +2,20 @@ $flavor = $args[0]
 
 IF ($flavor -eq "windows"){
   $repo = "c:/repo"
-} ELSEIF ($flavor -eq "centos7"){
+}
+ELSEIF ($flavor -eq "centos6"){
+  $repo = "/repo"
+}
+ELSEIF ($flavor -eq "centos7"){
   $repo = "/repo"
 }
 ELSE{
-  echo "Please specify a flavor in {windows, centos7}."
+  echo "Please specify a flavor in {windows, centos6, centos7}."
   exit 1
 }
 
 cd ${flavor}
-docker build --rm --no-cache -t ${flavor}_build .
+docker build --rm -t ${flavor}_build .
 docker run --name ${flavor}_build_tmp -dt ${flavor}_build:latest
 docker stop ${flavor}_build_tmp
 docker cp ${flavor}_build_tmp:${repo}/idaes-ext/dist-lib/idaes-lib-${flavor}-64.tar.gz .
