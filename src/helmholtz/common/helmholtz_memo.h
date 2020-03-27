@@ -29,13 +29,13 @@ namespace memoize{
 
   class memo0{
   public:
-    s_real val = (s_real)NAN;
+    s_real val;
     memo0(void);
   };
 
   class memo1{
   public:
-    s_real val = (s_real)NAN;
+    s_real val;
     s_real grad[1];
     s_real hes[1];
     memo1(void);
@@ -43,7 +43,7 @@ namespace memoize{
 
   class memo2{
   public:
-    s_real val = (s_real)NAN;
+    s_real val;
     s_real grad[2];
     s_real hes[3];
     memo2(void);
