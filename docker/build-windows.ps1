@@ -1,23 +1,32 @@
 $flavor = $args[0]
 
+$repo = "https://github.com/eslickj/idaes-ext.git"
+$branch = "dock"
+
 IF ($flavor -eq "windows"){
-  $repo = "c:/repo"
+  $wdir = "c:/repo"
 }
 ELSEIF ($flavor -eq "centos6"){
-  $repo = "/repo"
+  $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "centos7"){
-  $repo = "/repo"
+  $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "centos8"){
-  $repo = "/repo"
+  $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "ubuntu1804"){
-  $repo = "/repo"
+  $wdir = "/repo"
+}
+ELSEIF ($flavor -eq "ubuntu1910"){
+  $wdir = "/repo"
+}
+ELSEIF ($flavor -eq "ubuntu2004"){
+  $wdir = "/repo"
 }
 ELSE{
   echo "Please specify a flavor in {windows, centos6, centos7, centos8,"
-  echo "                            ubuntu1804}."
+  echo "                            ubuntu1804, ubuntu1910, ubuntu2004}."
   exit 1
 }
 
@@ -25,13 +34,13 @@ ELSE{
 xcopy /y /E extras ${flavor}\extras\
 
 cd ${flavor}
-docker build --rm -t ${flavor}_build .
+docker build --rm --build-arg repo=${repo} --build-arg branch=${branch} -t ${flavor}_build .
 Remove-Item extras -Recurse -Force -Confirm:$false
 docker run --name ${flavor}_build_tmp -dt ${flavor}_build:latest
 docker stop ${flavor}_build_tmp
-docker cp ${flavor}_build_tmp:${repo}/idaes-ext/dist-lib/idaes-lib-${flavor}-64.tar.gz .
+docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-lib/idaes-lib-${flavor}-64.tar.gz .
 try{
-  docker cp ${flavor}_build_tmp:${repo}/idaes-ext/dist-solvers/idaes-solvers-${flavor}-64.tar.gz .
+  docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-solvers/idaes-solvers-${flavor}-64.tar.gz .
 }
 catch{
   echo "Solvers were not built."

@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/windows:1909
 
-ENV repo https://github.com/eslickj/idaes-ext.git
-ENV branch dock
+ARG repo=https://github.com/idaes/idaes-ext.git
+ARG branch=master
 
 SHELL ["powershell", "-command"]
 

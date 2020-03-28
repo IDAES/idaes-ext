@@ -1,8 +1,8 @@
 FROM centos:centos7
 MAINTAINER The CentOS Project <cloud-ops@centos.org>
 
-ENV repo https://github.com/eslickj/idaes-ext.git
-ENV branch dock
+ARG repo=https://github.com/idaes/idaes-ext.git
+ARG branch=master
 
 RUN yum -y update; yum clean all
 RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel

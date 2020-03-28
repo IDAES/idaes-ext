@@ -1,11 +1,11 @@
 FROM ubuntu:19.10
 
-ENV repo https://github.com/eslickj/idaes-ext.git
-ENV branch dock
+ARG repo=https://github.com/idaes/idaes-ext.git
+ARG branch=master
 
 RUN apt-get -y update; \
     apt-get -y upgrade; \
-    apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
+    apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip pkg-config
 
 RUN apt-get -y install gfortran libboost-all-dev
 

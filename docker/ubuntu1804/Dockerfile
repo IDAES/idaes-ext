@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
-ENV repo https://github.com/eslickj/idaes-ext.git
-ENV branch dock
+ARG repo=https://github.com/idaes/idaes-ext.git
+ARG branch=master
 
 RUN apt-get -y update; \
     apt-get -y upgrade; \
