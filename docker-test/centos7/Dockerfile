@@ -32,7 +32,11 @@ RUN cd repo; \
     idaes get-extensions --url file:////repo/
 
 RUN cd repo; \
-    cd idaes-pse/idaes/generic_models/control; \
     eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
     conda activate idaes; \
+    cd idaes-pse/idaes/generic_models; \
+    pytest; \
+    cd ../core; \
+    pytest; \
+    cd ../power_generation; \
     pytest
