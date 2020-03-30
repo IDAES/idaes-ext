@@ -3,9 +3,9 @@ GUESS = swco2_guess.o
 include ../../Makefile.in
 
 ifeq ($(BOOST),)
-    CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC
+    CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC
 else
-    CXXFLAGS = -c $(CFLAGS) -std=c++11 -fPIC -I$(BOOST)
+    CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
 OBJECTS = helmholtz_external.o helmholtz_solve.o helmholtz_phi.o \

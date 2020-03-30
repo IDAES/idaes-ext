@@ -26,6 +26,18 @@ std::unordered_map<args_un, memo1, boost::hash<args_un>> table_un;
 std::unordered_map<args_bin, memo0, boost::hash<args_bin>> table_bin0;
 std::unordered_map<args_un, memo0, boost::hash<args_un>> table_un0;
 
+memo0::memo0(void){
+  val = (s_real)NAN; //the nan value is how you know the function isn't cached
+}
+
+memo1::memo1(void){
+  val = (s_real)NAN; //the nan value is how you know the function isn't cached
+}
+
+memo2::memo2(void){
+  val = (s_real)NAN; //the nan value is how you know the function isn't cached
+}
+
 unsigned int memoize::add_bin0(unsigned char f, s_real x, s_real y, s_real val){
   if(max_memo == 0) return 0;
   if(table_bin0.size() > max_memo) table_bin0.clear(); //wipe out if it goes oversize

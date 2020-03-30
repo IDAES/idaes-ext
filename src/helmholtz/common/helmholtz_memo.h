@@ -18,6 +18,7 @@
 -------------------------------------------------*/
 
 #include<unordered_map>
+#include<tuple>
 #include<boost/functional/hash.hpp>
 #include"helmholtz_config.h"
 
@@ -27,21 +28,28 @@
 namespace memoize{
   static const unsigned int max_memo=MAX_MEMO;
 
-  typedef struct{  // storage type for no derivatives
-    s_real val = (s_real)NAN;
-  } memo0;
+  class memo0{
+  public:
+    s_real val;
+    memo0(void);
+  };
 
-  typedef struct{ // storage to derivatives w.r.t. 1 var
-    s_real val = (s_real)NAN;
-    s_real grad[1] = {(s_real)NAN};
-    s_real hes[1] = {(s_real)NAN};
-  } memo1;
+  class memo1{
+  public:
+    s_real val;
+    s_real grad[1];
+    s_real hes[1];
+    memo1(void);
+  };
 
-  typedef struct{ // storage to derivatives w.r.t. 2 vars
-    s_real val = (s_real)NAN;
-    s_real grad[2] = {(s_real)NAN, (s_real)NAN};
-    s_real hes[3] = {(s_real)NAN, (s_real)NAN, (s_real)NAN};
-  } memo2;
+  class memo2{
+  public:
+    s_real val;
+    s_real grad[2];
+    s_real hes[3];
+    memo2(void);
+  };
+
 
   typedef std::tuple<unsigned char, s_real, s_real> args_bin;
   typedef std::tuple<unsigned char, s_real> args_un;
