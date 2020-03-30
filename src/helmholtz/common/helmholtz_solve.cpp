@@ -421,11 +421,11 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
       return tau_sat;
     }
     if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << std::endl;
+        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
     else if(tau < TAU_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << std::endl;
+        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
     if(grad != NULL){
@@ -533,11 +533,11 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
       return tau_sat;
     }
     if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << std::endl;
+        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
     else if(tau < TAU_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << std::endl;
+        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
     if(grad != NULL){
