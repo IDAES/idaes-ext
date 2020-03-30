@@ -354,11 +354,11 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
       if (pr >= P_c){
         tau = 1.5;
       }
-      else if(T_c/tau_sat - 20 < T_t){
+      else if(T_c/tau_sat - 50 < T_t){
         tau = T_c/T_t;
       }
       else{
-        tau = T_c/(T_c/tau_sat - 20);
+        tau = T_c/(T_c/tau_sat - 50);
       }
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && pr < P_c){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
@@ -466,11 +466,11 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
       if (pr >= P_c){
         tau = 1.5;
       }
-      else if(T_c/tau_sat - 20 < T_t){
+      else if(T_c/tau_sat - 50 < T_t){
         tau = T_c/T_t;
       }
       else{
-        tau = T_c/(T_c/tau_sat - 20);
+        tau = T_c/(T_c/tau_sat - 50);
       }
       if(slpt_with_derivs(pr, tau, gradh, hesh) - st < 0 && pr < P_c){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
