@@ -25,10 +25,7 @@ RUN cd repo; \
     conda activate idaes; \
     python setup.py develop; \
     cd ..; \
-    # Once we update get-extensions to get specific linux builds need to modify a bit
-    mv idaes-lib-centos8-64.tar.gz idaes-lib-linux-64.tar.gz; \
-    mv idaes-solvers-centos8-64.tar.gz idaes-solvers-linux-64.tar.gz; \
-    idaes get-extensions --url file:////repo/
+    idaes get-extensions --url file:////repo/ --platform centos8
 
 RUN cd repo; \
     eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
