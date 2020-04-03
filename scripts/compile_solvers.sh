@@ -12,7 +12,7 @@ export IPOPT_REPO="https://github.com/idaes/Ipopt"
 
 mkdir coinbrew
 cd coinbrew
-wget https://raw.githubusercontent.com/coin-or/coinbrew/idaes-stable/coinbrew
+wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
