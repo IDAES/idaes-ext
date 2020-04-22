@@ -59,7 +59,8 @@ cd pyomo/contrib/pynumero/cmake/third_party/ASL
 sh ./getASL.sh
 cd solvers
 sh ./configurehere
-sed -e s/-DNo_dtoa//g -i Makefile || sed -e s/-DNo_dtoa//g -i makefile
+sed -e "s/-DNo_dtoa//g" -i Makefile || sed -e "s/-DNo_dtoa//g" -i makefile
+sed -e "s/ifdef __GNUC__/ifdef __RANDOMJUNK123__/g" -i fpinitmt.c
 make
 cd ../../../
 mkdir build
