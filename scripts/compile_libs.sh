@@ -44,7 +44,7 @@ cd solvers
 sh ./configurehere
 sed -e s/-DNo_dtoa//g -i Makefile
 make
-cd ../../
+cd ../../../
 mkdir build
 cd build
 cmake ..
