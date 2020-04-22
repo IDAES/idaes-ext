@@ -59,7 +59,10 @@ cd pyomo/contrib/pynumero/cmake/third_party/ASL
 sh ./getASL.sh
 cd solvers
 sh ./configurehere
+# remove the -DNo_dtoa as per the pynumero readme
 sed -e "s/-DNo_dtoa//g" -i Makefile || sed -e "s/-DNo_dtoa//g" -i makefile
+# prevent multiple definition of matherr
+# this was always causing warnings somethimes linking errors
 sed -e "s/ifdef __GNUC__/ifdef __RANDOMJUNK123__/g" -i fpinitmt.c
 make
 cd ../../../
