@@ -22,7 +22,7 @@ RUN 'exit'; \
     'pacman -Su   --needed --noconfirm --noprogressbar'; \
     'pacman -Scc --noconfirm';
 
-RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils'
+RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake'
 RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git mingw-w64-x86_64-lapack'
 
 ENV MSYSTEM MINGW64

@@ -9,7 +9,7 @@ RUN apt-get -y update; \
     apt-get -y upgrade; \
     apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
 
-RUN apt-get -y install gfortran libboost-all-dev
+RUN apt-get -y install gfortran libboost-all-dev cmake
 RUN apt-get -y install pkg-config
 
 ##
