@@ -59,7 +59,7 @@ cd pyomo/contrib/pynumero/cmake/third_party/ASL
 sh ./getASL.sh
 cd solvers
 sh ./configurehere
-sed -e s/-DNo_dtoa//g -i Makefile
+sed -e s/-DNo_dtoa//g -i Makefile || sed -e s/-DNo_dtoa//g -i makefile
 make
 cd ../../../
 mkdir build
