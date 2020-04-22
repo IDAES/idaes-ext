@@ -63,7 +63,7 @@ sh ./configurehere
 sed -e "s/-DNo_dtoa//g" -i Makefile || sed -e "s/-DNo_dtoa//g" -i makefile
 # prevent multiple definition of matherr
 # this was always causing warnings somethimes linking errors
-sed -e "s/ifdef __GNUC__/ifdef __RANDOMJUNK123__/g" -i fpinitmt.c
+sed -e "s/ifndef NO_matherr/ifdef __RANDOMJUNK123__/g" -i fpinitmt.c
 make
 cd ../../../
 mkdir build
