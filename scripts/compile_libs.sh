@@ -26,10 +26,33 @@ cd $IDAES_EXT
 # Collect files
 
 cd $IDAES_EXT
+rm -rf ./dist-lib
 mkdir dist-lib
 cd dist-lib
 cp ../src/dist/*.so ./
 cp ../license.txt ./
+
+# Compile Pynumero
+
+cd $IDAES_EXT
+git clone https://github.com/idaes/pyomo pyomo
+cd pyomo
+git checkout IDAES
+cd pyomo/contrib/pynumero/cmake/third_party/ASL
+sh ./getASL.sh
+cd solvers
+sh ./configurehere
+sed -e s/-DNo_dtoa//g -i Makefile
+make
+cd ../../
+mkdir build
+cd build
+cmake ..
+make
+cp asl_interface/libpynumero_ASL* $IDAES_EXT/dist-lib
+cp sparse_utils/libpynumero_SPARSE* $IDAES_EXT/dist-lib
+
+
 
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
