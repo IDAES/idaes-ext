@@ -65,24 +65,14 @@ cd $IDAES_EXT
 git clone $PYNU_REPO
 cd pyomo
 git checkout $PYNU_BRANCH
-cd pyomo/contrib/pynumero/cmake/third_party/ASL
-bash ./getASL.sh
-cd solvers
-bash ./configurehere
-# remove the -DNo_dtoa as per the pynumero readme
-sed -e "s/-DNo_dtoa//g" -i Makefile || sed -e "s/-DNo_dtoa//g" -i makefile
-# prevent multiple definition of matherr
-# this was always causing warnings somethimes linking errors
-sed -e "s/ifndef NO_matherr/ifdef __RANDOMJUNK123__/g" -i fpinitmt.c
-make
-cd ../../../
+cd pyomo/contrib/pynumero/src
 mkdir build
 cd build
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  cmake -G"MSYS Makefiles" ..
+  cmake -G"MSYS Makefiles" .. -DBUILD_AMPLMP_IF_NEEDED=ON
 else
-  cmake ..
+  cmake .. -DBUILD_AMPLMP_IF_NEEDED=ON
 fi
 make
 cp asl_interface/libpynumero_ASL* $IDAES_EXT/dist-solvers
