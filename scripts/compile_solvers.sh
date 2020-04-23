@@ -19,7 +19,7 @@ wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 # a line in the coinbrew script throws a syntax error on centos6 so change it
 if [ ${osname}=="centos6" ]
 then
-  sed -e "s/[ -v LD_LIBRARY_PATH ]/ "1" = "1" /g" -i coinbrew
+  sed -e "s/[ -v LD_LIBRARY_PATH ]/ \"1\" = \"1\" /g" -i coinbrew
 fi
 
 bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
