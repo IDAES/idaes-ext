@@ -5,11 +5,13 @@ ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master
 
 RUN yum -y update; yum clean all
-RUN yum -y install make gcc gcc-c++ gcc-gfortran cmake
+RUN yum -y install make gcc gcc-c++ gcc-gfortran
 RUN yum -y install wget unzip patch which file lapack-devel blas-devel
 RUN yum -y install http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm
 RUN yum -y install git
-
+RUN yum -y install epel-release
+RUN yum -y install cmake3
+RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
 
 ##
 # Pull down the repo
