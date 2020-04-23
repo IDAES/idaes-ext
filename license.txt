@@ -1,5 +1,5 @@
-This file contains the license information for the third-party libraries and 
-solvers included in the IDAES binary distribution: idaes-lib-<OS Platform>.tar.gz and 
+This file contains the license information for the third-party libraries and
+solvers included in the IDAES binary distribution: idaes-lib-<OS Platform>.tar.gz and
 idaes-solvers-<OS Platform>.tar.gz.
 
 idaes-lib-*.tar.gz
@@ -14,24 +14,27 @@ idaes-solvers-*.tar.gz:
 
   Ipopt:
   Eclipse Public License 1.0, https://github.com/coin-or/Ipopt
-  
+
   HSL:
-  All technical papers, sales and publicity material resulting from use of 
-  the HSL codes within IPOPT must contain the following acknowledgement: HSL, a 
-  collection of Fortran codes for large-scale scientific computation. See 
+  All technical papers, sales and publicity material resulting from use of
+  the HSL codes within IPOPT must contain the following acknowledgement: HSL, a
+  collection of Fortran codes for large-scale scientific computation. See
   http://www.hsl.rl.ac.uk.
-  
+
+  AMPL/MP:
+  See https://github.com/ampl/mp/blob/master/LICENSE.rst
+
   MUMPS:
   See http://mumps.enseeiht.fr/index.php?page=dwnld.
-  
+
   METIS:
   METIS is included with permission.
-  
+
   Lapack:
   See http://www.netlib.org/lapack/#_licensing.
-  
+
   Blas:
   See http://www.netlib.org/blas/#_licensing.
-  
+
   MinGW:
   For Windows, MinGW runtime libraries are included. See http://www.mingw.org/license.
