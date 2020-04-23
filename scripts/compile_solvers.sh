@@ -9,10 +9,19 @@ export IDAES_EXT=`pwd`
 
 export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
+export PYNU_BRANCH="pynumero-testing"
+export PYNU_REPO="https://github.com/jsiirola/pyomo"
 
 mkdir coinbrew
 cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+
+# a line in the coinbrew script throws a syntax error on centos6 so change it
+if [ ${osname}=="centos6" ]
+then
+  sed -e "s/[ -v LD_LIBRARY_PATH ]/ "1" = "1" /g" -i coinbrew
+fi
+
 bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
@@ -24,7 +33,8 @@ then
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
 else
-  # If the HSL isn't there then just compile without.
+  # If the HSL isn't there then just quit.  We could also build without if
+  # there is a reason.
   echo "HSL Not Available, NOT BUILDING SOLVERS" >&2
   exit 0
 fi
@@ -52,7 +62,7 @@ fi
 # Compile Pynumero
 
 cd $IDAES_EXT
-git clone https://github.com/idaes/pyomo pyomo
+git clone $PYNU_REPO $PYNU_BRANCH
 cd pyomo
 git checkout IDAES
 cd pyomo/contrib/pynumero/cmake/third_party/ASL
