@@ -62,9 +62,9 @@ fi
 # Compile Pynumero
 
 cd $IDAES_EXT
-git clone $PYNU_REPO $PYNU_BRANCH
+git clone $PYNU_REPO
 cd pyomo
-git checkout IDAES
+git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/cmake/third_party/ASL
 bash ./getASL.sh
 cd solvers
