@@ -45,6 +45,7 @@ mkdir dist-solvers
 cd dist-solvers
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../license.txt ./
+cp ../amplmp_license.rst ./
 
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
