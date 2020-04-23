@@ -75,7 +75,7 @@ else
   cmake .. -DBUILD_AMPLMP_IF_NEEDED=ON
 fi
 make
-cp asl_interface/libpynumero_ASL* $IDAES_EXT/dist-solvers
+cp libpynumero_ASL* $IDAES_EXT/dist-solvers
 #cp sparse_utils/libpynumero_SPARSE* $IDAES_EXT/dist-lib
 cd $IDAES_EXT/dist-solvers
 
