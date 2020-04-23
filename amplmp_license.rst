@@ -1,5 +1,7 @@
-Licenses
-========
+AMPL/MP https://github.com/ampl/mp is included in solver builds.  The licence is below.
+
+AMPL/MP License
+===============
 
 Copyright (C) 1990 - 2001 Lucent Technologies
 
