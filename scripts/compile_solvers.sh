@@ -56,9 +56,9 @@ git clone https://github.com/idaes/pyomo pyomo
 cd pyomo
 git checkout IDAES
 cd pyomo/contrib/pynumero/cmake/third_party/ASL
-sh ./getASL.sh
+bash ./getASL.sh
 cd solvers
-sh ./configurehere
+bash ./configurehere
 # remove the -DNo_dtoa as per the pynumero readme
 sed -e "s/-DNo_dtoa//g" -i Makefile || sed -e "s/-DNo_dtoa//g" -i makefile
 # prevent multiple definition of matherr
