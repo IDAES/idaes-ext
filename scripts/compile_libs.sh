@@ -30,7 +30,7 @@ rm -rf ./dist-lib
 mkdir dist-lib
 cd dist-lib
 cp ../src/dist/*.so ./
-cp ../license.txt ./
+cp ../license.txt ./license_lib.txt
 
 # here you pack files
 tar -czvf idaes-lib-${osname}-64.tar.gz *
