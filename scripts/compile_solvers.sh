@@ -71,8 +71,7 @@ mkdir build
 cd build
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  sed -e "s/INSTALL(TARGETS pynumero_ASL LIBRARY DESTINATION lib )//g" -i ../CMakeLists.txt
-  cmake -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -DASL_INCLUDE_DIR=$IDAES_EXT/coinbrew/dist/include/coin-or/asl -G"MSYS Makefiles" ..
+  cmake -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
   cmake .. -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
