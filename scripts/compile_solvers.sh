@@ -34,8 +34,7 @@ then
   cd $IDAES_EXT/coinbrew
   with_hsl = "YES"
 else
-  # If the HSL isn't there then just quit.  We could also build without if
-  # there is a reason.
+  # If the HSL isn't there, build without it.
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl = "NO"
 fi
@@ -72,9 +71,9 @@ mkdir build
 cd build
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  cmake -G"MSYS Makefiles" .. -DBUILD_AMPLMP_IF_NEEDED=ON
+  cmake -G"MSYS Makefiles" .. -DIPOPT_DIR $IDAES_EXT/coinbrew/dist
 else
-  cmake .. -DBUILD_AMPLMP_IF_NEEDED=ON
+  cmake .. -DIPOPT_DIR $IDAES_EXT/coinbrew/dist
 fi
 make
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
@@ -83,4 +82,5 @@ cd $IDAES_EXT/dist-solvers
 
 # here you pack files
 tar -czvf idaes-solvers-${osname}-64.tar.gz *
-echo "HSL Present: ${with_hsl}"
+echo "HSL Present:"
+echo ${with_hsl}

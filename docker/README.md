@@ -1,22 +1,17 @@
 # Instructions
 
 Currently you will need Windows to build the full set of binaries, since running
-a Windows docker container requires Windows.
-
-The ```build-platforms``` directory contains docker files to create build
-platform docker images.   
-
-The ```test-platforms``` directory contains docker files to create testing
-platform docker images.
-
-Each directory contains a script ```build-windows.ps1``` to build a specific
-platform run ```build-windows.ps1 <platform> --no-chache```.
+a Windows docker container requires Windows. The ```build-platforms``` directory
+contains docker files to create build platform docker images.   The ```test-platforms```
+directory contains docker files to create testing platform docker images. Each
+directory contains a script ```build-windows.ps1``` to build a specific platform
+run ```build-windows.ps1 <platform> --no-chache```.
 
 Once you have test and build platform you can build and test the IDAES
 extensions.  Docker files for build and testing are in the ```build-extensions```
-and ```test-extensions``` directories.  Both directories contain an extras
+and ```test-extensions``` directories.  Both directories contain an ```extras```
 subdirectory, which contains files to be copied to the docker image.  For builds,
-extras can contain HSL files.  For testing extras should contain the build binaries.
+extras can contain HSL files.  For testing extras should contain the built binaries.
 The builds and tests can be evoked with the ```build-windows.ps1 <platform> --no-chache```
 script from within the appropriate directory.
 

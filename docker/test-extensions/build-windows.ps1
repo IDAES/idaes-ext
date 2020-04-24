@@ -34,9 +34,10 @@ ELSE{
 xcopy /y /E extras ${flavor}\extras\
 
 cd ${flavor}
-docker build --rm ${buildarg_1} --build-arg repo=${repo} --build-arg branch=${branch} -t ${flavor}_idaes_test .
+docker build --rm ${buildarg_1} --build-arg repo=${repo} --build-arg branch=${branch} -t ${flavor}_idaes_test_itmp .
 Remove-Item extras -Recurse -Force -Confirm:$false
-docker run --name ${flavor}_test_tmp -dt ${flavor}_idaes_test:latest
+docker run --name ${flavor}_test_tmp -dt ${flavor}_idaes_test_itmp:latest
 docker stop ${flavor}_test_tmp
 docker rm ${flavor}_test_tmp
+docker rmi ${flavor}_test_itmp
 cd ..
