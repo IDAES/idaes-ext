@@ -32,11 +32,12 @@ then
   cd ThirdParty/HSL/coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
+  with_hsl = "YES"
 else
   # If the HSL isn't there then just quit.  We could also build without if
   # there is a reason.
-  echo "HSL Not Available, NOT BUILDING SOLVERS" >&2
-  exit 0
+  echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
+  with_hsl = "NO"
 fi
 bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
 
@@ -82,3 +83,4 @@ cd $IDAES_EXT/dist-solvers
 
 # here you pack files
 tar -czvf idaes-solvers-${osname}-64.tar.gz *
+echo "HSL Present: ${with_hsl}"
