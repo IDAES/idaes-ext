@@ -26,23 +26,13 @@ cd $IDAES_EXT
 # Collect files
 
 cd $IDAES_EXT
+rm -rf ./dist-lib
 mkdir dist-lib
 cd dist-lib
 cp ../src/dist/*.so ./
-cp ../license.txt ./
-
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
-then
-    # Winodws MinGW linked libraries
-    cp /mingw64/bin/libstdc++-6.dll ./
-    cp /mingw64/bin/libgcc_s_seh-1.dll ./
-    cp /mingw64/bin/libwinpthread-1.dll ./
-    cp /mingw64/bin/libgfortran-4.dll ./
-    cp /mingw64/bin/libquadmath-0.dll ./
-    cp /mingw64/bin/libgomp-1.dll ./
-    cp /mingw64/bin/liblapack.dll ./
-    cp /mingw64/bin/libblas.dll ./
-fi
+cp ../license.txt ./license_lib.txt
+cp ../version.txt ./version_lib.txt
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g -i version_lib.txt
 
 # here you pack files
 tar -czvf idaes-lib-${osname}-64.tar.gz *
