@@ -9,8 +9,8 @@ export IDAES_EXT=`pwd`
 
 export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
-export PYNU_BRANCH="pynumero-testing"
-export PYNU_REPO="https://github.com/jsiirola/pyomo"
+export PYNU_BRANCH="master"
+export PYNU_REPO="https://github.com/pyomo/pyomo"
 
 mkdir coinbrew
 cd coinbrew
