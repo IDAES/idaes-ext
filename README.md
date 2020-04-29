@@ -16,6 +16,14 @@ You can also download a particular release of the extensions by providing a URL:
 idaes get-extensions --url <url>
 ```
 
+To get a build for a particular platform, there is a platform option:
+
+```sh
+idaes get-extensions --platform <platform>
+```
+
+Current platform options are: centos6, centos7, centos8, rhel6, rhel7, rhel8, ubuntu1804, ubuntu1910, ubuntu2004, windows, and darwin.  Darwin (Mac) is not currently available, but will be soon.
+
 ## Contents
 
 The extensions contain a version of the IPOPT solver compiled the HSL linear solver library, for which IDAES has obtained
@@ -36,27 +44,13 @@ To build the IDAES binaries.
   3) Copy the HSL files to ```coinhsl``` in ```idaes-ext```
   4) ```bash scripts/compile_solvers.sh```
   5) ```bash scripts/compile_libs.sh```
-  6) There should be to tar.gz files one with executable solvers and the other with shared libraries in the dist-lib and dist-solvers directories. Add the operating system postfix to the file names. These can be installed with the ```idaes get-extension``` script
+  6) There should be two tar.gz files one with executable solvers and the other with shared libraries in the dist-lib and dist-solvers directories. Add the operating system postfix to the file names. These can be installed with the ```idaes get-extension``` script
 
 ## Build Environments
 
-### Windows
+### Windows and Linux
 
-Install MSYS2 from https://www.msys2.org/.
-
-Launch the MinGW64 terminal.
-
-Update MSYS2
-
-``pacman -Syu``
-
-Install the MinGW build tools and development libraries.
-
-``pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost unzip patch make mingw-w64-x86_64-lapack``
-
-### LINUX
-
-**TODO**
+Refer to the Dockerfiles. 
 
 ### OSX
 
