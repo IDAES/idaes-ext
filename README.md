@@ -22,7 +22,7 @@ To get a build for a particular platform, there is a platform option:
 idaes get-extensions --platform <platform>
 ```
 
-Current platform options are: centos6, centos7, centos8, rhel6, rhel7, rhel8, ubuntu1804, ubuntu1910, ubuntu2004, windows, and darwin.  Darwin (Mac) is not currently available, but will be soon.
+Current platform options are: centos6, centos7, centos8, rhel6, rhel7, rhel8, ubuntu1804, ubuntu1910, ubuntu2004, windows, and darwin.  Darwin (Mac) is not currently available, but will be soon.  Currently if no platform is specified on Linux, the "centos7" build will be used.
 
 ## Contents
 
