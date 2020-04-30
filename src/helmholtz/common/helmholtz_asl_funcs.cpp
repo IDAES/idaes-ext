@@ -49,6 +49,7 @@ void funcadd(AmplExports *ae){
     addfunc("tau", (rfunc)tau_asl, typ, 2, NULL);
     addfunc("tau_sp", (rfunc)tau_sp_asl, typ, 2, NULL);
     addfunc("vf", (rfunc)vf_asl, typ, 2, NULL);
+    addfunc("vfs", (rfunc)vfs_asl, typ, 2, NULL);
     addfunc("delta_liq", (rfunc)delta_liq_asl, typ, 2, NULL);
     addfunc("delta_vap", (rfunc)delta_vap_asl, typ, 2, NULL);
     addfunc("delta_sat_l", (rfunc)delta_sat_l_asl, typ, 1, NULL);
