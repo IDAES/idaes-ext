@@ -49,6 +49,7 @@ void funcadd(AmplExports *ae){
     addfunc("tau", (rfunc)tau_asl, typ, 2, NULL);
     addfunc("tau_sp", (rfunc)tau_sp_asl, typ, 2, NULL);
     addfunc("vf", (rfunc)vf_asl, typ, 2, NULL);
+    addfunc("vfs", (rfunc)vfs_asl, typ, 2, NULL);
     addfunc("delta_liq", (rfunc)delta_liq_asl, typ, 2, NULL);
     addfunc("delta_vap", (rfunc)delta_vap_asl, typ, 2, NULL);
     addfunc("delta_sat_l", (rfunc)delta_sat_l_asl, typ, 1, NULL);
@@ -321,6 +322,21 @@ double vf_asl(arglist *al){
       return f;
     #else
       return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+    #endif
+  }
+}
+
+double vfs_asl(arglist *al){
+  if(al->derivs==NULL && al->hes==NULL){
+    return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+  else{
+    #ifdef CAST_DERIVATIVES
+      s_real f, grad[2], hes[3];
+      f = vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
   }
 }

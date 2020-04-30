@@ -270,6 +270,43 @@ s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     return vf;
 }
 
+s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::VFS_FUNC, st, pr, grad, hes);
+    if(!std::isnan(val)) return val;
+    bool free_grad = 0, free_hes = 0; // if 1 free grad and hes at end
+    // Since I'm going to cache results, grad and hes will get calculated
+    // whether requested or not.  If they were NULL allocate space.
+    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+    s_real tau, gradt[1], hest[1], gradsv[2], hessv[3], gradsl[2], hessl[3];
+    tau = sat_tau_with_derivs(pr, gradt, hest);
+    s_real sv = svpt_with_derivs(pr, tau, gradsv, hessv);
+    s_real sl = slpt_with_derivs(pr, tau, gradsl, hessl);
+
+    if(pr >= P_c){zero_derivs2(grad, hes); return 0.0;} //Classify supercritical as liquid
+    else if(pr <= P_t){zero_derivs2(grad, hes); return 1.0;} //below tripple point going to assume vapor, because it's that or a solid and I'm not dealing with solids.
+    else if(sl > st){ zero_derivs2(grad, hes); return 0.0;} //saturated liquid entropy > total entropy so liquid
+    else if(sv < st){ zero_derivs2(grad, hes); return 1.0;} //saturated vapor enthalpy < total entropy so vapor
+
+    s_real dsvdp = gradsv[0] + gradsv[1]*gradt[0];
+    s_real dsldp = gradsl[0] + gradsl[1]*gradt[0];
+    grad[0] = 1.0/(sv - sl);
+    grad[1] = -dsldp/(sv - sl) - (st - sl)/(sv-sl)/(sv-sl)*(dsvdp - dsldp);
+    s_real d2svdp2 = hessv[0] + 2*hessv[1]*gradt[0] + hessv[2]*gradt[0]*gradt[0] + gradsv[1]*hest[0];
+    s_real d2sldp2 = hessl[0] + 2*hessl[1]*gradt[0] + hessl[2]*gradt[0]*gradt[0] + gradsl[1]*hest[0];
+    hes[0] = 0;
+    hes[1] = -1.0/(sv-sl)/(sv-sl)*(dsvdp - dsldp);
+    hes[2] = -d2sldp2/(sv-sl) + 2*dsldp/(sv-sl)/(sv-sl)*(dsvdp - dsldp) +
+              2*(st-sl)/(sv-sl)/(sv-sl)/(sv-sl)*(dsvdp - dsldp)*(dsvdp - dsldp) -
+              (st-sl)/(sv-sl)/(sv-sl)*(d2svdp2 - d2sldp2);
+    s_real vf = (st - sl)/(sv - sl);
+    memoize::add_bin(memoize::VFS_FUNC, st, pr, vf, grad, hes);
+    if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+    if(free_hes) delete[] hes; //   function
+    return vf;
+}
+
 s_real g_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
   s_real h_grad[2], h_hes[3], s_grad[2], s_hes[3], s_val;
   s_real *h_grad_ptr=NULL, *h_hes_ptr=NULL, *s_grad_ptr=NULL, *s_hes_ptr=NULL;

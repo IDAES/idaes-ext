@@ -64,6 +64,7 @@ s_real hlpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real svpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real slpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
+s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes);
 
 /*------------------------------------------------------------------------------
   Functions for saturation pressure and reduced density as a function of tau
