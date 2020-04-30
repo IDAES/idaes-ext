@@ -326,6 +326,21 @@ double vf_asl(arglist *al){
   }
 }
 
+double vfs_asl(arglist *al){
+  if(al->derivs==NULL && al->hes==NULL){
+    return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+  else{
+    #ifdef CAST_DERIVATIVES
+      s_real f, grad[2], hes[3];
+      f = vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      cast_deriv2(grad, al->derivs, hes, al->hes);
+      return f;
+    #else
+      return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+    #endif
+  }
+}
+
 double delta_sat_l_asl(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return sat_delta_liq_with_derivs(al->ra[al->at[0]], NULL, NULL);}
