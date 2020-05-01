@@ -46,12 +46,8 @@ cd dist-solvers
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
-if [ ${osname} == "darwin" ]
-then
-    sed -i .bkp s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt
-else
-    sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g -i version_solvers.txt
-fi
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
+mv tmp version_solvers.txt
 
 
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]

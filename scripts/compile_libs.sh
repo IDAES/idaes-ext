@@ -32,7 +32,8 @@ cd dist-lib
 cp ../src/dist/*.so ./
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g -i version_lib.txt
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
+mv tmp version_lib.txt
 
 # here you pack files
 tar -czvf idaes-lib-${osname}-64.tar.gz *
