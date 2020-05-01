@@ -19,6 +19,8 @@ ALL: get_common helmholtz_external.so
 get_common:
 	cp ../common/helmholtz* ./
 	echo '#include"swco2_param.h"' > helmholtz_param.h
+	sed s/EOS_TAG/swco2/g -i helmholtz_asl_funcs.h
+	sed s/EOS_TAG/swco2/g -i helmholtz_asl_funcs.cpp
 
 swco2_guess.o: swco2_guess.cpp
 	  $(CXX) $(CXXFLAGS) swco2_guess.cpp -o swco2_guess.o

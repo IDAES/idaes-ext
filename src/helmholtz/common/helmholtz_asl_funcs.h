@@ -24,43 +24,43 @@
 #ifndef _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
 #define _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
 
-double p_asl(arglist *al);
-double u_asl(arglist *al);
-double s_asl(arglist *al);
-double h_asl(arglist *al);
-double g_asl(arglist *al);
-double f_asl(arglist *al);
-double cv_asl(arglist *al);
-double cp_asl(arglist *al);
-double w_asl(arglist *al);
+double p_EOS_TAG(arglist *al);
+double u_EOS_TAG(arglist *al);
+double s_EOS_TAG(arglist *al);
+double h_EOS_TAG(arglist *al);
+double g_EOS_TAG(arglist *al);
+double f_EOS_TAG(arglist *al);
+double cv_EOS_TAG(arglist *al);
+double cp_EOS_TAG(arglist *al);
+double w_EOS_TAG(arglist *al);
 
-double hvpt_asl(arglist *al);
-double hlpt_asl(arglist *al);
-double svpt_asl(arglist *al);
-double slpt_asl(arglist *al);
-double vf_asl(arglist *al);
-double vfs_asl(arglist *al);
-double tau_asl(arglist *al);
-double tau_sp_asl(arglist *al);
+double hvpt_EOS_TAG(arglist *al);
+double hlpt_EOS_TAG(arglist *al);
+double svpt_EOS_TAG(arglist *al);
+double slpt_EOS_TAG(arglist *al);
+double vf_EOS_TAG(arglist *al);
+double vfs_EOS_TAG(arglist *al);
+double tau_EOS_TAG(arglist *al);
+double tau_sp_EOS_TAG(arglist *al);
 
-double delta_sat_l_asl(arglist *al);
-double delta_sat_v_asl(arglist *al);
-double p_sat_asl(arglist *al);
-double tau_sat_asl(arglist *al);
+double delta_sat_l_EOS_TAG(arglist *al);
+double delta_sat_v_EOS_TAG(arglist *al);
+double p_sat_EOS_TAG(arglist *al);
+double tau_sat_EOS_TAG(arglist *al);
 
-double delta_liq_asl(arglist *al);
-double delta_vap_asl(arglist *al);
+double delta_liq_EOS_TAG(arglist *al);
+double delta_vap_EOS_TAG(arglist *al);
 
-double phi0_asl(arglist *al);
-double phi0_delta_asl(arglist *al);
-double phi0_delta2_asl(arglist *al);
-double phi0_tau_asl(arglist *al);
-double phi0_tau2_asl(arglist *al);
-double phir_asl(arglist *al);
-double phir_delta_asl(arglist *al);
-double phir_delta2_asl(arglist *al);
-double phir_tau_asl(arglist *al);
-double phir_tau2_asl(arglist *al);
-double phir_delta_tau_asl(arglist *al);
+double phi0_EOS_TAG(arglist *al);
+double phi0_delta_EOS_TAG(arglist *al);
+double phi0_delta2_EOS_TAG(arglist *al);
+double phi0_tau_EOS_TAG(arglist *al);
+double phi0_tau2_EOS_TAG(arglist *al);
+double phir_EOS_TAG(arglist *al);
+double phir_delta_EOS_TAG(arglist *al);
+double phir_delta2_EOS_TAG(arglist *al);
+double phir_tau_EOS_TAG(arglist *al);
+double phir_tau2_EOS_TAG(arglist *al);
+double phir_delta_tau_EOS_TAG(arglist *al);
 
 #endif
