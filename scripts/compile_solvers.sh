@@ -17,7 +17,7 @@ cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 
 # a line in the coinbrew script throws a syntax error on centos6 so change it
-if [ ${osname}=="centos6" ]
+if [ ${osname} == "centos6" ]
 then
   sed -e "s/\[ -v LD_LIBRARY_PATH \]/ \"1\" = \"0\" /g" -i coinbrew
 fi
@@ -46,7 +46,13 @@ cd dist-solvers
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g -i version_solvers.txt
+if [ ${osname} == "darwin" ]
+then
+    sed -i .bkp s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt
+else
+    sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g -i version_solvers.txt
+fi
+
 
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
