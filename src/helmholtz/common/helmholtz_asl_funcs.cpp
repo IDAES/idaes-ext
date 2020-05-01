@@ -33,40 +33,40 @@ void funcadd(AmplExports *ae){
      * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info */
     int typ = FUNCADD_REAL_VALUED;
-    addfunc("p", (rfunc)p_asl, typ, 2, NULL);
-    addfunc("u", (rfunc)u_asl, typ, 2, NULL);
-    addfunc("s", (rfunc)s_asl, typ, 2, NULL);
-    addfunc("h", (rfunc)h_asl, typ, 2, NULL);
-    addfunc("g", (rfunc)g_asl, typ, 2, NULL);
-    addfunc("f", (rfunc)f_asl, typ, 2, NULL);
-    addfunc("cv", (rfunc)cv_asl, typ, 2, NULL);
-    addfunc("cp", (rfunc)cp_asl, typ, 2, NULL);
-    addfunc("w", (rfunc)w_asl, typ, 2, NULL);
-    addfunc("hvpt", (rfunc)hvpt_asl, typ, 2, NULL);
-    addfunc("hlpt", (rfunc)hlpt_asl, typ, 2, NULL);
-    addfunc("svpt", (rfunc)svpt_asl, typ, 2, NULL);
-    addfunc("slpt", (rfunc)slpt_asl, typ, 2, NULL);
-    addfunc("tau", (rfunc)tau_asl, typ, 2, NULL);
-    addfunc("tau_sp", (rfunc)tau_sp_asl, typ, 2, NULL);
-    addfunc("vf", (rfunc)vf_asl, typ, 2, NULL);
-    addfunc("vfs", (rfunc)vfs_asl, typ, 2, NULL);
-    addfunc("delta_liq", (rfunc)delta_liq_asl, typ, 2, NULL);
-    addfunc("delta_vap", (rfunc)delta_vap_asl, typ, 2, NULL);
-    addfunc("delta_sat_l", (rfunc)delta_sat_l_asl, typ, 1, NULL);
-    addfunc("delta_sat_v", (rfunc)delta_sat_v_asl, typ, 1, NULL);
-    addfunc("p_sat", (rfunc)p_sat_asl, typ, 1, NULL);
-    addfunc("tau_sat", (rfunc)tau_sat_asl, typ, 1, NULL);
-    addfunc("phi0", (rfunc)phi0_asl, typ, 2, NULL);
-    addfunc("phi0_delta", (rfunc)phi0_delta_asl, typ, 1, NULL);
-    addfunc("phi0_delta2", (rfunc)phi0_delta2_asl, typ, 1, NULL);
-    addfunc("phi0_tau", (rfunc)phi0_tau_asl, typ, 1, NULL);
-    addfunc("phi0_tau2", (rfunc)phi0_tau2_asl, typ, 1, NULL);
-    addfunc("phir", (rfunc)phir_asl, typ, 2, NULL);
-    addfunc("phir_delta", (rfunc)phir_delta_asl, typ, 2, NULL);
-    addfunc("phir_delta2", (rfunc)phir_delta2_asl, typ, 2, NULL);
-    addfunc("phir_tau", (rfunc)phir_tau_asl, typ, 2, NULL);
-    addfunc("phir_tau2", (rfunc)phir_tau2_asl, typ, 2, NULL);
-    addfunc("phir_delta_tau", (rfunc)phir_delta_tau_asl, typ, 2, NULL);
+    addfunc("p_EOS_TAG", (rfunc)p_EOS_TAG, typ, 2, NULL);
+    addfunc("u_EOS_TAG", (rfunc)u_EOS_TAG, typ, 2, NULL);
+    addfunc("s_EOS_TAG", (rfunc)s_EOS_TAG, typ, 2, NULL);
+    addfunc("h_EOS_TAG", (rfunc)h_EOS_TAG, typ, 2, NULL);
+    addfunc("g_EOS_TAG", (rfunc)g_EOS_TAG, typ, 2, NULL);
+    addfunc("f_EOS_TAG", (rfunc)f_EOS_TAG, typ, 2, NULL);
+    addfunc("cv_EOS_TAG", (rfunc)cv_EOS_TAG, typ, 2, NULL);
+    addfunc("cp_EOS_TAG", (rfunc)cp_EOS_TAG, typ, 2, NULL);
+    addfunc("w_EOS_TAG", (rfunc)w_EOS_TAG, typ, 2, NULL);
+    addfunc("hvpt_EOS_TAG", (rfunc)hvpt_EOS_TAG, typ, 2, NULL);
+    addfunc("hlpt_EOS_TAG", (rfunc)hlpt_EOS_TAG, typ, 2, NULL);
+    addfunc("svpt_EOS_TAG", (rfunc)svpt_EOS_TAG, typ, 2, NULL);
+    addfunc("slpt_EOS_TAG", (rfunc)slpt_EOS_TAG, typ, 2, NULL);
+    addfunc("tau_EOS_TAG", (rfunc)tau_EOS_TAG, typ, 2, NULL);
+    addfunc("tau_sp_EOS_TAG", (rfunc)tau_sp_EOS_TAG, typ, 2, NULL);
+    addfunc("vf_EOS_TAG", (rfunc)vf_EOS_TAG, typ, 2, NULL);
+    addfunc("vfs_EOS_TAG", (rfunc)vfs_EOS_TAG, typ, 2, NULL);
+    addfunc("delta_liq_EOS_TAG", (rfunc)delta_liq_EOS_TAG, typ, 2, NULL);
+    addfunc("delta_vap_EOS_TAG", (rfunc)delta_vap_EOS_TAG, typ, 2, NULL);
+    addfunc("delta_sat_l_EOS_TAG", (rfunc)delta_sat_l_EOS_TAG, typ, 1, NULL);
+    addfunc("delta_sat_v_EOS_TAG", (rfunc)delta_sat_v_EOS_TAG, typ, 1, NULL);
+    addfunc("p_sat_EOS_TAG", (rfunc)p_sat_EOS_TAG, typ, 1, NULL);
+    addfunc("tau_sat_EOS_TAG", (rfunc)tau_sat_EOS_TAG, typ, 1, NULL);
+    addfunc("phi0_EOS_TAG", (rfunc)phi0_EOS_TAG, typ, 2, NULL);
+    addfunc("phi0_delta_EOS_TAG", (rfunc)phi0_delta_EOS_TAG, typ, 1, NULL);
+    addfunc("phi0_delta2_EOS_TAG", (rfunc)phi0_delta2_EOS_TAG, typ, 1, NULL);
+    addfunc("phi0_tau_EOS_TAG", (rfunc)phi0_tau_EOS_TAG, typ, 1, NULL);
+    addfunc("phi0_tau2_EOS_TAG", (rfunc)phi0_tau2_EOS_TAG, typ, 1, NULL);
+    addfunc("phir_EOS_TAG", (rfunc)phir_EOS_TAG, typ, 2, NULL);
+    addfunc("phir_delta_EOS_TAG", (rfunc)phir_delta_EOS_TAG, typ, 2, NULL);
+    addfunc("phir_delta2_EOS_TAG", (rfunc)phir_delta2_EOS_TAG, typ, 2, NULL);
+    addfunc("phir_tau_EOS_TAG", (rfunc)phir_tau_EOS_TAG, typ, 2, NULL);
+    addfunc("phir_tau2_EOS_TAG", (rfunc)phir_tau2_EOS_TAG, typ, 2, NULL);
+    addfunc("phir_delta_tau_EOS_TAG", (rfunc)phir_delta_tau_EOS_TAG, typ, 2, NULL);
 }
 
 inline void cast_deriv2(s_real *g1, double *g2, s_real *h1, double *h2){
@@ -86,7 +86,7 @@ inline void cast_deriv1(s_real *g1, double *g2, s_real *h1, double *h2){
   if(h2 != NULL) h2[0] = (double)h1[0];
 }
 
-double p_asl(arglist *al){
+double p_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -101,7 +101,7 @@ double p_asl(arglist *al){
   }
 }
 
-double u_asl(arglist *al){
+double u_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -116,7 +116,7 @@ double u_asl(arglist *al){
   }
 }
 
-double s_asl(arglist *al){
+double s_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -131,7 +131,7 @@ double s_asl(arglist *al){
   }
 }
 
-double h_asl(arglist *al){
+double h_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -146,7 +146,7 @@ double h_asl(arglist *al){
   }
 }
 
-double g_asl(arglist *al){
+double g_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -161,7 +161,7 @@ double g_asl(arglist *al){
   }
 }
 
-double f_asl(arglist *al){
+double f_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -176,7 +176,7 @@ double f_asl(arglist *al){
   }
 }
 
-double cv_asl(arglist *al){
+double cv_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -191,7 +191,7 @@ double cv_asl(arglist *al){
   }
 }
 
-double cp_asl(arglist *al){
+double cp_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -206,7 +206,7 @@ double cp_asl(arglist *al){
   }
 }
 
-double w_asl(arglist *al){
+double w_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -221,7 +221,7 @@ double w_asl(arglist *al){
   }
 }
 
-double hvpt_asl(arglist *al){
+double hvpt_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -236,7 +236,7 @@ double hvpt_asl(arglist *al){
   }
 }
 
-double hlpt_asl(arglist *al){
+double hlpt_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -251,7 +251,7 @@ double hlpt_asl(arglist *al){
   }
 }
 
-double svpt_asl(arglist *al){
+double svpt_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -266,7 +266,7 @@ double svpt_asl(arglist *al){
   }
 }
 
-double slpt_asl(arglist *al){
+double slpt_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -281,7 +281,7 @@ double slpt_asl(arglist *al){
   }
 }
 
-double tau_asl(arglist *al){
+double tau_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -296,7 +296,7 @@ double tau_asl(arglist *al){
   }
 }
 
-double tau_sp_asl(arglist *al){
+double tau_sp_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -311,7 +311,7 @@ double tau_sp_asl(arglist *al){
   }
 }
 
-double vf_asl(arglist *al){
+double vf_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -326,7 +326,7 @@ double vf_asl(arglist *al){
   }
 }
 
-double vfs_asl(arglist *al){
+double vfs_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -341,7 +341,7 @@ double vfs_asl(arglist *al){
   }
 }
 
-double delta_sat_l_asl(arglist *al){
+double delta_sat_l_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return sat_delta_liq_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
@@ -356,7 +356,7 @@ double delta_sat_l_asl(arglist *al){
   }
 }
 
-double delta_sat_v_asl(arglist *al){
+double delta_sat_v_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return sat_delta_vap_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
@@ -371,7 +371,7 @@ double delta_sat_v_asl(arglist *al){
   }
 }
 
-double p_sat_asl(arglist *al){
+double p_sat_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return sat_p_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
@@ -386,7 +386,7 @@ double p_sat_asl(arglist *al){
   }
 }
 
-double tau_sat_asl(arglist *al){
+double tau_sat_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return sat_tau_with_derivs(al->ra[al->at[0]], NULL, NULL);}
   else{
@@ -401,7 +401,7 @@ double tau_sat_asl(arglist *al){
   }
 }
 
-double delta_liq_asl(arglist *al){
+double delta_liq_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -416,7 +416,7 @@ double delta_liq_asl(arglist *al){
   }
 }
 
-double delta_vap_asl(arglist *al){
+double delta_vap_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
     return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
@@ -576,25 +576,25 @@ double phir_delta_tau_derivs(double delta, double tau, double *grad, double *hes
 }
 
 
-double phi0_asl(arglist *al){
+double phi0_EOS_TAG(arglist *al){
   return phi0_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phi0_delta_asl(arglist *al){
+double phi0_delta_EOS_TAG(arglist *al){
   return phi0_delta_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
-double phi0_delta2_asl(arglist *al){
+double phi0_delta2_EOS_TAG(arglist *al){
   return phi0_delta2_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
-double phi0_tau_asl(arglist *al){
+double phi0_tau_EOS_TAG(arglist *al){
   return phi0_tau_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
-double phi0_tau2_asl(arglist *al){
+double phi0_tau2_EOS_TAG(arglist *al){
   return phi0_tau2_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
-double phir_asl(arglist *al){
+double phir_EOS_TAG(arglist *al){
   return phir_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phir_delta_asl(arglist *al){
+double phir_delta_EOS_TAG(arglist *al){
   return phir_delta_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phir_delta2_asl(arglist *al){
+double phir_delta2_EOS_TAG(arglist *al){
   return phir_delta2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phir_tau_asl(arglist *al){
+double phir_tau_EOS_TAG(arglist *al){
   return phir_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phir_tau2_asl(arglist *al){
+double phir_tau2_EOS_TAG(arglist *al){
   return phir_tau2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
-double phir_delta_tau_asl(arglist *al){
+double phir_delta_tau_EOS_TAG(arglist *al){
   return phir_delta_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
