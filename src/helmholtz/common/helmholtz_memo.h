@@ -83,10 +83,14 @@ namespace memoize{
     HVPT_FUNC = 8,
     HLPT_FUNC = 9,
     VF_FUNC = 10,
-    VFS_FUNC = 11, 
-    SVPT_FUNC = 12,
-    SLPT_FUNC = 13,
-    TAU_ENTR_FUNC=14;
+    VFS_FUNC = 11,
+    VFU_FUNC = 12,
+    SVPT_FUNC = 13,
+    SLPT_FUNC = 14,
+    UVPT_FUNC = 15,
+    ULPT_FUNC = 16,
+    TAU_ENTR_FUNC=17,
+    TAU_INTEN_FUNC=18;
   // unary functions with derivatives
   static const unsigned char
     P_SAT_FUNC = 1,
