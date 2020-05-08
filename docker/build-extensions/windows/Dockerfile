@@ -1,6 +1,6 @@
 FROM windows_idaes_build:latest
 
-ARG repo=https://github.com/eslickj/idaes-ext.git
+ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master
 
 SHELL ["C:\\msys64\\usr\\bin\\bash.exe", "-l", "-c"]
