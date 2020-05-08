@@ -253,7 +253,7 @@ s_real uvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
   hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
   hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
 
-  memoize::add_bin(memoize::UVPT_FUNC, pr, tau, s, grad, hes);
+  memoize::add_bin(memoize::UVPT_FUNC, pr, tau, u, grad, hes);
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
   if(free_hes) delete[] hes; //   function
   return u;
@@ -279,7 +279,7 @@ s_real ulpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
   hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
   hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
 
-  memoize::add_bin(memoize::ULPT_FUNC, pr, tau, s, grad, hes);
+  memoize::add_bin(memoize::ULPT_FUNC, pr, tau, u, grad, hes);
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
   if(free_hes) delete[] hes; //   function
   return u;
@@ -359,8 +359,8 @@ s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
     return vf;
 }
 
-s_real vfu_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
-    s_real val = memoize::get_bin(memoize::VFU_FUNC, st, pr, grad, hes);
+s_real vfu_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::VFU_FUNC, ut, pr, grad, hes);
     if(!std::isnan(val)) return val;
     bool free_grad = 0, free_hes = 0; // if 1 free grad and hes at end
     // Since I'm going to cache results, grad and hes will get calculated
@@ -387,8 +387,8 @@ s_real vfu_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
     hes[0] = 0;
     hes[1] = -1.0/(uv-ul)/(uv-ul)*(dsvdp - dsldp);
     hes[2] = -d2sldp2/(uv-ul) + 2*dsldp/(uv-ul)/(uv-ul)*(dsvdp - dsldp) +
-              2*(ut-ul)/(uv-sl)/(uv-ul)/(uv-ul)*(dsvdp - dsldp)*(dsvdp - dsldp) -
-              (st-sl)/(sv-sl)/(sv-sl)*(d2svdp2 - d2sldp2);
+              2*(ut-ul)/(uv-ul)/(uv-ul)/(uv-ul)*(dsvdp - dsldp)*(dsvdp - dsldp) -
+              (ut-ul)/(uv-ul)/(uv-ul)*(d2svdp2 - d2sldp2);
     s_real vf = (ut - ul)/(uv - ul);
     memoize::add_bin(memoize::VFU_FUNC, ut, pr, vf, grad, hes);
     if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
