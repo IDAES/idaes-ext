@@ -719,7 +719,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
     }
     else if (hv < ht  || T < T_t){
-      pr = P_t;
+      pr = (p_sat + P_t)/2.0;
       std::cerr << "vap P = " << pr << std::endl;
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
@@ -732,12 +732,14 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = p_sat;
         fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
         fb = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
+        std::cerr << it << " bracket fa =  " << fa << " fb = " << fb << std::endl;
         for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = hvpt_with_derivs(c, tau, gradh, hesh) - ht;
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
           if(b - a < 1e-8) {break;}
+          std::cerr << it << " bracket fa =  " << fa << " fb = " << fb << std::endl;
           std::cerr << it << " bracket vap P = " << c << std::endl;
         }
         pr = (a+b)/2.0;
