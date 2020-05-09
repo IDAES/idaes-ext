@@ -682,7 +682,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       else{
         pr = (p_sat + P_c)/2.0;
       }
-      std::cout << "liquid P = " << pr;
+      std::cerr << "liquid P = " << pr << std::endl;
 
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && T < T_c){
         // Unfortunatly if the initial guess isn't good you can get on the wrong
@@ -704,7 +704,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         }
         pr = (a+b)/2.0;
       }
-      std::cout << "after bracket liquid P = " << pr;
+      std::cerr << "after bracket liquid P = " << std::endl;
       fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
         pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
@@ -714,8 +714,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
     else if (hv < ht  || T < T_t){
       pr = P_t;
-      std::cout << "vap P = " << pr;
-      
+      std::cerr << "vap P = " << std::endl;
+
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
