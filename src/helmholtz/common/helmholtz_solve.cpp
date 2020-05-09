@@ -675,7 +675,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       hv = hvpt_with_derivs(p_sat, tau, NULL, NULL);
       hl = hlpt_with_derivs(p_sat, tau, NULL, NULL);
     }
-    if( (hl > ht && T > T_t) || T > T_c){ // to see if it's liquid check enthalpy and make sure above tripple point
+    if( (hl > ht && T > T_t) || T >= T_c){ // to see if it's liquid check enthalpy and make sure above tripple point
       if (T >= T_c){
         pr = P_c*1.2;
       }
@@ -743,11 +743,11 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       return p_sat;
     }
     if(pr > P_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Psat= " << p_sat << std::endl;
+        std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Psat= " << p_sat << std::endl;
         return 0.0/0.0;
     }
-    else if(tau <= P_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Psat= " << p_sat << std::endl;
+    else if(pr <= P_LOW){
+        std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Psat= " << p_sat << std::endl;
         return 0.0/0.0;
     }
     if(grad != NULL){
