@@ -680,10 +680,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         pr = P_c*1.2;
       }
       else{
-        pr = P_t;
+        pr = (P_r + P_c)/2.0;
       }
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && T < T_c){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
+        // Unfortunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
         // front keeps the temperature on the right side while refining the
         // guess.  With the better guess the newton method shouldn't get out of
@@ -710,7 +710,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
     }
     else if (hv < ht  || T < T_t){
-      pr = P_c + 100;
+      pr = P_t;
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
