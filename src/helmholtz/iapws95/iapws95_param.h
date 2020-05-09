@@ -46,6 +46,8 @@
 
 #define TAU_LOW 0.15
 #define TAU_HIGH 4.0
+#define P_LOW 0.0001
+#define P_HIGH 1e10
 
 const s_real R = 0.46151805;  // Specific gas constant (kJ/kg/K)
 
