@@ -705,7 +705,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
           if(b - a < 1e-4) {break;}
-          std::cerr << i << " bracket liquid P = " << pr << std::endl;
+          std::cerr << it << " bracket liquid P = " << pr << std::endl;
         }
         pr = (a+b)/2.0;
       }
