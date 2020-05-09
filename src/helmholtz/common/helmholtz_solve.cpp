@@ -714,6 +714,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
     else if (hv < ht  || T < T_t){
       pr = P_t;
+      std::cout << "vap P = " << pr;
+      
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
