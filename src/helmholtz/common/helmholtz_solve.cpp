@@ -678,7 +678,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       hv = hvpt_with_derivs(p_sat, tau, NULL, NULL);
       hl = hlpt_with_derivs(p_sat, tau, NULL, NULL);
     }
-    std::cerr << "hl, ht" << hl << " " << ht << std::endl;
+    std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
     if( (hl > ht && T > T_t) || T >= T_c ){ // to see if it's liquid check enthalpy and make sure above tripple point
       if (T >= T_c){
         pr = P_c*1.2;
