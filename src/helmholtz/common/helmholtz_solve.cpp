@@ -682,6 +682,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       else{
         pr = (p_sat + P_c)/2.0;
       }
+      std::cout << "liquid P = " << pr;
+
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && T < T_c){
         // Unfortunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
@@ -702,9 +704,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         }
         pr = (a+b)/2.0;
       }
+      std::cout << "after bracket liquid P = " << pr;
       fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
+        pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
         fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
         ++it;
       }
@@ -733,7 +736,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
       fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
       while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
+        pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
         fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
         ++it;
       }
