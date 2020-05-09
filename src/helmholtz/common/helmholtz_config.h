@@ -31,9 +31,9 @@
 //#define PRECISION_LONG_DOUBLE
 #define PRECISION_DOUBLE
 // Redidual abs tolerance for solving for vapor reduced density from p, tau
-#define TOL_DELTA_VAP 1e-11
+#define TOL_DELTA_VAP 1e-13
 // Residual abs tolerance for solving for liquid reduced density from p, tau
-#define TOL_DELTA_LIQ 1e-11
+#define TOL_DELTA_LIQ 1e-13
 // Max iterations for solving for delta (reduced density) from p, tau
 #define MAX_IT_DELTA 20
 // Use bracketing methods in particularly difficult areas when solving for
@@ -44,9 +44,9 @@
 // Bracketing methods iteration limit
 #define MAX_IT_BRACKET 10
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
-#define TOL_REL_SAT_G 1e-11
+#define TOL_REL_SAT_G 1e-13
 // Saturation curve max iterations
-#define MAX_IT_SAT 10
+#define MAX_IT_SAT 20
 // Saturation solver gamma factor Akasaka (2008)
 #define SAT_GAMMA 1.0
 //Parameters for solving for tau_sat as a function of pressure
