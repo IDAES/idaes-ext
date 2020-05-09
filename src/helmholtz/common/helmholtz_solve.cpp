@@ -679,10 +679,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
     }
     std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
-    if( (hl > ht && T > T_t && T <= T_c) ){
-      else{
-        pr = (p_sat + P_c)/2.0;
-      }
+    if( (hl > ht && T > T_t && T < T_c) ){
+      pr = (p_sat + P_c)/2.0;
       std::cerr << "liquid P = " << pr << std::endl;
 
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && T < T_c){
@@ -716,9 +714,14 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
     }
     else if (hv < ht  || T < T_t || T >= T_c){
-      pr = P_t;
+      if(T > T_c){
+          pr = P_c;
+      }
+      else{
+        pr = P_t;
+      }
       std::cerr << "vap P = " << pr << std::endl;
-      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
+      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && T > T_t && T < T_c){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
         // front keeps the temperature on the right side while refining the
