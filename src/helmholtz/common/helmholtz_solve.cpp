@@ -680,7 +680,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
     std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
     if( (hl > ht && T > T_t && T < T_c) ){
-      pr = (p_sat + P_c)/2.0;
+      pr = P_c*2.0;
       std::cerr << "liquid P = " << pr << std::endl;
 
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0){
