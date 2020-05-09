@@ -461,7 +461,7 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
     }
     if( (sl > st && pr > P_t) || pr > P_c){ // to see if it's liquid check enthalpy and make sure above tripple point
       if (pr >= P_c){
-        tau = 0.7;
+        tau = 1.0;
       }
       else{
         tau = T_c/T_t;
