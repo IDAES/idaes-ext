@@ -679,10 +679,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
     }
     std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
-    if( (hl > ht && T > T_t) || T >= T_c ){ // to see if it's liquid check enthalpy and make sure above tripple point
-      if (T >= T_c){
-        pr = P_c*1.2;
-      }
+    if( (hl > ht && T > T_t && T <= T_c) ){
       else{
         pr = (p_sat + P_c)/2.0;
       }
@@ -718,7 +715,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         ++it;
       }
     }
-    else if (hv < ht  || T < T_t){
+    else if (hv < ht  || T < T_t || T >= T_c){
       pr = P_t;
       std::cerr << "vap P = " << pr << std::endl;
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
