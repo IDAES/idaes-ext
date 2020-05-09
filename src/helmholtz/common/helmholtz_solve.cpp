@@ -482,11 +482,15 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
           fc = slpt_with_derivs(pr, c, gradh, hesh) - st;
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
+          if (fabs(fa) < tol) {tau=a; break;}
+          if (fabs(fb) < tol) {tau=b; break;}
+          tau = (a+b)/2.0;
+          if(fabs(b - a) < 1e-5) {break;}
         }
-        tau = (a+b)/2.0;
       }
+      std::cerr << "liq tau = " << tau << std::endl;
       fun = slpt_with_derivs(pr, tau, gradh, hesh) - st;
+      it = 0;
       while(fabs(fun) > tol && it < max_it){
         tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
         fun = slpt_with_derivs(pr, tau, gradh, hesh) - st;
@@ -511,10 +515,14 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
           fc = svpt_with_derivs(pr, c, gradh, hesh) - st;
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
+          if (fabs(fa) < tol) {tau=a; break;}
+          if (fabs(fb) < tol) {tau=b; break;}
+          tau = (a+b)/2.0;
+          if(fabs(b - a) < 1e-5) {break;}
         }
-        tau = (a+b)/2.0;
       }
+      std::cerr << "vap tau = " << tau << std::endl;
+      it = 0;
       fun = svpt_with_derivs(pr, tau, gradh, hesh) - st;
       while(fabs(fun) > tol && it < max_it){
         tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
@@ -551,7 +559,6 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
 }
 
 s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
-
     s_real val = memoize::get_bin(memoize::TAU_INTEN_FUNC, ut, pr, grad, hes);
     if(!std::isnan(val)) return val;
 
@@ -670,19 +677,13 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     s_real p_sat, hv=1.0, hl=1.0, fun, pr, gradh[2], hesh[3], tol = 1e-11, T=T_c/tau;
     int it = 0, max_it = 20;
 
-    std::cerr << "Hi in p" << std::endl;
-
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
-    std::cerr << "p_sat " << p_sat << std::endl;
     if(T >= T_t){
       hv = h_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
     }
-    std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
     if( (hl > ht && T > T_t && T < T_c) ){
       pr = P_c*2.0;
-      std::cerr << "liquid P = " << pr << std::endl;
-
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0){
         // Unfortunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
@@ -715,7 +716,6 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
             }
             prev_a = 0;
             prev_b = 1;
-
           }
           if (fabs(fa) < tol) {pr=a; break;}
           if (fabs(fb) < tol) {pr=b; break;}
