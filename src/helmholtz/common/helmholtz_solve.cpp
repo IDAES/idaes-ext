@@ -680,7 +680,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         pr = P_c*1.2;
       }
       else{
-        pr = (P_r + P_c)/2.0;
+        pr = (p_sat + P_c)/2.0;
       }
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && T < T_c){
         // Unfortunatly if the initial guess isn't good you can get on the wrong
