@@ -723,6 +723,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         // guess.  With the better guess the newton method shouldn't get out of
         // control
         s_real a, b, c, fa, fb, fc;
+        bool prev_a=0, prev_b=0;
         a = pr;
         b = p_sat;
         fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
@@ -734,12 +735,23 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           if(fc*fa >= 0){
             a = c;
             fa = fc;
+            if (prev_a){
+              fb *= 0.5;
+            }
+            prev_a = 1;
+            prev_b = 0;
           }
           else{
             b = c;
             fb = fc;
+            if (prev_b){
+              fa *= 0.5;
+            }
+            prev_a = 0;
+            prev_b = 1;
+
           }
-          std::cerr << it << " bracket fa =  " << fa << " fb = " << fb << std::endl;
+          std::cerr << it << " bracket fa= " << fa << " fb= " << fb << " P= "<< c << std::endl;
           std::cerr << it << " bracket vap P = " << c << std::endl;
           if (fabs(fa) < tol) {pr=a; break;}
           if (fabs(fb) < tol) {pr=b; break;}
