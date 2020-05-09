@@ -721,6 +721,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           if (fabs(fb) < tol) {pr=b; break;}
           pr = (a+b)/2.0;
           if(fabs(b - a) < 1e-8) {break;}
+        }
       }
       fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
       it = 0;
