@@ -680,7 +680,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
     std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
     if( (hl > ht && T > T_t && T < T_c) ){
-      pr = 0.5;
+      pr = (p_sat + P_c)/2.0;
       std::cerr << "liquid P = " << pr << std::endl;
 
       if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0){
@@ -714,7 +714,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
     }
     else if (hv < ht  || T < T_t || T >= T_c){
-      pr = P_t;
+      pr = 5;
       std::cerr << "vap P = " << pr << std::endl;
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && T > T_t){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
@@ -734,7 +734,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           if(fc*fa >= 0){
             a = c;
             fa = fc;
-            if(fb*fc_prev > 1){
+            if(fb*fc_prev > 0){
               fb *= 0.5;
             }
             fc_prev = fc;
@@ -742,7 +742,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           else{
             b = c;
             fb = fc;
-            if(fa*fc_prev > 1){
+            if(fa*fc_prev > 0){
               fa *= 0.5;
             }
             fc_prev = fc;
