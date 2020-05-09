@@ -722,7 +722,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         // front keeps the temperature on the right side while refining the
         // guess.  With the better guess the newton method shouldn't get out of
         // control
-        s_real a, b, c, fa, fb, fc_prev=0;
+        s_real a, b, c, fa, fb, fc, fc_prev=0;
         a = pr;
         b = p_sat;
         fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
