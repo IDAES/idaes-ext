@@ -670,6 +670,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     s_real p_sat, hv=1.0, hl=1.0, fun, pr, gradh[2], hesh[3], tol = 1e-11, T=T_c/tau;
     int it = 0, max_it = 20;
 
+    std::cerr << "Hi in p" << std::endl;
+
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
     if(T <= T_c && T >= T_t){
       hv = hvpt_with_derivs(p_sat, tau, NULL, NULL);
