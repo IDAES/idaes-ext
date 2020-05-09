@@ -675,8 +675,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
     std::cerr << "p_sat " << p_sat << std::endl;
     if(T <= T_c && T >= T_t){
-      hv = hvpt_with_derivs(p_sat, tau, NULL, NULL);
-      hl = hlpt_with_derivs(p_sat, tau, NULL, NULL);
+      hv = h_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
+      hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
     }
     std::cerr << "hv, hl, ht " << hv << ", " <<  hl << ", " << ht << std::endl;
     if( (hl > ht && T > T_t) || T >= T_c ){ // to see if it's liquid check enthalpy and make sure above tripple point
@@ -731,8 +731,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         a = pr;
         b = p_sat;
         fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
-        fb = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
-        std::cerr << it << " bracket fa =  " << fa << " fb = " << fb << std::endl;
+        fb = hvpt_with_derivs(b, tau, gradh, hesh) - ht;
+        std::cerr << "bracket fa =  " << fa << " fb = " << fb << std::endl;
         for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = hvpt_with_derivs(c, tau, gradh, hesh) - ht;
