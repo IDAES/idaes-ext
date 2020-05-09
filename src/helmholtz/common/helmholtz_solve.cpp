@@ -459,24 +459,26 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
       sv = svpt_with_derivs(pr, tau_sat, NULL, NULL);
       sl = slpt_with_derivs(pr, tau_sat, NULL, NULL);
     }
+    s_real a, b, c, fa, fb, fc;
     if( (sl > st && pr > P_t) || pr > P_c){ // to see if it's liquid check enthalpy and make sure above tripple point
       if (pr >= P_c){
-        tau = 1.0;
+        tau = 0.4;
+        a = 0.4
+        b = T_c/T_t;
       }
       else{
         tau = T_c/T_t;
+        a = tau_sat;
+        b = tau;
       }
-      if(slpt_with_derivs(pr, tau, gradh, hesh) - st < 0 && pr < P_c){
+      fa = slpt_with_derivs(pr, a, gradh, hesh) - st;
+      fb = slpt_with_derivs(pr, b, gradh, hesh) - st;
+      if(fa*fb < 0){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Tsat, then you have trouble. This false position method up
         // front keeps the temperature on the right side while refining the
         // guess.  With the better guess the newton method shouldn't get out of
         // control
-        s_real a, b, c, fa, fb, fc;
-        a = tau_sat;
-        b = tau;
-        fa = slpt_with_derivs(pr, a, gradh, hesh) - st;
-        fb = slpt_with_derivs(pr, b, gradh, hesh) - st;
         for(it=0;it<5;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = slpt_with_derivs(pr, c, gradh, hesh) - st;
