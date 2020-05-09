@@ -735,10 +735,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           else{b = c; fb = fc;}
           std::cerr << it << " bracket fa =  " << fa << " fb = " << fb << std::endl;
           std::cerr << it << " bracket vap P = " << c << std::endl;
-          if (fa < tol) {pr=a; break;}
-          if (fb < tol) {pr=b; break;}
+          if (fabs(fa) < tol) {pr=a; break;}
+          if (fabs(fb) < tol) {pr=b; break;}
           pr = (a+b)/2.0;
-          if(b - a < 1e-8) {break;}
+          if(fabs(b - a) < 1e-8) {break;}
         }
       }
       fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
