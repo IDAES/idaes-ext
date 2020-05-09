@@ -690,45 +690,11 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         // guess.  With the better guess the newton method shouldn't get out of
         // control
         s_real a, b, c, fa, fb, fc;
+        bool prev_a=0, prev_b=0;
         a = p_sat;
         b = pr;
         fa = hlpt_with_derivs(a, tau, gradh, hesh) - ht;
         fb = hlpt_with_derivs(b, tau, gradh, hesh) - ht;
-        for(it=0;it<15;++it){
-          c = b - fb*(b - a)/(fb - fa);
-          fc = hlpt_with_derivs(c, tau, gradh, hesh) - ht;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
-          if(b - a < 1e-8) {break;}
-          std::cerr << it << " bracket liquid P = " << c << std::endl;
-        }
-        pr = (a+b)/2.0;
-      }
-      std::cerr << "after bracket liquid P = " << pr << std::endl;
-      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-      while(fabs(fun) > tol && it < max_it){
-        pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
-        fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
-        ++it;
-      }
-    }
-    else if (hv < ht  || T < T_t || T >= T_c){
-      pr = P_t;
-      std::cerr << "vap P = " << pr << std::endl;
-      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && T > T_t){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
-        // side of Psat, then you have trouble. This false position method up
-        // front keeps the temperature on the right side while refining the
-        // guess.  With the better guess the newton method shouldn't get out of
-        // control
-        s_real a, b, c, fa, fb, fc;
-        bool prev_a=0, prev_b=0;
-        a = pr;
-        b = p_sat;
-        fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
-        fb = hvpt_with_derivs(b, tau, gradh, hesh) - ht;
-        std::cerr << "bracket fa =  " << fa << " fb = " << fb << std::endl;
         for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = hvpt_with_derivs(c, tau, gradh, hesh) - ht;
@@ -751,8 +717,56 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
             prev_b = 1;
 
           }
-          std::cerr << it << " bracket fa= " << fa << " fb= " << fb << " P= "<< c << std::endl;
-          std::cerr << it << " bracket vap P = " << c << std::endl;
+          if (fabs(fa) < tol) {pr=a; break;}
+          if (fabs(fb) < tol) {pr=b; break;}
+          pr = (a+b)/2.0;
+          if(fabs(b - a) < 1e-8) {break;}
+      }
+      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
+      it = 0;
+      while(fabs(fun) > tol && it < max_it){
+        pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
+        fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
+        //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+        ++it;
+      }
+    }
+    else if (hv < ht  || T < T_t || T >= T_c){
+      pr = P_t;
+      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && T > T_t){
+        // Unfotunatly if the initial guess isn't good you can get on the wrong
+        // side of Psat, then you have trouble. This false position method up
+        // front keeps the temperature on the right side while refining the
+        // guess.  With the better guess the newton method shouldn't get out of
+        // control
+        s_real a, b, c, fa, fb, fc;
+        bool prev_a=0, prev_b=0;
+        a = pr;
+        b = p_sat;
+        fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
+        fb = hvpt_with_derivs(b, tau, gradh, hesh) - ht;
+        for(it=0;it<15;++it){
+          c = b - fb*(b - a)/(fb - fa);
+          fc = hvpt_with_derivs(c, tau, gradh, hesh) - ht;
+          if(fc*fa >= 0){
+            a = c;
+            fa = fc;
+            if (prev_a){
+              fb *= 0.5;
+            }
+            prev_a = 1;
+            prev_b = 0;
+          }
+          else{
+            b = c;
+            fb = fc;
+            if (prev_b){
+              fa *= 0.5;
+            }
+            prev_a = 0;
+            prev_b = 1;
+
+          }
           if (fabs(fa) < tol) {pr=a; break;}
           if (fabs(fb) < tol) {pr=b; break;}
           pr = (a+b)/2.0;
@@ -764,7 +778,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       while(fabs(fun) > tol && it < max_it){
         pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
         fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+        //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
         ++it;
       }
     }
