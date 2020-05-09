@@ -699,7 +699,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = pr;
         fa = hlpt_with_derivs(a, tau, gradh, hesh) - ht;
         fb = hlpt_with_derivs(b, tau, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
+        for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = hlpt_with_derivs(c, tau, gradh, hesh) - ht;
           if(fc*fa >= 0){a = c; fa = fc;}
