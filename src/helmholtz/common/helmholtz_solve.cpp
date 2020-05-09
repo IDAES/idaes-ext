@@ -704,7 +704,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           fc = hlpt_with_derivs(c, tau, gradh, hesh) - ht;
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
-          if(b - a < 1e-10) {break;}
+          if(b - a < 1e-8) {break;}
           std::cerr << it << " bracket liquid P = " << c << std::endl;
         }
         pr = (a+b)/2.0;
@@ -714,14 +714,13 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       while(fabs(fun) > tol && it < max_it){
         pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
         fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-          std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+        std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
         ++it;
       }
     }
     else if (hv < ht  || T < T_t){
       pr = P_t;
-      std::cerr << "vap P = " << std::endl;
-
+      std::cerr << "vap P = " << pr << std::endl;
       if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (T > T_t)){
         // Unfotunatly if the initial guess isn't good you can get on the wrong
         // side of Psat, then you have trouble. This false position method up
@@ -733,12 +732,13 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = p_sat;
         fa = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
         fb = hvpt_with_derivs(a, tau, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
+        for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = hvpt_with_derivs(c, tau, gradh, hesh) - ht;
           if(fc*fa >= 0){a = c; fa = fc;}
           else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
+          if(b - a < 1e-8) {break;}
+          std::cerr << it << " bracket vap P = " << c << std::endl;
         }
         pr = (a+b)/2.0;
       }
@@ -746,6 +746,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       while(fabs(fun) > tol && it < max_it){
         pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
         fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
+        std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+
         ++it;
       }
     }
