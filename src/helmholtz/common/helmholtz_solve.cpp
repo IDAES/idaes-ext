@@ -569,12 +569,12 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
       return tau_sat;
     }
     if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
-        return 0.0/0.0;
+      std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
+      return 0.0/0.0;
     }
     else if(tau < TAU_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
-        return 0.0/0.0;
+      std::cerr << "WARNING: External Helmholtz EOS high temperature clip, s= " << st << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
+      return 0.0/0.0;
     }
     if(grad != NULL){
         grad[0] = 1.0/gradh[1];
@@ -699,6 +699,91 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
     return tau;
 }
 
+
+s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::P_ENTH_FUNC, ht, tau, grad, hes);
+    if(!std::isnan(val)) return val;
+
+    s_real p_sat, hv=1.0, hl=1.0, fun, pr, gradh[2], hesh[3], tol = 1e-11, T=T_c/tau;
+    int it = 0, max_it = 20;
+
+    //Even if you aren't asking for derivatives, calculate them for memo
+    bool free_grad = 0, free_hes = 0;
+    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+    if(T >= T_t){
+      hv = h_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
+      hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
+    }
+
+    if (ht >= hl && ht <= hv){
+      p_sat = sat_p_with_derivs(tau, NULL, NULL);
+      zero_derivs2(grad, hes);
+      return p_sat;
+    }
+
+    s_real a, b, c, fa, fb, fc;
+    bool prev_a=0, prev_b=0;
+
+    if (hl > ht){ // liquid
+      a = p_sat;
+      b = P_c*2;
+      pr = b;
+    }
+    else{ // vapor
+      a = P_t;
+      b = p_sat;
+      pr = a;
+    }
+    fa = tau_with_derivs(ht, a, gradh, hesh) - tau;
+    fb = tau_with_derivs(ht, b, gradh, hesh) - tau;
+    if (fa*fb < 0){
+      for(it=0;it<15;++it){
+        c = b - fb*(b - a)/(fb - fa);
+        fc = tau_with_derivs(ht, c, gradh, hesh) - tau;
+        if(fc*fa >= 0){
+          a = c;
+          fa = fc;
+          if (prev_a){
+            fb *= 0.5;
+          }
+          prev_a = 1;
+          prev_b = 0;
+        }
+        else{
+          b = c;
+          fb = fc;
+          if (prev_b){
+            fa *= 0.5;
+          }
+          prev_a = 0;
+          prev_b = 1;
+        }
+        if (fabs(fa) < tol) {tau=a; break;}
+        if (fabs(fb) < tol) {tau=b; break;}
+        tau = (a+b)/2.0;
+        if(fabs(b - a) < 1e-5) {break;}
+      }
+    }
+    it = 0;
+    fun = tau_with_derivs(ht, pr, gradh, hesh) - tau;
+    while(fabs(fun) > tol && it < max_it){
+      pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
+      fun = tau_with_derivs(ht, p, gradh, hesh) - tau;
+      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      ++it;
+    }
+    tau_with_derivs(ht, p, gradh, hesh) - tau
+
+    memoize::add_bin(memoize::P_ENTH_FUNC, ht, tau, pr, grad, hes);
+    // If we allocated grad and hes here, free them
+    if(free_grad) delete[] grad;
+    if(free_hes) delete[] hes;
+    return pr;
+}
+
+/*
 s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes){
 
     s_real val = memoize::get_bin(memoize::P_ENTH_FUNC, ht, tau, grad, hes);
@@ -844,3 +929,4 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     if(free_hes) delete[] hes;
     return pr;
 }
+*/
