@@ -734,11 +734,11 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     bool prev_a=0, prev_b=0;
 
     if (pr > P_c){
-      a = 0.5;
+      a = 1.5;
       b = 1.5;
       tau = b;
       fun_ptr = &hlpt_with_derivs;
-      std::cerr << "Liq Tsat = " << T_c/tau_sat << std::endl;
+      std::cerr << "Liq P >Pc Tsat = " << T_c/tau_sat << std::endl;
     }
     else if (hl > ht && pr > P_t){ // liquid
       a = T_c/T_t;
@@ -783,7 +783,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
         tau = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
         std::cerr << it << " fa = " << fa << " fb = " << fb;
-        std::cerr << " T = " << T_c/tau << std::endl;
+        std::cerr << " T = " << T_c/c << std::endl;
       }
     }
     it = 0;
