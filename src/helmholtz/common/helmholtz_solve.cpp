@@ -734,8 +734,8 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     bool prev_a=0, prev_b=0;
 
     if (pr > P_c){
-      a = T_c/T_t;
-      b = T_c*2;
+      a = 0.5;
+      b = 1.5;
       tau = b;
       fun_ptr = &hlpt_with_derivs;
       std::cerr << "Liq Tsat = " << T_c/tau_sat << std::endl;
@@ -749,7 +749,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     }
     else{ // vapor
       tau = T_c/(T_c/tau_sat + 100);
-      a = P_t;
+      a = tau_sat;
       b = tau;
       fun_ptr = &hvpt_with_derivs;
       std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
