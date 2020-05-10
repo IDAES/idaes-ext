@@ -770,11 +770,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     fun = tau_with_derivs(ht, pr, gradh, hesh) - tau;
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
-      fun = tau_with_derivs(ht, p, gradh, hesh) - tau;
+      fun = tau_with_derivs(ht, pr, gradh, hesh) - tau;
       //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
-    tau_with_derivs(ht, p, gradh, hesh) - tau
 
     memoize::add_bin(memoize::P_ENTH_FUNC, ht, tau, pr, grad, hes);
     // If we allocated grad and hes here, free them
