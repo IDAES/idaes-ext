@@ -716,13 +716,8 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     s_real tau_sat, hv=1.0, hl=1.0, fun, tau, gradh[2], hesh[3], tol = 1e-11;
     int it = 0, max_it = 20;
 
-
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
-    //Even if you aren't asking for derivatives, calculate them for memo
-    bool free_grad = 0, free_hes = 0;
-    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
-    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
 
     tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
     if(T >= T_t){
