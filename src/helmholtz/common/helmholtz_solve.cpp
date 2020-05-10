@@ -590,9 +590,7 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 }
 
 
-/*
 s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
-
     s_real val = memoize::get_bin(memoize::TAU_FUNC, ht, pr, grad, hes);
     if(!std::isnan(val)) return val;
 
@@ -603,121 +601,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
 
     s_real tau_sat, hv=1.0, hl=1.0, fun, tau, gradh[2], hesh[3], tol = 1e-11;
     int it = 0, max_it = 20;
-
-    tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
-    if(pr <= P_c && pr >= P_t){
-      hv = hvpt_with_derivs(pr, tau_sat, NULL, NULL);
-      hl = hlpt_with_derivs(pr, tau_sat, NULL, NULL);
-    }
-
-    if( (hl > ht && pr > P_t) || pr > P_c){ // to see if it's liquid check enthalpy and make sure above tripple point
-      if (pr >= P_c){
-        tau = 1.5;
-      }
-      else{
-        tau = T_c/T_t;
-      }
-      if(hlpt_with_derivs(pr, tau, gradh, hesh) - ht < 0 && pr < P_c){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
-        // side of Tsat, then you have trouble. This false position method up
-        // front keeps the temperature on the right side while refining the
-        // guess.  With the better guess the newton method shouldn't get out of
-        // control
-        s_real a, b, c, fa, fb, fc;
-        a = tau_sat;
-        b = tau;
-        fa = hlpt_with_derivs(pr, a, gradh, hesh) - ht;
-        fb = hlpt_with_derivs(pr, b, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
-          c = b - fb*(b - a)/(fb - fa);
-          fc = hlpt_with_derivs(pr, c, gradh, hesh) - ht;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
-        }
-        tau = (a+b)/2.0;
-      }
-      fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-      while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-        fun = hlpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        ++it;
-      }
-    }
-    else if (hv < ht  || pr < P_t){
-      tau = T_c/(T_c/tau_sat + 100);
-      if(hvpt_with_derivs(pr, tau, gradh, hesh) - ht > 0 && (pr > P_t)){
-        // Unfotunatly if the initial guess isn't good you can get on the wrong
-        // side of Tsat, then you have trouble. This false position method up
-        // front keeps the temperature on the right side while refining the
-        // guess.  With the better guess the newton method shouldn't get out of
-        // control
-        s_real a, b, c, fa, fb, fc;
-        a = tau;
-        b = tau_sat;
-        fa = hvpt_with_derivs(pr, a, gradh, hesh) - ht;
-        fb = hvpt_with_derivs(pr, b, gradh, hesh) - ht;
-        for(it=0;it<5;++it){
-          c = b - fb*(b - a)/(fb - fa);
-          fc = hvpt_with_derivs(pr, c, gradh, hesh) - ht;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
-          if(b - a < 1e-4) {break;}
-        }
-        tau = (a+b)/2.0;
-      }
-      fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-      while(fabs(fun) > tol && it < max_it){
-        tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-        fun = hvpt_with_derivs(pr, tau, gradh, hesh) - ht;
-        ++it;
-      }
-    }
-    else{
-      zero_derivs2(grad, hes);
-      return tau_sat;
-    }
-    if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
-        return 0.0/0.0;
-    }
-    else if(tau < TAU_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= " << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= " << T_c/tau_sat << std::endl;
-        return 0.0/0.0;
-    }
-    if(grad != NULL){
-        grad[0] = 1.0/gradh[1];
-        grad[1] = -grad[0]*gradh[0];
-        if(hes != NULL){
-          hes[0] = -grad[0]*grad[0]*grad[0]*hesh[2];
-          hes[1] = -grad[0]*grad[0]*(hesh[1] + hesh[2]*grad[1]);
-          hes[2] = -hes[1]*gradh[0] - grad[0]*(hesh[0] + hesh[1]*grad[1]);
-        }
-    }
-    memoize::add_bin(memoize::TAU_FUNC, ht, pr, tau, grad, hes);
-    // If we alocated grad and hes here, free them
-    if(free_grad) delete[] grad;
-    if(free_hes) delete[] hes;
-    return tau;
-}
-*/
-
-
-s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
-
-    s_real val = memoize::get_bin(memoize::TAU_FUNC, ht, pr, grad, hes);
-    if(!std::isnan(val)) return val;
-
-    //Even if you aren't asking for derivatives, calculate them for memo
-    bool free_grad = 0, free_hes = 0;
-    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
-    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-
-    s_real tau_sat, hv=1.0, hl=1.0, fun, tau, gradh[2], hesh[3], tol = 1e-11;
-    int it = 0, max_it = 20;
-
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
-
 
     tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
     if(pr >= P_t){
@@ -738,21 +622,21 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
       b = T_c/T_t;
       tau = a;
       fun_ptr = &hlpt_with_derivs;
-      std::cerr << "Liq P >Pc Tsat = " << T_c/tau_sat << std::endl;
+      //std::cerr << "Liq P >Pc Tsat = " << T_c/tau_sat << std::endl;
     }
     else if (hl > ht && pr > P_t){ // liquid
       a = T_c/T_t;
       b = tau_sat;
       tau = a;
       fun_ptr = &hlpt_with_derivs;
-      std::cerr << "Liq Tsat = " << T_c/tau_sat << std::endl;
+      //std::cerr << "Liq Tsat = " << T_c/tau_sat << std::endl;
     }
     else{ // vapor
       tau = T_c/(T_c/tau_sat + 100);
       a = tau_sat;
       b = tau;
       fun_ptr = &hvpt_with_derivs;
-      std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
+      //std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
     }
     fa = (*fun_ptr)(pr, a, gradh, hesh) - ht;
     fb = (*fun_ptr)(pr, b, gradh, hesh) - ht;
@@ -782,8 +666,8 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
         if (fabs(fb) < tol) {tau=b; break;}
         tau = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        std::cerr << it << " fa = " << fa << " fb = " << fb;
-        std::cerr << " T = " << T_c/c << std::endl;
+        //std::cerr << it << " fa = " << fa << " fb = " << fb;
+        //std::cerr << " T = " << T_c/c << std::endl;
       }
     }
     it = 0;
@@ -792,7 +676,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     while(fabs(fun) > tol && it < max_it){
       tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
-      std::cerr << it << " f = " << fun << " T = " << T_c/tau << std::endl;
+      //std::cerr << it << " f = " << fun << " T = " << T_c/tau << std::endl;
       ++it;
     }
 
@@ -822,7 +706,6 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
 }
 
 
-
 s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes){
     s_real val = memoize::get_bin(memoize::P_ENTH_FUNC, ht, tau, grad, hes);
     if(!std::isnan(val)) return val;
@@ -840,6 +723,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       hv = h_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
+      std::cerr << "hl, hv, ht " << hl << ", " << hv << ", " << ht << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
