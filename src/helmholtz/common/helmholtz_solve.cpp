@@ -732,7 +732,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       a = p_sat;
       b = P_c*2;
       pr = b;
-      fun_ptr = &hvpt_with_derivs;
+      fun_ptr = &hlpt_with_derivs;
     }
     else{ // vapor
       a = P_t;
@@ -741,7 +741,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = 4*p_sat;
       }
       pr = b;
-      fun_ptr = &hlpt_with_derivs;
+      fun_ptr = &hvpt_with_derivs;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - ht;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - ht;
