@@ -707,7 +707,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     s_real p_sat, hv=1.0, hl=1.0, fun, pr, gradh[2], hesh[3], tol=1e-11, T=T_c/tau;
     int it = 0, max_it=20;
 
-    void (*fun_ptr)(s_real, s_real, s_real*, s_real*);
+    s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
@@ -743,12 +743,12 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       pr = b;
       fun_ptr = &hlpt_with_derivs
     }
-    fa = fun_ptr(a, tau, gradh, hesh) - ht;
-    fb = fun_ptr(b, tau, gradh, hesh) - ht;
+    fa = (*fun_ptr)(a, tau, gradh, hesh) - ht;
+    fb = (*fun_ptr)(b, tau, gradh, hesh) - ht;
     if (fa*fb < 0){
       for(it=0;it<15;++it){
         c = b - fb*(b - a)/(fb - fa);
-        fc = fun_ptr(c, tau, gradh, hesh) - ht;
+        fc = (*fun_ptr)(c, tau, gradh, hesh) - ht;
         if(fc*fa >= 0){
           a = c;
           fa = fc;
@@ -777,10 +777,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
     it = 0;
     std::cerr << "Pinit = " << pr << std::endl;
-    fun = fun_ptr(pr, tau, gradh, hesh) - ht;
+    fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
-      fun = fun_ptr(pr, tau, gradh, hesh) - ht;
+      fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
       std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
