@@ -760,11 +760,11 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
           prev_a = 0;
           prev_b = 1;
         }
-        if (fabs(fa) < tol) {tau=a; break;}
-        if (fabs(fb) < tol) {tau=b; break;}
-        tau = (a+b)/2.0;
+        if (fabs(fa) < tol) {pr=a; break;}
+        if (fabs(fb) < tol) {pr=b; break;}
+        pr = (a+b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        std::cerr << it << " fa = " << fa << " fb = " << fb << " p = " << c << std::endl;
+        std::cerr << it << " fa = " << fa << " fb = " << fb << " p = " << pr << std::endl;
       }
     }
     it = 0;
