@@ -735,7 +735,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
 
     if (pr > P_c){
       a = 0.5;
-      b = T_c/T_t;
+      b = (T_c/T_t + 1)/2.0;
       tau = b;
       fun_ptr = &hlpt_with_derivs;
       std::cerr << "Liq P >Pc Tsat = " << T_c/tau_sat << std::endl;
