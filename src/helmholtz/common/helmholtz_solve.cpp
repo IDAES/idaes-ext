@@ -741,7 +741,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       if(T > T_c){
         b = 4*p_sat;
       }
-      pr = b;
+      pr = a;
       fun_ptr = &hvpt_with_derivs;
       std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
