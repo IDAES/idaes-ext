@@ -717,8 +717,8 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
     }
 
+    p_sat = sat_p_with_derivs(tau, NULL, NULL);
     if (ht >= hl && ht <= hv){
-      p_sat = sat_p_with_derivs(tau, NULL, NULL);
       zero_derivs2(grad, hes);
       return p_sat;
     }
