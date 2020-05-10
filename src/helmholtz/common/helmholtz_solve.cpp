@@ -786,15 +786,15 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
 
     if(pr > P_HIGH){
-      std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T;
-      std::cerr << " Psat= " << p_sat << std::endl;
+      //std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= ";
+      //std::cerr << ht << " P= " << pr << " T= " << T;
+      //std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
     else if(pr <= P_LOW){
-      std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T;
-      std::cerr << " Psat= " << p_sat << std::endl;
+      //std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= ";
+      //std::cerr << ht << " P= " << pr << " T= " << T;
+      //std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
 
