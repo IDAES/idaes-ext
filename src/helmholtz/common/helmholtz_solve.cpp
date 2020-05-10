@@ -732,7 +732,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       a = p_sat;
       b = P_c*2;
       pr = b;
-      fun_ptr = &hvpt_with_derivs
+      fun_ptr = &hvpt_with_derivs;
     }
     else{ // vapor
       a = P_t;
@@ -741,7 +741,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = 4*p_sat;
       }
       pr = b;
-      fun_ptr = &hlpt_with_derivs
+      fun_ptr = &hlpt_with_derivs;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - ht;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - ht;
@@ -771,7 +771,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         if (fabs(fb) < tol) {pr=b; break;}
         pr = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        std::cerr << it << " fa = " << fa << " fb = " << fb <<
+        std::cerr << it << " fa = " << fa << " fb = " << fb;
         std::cerr << " p = " << pr << std::endl;
       }
     }
@@ -786,15 +786,15 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
 
     if(pr > P_HIGH){
-      //std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= ";
-      //std::cerr << ht << " P= " << pr << " T= " << T;
-      //std::cerr << " Psat= " << p_sat << std::endl;
+      std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= ";
+      std::cerr << ht << " P= " << pr << " T= " << T;
+      std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
     else if(pr <= P_LOW){
-      //std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= ";
-      //std::cerr << ht << " P= " << pr << " T= " << T;
-      //std::cerr << " Psat= " << p_sat << std::endl;
+      std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= ";
+      std::cerr << ht << " P= " << pr << " T= " << T;
+      std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
 
