@@ -734,9 +734,9 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     bool prev_a=0, prev_b=0;
 
     if (pr > P_c){
-      a = 1.5;
-      b = 1.5;
-      tau = b;
+      a = 0.7;
+      b = T_c/T_r;
+      tau = 1;
       fun_ptr = &hlpt_with_derivs;
       std::cerr << "Liq P >Pc Tsat = " << T_c/tau_sat << std::endl;
     }
@@ -790,7 +790,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     std::cerr << "Tinit = " << T_c/tau << std::endl;
     fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
     while(fabs(fun) > tol && it < max_it){
-      pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
+      pr = pr - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
       std::cerr << it << " f = " << fun << " T = " << T_c/tau << std::endl;
       ++it;
