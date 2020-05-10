@@ -764,6 +764,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         if (fabs(fb) < tol) {tau=b; break;}
         tau = (a+b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
+        std::cerr << it << " fa = " << fa << " fb = " << fb << " p = " << c << std::endl;
       }
     }
     it = 0;
@@ -771,7 +772,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = tau_with_derivs(ht, pr, gradh, hesh) - tau;
-      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 
