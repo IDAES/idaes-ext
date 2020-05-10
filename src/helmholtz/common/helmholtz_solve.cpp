@@ -479,20 +479,34 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
         // front keeps the temperature on the right side while refining the
         // guess.  With the better guess the newton method shouldn't get out of
         // control
+        bool prev_a=0, prev_b=0;
         for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = slpt_with_derivs(pr, c, gradh, hesh) - st;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
+          if(fc*fa >= 0){
+            a = c;
+            fa = fc;
+            if (prev_a){
+              fb *= 0.5;
+            }
+            prev_a = 1;
+            prev_b = 0;
+          }
+          else{
+            b = c;
+            fb = fc;
+            if (prev_b){
+              fa *= 0.5;
+            }
+            prev_a = 0;
+            prev_b = 1;
+          }
           if (fabs(fa) < tol) {tau=a; break;}
           if (fabs(fb) < tol) {tau=b; break;}
           tau = (a+b)/2.0;
           if(fabs(b - a) < 1e-5) {break;}
-          std::cerr << "bracket liq tau = " << c << std::endl;
-          std::cerr << "bracket fa, fb " << fa << " " << fb << std::endl;
         }
       }
-      std::cerr << "liq tau = " << tau << std::endl;
       fun = slpt_with_derivs(pr, tau, gradh, hesh) - st;
       it = 0;
       while(fabs(fun) > tol && it < max_it){
@@ -525,7 +539,6 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
           if(fabs(b - a) < 1e-5) {break;}
         }
       }
-      std::cerr << "vap tau = " << tau << std::endl;
       it = 0;
       fun = svpt_with_derivs(pr, tau, gradh, hesh) - st;
       while(fabs(fun) > tol && it < max_it){
