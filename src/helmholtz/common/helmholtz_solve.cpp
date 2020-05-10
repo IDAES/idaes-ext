@@ -733,6 +733,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       b = P_c*2;
       pr = b;
       fun_ptr = &hlpt_with_derivs;
+      std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
       a = P_t;
@@ -742,6 +743,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       }
       pr = b;
       fun_ptr = &hvpt_with_derivs;
+      std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - ht;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - ht;
