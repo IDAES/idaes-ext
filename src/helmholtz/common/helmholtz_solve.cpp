@@ -524,15 +524,32 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
         // guess.  With the better guess the newton method shouldn't get out of
         // control
         s_real a, b, c, fa, fb, fc;
+        bool prev_a=0, prev_b=0;
         a = tau;
         b = tau_sat;
         fa = svpt_with_derivs(pr, a, gradh, hesh) - st;
         fb = svpt_with_derivs(pr, b, gradh, hesh) - st;
-        for(it=0;it<5;++it){
+        for(it=0;it<15;++it){
           c = b - fb*(b - a)/(fb - fa);
           fc = svpt_with_derivs(pr, c, gradh, hesh) - st;
-          if(fc*fa >= 0){a = c; fa = fc;}
-          else{b = c; fb = fc;}
+          if(fc*fa >= 0){
+            a = c;
+            fa = fc;
+            if (prev_a){
+              fb *= 0.5;
+            }
+            prev_a = 1;
+            prev_b = 0;
+          }
+          else{
+            b = c;
+            fb = fc;
+            if (prev_b){
+              fa *= 0.5;
+            }
+            prev_a = 0;
+            prev_b = 1;
+          }
           if (fabs(fa) < tol) {tau=a; break;}
           if (fabs(fb) < tol) {tau=b; break;}
           tau = (a+b)/2.0;
