@@ -790,7 +790,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     std::cerr << "Tinit = " << T_c/tau << std::endl;
     fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
     while(fabs(fun) > tol && it < max_it){
-      pr = pr - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
+      tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
       std::cerr << it << " f = " << fun << " T = " << T_c/tau << std::endl;
       ++it;
