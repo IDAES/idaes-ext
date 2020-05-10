@@ -735,7 +735,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
       a = P_t;
       b = p_sat;
       if(T > T_c){
-        b = 2*p_sat;
+        b = 4*p_sat;
       }
       pr = b;
     }
