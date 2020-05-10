@@ -801,9 +801,9 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     }
 
     grad[0] = 1.0/gradh[0];
-    grad[1] = -grad[0]*gradh[0];
-    hes[1] = -grad[0]*grad[0]*(hesh[0] + hesh[0]*grad[1]);
+    grad[1] = -grad[0]*gradh[1];
     hes[0] = -grad[0]*grad[0]*grad[0]*hesh[0];
+    hes[1] = -grad[0]*grad[0]*(hesh[0] + hesh[0]*grad[1]);
     hes[2] = -hes[1]*gradh[0] - grad[0]*(hesh[0] + hesh[1]*grad[1]);
 
     memoize::add_bin(memoize::P_ENTH_FUNC, ht, tau, pr, grad, hes);
