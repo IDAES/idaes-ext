@@ -726,7 +726,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     s_real a, b, c, fa, fb, fc;
     bool prev_a=0, prev_b=0;
 
-    if (hl > ht){ // liquid
+    if (hl > ht && T > T_t && T < T_c){ // liquid
       a = p_sat;
       b = P_c*2;
       pr = b;
@@ -734,7 +734,10 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     else{ // vapor
       a = P_t;
       b = p_sat;
-      pr = a;
+      if(T > T_c){
+        b = 2*p_sat;
+      }
+      pr = b;
     }
     fa = tau_with_derivs(ht, a, gradh, hesh) - tau;
     fb = tau_with_derivs(ht, b, gradh, hesh) - tau;
