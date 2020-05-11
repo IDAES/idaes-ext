@@ -688,7 +688,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
-    //std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
+    std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
 
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
@@ -698,7 +698,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
-      //std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
+      std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
@@ -714,10 +714,10 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       a = p_sat;
       b = P_c*20;
       fun_ptr = &slpt_with_derivs;
-      //std::cerr << "Liq Psat = " << p_sat << std::endl;
+      std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
-      a = P_t/20.0;
+      a = 0.5;
       if(T > T_c){
         b = 20*P_c;
       }
@@ -725,7 +725,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         b = p_sat;
       }
       fun_ptr = &svpt_with_derivs;
-      //std::cerr << "Vap Psat = " << p_sat << std::endl;
+      std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
@@ -756,8 +756,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         if (fabs(fb) < tol) {pr=b; break;}
         pr = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        //std::cerr << it << " fa = " << fa << " fb = " << fb;
-        //std::cerr << " p = " << pr << std::endl;
+        std::cerr << it << " fa = " << fa << " fb = " << fb;
+        std::cerr << " p = " << pr << std::endl;
       }
     }
     else if (fa < 0){
