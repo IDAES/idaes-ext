@@ -539,14 +539,14 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
   }
 
   if(tau < 0.0 || tau > TAU_HIGH){
-      std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
+      std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= ";
+      std::cerr << st << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
       std::cerr << T_c/tau_sat << std::endl;
       return 0.0/0.0;
   }
   else if(tau < TAU_LOW){
-      std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
+      std::cerr << "WARNING: External Helmholtz EOS high temperature clip, s= ";
+      std::cerr << st << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
       std::cerr << T_c/tau_sat << std::endl;
       return 0.0/0.0;
   }
@@ -578,8 +578,8 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 
     tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
     if(pr >= P_t){
-      sv = svpt_with_derivs(pr, tau_sat, NULL, NULL);
-      sl = slpt_with_derivs(pr, tau_sat, NULL, NULL);
+      uv = uvpt_with_derivs(pr, tau_sat, NULL, NULL);
+      ul = ulpt_with_derivs(pr, tau_sat, NULL, NULL);
     }
 
     if (ut >= ul && ut <= uv){
@@ -654,14 +654,14 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
     }
 
     if(tau < 0.0 || tau > TAU_HIGH){
-        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= ";
-        std::cerr << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
+        std::cerr << "WARNING: External Helmholtz EOS low temperature clip, u= ";
+        std::cerr << ut << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
         std::cerr << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
     else if(tau < TAU_LOW){
-        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, h= ";
-        std::cerr << ht << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
+        std::cerr << "WARNING: External Helmholtz EOS high temperature clip, u= ";
+        std::cerr << ut << " P= " << pr << " T= " << T_c/tau << " Tsat= ";
         std::cerr << T_c/tau_sat << std::endl;
         return 0.0/0.0;
     }
