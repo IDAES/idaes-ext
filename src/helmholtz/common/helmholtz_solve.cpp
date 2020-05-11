@@ -759,7 +759,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     }
     it = 0;
     std::cerr << "Pinit = " << pr << std::endl;
-    fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
+    fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
