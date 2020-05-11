@@ -713,30 +713,23 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
       b = P_c*2;
-      pr = b;
       fun_ptr = &slpt_with_derivs;
       std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
-      a = P_t;
+      a = P_t/5;
       if(T > T_c){
         b = 4*p_sat;
-        if (svpt_with_derivs(a, tau, gradh, hesh) - st < 0){
-          pr = a;
-        }
-        else{
-          pr = b;
-        }
       }
       else{
         b = p_sat;
-        pr = a;
       }
       fun_ptr = &svpt_with_derivs;
       std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
+
     if (fa*fb < 0){
       for(it=0;it<15;++it){
         c = b - fb*(b - a)/(fb - fa);
@@ -767,6 +760,14 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         std::cerr << " p = " << pr << std::endl;
       }
     }
+    else if (fa < 0){
+      pr = a;
+    }
+    else{
+      pr = b;
+    }
+
+
     it = 0;
     std::cerr << "Pinit = " << pr << std::endl;
     fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
