@@ -679,11 +679,11 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 }
 
 
-s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes){
-    s_real val = memoize::get_bin(memoize::P_ENTH_FUNC, ht, tau, grad, hes);
+s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::P_ENTR_FUNC, st, tau, grad, hes);
     if(!std::isnan(val)) return val;
 
-    s_real p_sat, hv=1.0, hl=1.0, fun, pr, gradh[2], hesh[3], tol=1e-11, T=T_c/tau;
+    s_real p_sat, sv=1.0, sl=1.0, fun, pr, gradh[2], hesh[3], tol=1e-11, T=T_c/tau;
     int it = 0, max_it=20;
 
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
@@ -694,13 +694,13 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
 
     if(T >= T_t){
-      hv = h_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
-      hl = h_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
+      sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
+      sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
       //std::cerr << "hl, hv, ht " << hl << ", " << hv << ", " << ht << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
-    if (ht >= hl && ht <= hv){
+    if (st >= sl && st <= sv){
       zero_derivs2(grad, hes);
       return p_sat;
     }
@@ -708,11 +708,11 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     s_real a, b, c, fa, fb, fc;
     bool prev_a=0, prev_b=0;
 
-    if (hl > ht && T > T_t && T < T_c){ // liquid
+    if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
       b = P_c*2;
       pr = b;
-      fun_ptr = &hlpt_with_derivs;
+      fun_ptr = &slpt_with_derivs;
       //std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
@@ -722,15 +722,15 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
         b = 4*p_sat;
       }
       pr = a;
-      fun_ptr = &hvpt_with_derivs;
+      fun_ptr = &svpt_with_derivs;
       //std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
-    fa = (*fun_ptr)(a, tau, gradh, hesh) - ht;
-    fb = (*fun_ptr)(b, tau, gradh, hesh) - ht;
+    fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
+    fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
     if (fa*fb < 0){
       for(it=0;it<15;++it){
         c = b - fb*(b - a)/(fb - fa);
-        fc = (*fun_ptr)(c, tau, gradh, hesh) - ht;
+        fc = (*fun_ptr)(c, tau, gradh, hesh) - st;
         if(fc*fa >= 0){
           a = c;
           fa = fc;
@@ -762,20 +762,20 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
-      fun = (*fun_ptr)(pr, tau, gradh, hesh) - ht;
+      fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
       //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 
     if(pr > P_HIGH){
-      std::cerr << "WARNING: External Helmholtz EOS high pressure clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T;
+      std::cerr << "WARNING: External Helmholtz EOS high pressure clip, s= ";
+      std::cerr << st << " P= " << pr << " T= " << T;
       std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
     else if(pr <= P_LOW){
-      std::cerr << "WARNING: External Helmholtz EOS low pressure clip, h= ";
-      std::cerr << ht << " P= " << pr << " T= " << T;
+      std::cerr << "WARNING: External Helmholtz EOS low pressure clip, s= ";
+      std::cerr << st << " P= " << pr << " T= " << T;
       std::cerr << " Psat= " << p_sat << std::endl;
       return 0.0/0.0;
     }
@@ -786,7 +786,7 @@ s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes)
     hes[1] = -grad[0]*grad[0]*(hesh[1] + hesh[0]*grad[1]);
     hes[2] = -hes[1]*gradh[1] - grad[0]*(hesh[2] + hesh[1]*grad[1]);
 
-    memoize::add_bin(memoize::P_ENTH_FUNC, ht, tau, pr, grad, hes);
+    memoize::add_bin(memoize::P_ENTH_FUNC, st, tau, pr, grad, hes);
 
     // If we allocated grad and hes here, free them
     if(free_grad) delete[] grad;

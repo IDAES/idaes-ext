@@ -47,7 +47,7 @@ double tau_EOS_TAG(arglist *al);
 double tau_sp_EOS_TAG(arglist *al);
 double tau_up_EOS_TAG(arglist *al);
 
-double p_htau_EOS_TAG(arglist *al);
+double p_stau_EOS_TAG(arglist *al);
 
 double delta_sat_l_EOS_TAG(arglist *al);
 double delta_sat_v_EOS_TAG(arglist *al);

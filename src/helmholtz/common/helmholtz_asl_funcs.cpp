@@ -51,7 +51,7 @@ void funcadd(AmplExports *ae){
     addfunc("tau_EOS_TAG", (rfunc)tau_EOS_TAG, typ, 2, NULL);
     addfunc("tau_sp_EOS_TAG", (rfunc)tau_sp_EOS_TAG, typ, 2, NULL);
     addfunc("tau_up_EOS_TAG", (rfunc)tau_up_EOS_TAG, typ, 2, NULL);
-    addfunc("p_htau_EOS_TAG", (rfunc)p_htau_EOS_TAG, typ, 2, NULL);
+    addfunc("p_stau_EOS_TAG", (rfunc)p_stau_EOS_TAG, typ, 2, NULL);
     addfunc("vf_EOS_TAG", (rfunc)vf_EOS_TAG, typ, 2, NULL);
     addfunc("vfs_EOS_TAG", (rfunc)vfs_EOS_TAG, typ, 2, NULL);
     addfunc("vfu_EOS_TAG", (rfunc)vfu_EOS_TAG, typ, 2, NULL);
@@ -361,17 +361,17 @@ double tau_up_EOS_TAG(arglist *al){
   }
 }
 
-double p_htau_EOS_TAG(arglist *al){
+double p_stau_EOS_TAG(arglist *al){
   if(al->derivs==NULL && al->hes==NULL){
-    return p_from_htau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
+    return p_from_stau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
   else{
     #ifdef CAST_DERIVATIVES
       s_real f, grad[2], hes[3];
-      f = p_from_htau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
+      f = p_from_stau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
       cast_deriv2(grad, al->derivs, hes, al->hes);
       return f;
     #else
-      return p_from_htau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+      return p_from_stau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
   }
 }
