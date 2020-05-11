@@ -688,6 +688,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
+    std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
+
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
     if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
@@ -696,7 +698,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
-      std::cerr << "hl, hv, ht " << hl << ", " << hv << ", " << ht << std::endl;
+      std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
