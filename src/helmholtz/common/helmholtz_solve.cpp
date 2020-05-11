@@ -696,7 +696,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
-      //std::cerr << "hl, hv, ht " << hl << ", " << hv << ", " << ht << std::endl;
+      std::cerr << "hl, hv, ht " << hl << ", " << hv << ", " << ht << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
@@ -713,7 +713,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       b = P_c*2;
       pr = b;
       fun_ptr = &slpt_with_derivs;
-      //std::cerr << "Liq Psat = " << p_sat << std::endl;
+      std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
       a = P_t;
@@ -723,7 +723,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       }
       pr = a;
       fun_ptr = &svpt_with_derivs;
-      //std::cerr << "Vap Psat = " << p_sat << std::endl;
+      std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
@@ -753,8 +753,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         if (fabs(fb) < tol) {pr=b; break;}
         pr = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        //std::cerr << it << " fa = " << fa << " fb = " << fb;
-        //std::cerr << " p = " << pr << std::endl;
+        std::cerr << it << " fa = " << fa << " fb = " << fb;
+        std::cerr << " p = " << pr << std::endl;
       }
     }
     it = 0;
@@ -763,7 +763,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 
