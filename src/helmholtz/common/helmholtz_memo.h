@@ -93,7 +93,8 @@ namespace memoize{
     TAU_INTEN_FUNC=18,
     P_ENTH_FUNC=19,
     P_ENTR_FUNC=20,
-    P_INTEN_FUNC=21;
+    P_INTEN_FUNC=21,
+    P_HS_FUNC=22;
   // unary functions with derivatives
   static const unsigned char
     P_SAT_FUNC = 1,

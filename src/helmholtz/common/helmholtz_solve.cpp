@@ -688,7 +688,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
-    std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
+    //std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
 
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
@@ -698,7 +698,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
-      std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
+      //std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
@@ -712,9 +712,9 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
-      b = P_c*2;
+      b = P_c*8;
       fun_ptr = &slpt_with_derivs;
-      std::cerr << "Liq Psat = " << p_sat << std::endl;
+      //std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
       a = P_t/20.0;
@@ -725,7 +725,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         b = p_sat;
       }
       fun_ptr = &svpt_with_derivs;
-      std::cerr << "Vap Psat = " << p_sat << std::endl;
+      //std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
     fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
     fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
@@ -756,8 +756,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         if (fabs(fb) < tol) {pr=b; break;}
         pr = (a + b)/2.0;
         if(fabs(b - a) < 1e-5) {break;}
-        std::cerr << it << " fa = " << fa << " fb = " << fb;
-        std::cerr << " p = " << pr << std::endl;
+        //std::cerr << it << " fa = " << fa << " fb = " << fb;
+        //std::cerr << " p = " << pr << std::endl;
       }
     }
     else if (fa < 0){
@@ -774,7 +774,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-      std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 
