@@ -717,7 +717,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
-      a = P_t/5;
+      a = P_t/20.0;
       if(T > T_c){
         b = 4*p_sat;
       }
