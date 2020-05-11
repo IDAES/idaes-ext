@@ -51,6 +51,10 @@ const s_real rho_c = 467.6;   // Critical density (kg/m^3)
 const s_real P_c = 7377.3;    // Critical Pressure (kPa)
 const s_real T_t = 216.592;   // Triple point temperature (K)
 const s_real P_t = 517.95;    // Triple point pressure (kPa)
+const s_real P_max = 10*P_c;  // Max pressure where answer is sure to be right
+const s_real P_min = 1;       // Min pressure where answer is sure to be right
+const s_real T_max = 800;     // Max temp where answer is sure to be right
+const s_real T_min = T_t;     // Min temp where answer is sure to be right
 
 // To generalize the equation of state there are parameters to set the number
 // of terms in each summation.  So far we are looking at IAPWS95 and Span-Wagner

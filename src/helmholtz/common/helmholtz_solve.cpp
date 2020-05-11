@@ -712,14 +712,14 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
-      b = P_c*20;
+      b = P_max;
       fun_ptr = &slpt_with_derivs;
       std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
-      a = 0.5;
+      a = P_min;
       if(T > T_c){
-        b = 20*P_c;
+        b = P_max;
       }
       else{
         b = p_sat;
