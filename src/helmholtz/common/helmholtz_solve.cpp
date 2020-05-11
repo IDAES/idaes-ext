@@ -719,11 +719,14 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     }
     else{ // vapor
       a = P_t;
-      b = p_sat;
       if(T > T_c){
         b = 4*p_sat;
+        pr = b
       }
-      pr = a;
+      else{
+        b = p_sat;
+        pr = a;
+      }
       fun_ptr = &svpt_with_derivs;
       std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
