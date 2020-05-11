@@ -721,7 +721,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       a = P_t;
       if(T > T_c){
         b = 4*p_sat;
-        if (svpt_with_derivs(a, tau, gradh, hesh) - st > 0){
+        if (svpt_with_derivs(a, tau, gradh, hesh) - st < 0){
           pr = a;
         }
         else{
