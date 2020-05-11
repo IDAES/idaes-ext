@@ -712,7 +712,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
-      b = P_c*8;
+      b = P_c*10;
       fun_ptr = &slpt_with_derivs;
       //std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
@@ -774,7 +774,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 
