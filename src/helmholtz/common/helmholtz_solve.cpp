@@ -805,7 +805,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     hes[1] = -grad[0]*grad[0]*(hesh[1] + hesh[0]*grad[1]);
     hes[2] = -hes[1]*gradh[1] - grad[0]*(hesh[2] + hesh[1]*grad[1]);
 
-    memoize::add_bin(memoize::P_ENTH_FUNC, st, tau, pr, grad, hes);
+    memoize::add_bin(memoize::P_ENTR_FUNC, st, tau, pr, grad, hes);
 
     // If we allocated grad and hes here, free them
     if(free_grad) delete[] grad;
