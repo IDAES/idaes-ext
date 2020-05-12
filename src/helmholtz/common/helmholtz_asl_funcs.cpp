@@ -24,7 +24,7 @@
 #include"helmholtz_phi.h"
 #include"helmholtz_asl_funcs.h"
 #include"helmholtz_config.h"
-//#include"helmholtz_memo.h"
+#include"helmholtz_memo.h"
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
