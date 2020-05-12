@@ -24,6 +24,7 @@
 #include"helmholtz_phi.h"
 #include"helmholtz_asl_funcs.h"
 #include"helmholtz_config.h"
+#include"helmholtz_memo.h"
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -49,6 +50,7 @@ void funcadd(AmplExports *ae){
     addfunc("uvpt_EOS_TAG", (rfunc)uvpt_EOS_TAG, typ, 2, NULL);
     addfunc("ulpt_EOS_TAG", (rfunc)ulpt_EOS_TAG, typ, 2, NULL);
     addfunc("tau_EOS_TAG", (rfunc)tau_EOS_TAG, typ, 2, NULL);
+    addfunc("memo_test_tau_EOS_TAG", (rfunc)memo_test_tau_EOS_TAG, typ, 2, NULL);
     addfunc("tau_sp_EOS_TAG", (rfunc)tau_sp_EOS_TAG, typ, 2, NULL);
     addfunc("tau_up_EOS_TAG", (rfunc)tau_up_EOS_TAG, typ, 2, NULL);
     addfunc("p_stau_EOS_TAG", (rfunc)p_stau_EOS_TAG, typ, 2, NULL);
@@ -329,6 +331,14 @@ double tau_EOS_TAG(arglist *al){
       return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
     #endif
   }
+}
+
+double memo_test_tau_EOS_TAG(arglist *al){
+  s_real val;
+  //ask for it or not this will calculate and memoize derivatives
+  val = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);
+  //this should be stored now so return stored values
+  return memoize::get_bin(memoize::TAU_FUNC, al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double tau_sp_EOS_TAG(arglist *al){
