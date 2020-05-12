@@ -24,7 +24,7 @@
 #include"helmholtz_phi.h"
 #include"helmholtz_asl_funcs.h"
 #include"helmholtz_config.h"
-#include"helmholtz_memo.h"
+//#include"helmholtz_memo.h"
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -50,7 +50,7 @@ void funcadd(AmplExports *ae){
     addfunc("uvpt_EOS_TAG", (rfunc)uvpt_EOS_TAG, typ, 2, NULL);
     addfunc("ulpt_EOS_TAG", (rfunc)ulpt_EOS_TAG, typ, 2, NULL);
     addfunc("tau_EOS_TAG", (rfunc)tau_EOS_TAG, typ, 2, NULL);
-    addfunc("memo_test_tau_EOS_TAG", (rfunc)memo_test_tau_EOS_TAG, typ, 2, NULL);
+    //addfunc("memo_test_tau_EOS_TAG", (rfunc)memo_test_tau_EOS_TAG, typ, 2, NULL);
     addfunc("tau_sp_EOS_TAG", (rfunc)tau_sp_EOS_TAG, typ, 2, NULL);
     addfunc("tau_up_EOS_TAG", (rfunc)tau_up_EOS_TAG, typ, 2, NULL);
     addfunc("p_stau_EOS_TAG", (rfunc)p_stau_EOS_TAG, typ, 2, NULL);
