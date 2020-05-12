@@ -333,11 +333,7 @@ double tau_EOS_TAG(arglist *al){
 }
 
 double memo_test_tau_EOS_TAG(arglist *al){
-  s_real val;
-  //ask for it or not this will calculate and memoize derivatives
-  val = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);
-  //this should be stored now so return stored values
-  return memoize::get_bin(memoize::TAU_FUNC, al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+  return mem_tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double tau_sp_EOS_TAG(arglist *al){
