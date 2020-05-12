@@ -28,7 +28,7 @@
 #define MAX_MEMO 1000000
 // Precision: {PRECISION_LONG_DOUBLE, PRECISION_DOUBLE} the exact meaning of
 // that depends on the machine and compiler.
-//#define PRECISION_LONG_DOUBLE
+//#define PRECISION_LONG_DOUBLE //DON'T USE THIS WITHOUT ADDING DERIVATIVE CASTS BACK TO ASL FUNCS
 #define PRECISION_DOUBLE
 // Redidual abs tolerance for solving for vapor reduced density from p, tau
 #define TOL_DELTA_VAP 1e-13
@@ -84,6 +84,5 @@ inline void zero_derivs2(s_real *grad, s_real *hes){
     }
   }
 }
-
 
 #endif
