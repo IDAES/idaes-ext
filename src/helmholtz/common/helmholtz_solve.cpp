@@ -334,8 +334,7 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
 
 s_real mem_tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     // TESTING ONLY, function for testing memoization
-    s_real val;
-    val = tau_with_derivs(ht, pr, grad, hes);
+    tau_with_derivs(ht, pr, grad, hes);  //after this it should be memoized
     //return the memoized value
     return memoize::get_bin(memoize::TAU_FUNC, ht, pr, grad, hes);
 }
