@@ -20,6 +20,8 @@
 ------------------------------------------------------------------------------*/
 
 #include <funcadd.h>
+#include"helmholtz_memo.h"
+
 
 #ifndef _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
 #define _INCLUDE_HELMHOLTZ_ASL_FUNCS_H_
