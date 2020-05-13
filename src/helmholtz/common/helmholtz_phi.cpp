@@ -109,7 +109,16 @@ s_real phi0_tau4(s_real tau){
 /*------------------------------------------------------------------------------
   phir and derivatives
 ------------------------------------------------------------------------------*/
+// These functions have a lot of terms, but it's unclear if memoization here
+// saves time.  Define PHI_MEM here if you want to compile with phir memoization
+#undef PHI_MEM
+
 s_real phir(s_real delta, s_real tau){
+  //Check if stored and return stored value if so
+  #ifdef PHI_MEM
+  double val = memoize::get_bin0(memoize::phir, delta, tau);
+  if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -124,13 +133,19 @@ s_real phir(s_real delta, s_real tau){
              *s_exp(-alpha[i]*s_pow(delta - eps[i],2)
                    -beta[i]*s_pow(tau - theta[i],2));
   }
+  //Store
+  #ifdef PHI_MEM
+  memoize::add_bin0(memoize::phir, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta(s_real delta, s_real tau){
   //Check if stored and return stored value if so
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum=0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -146,14 +161,18 @@ s_real phir_delta(s_real delta, s_real tau){
                    -beta[i]*s_pow(tau - theta[i],2))*
              (d[i]/delta - 2*alpha[i]*(delta-eps[i]));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta2(s_real delta, s_real tau){
   //Check if stored and return stored value if so
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta2, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -175,14 +194,18 @@ s_real phir_delta2(s_real delta, s_real tau){
               4.0*alpha[i]*d[i]*s_pow(delta, d[i]-1)*(delta-eps[i]) +
               d[i]*(d[i]-1)*s_pow(delta, d[i]-2));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta2, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_tau(s_real delta, s_real tau){
   //Check if stored and return stored value if so
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_tau, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -198,14 +221,18 @@ s_real phir_tau(s_real delta, s_real tau){
                    -beta[i]*s_pow(tau - theta[i],2))
              *(t[i]/tau - 2*beta[i]*(tau-theta[i]));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_tau, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta_tau(s_real delta, s_real tau){
   //Check if stored and return stored value if so
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta_tau, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -222,14 +249,18 @@ s_real phir_delta_tau(s_real delta, s_real tau){
              *(d[i]/delta - 2*alpha[i]*(delta-eps[i]))
              *(t[i]/tau - 2*beta[i]*(tau-theta[i]));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta_tau, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_tau2(s_real delta, s_real tau){
   //Check if stored and return stored value if so
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_tau2, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -247,13 +278,17 @@ s_real phir_tau2(s_real delta, s_real tau){
              *(t[i]/tau - 2*beta[i]*(tau-theta[i]))
              -t[i]/tau/tau - 2*beta[i]);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_tau2, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta3(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta3, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -266,13 +301,17 @@ s_real phir_delta3(s_real delta, s_real tau){
   for(int i=S3_set[0]; i<=S3_set[1]; ++i){
     sum += n[i]*s_pow(tau, t[i])*(Fa_d*Fm + Fa*Fm_d);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta3, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta4(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta4, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -285,13 +324,17 @@ s_real phir_delta4(s_real delta, s_real tau){
   for(int i=S3_set[0]; i<=S3_set[1]; ++i){
     sum += n[i]*s_pow(tau, t[i])*(Fa_dd*Fm + 2.0*Fa_d*Fm_d + Fa*Fm_dd);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta4, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta2_tau(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta2_tau, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -305,13 +348,17 @@ s_real phir_delta2_tau(s_real delta, s_real tau){
     sum +=
       n[i]*(t[i]*s_pow(tau, t[i]-1)*Fa*Fm + s_pow(tau, t[i])*Fa_t*Fm);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta2_tau, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta2_tau2(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta2_tau2, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -325,13 +372,17 @@ s_real phir_delta2_tau2(s_real delta, s_real tau){
     sum += n[i]*(t[i]*(t[i]-1)*s_pow(tau, t[i]-2)*Fa*Fm +
       2*t[i]*s_pow(tau, t[i]-1)*Fa_t*Fm + s_pow(tau, t[i])*Fa_tt*Fm);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta2_tau2, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta_tau2(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta_tau2, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -347,13 +398,17 @@ s_real phir_delta_tau2(s_real delta, s_real tau){
       Fa*Ga*Gb + s_pow(delta, d[i])*s_pow(tau, t[i])*
       Fa_t*Ga*Gb + s_pow(delta, d[i])*s_pow(tau, t[i])*Fa*Ga*Gb_t);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta_tau2, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta_tau3(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta_tau3, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum=0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -374,11 +429,14 @@ s_real phir_delta_tau3(s_real delta, s_real tau){
       2.0*s_pow(tau, t[i])*Fa_t*Gb_t +
       s_pow(tau, t[i])*Fa*Gb_tt);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta_tau3, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_tau3(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_tau3, delta, tau);
   if(!std::isnan(val)) return val;
   s_real sum = 0;
@@ -397,13 +455,16 @@ s_real phir_tau3(s_real delta, s_real tau){
       s_pow(tau, t[i])*Fa_t*(Ha + Hb) +
       s_pow(tau, t[i])*Fa*(Ha_t + Hb_t));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_tau3, delta, tau, sum);
   return sum;
 }
 
 s_real phir_tau4(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_tau4, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -423,13 +484,17 @@ s_real phir_tau4(s_real delta, s_real tau){
       s_pow(tau, t[i])*Fa_tt*(Ha + Hb) +
       s_pow(tau, t[i])*Fa*(Ha_tt + Hb_tt));
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_tau4, delta, tau, sum);
+  #endif
   return sum;
 }
 
 s_real phir_delta3_tau(s_real delta, s_real tau){
+  #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_delta3_tau, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -443,6 +508,8 @@ s_real phir_delta3_tau(s_real delta, s_real tau){
     sum += n[i]*t[i]*s_pow(tau,t[i] - 1)*(Fa_d*Fm + Fa*Fm_d) +
       n[i]*s_pow(tau,t[i])*(Fa_dt*Fm + Fa_t*Fm_d);
   }
+  #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_delta3_tau, delta, tau, sum);
+  #endif
   return sum;
 }
