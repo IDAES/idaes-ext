@@ -439,6 +439,7 @@ s_real phir_tau3(s_real delta, s_real tau){
   #ifdef PHI_MEM
   double val = memoize::get_bin0(memoize::phir_tau3, delta, tau);
   if(!std::isnan(val)) return val;
+  #endif
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
