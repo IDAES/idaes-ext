@@ -30,7 +30,7 @@
 // that depends on the machine and compiler.
 //#define PRECISION_LONG_DOUBLE //DON'T USE THIS WITHOUT ADDING DERIVATIVE CASTS BACK TO ASL FUNCS
 #define PRECISION_DOUBLE
-// Redidual abs tolerance for solving for vapor reduced density from p, tau
+// Residual abs tolerance for solving for vapor reduced density from p, tau
 #define TOL_DELTA_VAP 1e-13
 // Residual abs tolerance for solving for liquid reduced density from p, tau
 #define TOL_DELTA_LIQ 1e-13

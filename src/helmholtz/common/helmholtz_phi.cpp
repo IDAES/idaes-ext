@@ -110,9 +110,6 @@ s_real phi0_tau4(s_real tau){
   phir and derivatives
 ------------------------------------------------------------------------------*/
 s_real phir(s_real delta, s_real tau){
-  //Check if stored and return stored value if so
-  double val = memoize::get_bin0(memoize::phir, delta, tau);
-  if(!std::isnan(val)) return val;
   s_real sum = 0;
   //Calculate sums
   for(int i=S1_set[0]; i<=S1_set[1]; ++i){
@@ -127,8 +124,6 @@ s_real phir(s_real delta, s_real tau){
              *s_exp(-alpha[i]*s_pow(delta - eps[i],2)
                    -beta[i]*s_pow(tau - theta[i],2));
   }
-  //Store
-  memoize::add_bin0(memoize::phir, delta, tau, sum);
   return sum;
 }
 
