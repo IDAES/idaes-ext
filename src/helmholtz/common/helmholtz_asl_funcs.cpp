@@ -73,6 +73,12 @@ void funcadd(AmplExports *ae){
     addfunc("phir_tau_EOS_TAG", (rfunc)phir_tau_EOS_TAG, typ, 2, NULL);
     addfunc("phir_tau2_EOS_TAG", (rfunc)phir_tau2_EOS_TAG, typ, 2, NULL);
     addfunc("phir_delta_tau_EOS_TAG", (rfunc)phir_delta_tau_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_EOS_TAG", (rfunc)mem_phir_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_delta_EOS_TAG", (rfunc)mem_phir_delta_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_delta2_EOS_TAG", (rfunc)mem_phir_delta2_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_tau_EOS_TAG", (rfunc)mem_phir_tau_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_tau2_EOS_TAG", (rfunc)mem_phir_tau2_EOS_TAG, typ, 2, NULL);
+    addfunc("mem_phir_delta_tau_EOS_TAG", (rfunc)mem_phir_delta_tau_EOS_TAG, typ, 2, NULL);
 }
 
 inline void cast_deriv2(s_real *g1, double *g2, s_real *h1, double *h2){

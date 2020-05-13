@@ -35,6 +35,10 @@
   phi0 and derivatives
 ------------------------------------------------------------------------------*/
 
+// The phi0 functions have many fewer terms than the phir functions. I'm not sure
+// if it's worth memoizing these, so I'm not for now.  It may be worth
+// investigating.
+
 s_real phi0(s_real delta, s_real tau){
   s_real sum4;
   //Calculate sums
@@ -113,7 +117,7 @@ s_real phi0_tau4(s_real tau){
 // The value of memoization depends a bit on what exaclty you are doing, but
 // runing the IDAES property tests showed this is at least 6 times faster with
 // this memoization on.  Due to the way those tests work, I would expect them
-// not to favor memoization, so in a real problem the performance improvment in
+// not to favor memoization, so in a real problem the performance improvment is
 // probably even more.  I left this option for future perfomance tuning and
 // testing.
 #define PHI_MEM
@@ -520,4 +524,69 @@ s_real phir_delta3_tau(s_real delta, s_real tau){
   memoize::add_bin0(memoize::phir_delta3_tau, delta, tau, sum);
   #endif
   return sum;
+}
+
+s_real mem_phir(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir(delta, tau);
+  return memoize::get_bin0(memoize::phir, delta, tau);
+}
+
+s_real mem_phir_delta(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta, delta, tau);
+}
+
+s_real mem_phir_delta2(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta2(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta2, delta, tau);
+}
+
+s_real mem_phir_delta_tau(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta_tau(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta_tau, delta, tau);
+}
+
+s_real mem_phir_tau2(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_tau2(delta, tau);
+  return memoize::get_bin0(memoize::phir_tau2, delta, tau);
+}
+
+s_real mem_phir_delta3(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta3(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta3, delta, tau);
+}
+
+s_real mem_phir_delta2_tau(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta2_tau(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta2_tau, delta, tau);
+}
+
+s_real mem_phir_delta4(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta4(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta4, delta, tau);
+}
+
+s_real mem_phir_delta2_tau2(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta2_tau2(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta2_tau2, delta, tau);
+}
+
+s_real mem_phir_delta3_tau(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta3_tau(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta3_tau, delta, tau);
+}
+
+s_real mem_phir_delta_tau3(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_delta_tau3(delta, tau);
+  return memoize::get_bin0(memoize::phir_delta_tau3, delta, tau);
+}
+
+s_real mem_phir_tau3(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_tau3(delta, tau);
+  return memoize::get_bin0(memoize::phir_tau3, delta, tau);
+}
+
+s_real mem_phir_tau4(s_real delta, s_real tau){ // MEMO TESTING ONLY
+  phir_tau4(delta, tau);
+  return memoize::get_bin0(memoize::phir_tau4, delta, tau);
 }
