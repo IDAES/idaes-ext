@@ -109,9 +109,15 @@ s_real phi0_tau4(s_real tau){
 /*------------------------------------------------------------------------------
   phir and derivatives
 ------------------------------------------------------------------------------*/
-// These functions have a lot of terms, but it's unclear if memoization here
-// saves time.  Define PHI_MEM here if you want to compile with phir memoization
-#undef PHI_MEM
+// You can undefine PHI_MEM below to not include phir memoization in the compile.
+// The value of memoization depends a bit on what exaclty you are doing, but
+// runing the IDAES property tests showed this is at least 6 times faster with
+// this memoization on.  Due to the way those tests work, I would expect them
+// not to favor memoization, so in a real problem the performance improvment in
+// probably even more.  I left this option for future perfomance tuning and
+// testing.
+#define PHI_MEM
+//#undef PHI_MEM
 
 s_real phir(s_real delta, s_real tau){
   //Check if stored and return stored value if so
