@@ -457,6 +457,7 @@ s_real phir_tau3(s_real delta, s_real tau){
   }
   #ifdef PHI_MEM
   memoize::add_bin0(memoize::phir_tau3, delta, tau, sum);
+  #endif
   return sum;
 }
 
