@@ -259,7 +259,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
   it = halley(&f, LIQUID_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
-  if(nit) {*nit = it;}
+  //if(nit) {*nit = it;}
   // Error check, want a number even if phase doesn't exist
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
     delta = 5.0;
@@ -313,8 +313,8 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
   it = halley(&f, VAPOR_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
-  if(nit != NULL) *nit = it;
-  if(nit) {*nit = it;}
+  //if(nit != NULL) *nit = it;
+  //if(nit) {*nit = it;}
   // Error check, want a number even if phase doesn't exist
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
     delta = 0.001;
