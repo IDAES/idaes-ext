@@ -60,7 +60,7 @@ s_real delta_p_tau_supercritical_guess_iapws95(s_real p, s_real tau){
   method can be used to refine the guess.*/
   s_real T=T_c/tau;
 
-  if (p - Pc < 200 && T - Tc < 5){ //close to critical stay near critical density
+  if (p - P_c < 200 && T - T_c < 5){ //close to critical stay near critical density
       return delta_p_tau_rf(p, tau, 290/rho_c, 390/rho_c);
   }
   else if(p < 7.29146E-09 + 4.61516E-06*T + 7.28228E-15*T*T){ //rho < 1e-5
