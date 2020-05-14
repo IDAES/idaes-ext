@@ -221,8 +221,8 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   if( fabs(T_c/tau - T_c) < 1e-7 && fabs(pr - P_c) < 1e-4) return 1;
 
   //Okay, now do bracket
-  FuncWrapper f(0, tau, pr);
-  f.set_f2n(&p);
+  //FuncWrapper f(0, tau, pr);
+  //f.set_f2n(&p);
   //bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-6);
   return c;
 }
@@ -258,8 +258,8 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
 
   //Okay, now do bracket
-  FuncWrapper f(0, tau, pr);
-  f.set_f2(&p_with_derivs);
+  //FuncWrapper f(0, tau, pr);
+  //f.set_f2(&p_with_derivs);
   //delta = LIQUID_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
 
@@ -312,8 +312,8 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
   //Okay, now do bracket
-  FuncWrapper f(0, tau, pr);
-  f.set_f2(&p_with_derivs);
+  //FuncWrapper f(0, tau, pr);
+  //f.set_f2(&p_with_derivs);
   //delta = VAPOR_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
   //if(nit != NULL) *nit = it;
@@ -763,8 +763,8 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
       //std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
     }
 
-    FuncWrapper f(1, pr, ut);
-    f.set_f2(fun_ptr);
+    //FuncWrapper f(1, pr, ut);
+    //f.set_f2(fun_ptr);
     //bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
     //halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
 
@@ -823,7 +823,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     }
 
     // STEP 3 -- Determine initial guess or range to look for guess
-    FuncWrapper f(0, tau, st);
+    //FuncWrapper f(0, tau, st);
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
@@ -844,7 +844,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     }
 
     //STEP 4 -- Solve 4a backet to get closer 4b solve
-    f.set_f2(fun_ptr);
+    //f.set_f2(fun_ptr);
     //bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
     //halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
 
