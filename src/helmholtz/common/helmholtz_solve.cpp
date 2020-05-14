@@ -260,7 +260,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  delta = LIQUID_DELTA_GUESS;
+  //delta = LIQUID_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
 
   // Error check, want a number even if phase doesn't exist
@@ -314,7 +314,7 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  delta = VAPOR_DELTA_GUESS;
+  //delta = VAPOR_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
   //if(nit != NULL) *nit = it;
   //if(nit) {*nit = it;}
