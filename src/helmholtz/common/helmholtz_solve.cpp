@@ -820,25 +820,24 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 
 
 s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes){
+    // STEP 1 -- Check for memoized answer
     s_real val = memoize::get_bin(memoize::P_ENTR_FUNC, st, tau, grad, hes);
     if(!std::isnan(val)) return val;
 
-    s_real p_sat, sv=1.0, sl=1.0, pr, gradh[2], hesh[3], T=T_c/tau;
+    // Define vars
+    s_real p_sat, sv=1.0, sl=1.0, a, b, pr, gradh[2], hesh[3], T=T_c/tau;
     f_ptr2 fun_ptr=NULL;
-
-    //std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
-
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
     if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
     if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
 
+    // STEP 2 -- Determine phase and return easy 2-phase answer if applicable
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
       //std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
     }
-
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
     if (st >= sl && st <= sv){
       zero_derivs2(grad, hes);
@@ -848,8 +847,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       return p_sat;
     }
 
+    // STEP 3 -- Determine initial guess or range to look for guess
     FuncWrapper f(0, tau, st, NULL, NULL);
-    s_real a, b;
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
@@ -868,11 +867,13 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       fun_ptr = &svpt_with_derivs;
       //std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
-    f.set_f2(fun_ptr);
 
+    //STEP 4 -- Solve 4a backet to get closer 4b solve
+    f.set_f2(fun_ptr);
     bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
     halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
 
+    //STEP 5 -- check answer for sanity
     if(pr > P_HIGH){
       std::cerr << "WARNING: External Helmholtz EOS high pressure clip, s= ";
       std::cerr << st << " P= " << pr << " T= " << T;
@@ -886,12 +887,14 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       return 0.0/0.0;
     }
 
+    //STEP 6 -- calculate derivatives
     grad[0] = 1.0/gradh[0];
     grad[1] = -grad[0]*gradh[1];
     hes[0] = -grad[0]*grad[0]*grad[0]*hesh[0];
     hes[1] = -grad[0]*grad[0]*(hesh[1] + hesh[0]*grad[1]);
     hes[2] = -hes[1]*gradh[1] - grad[0]*(hesh[2] + hesh[1]*grad[1]);
 
+    //STEP 7 -- store the answer
     memoize::add_bin(memoize::P_ENTR_FUNC, st, tau, pr, grad, hes);
 
     // If we allocated grad and hes here, free them
