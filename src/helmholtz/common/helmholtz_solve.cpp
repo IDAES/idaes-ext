@@ -608,10 +608,8 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
   bool free_grad = 0, free_hes = 0;
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-
-  s_real tau_sat, sv=1.0, sl=1.0, fun, tau, gradh[2], hesh[3], tol = 1e-11;
-  int it = 0, max_it = 20;
-  s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
+  s_real tau_sat, sv=1.0, sl=1.0, tau, gradh[2], hesh[3], a, b;
+  f_ptr2 fun_ptr;
 
   tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
   if(pr >= P_t){
@@ -621,11 +619,11 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
 
   if (st >= sl && st <= sv){
     zero_derivs2(grad, hes);
+    memoize::add_bin(memoize::TAU_ENTR_FUNC, st, pr, tau_sat, grad, hes);
+    if(free_grad) delete[] grad;
+    if(free_hes) delete[] hes;
     return tau_sat;
   }
-
-  s_real a, b, c, fa, fb, fc;
-  bool prev_a=0, prev_b=0;
 
   if (pr > P_c){
     a = 0.5;
@@ -648,47 +646,11 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
     fun_ptr = &svpt_with_derivs;
     //std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
   }
-  fa = (*fun_ptr)(pr, a, gradh, hesh) - st;
-  fb = (*fun_ptr)(pr, b, gradh, hesh) - st;
-  if (fa*fb < 0){
-    for(it=0;it<15;++it){
-      c = b - fb*(b - a)/(fb - fa);
-      fc = (*fun_ptr)(pr, c, gradh, hesh) - st;
-      if(fc*fa >= 0){
-        a = c;
-        fa = fc;
-        if (prev_a){
-          fb *= 0.5;
-        }
-        prev_a = 1;
-        prev_b = 0;
-      }
-      else{
-        b = c;
-        fb = fc;
-        if (prev_b){
-          fa *= 0.5;
-        }
-        prev_a = 0;
-        prev_b = 1;
-      }
-      if (fabs(fa) < tol) {tau=a; break;}
-      if (fabs(fb) < tol) {tau=b; break;}
-      tau = (a + b)/2.0;
-      if(fabs(b - a) < 1e-5) {break;}
-      //std::cerr << it << " fa = " << fa << " fb = " << fb;
-      //std::cerr << " T = " << T_c/c << std::endl;
-    }
-  }
-  it = 0;
-  //std::cerr << "Tinit = " << T_c/tau << std::endl;
-  fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-  while(fabs(fun) > tol && it < max_it){
-    tau = tau - fun*gradh[1]/(gradh[1]*gradh[1] - 0.5*fun*hesh[2]);
-    fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-    //std::cerr << it << " f = " << fun << " T = " << T_c/tau << std::endl;
-    ++it;
-  }
+
+  FuncWrapper f(1, pr, st);
+  f.set_f2(fun_ptr);
+  bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
+  halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
 
   if(tau < 0.0 || tau > TAU_HIGH){
       std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= ";
