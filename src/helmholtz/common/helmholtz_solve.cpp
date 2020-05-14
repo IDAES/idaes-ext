@@ -52,8 +52,26 @@ void FuncWrapper::set_f2(f_ptr2 f2){
   this->_f2 = f2;
 }
 
-void FuncWrapper::set_f2n(f_ptr2_nod f2){
+void FuncWrapper::set_f2n(f_ptr2n f2){
   this->_f2n = f2;
+}
+
+s_real FuncWrapper:: operator () (s_real x){
+  // There is a lack of error checking here, but since this is ment for internal
+  // use, I'll be careful to use it right.
+  if(this->_f1){
+    return (*_f1)(x, NULL, NULL) - this->_c;
+  }
+  else if(this->_f2n && this->_apos==0){
+    return (*_f2n)(x, this->_a) - this->_c;
+  }
+  else if(this->_f2n && this->_apos==1){
+    return (*_f2n)(this->_a, x) - this->_c;
+  }
+  else if(this->_apos==0){
+    return (*_f2)(x, this->_a, NULL, NULL) - this->_c;
+  }
+  return (*_f2)(this->_a, x, NULL, NULL) - this->_c;
 }
 
 s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
@@ -66,24 +84,6 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
     return (*_f2)(x, this->_a, grad, hes) - this->_c;
   }
   return (*_f2)(this->_a, x, grad, hes) - this->_c;
-}
-
-s_real FuncWrapper:: operator () (s_real x){
-  // There is a lack of error checking here, but since this is ment for internal
-  // use, I'll be careful to use it right.
-  if(this->_f1 != NULL){
-    return (*_f1)(x, NULL, NULL) - this->_c;
-  }
-  else if(this->_f2n != NULL && this->_apos==0){
-    return (*_f2n)(x, this->_a) - this->_c;
-  }
-  else if(this->_f2n != NULL && this->_apos==1){
-    return (*_f2n)(this->_a, x) - this->_c;
-  }
-  else if(this->_apos==0){
-    return (*_f2)(x, this->_a, NULL, NULL) - this->_c;
-  }
-  return (*_f2)(this->_a, x, NULL, NULL) - this->_c;
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
@@ -215,7 +215,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   Returns:
     delta: reduced density at pr and tau (more or less approximate)
   ----------------------------------------------------------------------------*/
-  s_real c;
+  s_real c=0;
   // If right by critical point guess critical density. (okay this isn't part
   // of a bracketing method but it was conveneint).
   if( fabs(T_c/tau - T_c) < 1e-7 && fabs(pr - P_c) < 1e-4) return 1;
@@ -223,7 +223,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2n(&p);
-  bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-6);
+  //bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-6);
   return c;
 }
 
@@ -260,11 +260,8 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  std::cerr << "Before guess delta liq" << std::endl;
-  //delta = LIQUID_DELTA_GUESS;
-  std::cerr << "Before halley delta liq" << std::endl;
+  delta = LIQUID_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
-  std::cerr << "Before halley delta liq" << std::endl;
 
   // Error check, want a number even if phase doesn't exist
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
@@ -308,7 +305,7 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DV_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
-  s_real delta = 0, gradp[2], hesp[3];
+  s_real delta=0, gradp[2], hesp[3];
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
@@ -317,11 +314,8 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  std::cerr << "Before guess delta vap" << std::endl;
-  //delta = VAPOR_DELTA_GUESS;
-  std::cerr << "Before halley delta vap" << std::endl;
+  delta = VAPOR_DELTA_GUESS;
   //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
-  std::cerr << "After halley delta vap" << std::endl;
   //if(nit != NULL) *nit = it;
   //if(nit) {*nit = it;}
   // Error check, want a number even if phase doesn't exist
@@ -771,8 +765,8 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 
     FuncWrapper f(1, pr, ut);
     f.set_f2(fun_ptr);
-    bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
-    halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
+    //bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
+    //halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
 
     if(tau < 0.0 || tau > TAU_HIGH){
         std::cerr << "WARNING: External Helmholtz EOS low temperature clip, u= ";
@@ -851,8 +845,8 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
 
     //STEP 4 -- Solve 4a backet to get closer 4b solve
     f.set_f2(fun_ptr);
-    bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
-    halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
+    //bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
+    //halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
 
     //STEP 5 -- check answer for sanity
     if(pr > P_HIGH){

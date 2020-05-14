@@ -10,7 +10,7 @@
 
 typedef s_real (*f_ptr1)(s_real, s_real*, s_real*);
 typedef s_real (*f_ptr2)(s_real, s_real, s_real*, s_real*);
-typedef s_real (*f_ptr2_nod)(s_real, s_real);
+typedef s_real (*f_ptr2n)(s_real, s_real);
 
 // For a lot of solves I want to use binary functions where on of the two
 // arguments is fixed.  To avoid implimneting the solvers three times for
@@ -26,14 +26,14 @@ public:
   int hes_pos;
   void set_f1(f_ptr1 f1);
   void set_f2(f_ptr2 f2);
-  void set_f2n(f_ptr2_nod f2);
+  void set_f2n(f_ptr2n f2);
 private:
   s_real _a;
   s_real _c;
   unsigned char _apos;
   f_ptr1 _f1;
   f_ptr2 _f2;
-  f_ptr2_nod _f2n;
+  f_ptr2n _f2n;
 };
 
 /*------------------------------------------------------------------------------
