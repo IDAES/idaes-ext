@@ -260,6 +260,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
+  std::cerr << "Before guess delta liq" << std::endl;
   delta = LIQUID_DELTA_GUESS;
   std::cerr << "Before halley delta liq" << std::endl;
   halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
@@ -316,6 +317,7 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
+  std::cerr << "Before guess delta vap" << std::endl;
   delta = VAPOR_DELTA_GUESS;
   std::cerr << "Before halley delta vap" << std::endl;
   halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
