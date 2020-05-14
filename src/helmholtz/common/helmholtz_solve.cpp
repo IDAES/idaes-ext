@@ -74,7 +74,8 @@ s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *he
  solution. It may be a bit slow, but this can also be used for solve
  a problem competely.
 ------------------------------------------------------------------------------*/
-int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol, int max_it, s_real ftol, s_real xtol){
+int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol,
+            int max_it, s_real ftol, s_real xtol){
   s_real fa, fb, fc, a=xa, b=xb, c;
   int it;
   bool prev_a=0, prev_b=0;
@@ -127,6 +128,38 @@ int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol, int max_it, s_rea
   }
   return -3; // max iterations sol is up to date here
 }
+
+
+/*------------------------------------------------------------------------------
+  Halley's method
+------------------------------------------------------------------------------*/
+int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
+           int max_it, s_real ftol){
+  int it=0;
+  s_real fun = (*f)(x0, grad, hes);
+  s_real x = x0;
+
+  while(fabs(fun) > ftol && it < max_it){
+   x = x - fun*grad[f->grad_pos]/
+           (grad[f->grad_pos]*grad[f->grad_pos] - 0.5*fun*hes[f->hes_pos]);
+   fun = (*f)(x, grad, hes);
+   //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+   ++it;
+  }
+  *sol = x;
+  if(it == max_it){
+    return -3;
+  }
+  return it;
+}
+
+/*------------------------------------------------------------------------------
+  1D Newton's method with backtracking line search
+------------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  2D Newton's method with backtracking line search
+------------------------------------------------------------------------------*/
 
 
 /*------------------------------------------------------------------------------
@@ -790,9 +823,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     s_real val = memoize::get_bin(memoize::P_ENTR_FUNC, st, tau, grad, hes);
     if(!std::isnan(val)) return val;
 
-    s_real p_sat, sv=1.0, sl=1.0, fun, pr, gradh[2], hesh[3], tol=1e-11, T=T_c/tau;
-    int it = 0, max_it=20;
-
+    s_real p_sat, sv=1.0, sl=1.0, pr, gradh[2], hesh[3], T=T_c/tau;
     f_ptr2 fun_ptr=NULL;
 
     //std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
@@ -840,15 +871,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     f.set_f2(fun_ptr);
 
     bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
-
-    //std::cerr << "Pinit = " << pr << std::endl;
-    fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-    while(fabs(fun) > tol && it < max_it){
-      pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
-      fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
-      ++it;
-    }
+    halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
 
     if(pr > P_HIGH){
       std::cerr << "WARNING: External Helmholtz EOS high pressure clip, s= ";

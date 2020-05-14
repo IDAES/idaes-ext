@@ -19,8 +19,8 @@ public:
   FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2);
   s_real operator() (s_real, s_real *grad, s_real *hes);
   s_real operator() (s_real, s_real, s_real *grad, s_real *hes);
-  s_real grad_pos;
-  s_real hes_pos;
+  int grad_pos;
+  int hes_pos;
   void set_f1(f_ptr1 f1);
   void set_f2(f_ptr2 f2);
 private:
@@ -38,8 +38,12 @@ private:
 
 int bracket(FuncWrapper *f, s_real xa, s_real xb,
             s_real *sol, int max_it, s_real ftol, s_real xtol);
-int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, int max_it, s_real ftol);
+int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
+           int max_it, s_real ftol);
+int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
+              int max_it, s_real ftol);
 int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
+              s_real *grad, s_real *hes,
               s_real *sol0, s_real *sol1, int max_it, s_real ftol);
 
 /*------------------------------------------------------------------------------
