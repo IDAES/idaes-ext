@@ -39,6 +39,9 @@ FuncWrapper::FuncWrapper(char apos, s_real a, s_real c){
   _c = c;
   grad_pos = apos;  // this is used for binary->unary functions
   hes_pos = 2*apos; // this is used for binary->unary functions
+  _f1 = NULL;
+  _f2 = NULL;
+  _f2n = NULL;
 }
 
 void FuncWrapper::set_f1(f_ptr1 f1){
