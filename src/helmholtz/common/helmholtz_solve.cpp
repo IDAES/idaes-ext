@@ -30,6 +30,98 @@
 #include"helmholtz_solve.h"
 
 /*------------------------------------------------------------------------------
+  Function wrapper functor
+------------------------------------------------------------------------------*/
+
+FuncWrapper::FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2){
+  _apos = apos;
+  _a = a;
+  _c = c;
+  _f1 = f1;
+  _f2 = f2;
+  grad_pos = a;  // this is used for binary->unary functions
+  hes_pos = 2*a; // this is used for binary->unary functions
+}
+
+s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
+  // There is a lack of error checking here, but since this is ment for internal
+  // use, I'll be careful to use it right.
+  if(this->_f1){
+    return (*_f1)(x, grad, hes) - this->_c;
+  }
+  else if(this->_apos==0){
+    return (*_f2)(x, this->_a, grad, hes) - this->_c;
+  }
+  return (*_f2)(this->_a, x, grad, hes) - this->_c;
+}
+
+s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
+  return (*_f2)(x0, x1, grad, hes) - this->_c;
+}
+
+/*------------------------------------------------------------------------------
+ False-position type bracketing solver.  This is mostly used to confine the
+ search for a good starting point to a specific area, where a newton method
+ given a starting point too far way may not converge or converge to the wrong
+ solution. It may be a bit slow, but this can also be used for solve
+ a problem competely.
+------------------------------------------------------------------------------*/
+int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol, int max_it, s_real ftol, s_real xtol){
+  s_real fa, fb, fc, a=xa, b=xb, c;
+  int it;
+  bool prev_a=0, prev_b=0;
+
+  fa = (*f)(a, NULL, NULL);
+  fb = (*f)(b, NULL, NULL);
+
+  if (fa*fb > 0){ //no solution (or multiple solutions)
+    if (fabs(fa) < fabs(fb)){
+      *sol = xa;
+      return -1; // no solution xa is closest
+    }
+    *sol = xb;
+    return -2; // no solution xb is closest
+  }
+
+  for(it=0; it<max_it; ++it){
+    c = b - fb*(b - a)/(fb - fa);
+    fc = (*f)(c, NULL, NULL);
+    if(fc*fa >= 0){
+      a = c;
+      fa = fc;
+      if (prev_a){ //Illinois mod
+        fb *= 0.5;
+      }
+      prev_a = 1;
+      prev_b = 0;
+    }
+    else{
+      b = c;
+      fb = fc;
+      if (prev_b){ //Illinois mod
+        fa *= 0.5;
+      }
+      prev_a = 0;
+      prev_b = 1;
+    }
+    if (fabs(fa) < ftol && !prev_b) { // Sometimes one side will converge to solution
+      *sol = a;
+      return it;
+    }
+    if (fabs(fb) < ftol && !prev_a) { // Sometimes one side will converge to solution
+      *sol = b;
+      return it;
+    }
+    *sol = (a + b)/2.0;
+    if(fabs(b - a) < xtol) {
+      return it;
+    }
+  }
+  return -3; // max iterations sol is up to date here
+}
+
+
+/*------------------------------------------------------------------------------
 In this section you will find function for calculating density from pressure
 and temperature. This lets you calculate properties in the more standard way as
 a function of temperature and pressure instead of density and pressure.
@@ -299,7 +391,7 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
     if(hes != NULL) hes[0] = 0;
     return 1.0;
   }
-  if(pr < P_t){ // above critical T
+  if(pr < P_t){ // below the tripple point pressure
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return T_c/T_t;
@@ -693,9 +785,9 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     s_real p_sat, sv=1.0, sl=1.0, fun, pr, gradh[2], hesh[3], tol=1e-11, T=T_c/tau;
     int it = 0, max_it=20;
 
-    s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
+    f_ptr2 fun_ptr=NULL;
 
-    std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
+    //std::cerr << "p(s=" << st << ", T=" << T << ")" << std::endl;
 
     //Even if you aren't asking for derivatives, calculate them for memo
     bool free_grad = 0, free_hes = 0;
@@ -705,23 +797,26 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     if(T >= T_t){
       sv = s_with_derivs(sat_delta_vap(tau), tau, NULL, NULL);
       sl = s_with_derivs(sat_delta_liq(tau), tau, NULL, NULL);
-      std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
+      //std::cerr << "sl, sv, st " << sl << ", " << sv << ", " << st << std::endl;
     }
 
     p_sat = sat_p_with_derivs(tau, NULL, NULL);
     if (st >= sl && st <= sv){
       zero_derivs2(grad, hes);
+      memoize::add_bin(memoize::P_ENTR_FUNC, st, tau, p_sat, grad, hes);
+      if(free_grad) delete[] grad;
+      if(free_hes) delete[] hes;
       return p_sat;
     }
 
-    s_real a, b, c, fa, fb, fc;
-    bool prev_a=0, prev_b=0;
+    FuncWrapper f(0, tau, st, NULL, fun_ptr);
+    s_real a, b;
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;
       b = P_max;
       fun_ptr = &slpt_with_derivs;
-      std::cerr << "Liq Psat = " << p_sat << std::endl;
+      //std::cerr << "Liq Psat = " << p_sat << std::endl;
     }
     else{ // vapor
       a = P_min;
@@ -732,56 +827,17 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
         b = p_sat;
       }
       fun_ptr = &svpt_with_derivs;
-      std::cerr << "Vap Psat = " << p_sat << std::endl;
-    }
-    fa = (*fun_ptr)(a, tau, gradh, hesh) - st;
-    fb = (*fun_ptr)(b, tau, gradh, hesh) - st;
-
-    if (fa*fb < 0){
-      for(it=0;it<15;++it){
-        c = b - fb*(b - a)/(fb - fa);
-        fc = (*fun_ptr)(c, tau, gradh, hesh) - st;
-        if(fc*fa >= 0){
-          a = c;
-          fa = fc;
-          if (prev_a){
-            fb *= 0.5;
-          }
-          prev_a = 1;
-          prev_b = 0;
-        }
-        else{
-          b = c;
-          fb = fc;
-          if (prev_b){
-            fa *= 0.5;
-          }
-          prev_a = 0;
-          prev_b = 1;
-        }
-        if (fabs(fa) < tol) {pr=a; break;}
-        if (fabs(fb) < tol) {pr=b; break;}
-        pr = (a + b)/2.0;
-        if(fabs(b - a) < 1e-5) {break;}
-        std::cerr << it << " fa = " << fa << " fb = " << fb;
-        std::cerr << " p = " << pr << std::endl;
-      }
-    }
-    else if (fa < 0){
-      pr = a;
-    }
-    else{
-      pr = b;
+      //std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
 
+    bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
 
-    it = 0;
-    std::cerr << "Pinit = " << pr << std::endl;
+    //std::cerr << "Pinit = " << pr << std::endl;
     fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
     while(fabs(fun) > tol && it < max_it){
       pr = pr - fun*gradh[0]/(gradh[0]*gradh[0] - 0.5*fun*hesh[0]);
       fun = (*fun_ptr)(pr, tau, gradh, hesh) - st;
-      std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
+      //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
       ++it;
     }
 

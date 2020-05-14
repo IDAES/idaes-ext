@@ -72,11 +72,5 @@ double phir_tau_EOS_TAG(arglist *al);
 double phir_tau2_EOS_TAG(arglist *al);
 double phir_delta_tau_EOS_TAG(arglist *al);
 
-double mem_phir_EOS_TAG(arglist *al);
-double mem_phir_delta_EOS_TAG(arglist *al);
-double mem_phir_delta2_EOS_TAG(arglist *al);
-double mem_phir_tau_EOS_TAG(arglist *al);
-double mem_phir_tau2_EOS_TAG(arglist *al);
-double mem_phir_delta_tau_EOS_TAG(arglist *al);
 
 #endif

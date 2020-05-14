@@ -4,6 +4,42 @@
 #include "helmholtz_config.h"
 
 
+// These are function pointer types for generic solver implimentations here,
+// one for functions of one variable and one for functions of two variables,
+// The pointer arguments are for the gradient and hessian.
+
+typedef s_real (*f_ptr1)(s_real, s_real*, s_real*);
+typedef s_real (*f_ptr2)(s_real, s_real, s_real*, s_real*);
+
+// For a lot of solves I want to use binary functions where on of the two
+// arguments is fixed.  To avoid implimneting the solvers three times for
+// f(x), f(a, x), f(x, a), I'll use a functor to wrap up functions for solves
+class FuncWrapper {
+public:
+  FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2);
+  s_real operator() (s_real, s_real *grad, s_real *hes);
+  s_real operator() (s_real, s_real, s_real *grad, s_real *hes);
+  s_real grad_pos;
+  s_real hes_pos;
+private:
+  s_real _a;
+  s_real _c;
+  unsigned char _apos;
+  f_ptr1 _f1;
+  f_ptr2 _f2;
+};
+
+/*------------------------------------------------------------------------------
+  Geranl purpose 1 and 2 dimensional solvers. These solvers find the roots
+  f(x) - c = 0
+------------------------------------------------------------------------------*/
+
+int bracket(FuncWrapper *f, s_real xa, s_real xb,
+            s_real *sol, int max_it, s_real ftol, s_real xtol);
+int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, int max_it, s_real ftol);
+int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
+              s_real *sol0, s_real *sol1, int max_it, s_real ftol);
+
 /*------------------------------------------------------------------------------
   Function to calculate delta (rho/rho_c) from P and tau (T_c/T)
 ------------------------------------------------------------------------------*/
