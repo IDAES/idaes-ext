@@ -22,7 +22,7 @@ public:
   s_real grad_pos;
   s_real hes_pos;
   void set_f1(f_ptr1 f1);
-  void set_f1(f_ptr2 f2);
+  void set_f2(f_ptr2 f2);
 private:
   s_real _a;
   s_real _c;

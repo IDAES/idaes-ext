@@ -47,7 +47,7 @@ void FuncWrapper::set_f1(f_ptr1 f1){
   this->_f1 = f1;
 }
 
-void FuncWrapper::set_f1(f_ptr2 f2){
+void FuncWrapper::set_f2(f_ptr2 f2){
   this->_f2 = f2;
 }
 
