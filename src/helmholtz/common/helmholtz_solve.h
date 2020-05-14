@@ -55,14 +55,9 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
   Function to calculate delta (rho/rho_c) from P and tau (T_c/T)
 ------------------------------------------------------------------------------*/
 
-// Solve for delta using Halley's method delta0 in an inital guess, tol is
-// the absolute residual tolerance, nit provides a means to return number of
-// iterations for testing there is more than 1 solution maybe even more than one
-// physically meaningfull solution, so delta0 is very important
-s_real delta_p_tau(s_real p, s_real tau, s_real delta_0, s_real tol=1e-10,
-                   int *nit=NULL, s_real *grad=NULL, s_real *hes=NULL);
-
 s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b);
+s_real delta_vap(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL);
+s_real delta_liq(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL);
 
 /*------------------------------------------------------------------------------
   Functions for saturation pressure and density as a function to tau (T_c/T).
@@ -76,7 +71,7 @@ s_real sat_delta_vap(s_real tau); // saturated vapor density at tau
 s_real sat_p(s_real tau);         // saturation pressure at tau
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol); //sat solver
 
-s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit=NULL);
+s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes);
 s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
 s_real mem_tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
 s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes);

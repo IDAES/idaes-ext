@@ -77,11 +77,4 @@ s_real sat_delta_liq_with_derivs(s_real tau, s_real *grad, s_real *hes);
 s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes);
 s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit=1);
 
-/*------------------------------------------------------------------------------
-  Functions for saturation delta (rho/roh_c) as a function of P and tau (T_c/T)
-  with gradient and Hessian.  These functions are well tested and just feed the
-  right initial guess to delta_p_tau() gauranteeing the correct solution.
-------------------------------------------------------------------------------*/
-s_real delta_vap(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL, int *nit=NULL);
-s_real delta_liq(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL, int *nit=NULL);
 #endif

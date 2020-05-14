@@ -71,11 +71,14 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 s_real FuncWrapper:: operator () (s_real x){
   // There is a lack of error checking here, but since this is ment for internal
   // use, I'll be careful to use it right.
-  if(this->_f1){
+  if(this->_f1 != NULL){
     return (*_f1)(x, NULL, NULL) - this->_c;
   }
-  else if(this->_f2n){
+  else if(this->_f2n != NULL && this->_apos==0){
     return (*_f2n)(x, this->_a) - this->_c;
+  }
+  else if(this->_f2n != NULL && this->_apos==1){
+    return (*_f2n)(this->_a, x) - this->_c;
   }
   else if(this->_apos==0){
     return (*_f2)(x, this->_a, NULL, NULL) - this->_c;
@@ -224,7 +227,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   return c;
 }
 
-s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
+s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   /*----------------------------------------------------------------------------
   Get a good liquid or super critical initial density guess then call
   delta_p_tau() to calculate density. In difficult cases an interval with the
@@ -248,7 +251,6 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   s_real val = memoize::get_bin(memoize::DL_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val;
   s_real delta, gradp[2], hesp[3];
-  int it;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
@@ -258,8 +260,11 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  it = halley(&f, LIQUID_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
-  //if(nit) {*nit = it;}
+  delta = LIQUID_DELTA_GUESS;
+  std::cerr << "Before halley delta liq" << std::endl;
+  halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
+  std::cerr << "Before halley delta liq" << std::endl;
+
   // Error check, want a number even if phase doesn't exist
   if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
     delta = 5.0;
@@ -281,7 +286,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   return delta;
 }
 
-s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
+s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   /*----------------------------------------------------------------------------
   Get a good vapor or super critical initial density guess then call
   delta_p_tau() to calculate density. In the supercritical region this just
@@ -303,7 +308,6 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   s_real val = memoize::get_bin(memoize::DV_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
   s_real delta, gradp[2], hesp[3];
-  int it=0;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
@@ -312,7 +316,10 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2(&p_with_derivs);
-  it = halley(&f, VAPOR_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
+  delta = VAPOR_DELTA_GUESS;
+  std::cerr << "Before halley delta vap" << std::endl;
+  halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
+  std::cerr << "After halley delta vap" << std::endl;
   //if(nit != NULL) *nit = it;
   //if(nit) {*nit = it;}
   // Error check, want a number even if phase doesn't exist
@@ -432,7 +439,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
 We often use enthaply and pressure as state variables so there are functions for
 calculatig Tsat from P and T from H and P below
 -------------------------------------------------------------------------------*/
-s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
+s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes){
   //Before getting into the real calculation, check if outside the allowed range
   //of 240K to T_c, the low end of this range doen't mean anything.  Its too cold
   //to expect liquid, but the calculations hold up there so for numerical reasons
@@ -470,7 +477,6 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes, int *nit){
   memoize::add_un(memoize::TAU_SAT_FUNC, pr, tau, grad, hes);
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
   if(free_hes) delete[] hes;   // function
-  if(nit != NULL) *nit = it;
   return tau;
 }
 
