@@ -250,7 +250,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DL_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val;
-  s_real delta, gradp[2], hesp[3];
+  s_real delta=0, gradp[2], hesp[3];
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
@@ -263,7 +263,7 @@ s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes){
   std::cerr << "Before guess delta liq" << std::endl;
   delta = LIQUID_DELTA_GUESS;
   std::cerr << "Before halley delta liq" << std::endl;
-  halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
+  //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
   std::cerr << "Before halley delta liq" << std::endl;
 
   // Error check, want a number even if phase doesn't exist
@@ -308,7 +308,7 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   ----------------------------------------------------------------------------*/
   s_real val = memoize::get_bin(memoize::DV_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
-  s_real delta, gradp[2], hesp[3];
+  s_real delta = 0, gradp[2], hesp[3];
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
@@ -320,7 +320,7 @@ s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes){
   std::cerr << "Before guess delta vap" << std::endl;
   delta = VAPOR_DELTA_GUESS;
   std::cerr << "Before halley delta vap" << std::endl;
-  halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
+  //halley(&f, delta, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
   std::cerr << "After halley delta vap" << std::endl;
   //if(nit != NULL) *nit = it;
   //if(nit) {*nit = it;}
