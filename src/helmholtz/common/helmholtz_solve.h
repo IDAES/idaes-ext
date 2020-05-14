@@ -10,25 +10,30 @@
 
 typedef s_real (*f_ptr1)(s_real, s_real*, s_real*);
 typedef s_real (*f_ptr2)(s_real, s_real, s_real*, s_real*);
+typedef s_real (*f_ptr2_nod)(s_real, s_real);
 
 // For a lot of solves I want to use binary functions where on of the two
 // arguments is fixed.  To avoid implimneting the solvers three times for
 // f(x), f(a, x), f(x, a), I'll use a functor to wrap up functions for solves
 class FuncWrapper {
 public:
-  FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2);
+  FuncWrapper(char apos, s_real a, s_real c);
   s_real operator() (s_real, s_real *grad, s_real *hes);
   s_real operator() (s_real, s_real, s_real *grad, s_real *hes);
+  s_real operator() (s_real, s_real);
+  s_real operator() (s_real);
   int grad_pos;
   int hes_pos;
   void set_f1(f_ptr1 f1);
   void set_f2(f_ptr2 f2);
+  void set_f2n(f_ptr2_nod f2);
 private:
   s_real _a;
   s_real _c;
   unsigned char _apos;
   f_ptr1 _f1;
   f_ptr2 _f2;
+  f_ptr2_nod _f2n;
 };
 
 /*------------------------------------------------------------------------------
@@ -57,7 +62,7 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
 s_real delta_p_tau(s_real p, s_real tau, s_real delta_0, s_real tol=1e-10,
                    int *nit=NULL, s_real *grad=NULL, s_real *hes=NULL);
 
-s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect);
+s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b);
 
 /*------------------------------------------------------------------------------
   Functions for saturation pressure and density as a function to tau (T_c/T).

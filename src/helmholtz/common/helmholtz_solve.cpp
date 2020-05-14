@@ -33,12 +33,10 @@
   Function wrapper functor
 ------------------------------------------------------------------------------*/
 
-FuncWrapper::FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2){
+FuncWrapper::FuncWrapper(char apos, s_real a, s_real c){
   _apos = apos;
   _a = a;
   _c = c;
-  _f1 = f1;
-  _f2 = f2;
   grad_pos = apos;  // this is used for binary->unary functions
   hes_pos = 2*apos; // this is used for binary->unary functions
 }
@@ -49,6 +47,10 @@ void FuncWrapper::set_f1(f_ptr1 f1){
 
 void FuncWrapper::set_f2(f_ptr2 f2){
   this->_f2 = f2;
+}
+
+void FuncWrapper::set_f2n(f_ptr2_nod f2){
+  this->_f2n = f2;
 }
 
 s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
@@ -63,8 +65,30 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
   return (*_f2)(this->_a, x, grad, hes) - this->_c;
 }
 
+s_real FuncWrapper:: operator () (s_real x){
+  // There is a lack of error checking here, but since this is ment for internal
+  // use, I'll be careful to use it right.
+  if(this->_f1){
+    return (*_f1)(x, NULL, NULL) - this->_c;
+  }
+  else if(this->_f2n){
+    return (*_f2n)(x, this->_a) - this->_c;
+  }
+  else if(this->_apos==0){
+    return (*_f2)(x, this->_a, NULL, NULL) - this->_c;
+  }
+  return (*_f2)(this->_a, x, NULL, NULL) - this->_c;
+}
+
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
   return (*_f2)(x0, x1, grad, hes) - this->_c;
+}
+
+s_real FuncWrapper:: operator () (s_real x0, s_real x1){
+  if(this->_f2n){
+    return (*_f2n)(x0, x1) - this->_c;
+  }
+  return (*_f2)(x0, x1, NULL, NULL) - this->_c;
 }
 
 /*------------------------------------------------------------------------------
@@ -80,8 +104,8 @@ int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol,
   int it;
   bool prev_a=0, prev_b=0;
 
-  fa = (*f)(a, NULL, NULL);
-  fb = (*f)(b, NULL, NULL);
+  fa = (*f)(a);
+  fb = (*f)(b);
 
   if (fa*fb > 0){ //no solution (or multiple solutions)
     if (fabs(fa) < fabs(fb)){
@@ -94,7 +118,7 @@ int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol,
 
   for(it=0; it<max_it; ++it){
     c = b - fb*(b - a)/(fb - fa);
-    fc = (*f)(c, NULL, NULL);
+    fc = (*f)(c);
     if(fc*fa >= 0){
       a = c;
       fa = fc;
@@ -169,78 +193,35 @@ a function of temperature and pressure instead of density and pressure.
 
 Unfortunatly this is difficult and a bit messy.
 *-----------------------------------------------------------------------------*/
-s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b, bool bisect){
+s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   /*----------------------------------------------------------------------------
   Bracketing methods, false position and bisection, for finding a better initial
   guess for density when solving for density from temperature and pressure. This
   is only used in particularly difficult areas.  At this point it probably
-  overused, but there are places where it is probably necessary.
+  overused, but there are places where it is probably necessary.  This is used
+  in the impimentation specific xxx_guess.cpp files.
 
   Args:
     pr: pressure (kPa)
     tau: inverse of reduced pressure Tc/T
-    bisect: 1 to use bisection (probably slow), 0 to use false position
-            bisection isn't really used, but I kept it around for debugging
     a: first density bound (kg/m3)  | really density, why didn't use delta?
     b: second density bound (kg/m3) | it was easier to think in terms of density
   Returns:
     delta: reduced density at pr and tau (more or less approximate)
   ----------------------------------------------------------------------------*/
-  s_real c=a, fa, fb, fc;
-  int it = 0;
+  s_real c;
   // If right by critical point guess critical density. (okay this isn't part
   // of a bracketing method but it was conveneint).
   if( fabs(T_c/tau - T_c) < 1e-7 && fabs(pr - P_c) < 1e-4) return 1;
-  // solve f(delta, tau) = 0; f(delta, tau) = p(delta, tau) - pr
-  fa = p(a, tau) - pr; // initial f(a, tau)
-  fb = p(b, tau) - pr; // initial f(b, tau)
-  while(it < MAX_IT_BRACKET && (b - a) > TOL_BRACKET){
-    if(bisect) c = (a + b)/2.0; // bisection
-    else c = b - fb*(b - a)/(fb - fa); //false position
-    fc = p(c, tau) - pr; // calcualte f(c)
-    if(fc*fa >= 0){a = c; fa = fc;}
-    else{b = c; fb = fc;}
-    ++it;
-  }
-  return (a+b)/2.0;
+
+  //Okay, now do bracket
+  FuncWrapper f(0, tau, pr);
+  f.set_f2n(&p);
+  bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-6);
+  return c;
 }
 
-s_real delta_p_tau(s_real pr, s_real tau, s_real delta_0, s_real tol, int *nit,
-  s_real *grad, s_real *hes){
-  /*----------------------------------------------------------------------------
-  Halley's method to calculate density from temperature and pressure
-
-  Args:
-   pr: pressure (kPa)
-   tau: inverse of reduced pressure Tc/T
-   delta0: initial guess for delta
-   tol: absolute residual tolerance for convergence
-   nit: pointer to return number of iterations to, or NULL
-   grad: location to return gradient of delta wrt pr and tau or NULL
-   hes: location to return hessian (upper triangle) or NULL
-  Returns:
-   delta: reduced density (accuracy depends on tolerance and function shape)
-  ----------------------------------------------------------------------------*/
-  s_real delta = delta_0, fun, gradp[2], hesp[3];
-  int it = 0; // iteration count
-  fun = p_with_derivs(delta, tau, gradp, hesp) - pr;
-  while(fabs(fun) > tol && it < MAX_IT_DELTA){
-    delta = delta - fun*gradp[0]/(gradp[0]*gradp[0] - 0.5*fun*hesp[0]);
-    fun = p_with_derivs(delta, tau, gradp, hesp) - pr;
-    ++it;
-  }
-  if(nit != NULL) *nit = it;
-  if(grad != NULL){ // calculate gradient if needed
-    grad[0] = 1.0/gradp[0];
-    grad[1] = -gradp[1]*grad[0]; //triple product
-    if(hes != NULL){ // calculate Hessian if needed.
-      hes[0] = -hesp[0]*grad[0]/gradp[0]/gradp[0];
-      hes[1] = -(hesp[1] + hesp[0]*grad[1])/gradp[0]/gradp[0];
-      hes[2] = -(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);}}
-  return delta;
-}
-
-s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
+s_real delta_liq(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   /*----------------------------------------------------------------------------
   Get a good liquid or super critical initial density guess then call
   delta_p_tau() to calculate density. In difficult cases an interval with the
@@ -261,30 +242,43 @@ s_real delta_liq(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   Returns:
    delta: reduced density (accuracy depends on tolerance and function shape)
   ----------------------------------------------------------------------------*/
-  s_real val = memoize::get_bin(memoize::DL_FUNC, p, tau, grad, hes);
+  s_real val = memoize::get_bin(memoize::DL_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val;
-  s_real delta;
+  s_real delta, gradp[2], hesp[3];
+  int it;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  delta = delta_p_tau(p, tau, LIQUID_DELTA_GUESS, TOL_DELTA_LIQ, nit, grad, hes); //solve
-  if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
-    // This is just to avoid evaluation errors.  Want to be able to calculate
-    // vapor properties even when vapor doesn't exist.  In the IDAES Framework
-    // these properties may be calculated and multipled by a zero liquid fraction,
-    // so it doesn't matter that they are wrong.
-    delta = 3.1;
+
+  //Okay, now do bracket
+  FuncWrapper f(0, tau, pr);
+  f.set_f2(&p_with_derivs);
+  it = halley(&f, LIQUID_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_LIQ);
+  if(nit) {*nit = it;}
+  // Error check, want a number even if phase doesn't exist
+  if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
+    delta = 5.0;
     zero_derivs2(grad, hes);
+    memoize::add_bin(memoize::DL_FUNC, pr, tau, delta, grad, hes); //store
+    if(free_grad) delete[] grad;
+    if(free_hes) delete[] hes;
   }
-  memoize::add_bin(memoize::DL_FUNC, p, tau, delta, grad, hes); //store
+
+  grad[0] = 1.0/gradp[0];
+  grad[1] = -gradp[1]*grad[0]; //triple product
+  hes[0] = -hesp[0]*grad[0]/gradp[0]/gradp[0];
+  hes[1] = -(hesp[1] + hesp[0]*grad[1])/gradp[0]/gradp[0];
+  hes[2] = -(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);
+
+  memoize::add_bin(memoize::DL_FUNC, pr, tau, delta, grad, hes); //store
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
-  if(free_hes) delete[] hes;   //   function
+  if(free_hes) delete[] hes;   // function
   return delta;
 }
 
-s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
+s_real delta_vap(s_real pr, s_real tau, s_real *grad, s_real *hes, int *nit){
   /*----------------------------------------------------------------------------
   Get a good vapor or super critical initial density guess then call
   delta_p_tau() to calculate density. In the supercritical region this just
@@ -303,26 +297,39 @@ s_real delta_vap(s_real p, s_real tau, s_real *grad, s_real *hes, int *nit){
   Returns:
    delta: reduced density (accuracy depends on tolerance and function shape)
   ----------------------------------------------------------------------------*/
-  s_real val = memoize::get_bin(memoize::DV_FUNC, p, tau, grad, hes);
+  s_real val = memoize::get_bin(memoize::DV_FUNC, pr, tau, grad, hes);
   if(!std::isnan(val)) return val; // return stored result if available
-  s_real delta;
+  s_real delta, gradp[2], hesp[3];
+  int it=0;
   bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
   // Since I'm going to cache results, grad and hes will get calculated
   // whether requested or not.  If they were NULL allocate space.
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  delta = delta_p_tau(p, tau, VAPOR_DELTA_GUESS, TOL_DELTA_VAP, nit, grad, hes);
-  if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){
-    // This is just to avoid evaluation errors.  Want to be able to calculate
-    // vapor properties even when vapor doesn't exist.  In the IDAES Framework
-    // these properties may be calculated and multipled by a zero vapor fraction,
-    // so it doesn't matter that they are wrong.
+  //Okay, now do bracket
+  FuncWrapper f(0, tau, pr);
+  f.set_f2(&p_with_derivs);
+  it = halley(&f, VAPOR_DELTA_GUESS, &delta, gradp, hesp, MAX_IT_DELTA, TOL_DELTA_VAP);
+  if(nit != NULL) *nit = it;
+  if(nit) {*nit = it;}
+  // Error check, want a number even if phase doesn't exist
+  if(std::isnan(delta) || delta < 1e-12 || delta > 5.0){ //avoid eval errors
     delta = 0.001;
     zero_derivs2(grad, hes);
+    memoize::add_bin(memoize::DV_FUNC, pr, tau, delta, grad, hes); // store result
+    if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+    if(free_hes) delete[] hes; // function
   }
-  memoize::add_bin(memoize::DV_FUNC, p, tau, delta, grad, hes); // store result
+
+  grad[0] = 1.0/gradp[0];
+  grad[1] = -gradp[1]*grad[0]; //triple product
+  hes[0] = -hesp[0]*grad[0]/gradp[0]/gradp[0];
+  hes[1] = -(hesp[1] + hesp[0]*grad[1])/gradp[0]/gradp[0];
+  hes[2] = -(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);
+
+  memoize::add_bin(memoize::DV_FUNC, pr, tau, delta, grad, hes); // store result
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
-  if(free_hes) delete[] hes; //   function
+  if(free_hes) delete[] hes; // function
   return delta;
 }
 
@@ -751,7 +758,7 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
       //std::cerr << "Vap Tsat = " << T_c/tau_sat << std::endl;
     }
 
-    FuncWrapper f(1, pr, ut, NULL, NULL);
+    FuncWrapper f(1, pr, ut);
     f.set_f2(fun_ptr);
     bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
     halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
@@ -811,7 +818,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     }
 
     // STEP 3 -- Determine initial guess or range to look for guess
-    FuncWrapper f(0, tau, st, NULL, NULL);
+    FuncWrapper f(0, tau, st);
 
     if (sl > st && T > T_t && T < T_c){ // liquid
       a = p_sat;

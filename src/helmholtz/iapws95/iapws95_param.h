@@ -39,8 +39,8 @@
 #include "helmholtz_config.h"
 #include "iapws95_guess.h"
 
-#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_iapws95(p, tau)
-#define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_iapws95(p, tau)
+#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_iapws95(pr, tau)
+#define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_iapws95(pr, tau)
 #define DELTA_LIQ_SAT_GUESS delta_sat_l_approx_iapws95(tau)
 #define DELTA_VAP_SAT_GUESS delta_sat_v_approx_iapws95(tau)
 
