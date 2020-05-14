@@ -159,7 +159,7 @@ s_real delta_p_tau_vap_guess_iapws95(s_real p, s_real tau){
   else if(p < -167178.3915 + 313.7993977*T - 0.033828951*T*T){ //rho < 300
     return 190/rho_c;
   }
-  return delta_p_tau_rf(p, tau, 295/rho_c, 1);
+  return delta_p_tau_rf(p, tau, 298/rho_c, 1);
 }
 
 s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
