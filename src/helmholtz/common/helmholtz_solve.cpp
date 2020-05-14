@@ -43,6 +43,14 @@ FuncWrapper::FuncWrapper(char apos, s_real a, s_real c, f_ptr1 f1, f_ptr2 f2){
   hes_pos = 2*a; // this is used for binary->unary functions
 }
 
+void FuncWrapper::set_f1(f_ptr1 f1){
+  this->_f1 = f1;
+}
+
+void FuncWrapper::set_f1(f_ptr2 f2){
+  this->_f2 = f2;
+}
+
 s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
   // There is a lack of error checking here, but since this is ment for internal
   // use, I'll be careful to use it right.
@@ -809,7 +817,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       return p_sat;
     }
 
-    FuncWrapper f(0, tau, st, NULL, fun_ptr);
+    FuncWrapper f(0, tau, st, NULL, NULL);
     s_real a, b;
 
     if (sl > st && T > T_t && T < T_c){ // liquid
@@ -829,6 +837,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
       fun_ptr = &svpt_with_derivs;
       //std::cerr << "Vap Psat = " << p_sat << std::endl;
     }
+    f.set_f2(fun_ptr);
 
     bracket(&f, a, b, &pr, 15, 1e-5, 1e-5);
 
