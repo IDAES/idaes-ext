@@ -443,22 +443,32 @@ inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
 }
 
 inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
-  s_real gradl[2], gradv[2], f;
-  f = p_with_derivs(delta_v, tau, gradv, NULL) - p_with_derivs(delta_l, tau, gradl, NULL);
+  s_real gradl[2], gradv[2], hesl[2], hesv[2], f;
+  f = p_with_derivs(delta_v, tau, gradv, hesv) - p_with_derivs(delta_l, tau, gradl, hesl);
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
-  }  // for now can't imagine why I'd need to return hessian, but I could
+  }
+  if(hes){
+    hes[0] = hesv[0] - hesl[0];
+    hes[1] = hesv[1] - hesl[1];
+    hes[2] = hesv[2] - hesl[2];
+  }
   return f;
 }
 
 inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
-  s_real gradl[2], gradv[2], hesl[2], hesv[2], f;
+  s_real gradl[2], gradv[2], hesl[2], hesv[2], hesl[2], hesv[2], f;
   f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
   }  // for now can't imagine why I'd need to return hessian, but I could
+  if(hes){
+    hes[0] = hesv[0] - hesl[0];
+    hes[1] = hesv[1] - hesl[1];
+    hes[2] = hesv[2] - hesl[2];
+  }
   return f;
 }
 
