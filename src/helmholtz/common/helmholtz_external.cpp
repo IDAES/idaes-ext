@@ -398,25 +398,23 @@ s_real vfu_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 
 s_real g_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
   s_real h_grad[2], h_hes[3], s_grad[2], s_hes[3], s_val;
-  s_real *h_grad_ptr=NULL, *h_hes_ptr=NULL, *s_grad_ptr=NULL, *s_hes_ptr=NULL;
 
   if(grad!=NULL){
-    h_grad_ptr=h_grad;
-    s_grad_ptr=s_grad;
-    if(hes!=NULL){
-      h_hes_ptr=h_hes;
-      s_hes_ptr=s_hes;}}
-
-  if(grad!=NULL){
-    h_with_derivs(delta, tau, h_grad_ptr, h_hes_ptr);
-    s_val = s_with_derivs(delta, tau, s_grad_ptr, s_hes_ptr);
-    grad[0] = h_grad[0] - T_c/tau*s_grad[0];
-    grad[1] = h_grad[1] + T_c/tau/tau*s_val - T_c/tau*s_grad[1];
-    if(hes!=NULL){
+    if (hes==NULL){
+      h_with_derivs(delta, tau, h_grad, NULL);
+      s_val = s_with_derivs(delta, tau, s_grad, NULL);
+    }
+    else{
+      h_with_derivs(delta, tau, h_grad, h_hes);
+      s_val = s_with_derivs(delta, tau, s_grad, s_hes);
       hes[0] = h_hes[0] - T_c/tau*s_hes[0];
       hes[1] = h_hes[1] + T_c/tau/tau*s_grad[0] - T_c/tau*s_hes[1];
       hes[2] = h_hes[2] - 2.0*T_c/tau/tau/tau*s_val + 2.0*T_c/tau/tau*s_grad[1]
-        - T_c/tau*s_hes[2];}}
+        - T_c/tau*s_hes[2];
+    }
+    grad[0] = h_grad[0] - T_c/tau*s_grad[0];
+    grad[1] = h_grad[1] + T_c/tau/tau*s_val - T_c/tau*s_grad[1];
+  }
   return g(delta, tau);
 }
 
