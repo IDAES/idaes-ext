@@ -75,6 +75,6 @@ s_real vfu_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes);
 ------------------------------------------------------------------------------*/
 s_real sat_delta_liq_with_derivs(s_real tau, s_real *grad, s_real *hes);
 s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes);
-s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit=1);
+s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes);
 
 #endif
