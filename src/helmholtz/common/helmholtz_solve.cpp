@@ -516,8 +516,8 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes){
   }
   FuncWrapper f(0, 0, pr);
   f.set_f1(sat_pnl_with_derivs);
-  //bracket(&f, T_c/T_t, 0.99, &tau, 4, 1e-5, 1e-8);
-  halley(&f, tau, &tau, gradp, hesp, MAX_IT_SAT_TAU, TOL_SAT_TAU);
+  bracket(&f, T_c/T_t, 1.0, &tau, 20, 1e-6, 1e-10);
+  //halley(&f, tau, &tau, gradp, hesp, MAX_IT_SAT_TAU, TOL_SAT_TAU);
 
   grad[0] = 1.0/gradp[0];
   hes[0] = -grad[0]*grad[0]*grad[0]*hesp[0];
