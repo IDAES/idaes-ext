@@ -510,13 +510,13 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes){
   bool free_grad = 0, free_hes = 0;
   if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
-  s_real tau = T_c/T_t, gradp[1], hesp[1];
+  s_real tau = 1.5, gradp[1], hesp[1];
   if(P_c - pr < 1e-3){
     pr = P_c - 1e-3;
   }
-
   FuncWrapper f(0, 0, pr);
   f.set_f1(sat_pnl_with_derivs);
+  bracket(&f, T_c/T_t, 0.99, &tau, 4, 1e-5, 1e-8);
   halley(&f, tau, &tau, gradp, hesp, MAX_IT_SAT_TAU, TOL_SAT_TAU);
 
   grad[0] = 1.0/gradp[0];
