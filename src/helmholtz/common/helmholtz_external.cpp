@@ -539,8 +539,8 @@ s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes){
   return (s_real)NAN;
 }
 
-s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
-  if(tau < 1.0 && limit){ // above critical T
+s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes){
+  if(tau < 1.0){ // above critical T
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_c;
