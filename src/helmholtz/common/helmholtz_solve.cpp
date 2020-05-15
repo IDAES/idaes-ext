@@ -92,6 +92,7 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
+  std::cerr << "Call" << std::endl; 
   if (this->_f3){
     std::cerr << "      args " << x0 << " " << x1 << " " << x2 << std::endl;
     return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
@@ -223,7 +224,7 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
     s_real fun0 = (*f0)(x00, x10, grad0, hes0);
     s_real fun1 = (*f1)(x00, x10, grad1, hes1);
     s_real x0 = x00, x1 = x10, Jinv[2][2], det = 1;
-
+    x1 = x10;
     std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
     while((fabs(fun0) > ftol || fabs(fun1) > ftol) && it < max_it){
       det = grad0[0]*grad1[1] - grad0[1]*grad1[0];
