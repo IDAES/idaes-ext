@@ -92,7 +92,6 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
-  std::cerr << "Call" << std::endl;
   if (this->_f3){
     std::cerr << "      args " << x0 << " " << x1 << " " << this->_a << std::endl;
     return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
@@ -232,6 +231,8 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
       Jinv[0][1] = -grad0[1]/det; // J[0][0] = grad0[1]
       Jinv[1][0] = -grad1[0]/det; // J[1][0] = grad1[0]
       Jinv[1][1] =  grad0[0]/det; // J[1][0] = grad1[1]
+
+      std::cerr << "    [[" << Jinv[0][0] << ", " << Jinv[0][1] "][" << Jinv[1][0] << ", " << Jinv[1][1] << "]]" << std::endl;
 
       x0 -= (Jinv[0][0]*fun0 + Jinv[0][1]*fun1);
       x1 -= (Jinv[1][0]*fun0 + Jinv[1][1]*fun1);
@@ -455,6 +456,8 @@ inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
 inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
   s_real gradl[2], gradv[2], hesl[2], hesv[2], f;
   f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
+  std::cerr << "  gv " << g_with_derivs(delta_v, tau, NULL, NULL) << " "<< delta_v << " "<< tau << std::endl;
+  std::cerr << "  gl " << g_with_derivs(delta_l, tau, NULL, NULL) << " "<< delta_l << " "<< tau << std::endl;
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
