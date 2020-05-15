@@ -545,7 +545,7 @@ s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes){
     if(hes != NULL) hes[0] = 0;
     return P_c;
   }
-  if(tau > T_c/T_t && limit){ // below tripple
+  if(tau > T_c/T_t){ // below tripple
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_t;
