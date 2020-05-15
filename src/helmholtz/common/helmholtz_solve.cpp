@@ -446,8 +446,8 @@ inline s_real K_delta(s_real delta, s_real tau){
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
   s_real gradl[1], hesl[1], gradv[1], hesv[1];
-  s_real Kdiff, Jdiff, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
-  int n=0, max_it=MAX_IT_SAT;
+  s_real Kdiff=1, Jdiff=1, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
+  int n=0;
 
   if(tau - 1 < 1e-12){
     *delta_l_sol = 1.0;
@@ -457,7 +457,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     // okay so you've decided to solve this thing
     *delta_l_sol = DELTA_LIQ_SAT_GUESS;
     *delta_v_sol = DELTA_VAP_SAT_GUESS;
-    while(n<MAX_IT_SAT && (Jdiff > TOL_SAT || Kdiff > TOL_SAT)){
+    while(n<MAX_IT_SAT){
       Jv = J(*delta_v_sol, tau);
       Jl = J(*delta_l_sol, tau);
       Kv = K(*delta_v_sol, tau);
@@ -469,6 +469,9 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
       dKv = K_delta(*delta_v_sol, tau);
       dKl = K_delta(*delta_l_sol, tau);
       det = dJv*dKl - dJl*dKv;
+      if (Jdiff < TOL_SAT && Kdiff < TOL_SAT){
+        break;
+      }
       ++n; // Count iterations
       *delta_l_sol += SAT_GAMMA/det*(Kdiff*dJv - Jdiff*dKv);
       *delta_v_sol += SAT_GAMMA/det*(Kdiff*dJl - Jdiff*dKl);
