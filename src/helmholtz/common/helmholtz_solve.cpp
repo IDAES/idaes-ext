@@ -435,81 +435,58 @@ inline s_real K(s_real delta, s_real tau){
 }
 
 inline s_real J_delta(s_real delta, s_real tau){
+  // Derivative term from Akasaka method for saturation state
   return 1.0 + 2.0*delta*phir_delta(delta, tau) + delta*delta*phir_delta2(delta, tau);
 }
 
 inline s_real K_delta(s_real delta, s_real tau){
+  // Derivative term from Akasaka method for saturation state
   return 2.0*phir_delta(delta, tau) + delta*phir_delta2(delta, tau) + 1.0/delta;
 }
 
-inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
-  return J_delta(delta_v, tau)*K_delta(delta_l, tau) -
-         J_delta(delta_l, tau)*K_delta(delta_v, tau);
-}
-
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
-  s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], Kdiff, Jdiff;
-  s_real Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
+  s_real gradl[1], hesl[1], gradv[1], hesv[1], Kdiff;
+  s_real Kdiff, Jdiff, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
   int n=0, max_it=MAX_IT_SAT;
 
-     if(tau - 1 < 1e-12){
-       delta_l = 1.0;
-       delta_v = 1.0;
-       max_it=0;
-     }
-     else{
-       // okay so you've decided to solve this thing
-       delta_l = DELTA_LIQ_SAT_GUESS;
-       delta_v = DELTA_VAP_SAT_GUESS;
-     }
-     *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
-     *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
+  if(tau - 1 < 1e-12){
+    *delta_l_sol = 1.0;
+    *delta_v_sol = 1.0;
+  }
+  else{
+    // okay so you've decided to solve this thing
+    *delta_l_sol = DELTA_LIQ_SAT_GUESS;
+    *delta_v_sol = DELTA_VAP_SAT_GUESS;
+    while(n<MAX_IT_SAT && (Jdiff > TOL_SAT || Kdiff > TOL_SAT)){
+      Jv = J(*delta_v_sol, tau);
+      Jl = J(*delta_l_sol, tau);
+      Kv = K(*delta_v_sol, tau);
+      Kl = K(*delta_l_sol, tau);
+      Jdiff = Jv - Jl;
+      Kdiff = Kv - Kl;
+      dJv = J_delta(*delta_v_sol, tau);
+      dJl = J_delta(*delta_l_sol, tau);
+      dKv = K_delta(*delta_v_sol, tau);
+      dKl = K_delta(*delta_l_sol, tau);
+      det = dJv*dKl - dJl*dKv;
+      ++n; // Count iterations
+      *delta_l_sol += SAT_GAMMA/det*(Kdiff*dJv - Jdiff*dKv);
+      *delta_v_sol += SAT_GAMMA/det*(Kdiff*dJl - Jdiff*dKl);
+    }
+  }
+  //Calculate grad and hes for and memoize
+  gradv[0] = LHM/LGM;
+  gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
+  hesv[0] = LdHdt(*delta_l_sol, *delta_v_sol, tau, gradl[0], gradv[0])/LGM
+          - LHM/LGM/LGM*LdGdt(*delta_l_sol, *delta_v_sol, tau, gradl[0], gradv[0]);
+  hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
+           + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
+           + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
 
-     Jv = J(delta_v, tau);
-     Jl = J(delta_l, tau);
-     Kv = K(delta_v, tau);
-     Kl = K(delta_l, tau);
-     Jdiff = Jv - Jl;
-     Kdiff = Kv - Kl;
-     dJv = J_delta(delta_v, tau);
-     dJl = J_delta(delta_l, tau);
-     dKv = K_delta(delta_v, tau);
-     dKl = K_delta(delta_l, tau);
-     det = dJv*dKl - dJl*dKv;
-     while(n<max_it && (Jdiff > TOL_SAT || Kdiff > TOL_SAT)){
-       ++n; // Count iterations
-       *delta_l_sol = delta_l + SAT_GAMMA/det*(Kdiff*dJv - Jdiff*dKv);
-       *delta_v_sol = delta_v + SAT_GAMMA/det*(Kdiff*dJl - Jdiff*dKl);
-
-       delta_v = *delta_v_sol; //step
-       delta_l = *delta_l_sol;
-
-       Jv = J(delta_v, tau);
-       Jl = J(delta_l, tau);
-       Kv = K(delta_v, tau);
-       Kl = K(delta_l, tau);
-       Jdiff = Jv - Jl;
-       Kdiff = Kv - Kl;
-       dJv = J_delta(delta_v, tau);
-       dJl = J_delta(delta_l, tau);
-       dKv = K_delta(delta_v, tau);
-       dKl = K_delta(delta_l, tau);
-       det = dJv*dKl - dJl*dKv;
-     }
-
-     //Calculate grad and hes for and memoize
-     gradv[0] = LHM/LGM;
-     gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
-     hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
-              - LHM/LGM/LGM*LdGdt(delta_l, delta_v, tau, gradl[0], gradv[0]);
-     hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
-               + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
-               + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
-
-     memoize::add_un(memoize::DL_SAT_FUNC, tau, delta_l, gradl, hesl);
-     memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
-     return n;
- }
+  memoize::add_un(memoize::DL_SAT_FUNC, tau, *delta_l_sol, gradl, hesl);
+  memoize::add_un(memoize::DV_SAT_FUNC, tau, *delta_v_sol, gradv, hesv);
+  return n;
+}
 
 /*------------------------------------------------------------------------------
 We often use enthaply and pressure as state variables so there are functions for
