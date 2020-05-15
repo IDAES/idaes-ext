@@ -93,7 +93,6 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
   if (this->_f3){
-    std::cerr << "      args " << x0 << " " << x1 << " " << this->_a << std::endl;
     return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
   }
   return (*_f2)(x0, x1, grad, hes) - this->_c;
@@ -223,25 +222,22 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
     s_real fun0 = (*f0)(x00, x10, grad0, hes0);
     s_real fun1 = (*f1)(x00, x10, grad1, hes1);
     s_real x0 = x00, x1 = x10, Jinv[2][2], det = 1;
-    x1 = x10;
     std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
     while((fabs(fun0) > ftol || fabs(fun1) > ftol) && it < max_it){
+      ++it;
       det = grad0[0]*grad1[1] - grad0[1]*grad1[0];
       Jinv[0][0] =  grad1[1]/det; // J[0][0] = grad0[0]
       Jinv[0][1] = -grad0[1]/det; // J[0][0] = grad0[1]
       Jinv[1][0] = -grad1[0]/det; // J[1][0] = grad1[0]
       Jinv[1][1] =  grad0[0]/det; // J[1][0] = grad1[1]
-      std::cerr << " x1 = " << x1 <<std::endl;
       std::cerr << "    [[" << Jinv[0][0] << ", " << Jinv[0][1] << "][" << Jinv[1][0] << ", " << Jinv[1][1] << "]]" << std::endl;
       x0 -= (Jinv[0][0]*fun0 + Jinv[0][1]*fun1);
       x1 -= (Jinv[1][0]*fun0 + Jinv[1][1]*fun1);
-
+      std::cerr << " x0 = " << x0 << " x0_step= " << (Jinv[0][0]*fun0 + Jinv[0][1]*fun1) << std::endl;
       std::cerr << " x1 = " << x1 << " x1_step= " << (Jinv[1][0]*fun0 + Jinv[1][1]*fun1) << std::endl;
-
       fun0 = (*f0)(x0, x1, grad0, hes0);
       fun1 = (*f1)(x0, x1, grad1, hes1);
       std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
-      ++it;
     }
     *sol0 = x0;
     *sol1 = x1;
@@ -446,8 +442,6 @@ inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
 inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
   s_real gradl[2], gradv[2], f;
   f = p_with_derivs(delta_v, tau, gradv, NULL) - p_with_derivs(delta_l, tau, gradl, NULL);
-  std::cerr << "  pv " << p_with_derivs(delta_v, tau, NULL, NULL) << " "<< delta_v << " "<< tau << std::endl;
-  std::cerr << "  pl " << p_with_derivs(delta_l, tau, NULL, NULL) << " "<< delta_l << " "<< tau << std::endl;
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
@@ -458,8 +452,6 @@ inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
 inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
   s_real gradl[2], gradv[2], hesl[2], hesv[2], f;
   f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
-  std::cerr << "  gv " << g_with_derivs(delta_v, tau, NULL, NULL) << " "<< delta_v << " "<< tau << std::endl;
-  std::cerr << "  gl " << g_with_derivs(delta_l, tau, NULL, NULL) << " "<< delta_l << " "<< tau << std::endl;
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
