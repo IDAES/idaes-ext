@@ -500,9 +500,9 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
        ++n; // Count iterations
        //calculations deltas at next step (Akasaka (2008))
        *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              KDiff*J_delta(delta_v,tau) - JDiff*K_delta(delta_v,tau));
+              Kdiff*J_delta(delta_v,tau) - Jdiff*K_delta(delta_v,tau));
        *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              KDiff*J_delta(delta_l,tau) - JDiff*K_delta(delta_l,tau));
+              Kdiff*J_delta(delta_l,tau) - Jdiff*K_delta(delta_l,tau));
        delta_v = *delta_v_sol; //step
        delta_l = *delta_l_sol;
        Jdiff = J(delta_v, tau) - J(delta_l, tau);
