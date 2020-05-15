@@ -510,7 +510,7 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes){
   bool free_grad = 0, free_hes = 0;
   if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
-  s_real tau = 2*Tc/(T_c + T_t), gradp[1], hesp[1];
+  s_real tau = 2*T_c/(T_c + T_t), gradp[1], hesp[1];
   if(P_c - pr < 1e-3){
     pr = P_c - 1e-3;
   }
