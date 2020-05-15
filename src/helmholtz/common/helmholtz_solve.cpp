@@ -173,7 +173,6 @@ int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
    x = x - fun*grad[f->grad_pos]/
            (grad[f->grad_pos]*grad[f->grad_pos] - 0.5*fun*hes[f->hes_pos]);
    fun = (*f)(x, grad, hes);
-   //std::cerr << it << " f = " << fun << " P = " << pr << std::endl;
    ++it;
   }
   *sol = x;
@@ -184,12 +183,57 @@ int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
 }
 
 /*------------------------------------------------------------------------------
-  1D Newton's method with backtracking line search
+  1D Newton's method (not sure this would be preferable to halley considering
+  I'm calculating the second derivative either way)
 ------------------------------------------------------------------------------*/
+int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
+           int max_it, s_real ftol){
+  int it=0;
+  s_real fun = (*f)(x0, grad, hes);
+  s_real x = x0;
+
+  while(fabs(fun) > ftol && it < max_it){
+    x = x - fun/grad[f->grad_pos];
+    fun = (*f)(x, grad, hes);
+    ++it;
+  }
+  *sol = x;
+  if(it == max_it){
+    return -3;
+  }
+  return it;
+}
 
 /*------------------------------------------------------------------------------
   2D Newton's method with backtracking line search
 ------------------------------------------------------------------------------*/
+int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
+              s_real *grad0, s_real *hes0, s_real *grad1, s_real *hes1,
+              s_real *sol0, s_real *sol1, int max_it, s_real ftol){
+    int it=0;
+    s_real fun0 = (*f0)(x00, x10, grad0, hes0);
+    s_real fun1 = (*f1)(x00, x10, grad1, hes1);
+    s_real x0 = x00, x1 = x10, Jinv[2][2], det = 1;
+
+    while(fabs(fun0) > ftol && fabs(fun1) > ftol && it < max_it){
+      det = grad0[0]*grad1[1] - grad0[1]*grad1[0];
+      Jinv[0][0] =  grad1[1]/det; // J[0][0] = grad0[0]
+      Jinv[0][1] = -grad0[1]/det; // J[0][0] = grad0[1]
+      Jinv[1][0] = -grad1[0]/det; // J[1][0] = grad1[0]
+      Jinv[1][1] =  grad0[0]/det; // J[1][0] = grad1[1]
+      x0 = Jinv[0][0]*fun0 + Jinv[0][1]*fun1;
+      x1 = Jinv[1][0]*fun0 + Jinv[1][0]*fun1;
+      fun0 = (*f0)(x0, x1, grad0, hes0);
+      fun1 = (*f1)(x0, x1, grad1, hes1);
+      ++it;
+    }
+    *sol0 = x0;
+    *sol1 = x1;
+    if(it == max_it){
+      return -3;
+    }
+    return it;
+}
 
 
 /*------------------------------------------------------------------------------

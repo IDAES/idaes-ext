@@ -134,7 +134,7 @@ s_real delta_p_tau_vap_guess_iapws95(s_real p, s_real tau){
   // lower correct density for vapor
   else if(p < 7.29146E-09 + 4.61516E-06*T + 7.28228E-15*T*T){ //rho < 1e-5
       return 5e-6/rho_c;
-    }
+  }
   else if(p < -1.50992E-07 + 4.61521E-05*T - 1.89168E-13*T*T){ //rho < 1e-4
     return 5e-5/rho_c;
   }
@@ -176,8 +176,11 @@ s_real delta_p_tau_liq_guess_iapws95(s_real p, s_real tau){
     return delta_p_tau_supercritical_guess_iapws95(p, tau);
   }
   // for the rest just use a guess between isochors
+  else if(T > 646.0 && p > 21900.0){
+    return delta_p_tau_rf(p, tau, 322.0/rho_c, 390.0/rho_c);
+  }
   else if(T > 645.0 && p > 21500.0){
-    return delta_p_tau_rf(p, tau, 322.0/rho_c, 450.0/rho_c);
+    return delta_p_tau_rf(p, tau, 330.0/rho_c, 450.0/rho_c);
   }
   return 1000.0/rho_c;
 }

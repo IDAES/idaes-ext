@@ -48,7 +48,7 @@ int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
 int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
               int max_it, s_real ftol);
 int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
-              s_real *grad, s_real *hes,
+              s_real *grad0, s_real *hes0, s_real *grad1, s_real *hes1,
               s_real *sol0, s_real *sol1, int max_it, s_real ftol);
 
 /*------------------------------------------------------------------------------
