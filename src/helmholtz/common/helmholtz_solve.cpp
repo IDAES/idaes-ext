@@ -223,6 +223,7 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
     s_real fun1 = (*f1)(x00, x10, grad1, hes1);
     s_real x0 = x00, x1 = x10, Jinv[2][2], det = 1;
 
+    std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
     while((fabs(fun0) > ftol || fabs(fun1) > ftol) && it < max_it){
       det = grad0[0]*grad1[1] - grad0[1]*grad1[0];
       Jinv[0][0] =  grad1[1]/det; // J[0][0] = grad0[0]
@@ -234,6 +235,7 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
       x1 -= Jinv[1][0]*fun0 + Jinv[1][1]*fun1;
       fun0 = (*f0)(x0, x1, grad0, hes0);
       fun1 = (*f1)(x0, x1, grad1, hes1);
+      std::cerr << it << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
       ++it;
     }
     *sol0 = x0;
