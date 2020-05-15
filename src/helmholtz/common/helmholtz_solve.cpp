@@ -505,6 +505,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
      hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
                + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
                + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
+
      memoize::add_un(memoize::DL_SAT_FUNC, tau, delta_l, gradl, hesl);
      memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
      return n;
