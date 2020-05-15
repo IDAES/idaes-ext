@@ -33,13 +33,15 @@
 #include "helmholtz_config.h"
 #include "swco2_guess.h"
 
-#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_swco2(p, tau)
-#define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_swco2(p, tau)
+#define LIQUID_DELTA_GUESS delta_p_tau_liq_guess_swco2(pr, tau)
+#define VAPOR_DELTA_GUESS delta_p_tau_vap_guess_swco2(pr, tau)
 #define DELTA_LIQ_SAT_GUESS delta_sat_l_approx(tau)
 #define DELTA_VAP_SAT_GUESS delta_sat_v_approx(tau)
 
 #define TAU_LOW 0.15
 #define TAU_HIGH 4.0
+#define P_LOW 0.0001
+#define P_HIGH 1e10
 
 const s_real R = 0.1889241;  // Specific gas constant (kJ/kg/K)
 
@@ -49,6 +51,10 @@ const s_real rho_c = 467.6;   // Critical density (kg/m^3)
 const s_real P_c = 7377.3;    // Critical Pressure (kPa)
 const s_real T_t = 216.592;   // Triple point temperature (K)
 const s_real P_t = 517.95;    // Triple point pressure (kPa)
+const s_real P_max = 100*P_c;  // Max pressure where answer is sure to be right
+const s_real P_min = 1;       // Min pressure where answer is sure to be right
+const s_real T_max = 800;     // Max temp where answer is sure to be right
+const s_real T_min = T_t;     // Min temp where answer is sure to be right
 
 // To generalize the equation of state there are parameters to set the number
 // of terms in each summation.  So far we are looking at IAPWS95 and Span-Wagner

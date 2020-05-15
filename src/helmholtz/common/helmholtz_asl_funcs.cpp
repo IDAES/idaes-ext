@@ -46,10 +46,16 @@ void funcadd(AmplExports *ae){
     addfunc("hlpt_EOS_TAG", (rfunc)hlpt_EOS_TAG, typ, 2, NULL);
     addfunc("svpt_EOS_TAG", (rfunc)svpt_EOS_TAG, typ, 2, NULL);
     addfunc("slpt_EOS_TAG", (rfunc)slpt_EOS_TAG, typ, 2, NULL);
+    addfunc("uvpt_EOS_TAG", (rfunc)uvpt_EOS_TAG, typ, 2, NULL);
+    addfunc("ulpt_EOS_TAG", (rfunc)ulpt_EOS_TAG, typ, 2, NULL);
     addfunc("tau_EOS_TAG", (rfunc)tau_EOS_TAG, typ, 2, NULL);
+    addfunc("memo_test_tau_EOS_TAG", (rfunc)memo_test_tau_EOS_TAG, typ, 2, NULL);
     addfunc("tau_sp_EOS_TAG", (rfunc)tau_sp_EOS_TAG, typ, 2, NULL);
+    addfunc("tau_up_EOS_TAG", (rfunc)tau_up_EOS_TAG, typ, 2, NULL);
+    addfunc("p_stau_EOS_TAG", (rfunc)p_stau_EOS_TAG, typ, 2, NULL);
     addfunc("vf_EOS_TAG", (rfunc)vf_EOS_TAG, typ, 2, NULL);
     addfunc("vfs_EOS_TAG", (rfunc)vfs_EOS_TAG, typ, 2, NULL);
+    addfunc("vfu_EOS_TAG", (rfunc)vfu_EOS_TAG, typ, 2, NULL);
     addfunc("delta_liq_EOS_TAG", (rfunc)delta_liq_EOS_TAG, typ, 2, NULL);
     addfunc("delta_vap_EOS_TAG", (rfunc)delta_vap_EOS_TAG, typ, 2, NULL);
     addfunc("delta_sat_l_EOS_TAG", (rfunc)delta_sat_l_EOS_TAG, typ, 1, NULL);
@@ -87,348 +93,119 @@ inline void cast_deriv1(s_real *g1, double *g2, s_real *h1, double *h2){
 }
 
 double p_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return p_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double u_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      return f;
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-    #else
-      return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return u_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double s_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return s_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double h_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return h_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double g_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return g_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double f_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return f_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double cv_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return cv_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double cp_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return cp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double w_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return w_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double hvpt_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return hvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double hlpt_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      f = hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      return f;
-    #else
-      return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return hlpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double svpt_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return svpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double slpt_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      f = slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      return f;
-    #else
-      return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return slpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double uvpt_EOS_TAG(arglist *al){
+  return uvpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double ulpt_EOS_TAG(arglist *al){
+  return ulpt_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double tau_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+    return tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double memo_test_tau_EOS_TAG(arglist *al){
+  return mem_tau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double tau_sp_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return tau_from_sp_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double tau_up_EOS_TAG(arglist *al){
+  return tau_from_up_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double p_stau_EOS_TAG(arglist *al){
+  return p_from_stau_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double vf_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return vf_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double vfs_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return vfs_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
+double vfu_EOS_TAG(arglist *al){
+  return vfu_with_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double delta_sat_l_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return sat_delta_liq_with_derivs(al->ra[al->at[0]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[1], hes[1];
-      f = sat_delta_liq_with_derivs(al->ra[al->at[0]], grad, hes);
-      cast_deriv1(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return sat_delta_liq_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
-    #endif
-  }
+  return sat_delta_liq_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
 }
 
 double delta_sat_v_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return sat_delta_vap_with_derivs(al->ra[al->at[0]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[1], hes[1];
-      f = sat_delta_vap_with_derivs(al->ra[al->at[0]], grad, hes);
-      cast_deriv1(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return sat_delta_vap_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
-    #endif
-  }
+  return sat_delta_vap_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
 }
 
 double p_sat_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return sat_p_with_derivs(al->ra[al->at[0]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[1], hes[1];
-      f = sat_p_with_derivs(al->ra[al->at[0]], grad, hes);
-      cast_deriv1(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return sat_p_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
-    #endif
-  }
+  return sat_p_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
 }
 
 double tau_sat_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return sat_tau_with_derivs(al->ra[al->at[0]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[1], hes[1];
-      f = sat_tau_with_derivs(al->ra[al->at[0]], grad, hes);
-      cast_deriv1(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return sat_tau_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
-    #endif
-  }
+  return sat_tau_with_derivs(al->ra[al->at[0]], al->derivs, al->hes);
 }
 
 double delta_liq_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return delta_liq(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 double delta_vap_EOS_TAG(arglist *al){
-  if(al->derivs==NULL && al->hes==NULL){
-    return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], NULL, NULL);}
-  else{
-    #ifdef CAST_DERIVATIVES
-      s_real f, grad[2], hes[3];
-      f = delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], grad, hes);
-      cast_deriv2(grad, al->derivs, hes, al->hes);
-      return f;
-    #else
-      return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
-    #endif
-  }
+  return delta_vap(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
 }
 
 //with deriv functions for phi, only provided for testing through ASL interface
@@ -575,26 +352,46 @@ double phir_delta_tau_derivs(double delta, double tau, double *grad, double *hes
   return phir_delta_tau(delta, tau);
 }
 
-
 double phi0_EOS_TAG(arglist *al){
-  return phi0_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phi0_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phi0_delta_EOS_TAG(arglist *al){
-  return phi0_delta_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
+  return phi0_delta_derivs(al->ra[al->at[0]], al->derivs, al->hes);
+}
+
 double phi0_delta2_EOS_TAG(arglist *al){
-  return phi0_delta2_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
+  return phi0_delta2_derivs(al->ra[al->at[0]], al->derivs, al->hes);
+}
+
 double phi0_tau_EOS_TAG(arglist *al){
-  return phi0_tau_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
+  return phi0_tau_derivs(al->ra[al->at[0]], al->derivs, al->hes);
+}
+
 double phi0_tau2_EOS_TAG(arglist *al){
-  return phi0_tau2_derivs(al->ra[al->at[0]], al->derivs, al->hes);}
+  return phi0_tau2_derivs(al->ra[al->at[0]], al->derivs, al->hes);
+}
+
 double phir_EOS_TAG(arglist *al){
-  return phir_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phir_delta_EOS_TAG(arglist *al){
-  return phir_delta_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_delta_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phir_delta2_EOS_TAG(arglist *al){
-  return phir_delta2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_delta2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phir_tau_EOS_TAG(arglist *al){
-  return phir_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phir_tau2_EOS_TAG(arglist *al){
-  return phir_tau2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_tau2_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}
+
 double phir_delta_tau_EOS_TAG(arglist *al){
-  return phir_delta_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);}
+  return phir_delta_tau_derivs(al->ra[al->at[0]], al->ra[al->at[1]], al->derivs, al->hes);
+}

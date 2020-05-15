@@ -60,34 +60,34 @@ s_real delta_p_tau_supercritical_guess_swco2(s_real p, s_real tau){
     return 5e-1/rho_c;
   }
   else if(p < -34.14334862 + 1.958265958*T - 2.87239E-05*T*T){ //rho < 10
-    return delta_p_tau_rf(p, tau, 0.5/rho_c, 15/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 0.5/rho_c, 15/rho_c);
   }
   else if(p < -2820.065655 + 24.25970886*T - 0.001748359*T*T){ //rho < 100
-    return delta_p_tau_rf(p, tau, 5/rho_c, 105/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 5/rho_c, 105/rho_c);
   }
   else if(p < -10141.29813 + 56.98420928*T - 0.005166199*T*T){ //rho < 200
-    return delta_p_tau_rf(p, tau, 95/rho_c, 205/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 95/rho_c, 205/rho_c);
   }
   else if(p < -21125.61421 + 97.22905662*T - 0.008799283*T*T){ //rho < 300
-    return delta_p_tau_rf(p, tau, 195/rho_c, 305/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 195/rho_c, 305/rho_c);
   }
   else if(p < -35876.37569 + 146.8404454*T - 0.012537284*T*T){ //rho < 400
-    return delta_p_tau_rf(p, tau, 295/rho_c, 405/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 295/rho_c, 405/rho_c);
   }
   else if(p < -54964.94489 + 209.5598894*T - 0.017302282*T*T){ //rho < 500
-    return delta_p_tau_rf(p, tau, 395/rho_c, 505/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 395/rho_c, 505/rho_c);
   }
   else if(p < -79898.47714 + 293.2504079*T - 0.026823627*T*T){ //rho < 600
-    return delta_p_tau_rf(p, tau, 495/rho_c, 605/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 495/rho_c, 605/rho_c);
   }
   else if(p < -112368.0377 + 408.529043*T - 0.046634364*T*T){ //rho < 700
-    return delta_p_tau_rf(p, tau, 595/rho_c, 705/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 595/rho_c, 705/rho_c);
   }
   else if(p < -153093.0031 + 566.7194992*T - 0.082889317*T*T){ //rho < 800
-    return delta_p_tau_rf(p, tau, 695/rho_c, 805/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 695/rho_c, 805/rho_c);
   }
   else if(p < -202040.1487 + 782.056835*T - 0.144729326*T*T){ //rho < 900
-    return delta_p_tau_rf(p, tau, 795/rho_c, 905/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 795/rho_c, 905/rho_c);
   }
   return 1180/rho_c;
 }
@@ -123,21 +123,21 @@ s_real delta_p_tau_vap_guess_swco2(s_real p, s_real tau){
     return 5e-1/rho_c;
   }
   else if(p < -34.14334862 + 1.958265958*T - 2.87239E-05*T*T){ //rho < 10
-    return delta_p_tau_rf(p, tau, 0.5/rho_c, 15/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 0.5/rho_c, 15/rho_c);
   }
   else if(p < -2820.065655 + 24.25970886*T - 0.001748359*T*T){ //rho < 100
-    return delta_p_tau_rf(p, tau, 5/rho_c, 105/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 5/rho_c, 105/rho_c);
   }
   else if(p < -10141.29813 + 56.98420928*T - 0.005166199*T*T){ //rho < 200
-    return delta_p_tau_rf(p, tau, 95/rho_c, 205/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 95/rho_c, 205/rho_c);
   }
   else if(p < -21125.61421 + 97.22905662*T - 0.008799283*T*T){ //rho < 300
-    return delta_p_tau_rf(p, tau, 195/rho_c, 305/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 195/rho_c, 305/rho_c);
   }
   else if(p < -35876.37569 + 146.8404454*T - 0.012537284*T*T){ //rho < 400
-    return delta_p_tau_rf(p, tau, 295/rho_c, 405/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 295/rho_c, 405/rho_c);
   }
-  return delta_p_tau_rf(p, tau, 395/rho_c, 1, 0);
+  return delta_p_tau_rf(p, tau, 395/rho_c, 1);
 }
 
 s_real delta_p_tau_liq_guess_swco2(s_real p, s_real tau){
@@ -152,25 +152,25 @@ s_real delta_p_tau_liq_guess_swco2(s_real p, s_real tau){
   }
   // for the rest just use a guess between isochors
   else if(p < -54964.94489 + 209.5598894*T - 0.017302282*T*T){ //rho < 500
-    return delta_p_tau_rf(p, tau, 1, 505/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 1, 505/rho_c);
   }
   else if(p < -79898.47714 + 293.2504079*T - 0.026823627*T*T){ //rho < 600
-    return delta_p_tau_rf(p, tau, 495/rho_c, 605/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 495/rho_c, 605/rho_c);
   }
   else if(p < -112368.0377 + 408.529043*T - 0.046634364*T*T){ //rho < 700
-    return delta_p_tau_rf(p, tau, 595/rho_c, 705/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 595/rho_c, 705/rho_c);
   }
   else if(p < -153093.0031 + 566.7194992*T - 0.082889317*T*T){ //rho < 800
-    return delta_p_tau_rf(p, tau, 695/rho_c, 805/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 695/rho_c, 805/rho_c);
   }
   else if(p < -202040.1487 + 782.056835*T - 0.144729326*T*T){ //rho < 900
-    return delta_p_tau_rf(p, tau, 795/rho_c, 905/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 795/rho_c, 905/rho_c);
   }
   else if(p < -256602.6793 + 1066.954274*T - 0.241727489*T*T){ //rho < 1000
-    return delta_p_tau_rf(p, tau, 895/rho_c, 1005/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 895/rho_c, 1005/rho_c);
   }
   else if(p < -312602.0898 + 1436.311945*T - 0.38689172*T*T){ //rho < 1100
-    return delta_p_tau_rf(p, tau, 995/rho_c, 1105/rho_c, 0);
+    return delta_p_tau_rf(p, tau, 995/rho_c, 1105/rho_c);
   }
   return 1180/rho_c;
 }

@@ -233,6 +233,58 @@ s_real slpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
   return s;
 }
 
+s_real uvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::UVPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+  s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
+  s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
+  s_real delta, u;
+  delta = delta_vap(pr, tau, gradd, hesd);
+  u = u_with_derivs(delta, tau, gradh, hesh);
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::UVPT_FUNC, pr, tau, u, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
+  return u;
+}
+
+s_real ulpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes){
+  s_real val = memoize::get_bin(memoize::ULPT_FUNC, pr, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  bool free_grad = 0, free_hes = 0; // grad and/or hes not provided so allocate
+  // Since I'm going to cache results, grad and hes will get calculated
+  // whether requested or not.  If they were NULL allocate space.
+  if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+  s_real gradh[2], hesh[3]; // derivatives of h(delta, tau)
+  s_real gradd[2], hesd[3]; // derivatives of delta(p, tau)
+  s_real delta, u;
+  delta = delta_liq(pr, tau, gradd, hesd);
+  u = u_with_derivs(delta, tau, gradh, hesh);
+  grad[0] = gradh[0]*gradd[0];
+  grad[1] = gradh[1] + gradh[0]*gradd[1];
+  hes[0] = hesh[0]*gradd[0]*gradd[0] + gradh[0]*hesd[0];
+  hes[1] = hesh[1]*gradd[0] + hesh[0]*gradd[0]*gradd[1] + gradh[0]*hesd[1];
+  hes[2] = hesh[2] + 2*hesh[1]*gradd[1] + hesh[0]*gradd[1]*gradd[1] + gradh[0]*hesd[2];
+
+  memoize::add_bin(memoize::ULPT_FUNC, pr, tau, u, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes; //   function
+  return u;
+}
+
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     s_real val = memoize::get_bin(memoize::VF_FUNC, ht, pr, grad, hes);
     if(!std::isnan(val)) return val;
@@ -307,27 +359,62 @@ s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
     return vf;
 }
 
+s_real vfu_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
+    s_real val = memoize::get_bin(memoize::VFU_FUNC, ut, pr, grad, hes);
+    if(!std::isnan(val)) return val;
+    bool free_grad = 0, free_hes = 0; // if 1 free grad and hes at end
+    // Since I'm going to cache results, grad and hes will get calculated
+    // whether requested or not.  If they were NULL allocate space.
+    if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
+    if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
+
+    s_real tau, gradt[1], hest[1], gradsv[2], hessv[3], gradsl[2], hessl[3];
+    tau = sat_tau_with_derivs(pr, gradt, hest);
+    s_real uv = uvpt_with_derivs(pr, tau, gradsv, hessv);
+    s_real ul = ulpt_with_derivs(pr, tau, gradsl, hessl);
+
+    if(pr >= P_c){zero_derivs2(grad, hes); return 0.0;} //Classify supercritical as liquid
+    else if(pr <= P_t){zero_derivs2(grad, hes); return 1.0;} //below tripple point going to assume vapor, because it's that or a solid and I'm not dealing with solids.
+    else if(ul > ut){ zero_derivs2(grad, hes); return 0.0;} //saturated liquid entropy > total entropy so liquid
+    else if(uv < ut){ zero_derivs2(grad, hes); return 1.0;} //saturated vapor enthalpy < total entropy so vapor
+
+    s_real dsvdp = gradsv[0] + gradsv[1]*gradt[0];
+    s_real dsldp = gradsl[0] + gradsl[1]*gradt[0];
+    grad[0] = 1.0/(uv - ul);
+    grad[1] = -dsldp/(uv - ul) - (ut - ul)/(uv-ul)/(uv-ul)*(dsvdp - dsldp);
+    s_real d2svdp2 = hessv[0] + 2*hessv[1]*gradt[0] + hessv[2]*gradt[0]*gradt[0] + gradsv[1]*hest[0];
+    s_real d2sldp2 = hessl[0] + 2*hessl[1]*gradt[0] + hessl[2]*gradt[0]*gradt[0] + gradsl[1]*hest[0];
+    hes[0] = 0;
+    hes[1] = -1.0/(uv-ul)/(uv-ul)*(dsvdp - dsldp);
+    hes[2] = -d2sldp2/(uv-ul) + 2*dsldp/(uv-ul)/(uv-ul)*(dsvdp - dsldp) +
+              2*(ut-ul)/(uv-ul)/(uv-ul)/(uv-ul)*(dsvdp - dsldp)*(dsvdp - dsldp) -
+              (ut-ul)/(uv-ul)/(uv-ul)*(d2svdp2 - d2sldp2);
+    s_real vf = (ut - ul)/(uv - ul);
+    memoize::add_bin(memoize::VFU_FUNC, ut, pr, vf, grad, hes);
+    if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+    if(free_hes) delete[] hes; //   function
+    return vf;
+}
+
 s_real g_with_derivs(s_real delta, s_real tau, s_real *grad, s_real *hes){
   s_real h_grad[2], h_hes[3], s_grad[2], s_hes[3], s_val;
-  s_real *h_grad_ptr=NULL, *h_hes_ptr=NULL, *s_grad_ptr=NULL, *s_hes_ptr=NULL;
 
   if(grad!=NULL){
-    h_grad_ptr=h_grad;
-    s_grad_ptr=s_grad;
-    if(hes!=NULL){
-      h_hes_ptr=h_hes;
-      s_hes_ptr=s_hes;}}
-
-  if(grad!=NULL){
-    h_with_derivs(delta, tau, h_grad_ptr, h_hes_ptr);
-    s_val = s_with_derivs(delta, tau, s_grad_ptr, s_hes_ptr);
-    grad[0] = h_grad[0] - T_c/tau*s_grad[0];
-    grad[1] = h_grad[1] + T_c/tau/tau*s_val - T_c/tau*s_grad[1];
-    if(hes!=NULL){
+    if (hes==NULL){
+      h_with_derivs(delta, tau, h_grad, NULL);
+      s_val = s_with_derivs(delta, tau, s_grad, NULL);
+    }
+    else{
+      h_with_derivs(delta, tau, h_grad, h_hes);
+      s_val = s_with_derivs(delta, tau, s_grad, s_hes);
       hes[0] = h_hes[0] - T_c/tau*s_hes[0];
       hes[1] = h_hes[1] + T_c/tau/tau*s_grad[0] - T_c/tau*s_hes[1];
       hes[2] = h_hes[2] - 2.0*T_c/tau/tau/tau*s_val + 2.0*T_c/tau/tau*s_grad[1]
-        - T_c/tau*s_hes[2];}}
+        - T_c/tau*s_hes[2];
+    }
+    grad[0] = h_grad[0] - T_c/tau*s_grad[0];
+    grad[1] = h_grad[1] + T_c/tau/tau*s_val - T_c/tau*s_grad[1];
+  }
   return g(delta, tau);
 }
 
@@ -452,13 +539,13 @@ s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes){
   return (s_real)NAN;
 }
 
-s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
-  if(tau < 1.0 && limit){ // above critical T
+s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes){
+  if(tau < 1.0){ // above critical T
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_c;
   }
-  if(tau > T_c/T_t && limit){ // below tripple
+  if(tau > T_c/T_t){ // below tripple
     if(grad != NULL) grad[0] = 0;
     if(hes != NULL) hes[0] = 0;
     return P_t;
@@ -477,6 +564,28 @@ s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit){
   hes[0] = hes_p[2] + 2*hes_p[1]*grad_delta[0] + grad_p[0]*hes_delta[0]
            + hes_p[0]*grad_delta[0]*grad_delta[0];
   memoize::add_un(memoize::P_SAT_FUNC, tau, Psat, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes;   // function
+  return Psat;
+}
+
+s_real sat_pnl_with_derivs(s_real tau, s_real *grad, s_real *hes){
+  //The is the unlimited Psat calc.  It doesn't cut off at T_c or T_t is used to
+  //calculate Tsat, to keep the solver from bumping into the ends of the curve
+  //check if there is a stored value
+  s_real val = memoize::get_un(memoize::P_SATNL_FUNC, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  // grad and/or hes not provided so allocate for memoization
+  bool free_grad = 0, free_hes = 0;
+  if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
+  s_real grad_delta[1], hes_delta[1], grad_p[2], hes_p[3];
+  s_real delta = sat_delta_vap_with_derivs(tau, grad_delta, hes_delta);
+  s_real Psat = p_with_derivs(delta, tau, grad_p, hes_p);
+  grad[0] = grad_p[1] + grad_p[0]*grad_delta[0];
+  hes[0] = hes_p[2] + 2*hes_p[1]*grad_delta[0] + grad_p[0]*hes_delta[0]
+           + hes_p[0]*grad_delta[0]*grad_delta[0];
+  memoize::add_un(memoize::P_SATNL_FUNC, tau, Psat, grad, hes);
   if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
   if(free_hes) delete[] hes;   // function
   return Psat;

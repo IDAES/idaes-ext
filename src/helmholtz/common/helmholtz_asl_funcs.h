@@ -38,10 +38,19 @@ double hvpt_EOS_TAG(arglist *al);
 double hlpt_EOS_TAG(arglist *al);
 double svpt_EOS_TAG(arglist *al);
 double slpt_EOS_TAG(arglist *al);
+double uvpt_EOS_TAG(arglist *al);
+double ulpt_EOS_TAG(arglist *al);
 double vf_EOS_TAG(arglist *al);
 double vfs_EOS_TAG(arglist *al);
+double vfu_EOS_TAG(arglist *al);
 double tau_EOS_TAG(arglist *al);
 double tau_sp_EOS_TAG(arglist *al);
+double tau_up_EOS_TAG(arglist *al);
+
+double memo_test_tau_EOS_TAG(arglist *al);
+
+
+double p_stau_EOS_TAG(arglist *al);
 
 double delta_sat_l_EOS_TAG(arglist *al);
 double delta_sat_v_EOS_TAG(arglist *al);
@@ -62,5 +71,6 @@ double phir_delta2_EOS_TAG(arglist *al);
 double phir_tau_EOS_TAG(arglist *al);
 double phir_tau2_EOS_TAG(arglist *al);
 double phir_delta_tau_EOS_TAG(arglist *al);
+
 
 #endif

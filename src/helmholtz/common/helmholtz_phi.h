@@ -58,6 +58,22 @@ s_real phir_tau3(s_real delta, s_real tau);
 s_real phir_tau4(s_real delta, s_real tau);
 s_real phir_delta3_tau(s_real delta, s_real tau);
 
+// Memo testing functions for phir and derivatives
+s_real mem_phir(s_real delta, s_real tau);
+s_real mem_phir_delta(s_real delta, s_real tau);
+s_real mem_phir_delta2(s_real delta, s_real tau);
+s_real mem_phir_tau(s_real delta, s_real tau);
+s_real mem_phir_tau2(s_real delta, s_real tau);
+s_real mem_phir_delta_tau(s_real delta, s_real tau);
+s_real mem_phir_delta3(s_real delta, s_real tau);
+s_real mem_phir_delta4(s_real delta, s_real tau);
+s_real mem_phir_delta2_tau(s_real delta, s_real tau);
+s_real mem_phir_delta2_tau2(s_real delta, s_real tau);
+s_real mem_phir_delta_tau2(s_real delta, s_real tau);
+s_real mem_phir_delta_tau3(s_real delta, s_real tau);
+s_real mem_phir_tau3(s_real delta, s_real tau);
+s_real mem_phir_tau4(s_real delta, s_real tau);
+s_real mem_phir_delta3_tau(s_real delta, s_real tau);
 
 /*------------------------------------------------------------------------------
   Some phi0 derivatives that are 0, just to be more explicit in calculations

@@ -63,8 +63,11 @@ s_real hvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real hlpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real svpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real slpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
+s_real uvpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
+s_real ulpt_with_derivs(s_real pr, s_real tau, s_real *grad, s_real *hes);
 s_real vf_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes);
 s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes);
+s_real vfu_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes);
 
 /*------------------------------------------------------------------------------
   Functions for saturation pressure and reduced density as a function of tau
@@ -72,13 +75,7 @@ s_real vfs_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes);
 ------------------------------------------------------------------------------*/
 s_real sat_delta_liq_with_derivs(s_real tau, s_real *grad, s_real *hes);
 s_real sat_delta_vap_with_derivs(s_real tau, s_real *grad, s_real *hes);
-s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes, bool limit=1);
+s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes);
+s_real sat_pnl_with_derivs(s_real tau, s_real *grad, s_real *hes);
 
-/*------------------------------------------------------------------------------
-  Functions for saturation delta (rho/roh_c) as a function of P and tau (T_c/T)
-  with gradient and Hessian.  These functions are well tested and just feed the
-  right initial guess to delta_p_tau() gauranteeing the correct solution.
-------------------------------------------------------------------------------*/
-s_real delta_vap(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL, int *nit=NULL);
-s_real delta_liq(s_real p, s_real tau, s_real *grad=NULL, s_real *hes=NULL, int *nit=NULL);
 #endif
