@@ -445,7 +445,7 @@ inline s_real K_delta(s_real delta, s_real tau){
 }
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
-  s_real gradl[1], hesl[1], gradv[1], hesv[1], Kdiff;
+  s_real gradl[1], hesl[1], gradv[1], hesv[1];
   s_real Kdiff, Jdiff, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
   int n=0, max_it=MAX_IT_SAT;
 
