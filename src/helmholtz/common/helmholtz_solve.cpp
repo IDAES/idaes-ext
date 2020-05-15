@@ -92,9 +92,9 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
-  std::cerr << "Call" << std::endl; 
+  std::cerr << "Call" << std::endl;
   if (this->_f3){
-    std::cerr << "      args " << x0 << " " << x1 << " " << x2 << std::endl;
+    std::cerr << "      args " << x0 << " " << x1 << " " << this->_a << std::endl;
     return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
   }
   return (*_f2)(x0, x1, grad, hes) - this->_c;
