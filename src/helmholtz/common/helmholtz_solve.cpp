@@ -222,9 +222,8 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
     s_real x0 = x00, x1 = x10, Jinv[2][2], det = 1;
     s_real fun0 = (*f0)(x00, x10, grad0, hes0);
     s_real fun1 = (*f1)(x00, x10, grad1, hes1);
-    std::cerr << " x1 = "<< x1 << std::endl;
     std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
-    std::cerr << " x1 = "<< x1 << std::endl;
+    std::cerr << " x1 = " << x1 " x10 = " << x10 << std::endl;
 
     while((fabs(fun0) > ftol || fabs(fun1) > ftol) && it < max_it){
       ++it;
@@ -234,11 +233,10 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
       Jinv[1][0] = -grad1[0]/det; // J[1][0] = grad1[0]
       Jinv[1][1] =  grad0[0]/det; // J[1][0] = grad1[1]
 
-      std::cerr << "  I00" << Jinv[0][0]*grad0[0] + Jinv[0][1]*grad1[0] << std::endl;
-      std::cerr << "  I01" << Jinv[1][0]*grad0[0] + Jinv[1][1]*grad1[0] << std::endl;
-      std::cerr << "  I10" << Jinv[0][0]*grad0[1] + Jinv[0][1]*grad1[1] << std::endl;
-      std::cerr << "  I11" << Jinv[1][0]*grad0[1] + Jinv[1][1]*grad1[1] << std::endl;
-
+      std::cerr << "   I00 " << Jinv[0][0]*grad0[0] + Jinv[0][1]*grad1[0];
+      std::cerr << " I01 " << Jinv[1][0]*grad0[0] + Jinv[1][1]*grad1[0];
+      std::cerr << " I10 " << Jinv[0][0]*grad0[1] + Jinv[0][1]*grad1[1];
+      std::cerr << " I11 " << Jinv[1][0]*grad0[1] + Jinv[1][1]*grad1[1];
 
       std::cerr << "    [[" << Jinv[0][0] << ", " << Jinv[0][1] << "][" << Jinv[1][0] << ", " << Jinv[1][1] << "]]" << std::endl;
       x0 -= (Jinv[0][0]*fun0 + Jinv[0][1]*fun1);
