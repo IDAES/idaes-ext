@@ -510,11 +510,11 @@ s_real sat_tau_with_derivs(s_real pr, s_real *grad, s_real *hes){
   bool free_grad = 0, free_hes = 0;
   if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
-  s_real tau = 1.5, fun, gradp[1], hesp[1];
+  s_real tau = 1.5, gradp[1], hesp[1];
   if(P_c - pr < 1e-3){
     pr = P_c - 1e-3;
   }
-  FuncWrapper f(0, pr, 0);
+  FuncWrapper f(0, 0, pr);
   f.set_f1(sat_p_with_derivs);
   halley(&f, tau, &tau, gradp, hesp, MAX_IT_SAT_TAU, TOL_SAT_TAU);
 
