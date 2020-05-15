@@ -100,7 +100,8 @@ namespace memoize{
     P_SAT_FUNC = 1,
     DL_SAT_FUNC = 2,
     DV_SAT_FUNC = 3,
-    TAU_SAT_FUNC = 4;
+    TAU_SAT_FUNC = 4,
+    P_SATNL_FUNC = 5;
 
   unsigned int add_bin(unsigned char f, s_real x, s_real y, s_real val, s_real *grad, s_real *hes);
   unsigned int add_un(unsigned char f, s_real x, s_real val, s_real *grad,  s_real *hes);

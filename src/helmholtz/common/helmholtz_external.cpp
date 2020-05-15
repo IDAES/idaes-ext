@@ -568,3 +568,25 @@ s_real sat_p_with_derivs(s_real tau, s_real *grad, s_real *hes){
   if(free_hes) delete[] hes;   // function
   return Psat;
 }
+
+s_real sat_pnl_with_derivs(s_real tau, s_real *grad, s_real *hes){
+  //The is the unlimited Psat calc.  It doesn't cut off at T_c or T_t is used to
+  //calculate Tsat, to keep the solver from bumping into the ends of the curve
+  //check if there is a stored value
+  s_real val = memoize::get_un(memoize::P_SATNL_FUNC, tau, grad, hes);
+  if(!std::isnan(val)) return val;
+  // grad and/or hes not provided so allocate for memoization
+  bool free_grad = 0, free_hes = 0;
+  if(grad==NULL){grad = new s_real[1]; free_grad = 1;}
+  if(hes==NULL){hes = new s_real[1]; free_hes = 1;}
+  s_real grad_delta[1], hes_delta[1], grad_p[2], hes_p[3];
+  s_real delta = sat_delta_vap_with_derivs(tau, grad_delta, hes_delta);
+  s_real Psat = p_with_derivs(delta, tau, grad_p, hes_p);
+  grad[0] = grad_p[1] + grad_p[0]*grad_delta[0];
+  hes[0] = hes_p[2] + 2*hes_p[1]*grad_delta[0] + grad_p[0]*hes_delta[0]
+           + hes_p[0]*grad_delta[0]*grad_delta[0];
+  memoize::add_un(memoize::P_SATNL_FUNC, tau, Psat, grad, hes);
+  if(free_grad) delete[] grad; // free grad and hes if not allocated by calling
+  if(free_hes) delete[] hes;   // function
+  return Psat;
+}
