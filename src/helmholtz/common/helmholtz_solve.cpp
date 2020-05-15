@@ -466,7 +466,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
       f0.set_f3(pvpl);
       f1.set_f3(gvgl);
       n = newton_2d(&f0, &f1, DELTA_VAP_SAT_GUESS, DELTA_LIQ_SAT_GUESS,
-                    grl, NULL, grv, NULL, delta_l_sol, delta_v_sol,
+                    grv, NULL, grl, NULL, delta_v_sol, delta_l_sol,
                     MAX_IT_SAT, TOL_REL_SAT_G);
     }
     delta_l = *delta_l_sol;
