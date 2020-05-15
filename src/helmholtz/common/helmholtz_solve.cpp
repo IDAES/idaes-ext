@@ -223,7 +223,7 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
     s_real fun0 = (*f0)(x00, x10, grad0, hes0);
     s_real fun1 = (*f1)(x00, x10, grad1, hes1);
     std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
-    std::cerr << " x1 = " << x1 " x10 = " << x10 << std::endl;
+    std::cerr << " x1 = " << x1 << " x10 = " << x10 << std::endl;
 
     while((fabs(fun0) > ftol || fabs(fun1) > ftol) && it < max_it){
       ++it;
