@@ -475,10 +475,11 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     }
   }
   //Calculate grad and hes for and memoize
+  s_real delta_l = *delta_l_sol, delta_v = *delta_v_sol;
   gradv[0] = LHM/LGM;
   gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
-  hesv[0] = LdHdt(*delta_l_sol, *delta_v_sol, tau, gradl[0], gradv[0])/LGM
-          - LHM/LGM/LGM*LdGdt(*delta_l_sol, *delta_v_sol, tau, gradl[0], gradv[0]);
+  hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
+          - LHM/LGM/LGM*LdGdt(delta_l, delta_v, tau, gradl[0], gradv[0]);
   hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
            + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
            + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
