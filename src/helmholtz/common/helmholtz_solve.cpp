@@ -41,7 +41,6 @@ FuncWrapper::FuncWrapper(char apos, s_real a, s_real c){
   hes_pos = 2*apos; // this is used for binary->unary functions
   _f1 = NULL;
   _f2 = NULL;
-  _f3 = NULL;
   _f2n = NULL;
 }
 
@@ -51,10 +50,6 @@ void FuncWrapper::set_f1(f_ptr1 f1){
 
 void FuncWrapper::set_f2(f_ptr2 f2){
   this->_f2 = f2;
-}
-
-void FuncWrapper::set_f3(f_ptr3 f3){
-  this->_f3 = f3;
 }
 
 void FuncWrapper::set_f2n(f_ptr2n f2){
@@ -92,9 +87,6 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
-  if (this->_f3){
-    return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
-  }
   return (*_f2)(x0, x1, grad, hes) - this->_c;
 }
 
@@ -473,8 +465,8 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
         break;
       }
       ++n; // Count iterations
-      *delta_l_sol += SAT_GAMMA/det*(Kdiff*dJv - Jdiff*dKv);
-      *delta_v_sol += SAT_GAMMA/det*(Kdiff*dJl - Jdiff*dKl);
+      *delta_l_sol += SAT_GAMMA*(Kdiff*dJv - Jdiff*dKv)/det;
+      *delta_v_sol += SAT_GAMMA*(Kdiff*dJl - Jdiff*dKl)/det;
     }
   }
   //Calculate grad and hes for and memoize
