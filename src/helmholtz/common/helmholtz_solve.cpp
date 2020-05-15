@@ -442,7 +442,7 @@ inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
   s_real gradl[2], gradv[2], f;
   f = p_with_derivs(delta_v, tau, gradv, NULL) - p_with_derivs(delta_l, tau, gradl, NULL);
   std::cerr << "  pv " << p_with_derivs(delta_v, tau, gradv, NULL) << " "<< delta_v << " "<< tau << std::endl;
-  std::cerr << "  pl " << p_with_derivs(delta_v, tau, gradv, NULL) << " "<< delta_v << " "<< tau << std::endl;
+  std::cerr << "  pl " << p_with_derivs(delta_l, tau, gradv, NULL) << " "<< delta_l << " "<< tau << std::endl;
   if(grad){
     grad[0] = gradv[0] - gradl[0];
     grad[1] = gradv[1] - gradl[1];
