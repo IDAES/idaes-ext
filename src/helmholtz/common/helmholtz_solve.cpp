@@ -235,8 +235,6 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
       x1 -= (Jinv[1][0]*fun0 + Jinv[1][1]*fun1);
       fun0 = (*f0)(x0, x1, grad0, hes0);
       fun1 = (*f1)(x0, x1, grad1, hes1);
-      fun0 = (*f0)(x00, x10, grad0, hes0);
-      fun1 = (*f1)(x00, x10, grad1, hes1);
       std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
       ++it;
     }
