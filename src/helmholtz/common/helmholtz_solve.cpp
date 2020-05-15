@@ -400,7 +400,7 @@ In this section you will find functions for calculating the saturation curve.
 Saturation pressure and density as a function of temperature.
 *-----------------------------------------------------------------------------*/
 s_real sat_delta_liq(s_real tau){ //calculate saturated liquid density from tau
-  s_real val = memoize::get_un(memoize::DL_SAT_FUNC, tau, grad, hes);
+  s_real val = memoize::get_un(memoize::DL_SAT_FUNC, tau, NULL, NULL);
   if(!std::isnan(val)) return val;
   s_real delta_l, delta_v;
   sat(tau, &delta_l, &delta_v);
@@ -408,7 +408,7 @@ s_real sat_delta_liq(s_real tau){ //calculate saturated liquid density from tau
 }
 
 s_real sat_delta_vap(s_real tau){ //calculate saturated vapor density from tau
-  s_real val = memoize::get_un(memoize::DV_SAT_FUNC, tau, grad, hes);
+  s_real val = memoize::get_un(memoize::DV_SAT_FUNC, tau, NULL, NULL);
   if(!std::isnan(val)) return val;
   s_real delta_l, delta_v;
   sat(tau, &delta_l, &delta_v);
