@@ -478,8 +478,8 @@ inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
 }
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
-  s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1];
-     int n=0, max_it=MAX_IT_SAT;
+  s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1], Kdiff, Jdiff;
+  int n=0, max_it=MAX_IT_SAT;
 
      if(tau - 1 < 1e-12){
        delta_l = 1.0;
@@ -491,26 +491,22 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
        delta_l = DELTA_LIQ_SAT_GUESS;
        delta_v = DELTA_VAP_SAT_GUESS;
      }
-     // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
-     // the relative difference in g as a convergence criteria, that is easy to
-     // understand.  fg < tol for convergence, fg is calculated upfront in the
-     // off chance that the guess is the solution
      *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
      *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
-     fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
-     while(n<max_it && fg > TOL_REL_SAT_G){
+
+     Jdiff = J(delta_v, tau) - J(delta_l, tau);
+     Kdiff = K(delta_v, tau) - K(delta_l, tau);
+     while(n<max_it && (Jdiff > TOL_REL_SAT_G || Kdiff > TOL_REL_SAT_G)){
        ++n; // Count iterations
        //calculations deltas at next step (Akasaka (2008))
        *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_v,tau) -
-              (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_v,tau));
+              KDiff*J_delta(delta_v,tau) - JDiff*K_delta(delta_v,tau));
        *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_l,tau) -
-              (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_l,tau));
+              KDiff*J_delta(delta_l,tau) - JDiff*K_delta(delta_l,tau));
        delta_v = *delta_v_sol; //step
        delta_l = *delta_l_sol;
-       //calculate convergence criterium
-       fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
+       Jdiff = J(delta_v, tau) - J(delta_l, tau);
+       Kdiff = K(delta_v, tau) - K(delta_l, tau);
      }
 
      //Calculate grad and hes for and memoize
