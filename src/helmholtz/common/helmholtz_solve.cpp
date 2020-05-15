@@ -231,11 +231,13 @@ int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
       Jinv[0][1] = -grad0[1]/det; // J[0][0] = grad0[1]
       Jinv[1][0] = -grad1[0]/det; // J[1][0] = grad1[0]
       Jinv[1][1] =  grad0[0]/det; // J[1][0] = grad1[1]
-
+      std::cerr << " x1 = " << x1 <<std::endl;
       std::cerr << "    [[" << Jinv[0][0] << ", " << Jinv[0][1] << "][" << Jinv[1][0] << ", " << Jinv[1][1] << "]]" << std::endl;
-
       x0 -= (Jinv[0][0]*fun0 + Jinv[0][1]*fun1);
       x1 -= (Jinv[1][0]*fun0 + Jinv[1][1]*fun1);
+
+      std::cerr << " x1 = " << x1 << " x1_step= " << (Jinv[1][0]*fun0 + Jinv[1][1]*fun1) << std::endl;
+
       fun0 = (*f0)(x0, x1, grad0, hes0);
       fun1 = (*f1)(x0, x1, grad1, hes1);
       std::cerr << it << " " << x0 << " " << x1 << " " << fun0 << " " << fun1 << std::endl;
