@@ -587,7 +587,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     FuncWrapper f(1, pr, ht);
     f.set_f2(fun_ptr);
     bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
-    newton_1d(&f, tau, &tau, gradh, hesh, 15, 1e-11);
+    halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
 
     if(tau < 0.0 || tau > TAU_HIGH){
         std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= ";
