@@ -478,6 +478,61 @@ inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
 }
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
+  s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1];
+     int n=0, max_it=MAX_IT_SAT;
+
+     if(tau - 1 < 1e-12){
+       delta_l = 1.0;
+       delta_v = 1.0;
+       max_it=0;
+     }
+     else{
+       // okay so you've decided to solve this thing
+       delta_l = DELTA_LIQ_SAT_GUESS;
+       delta_v = DELTA_VAP_SAT_GUESS;
+     }
+     // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
+     // the relative difference in g as a convergence criteria, that is easy to
+     // understand.  fg < tol for convergence, fg is calculated upfront in the
+     // off chance that the guess is the solution
+     *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
+     *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
+     fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
+     while(n<max_it && fg > TOL_REL_SAT_G){
+       ++n; // Count iterations
+       //calculations deltas at next step (Akasaka (2008))
+       *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
+              (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_v,tau) -
+              (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_v,tau));
+       *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
+              (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_l,tau) -
+              (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_l,tau));
+       delta_v = *delta_v_sol; //step
+       delta_l = *delta_l_sol;
+       //calculate convergence criterium
+       fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
+     }
+
+     //Calculate grad and hes for and memoize
+
+     gradv[0] = LHM/LGM;
+     gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
+     hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
+              - LHM/LGM/LGM*LdGdt(delta_l, delta_v, tau, gradl[0], gradv[0]);
+     hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
+               + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
+               + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
+     memoize::add_un(memoize::DL_SAT_FUNC, tau, delta_l, gradl, hesl);
+     memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
+     return n;
+ }
+
+
+
+
+
+/*
+
     //Get saturated phase densities at tau by Akasaka (2008) method
     s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], grl[2], grv[2];
     int n=0;
@@ -510,6 +565,7 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
     return n;
 }
+*/
 
 
 /*------------------------------------------------------------------------------
