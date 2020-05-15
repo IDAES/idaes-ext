@@ -496,13 +496,13 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
 
      Jdiff = J(delta_v, tau) - J(delta_l, tau);
      Kdiff = K(delta_v, tau) - K(delta_l, tau);
-     while(n<max_it && (Jdiff > TOL_REL_SAT_G || Kdiff > TOL_REL_SAT_G)){
+     while(n<max_it && (Jdiff > TOL_SAT || Kdiff > TOL_SAT)){
        ++n; // Count iterations
        //calculations deltas at next step (Akasaka (2008))
        *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              Kdiff*J_delta(delta_v,tau) - Jdiff*K_delta(delta_v,tau));
+              Kdiff*J_delta(delta_v, tau) - Jdiff*K_delta(delta_v, tau));
        *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              Kdiff*J_delta(delta_l,tau) - Jdiff*K_delta(delta_l,tau));
+              Kdiff*J_delta(delta_l, tau) - Jdiff*K_delta(delta_l, tau));
        delta_v = *delta_v_sol; //step
        delta_l = *delta_l_sol;
        Jdiff = J(delta_v, tau) - J(delta_l, tau);
@@ -522,47 +522,6 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
      memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
      return n;
  }
-
-
-
-
-
-/*
-
-    //Get saturated phase densities at tau by Akasaka (2008) method
-    s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], grl[2], grv[2];
-    int n=0;
-
-    if(tau - 1 < 1e-12){
-      *delta_l_sol = 1.0;
-      *delta_v_sol = 1.0;
-    }
-    else{
-      // okay so you've decided to solve this thing
-      FuncWrapper f0(0, tau, 0), f1(0, tau, 0);
-      f0.set_f3(pvpl);
-      f1.set_f3(gvgl);
-      n = newton_2d(&f0, &f1, DELTA_VAP_SAT_GUESS, DELTA_LIQ_SAT_GUESS,
-                    grv, NULL, grl, NULL, delta_v_sol, delta_l_sol,
-                    MAX_IT_SAT, TOL_REL_SAT_G);
-    }
-    delta_l = *delta_l_sol;
-    delta_v = *delta_v_sol;
-
-    //Calculate grad and hes for and memoize
-    gradv[0] = LHM/LGM;
-    gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
-    hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
-             - LHM/LGM/LGM*LdGdt(delta_l, delta_v, tau, gradl[0], gradv[0]);
-    hesl[0] = hesv[0]*LBV*LFL + gradv[0]*(LBVt + LBVd*gradv[0])*LFL
-              + gradv[0]*LBV*(LFLt + LFLd*gradl[0]) + (LFLt + LFLd*gradl[0])*(LCV - LCL)
-              + LFL*(LCVt - LCLt + LCVd*gradv[0] - LCLd*gradl[0]);
-    memoize::add_un(memoize::DL_SAT_FUNC, tau, delta_l, gradl, hesl);
-    memoize::add_un(memoize::DV_SAT_FUNC, tau, delta_v, gradv, hesv);
-    return n;
-}
-*/
-
 
 /*------------------------------------------------------------------------------
 We often use enthaply and pressure as state variables so there are functions for

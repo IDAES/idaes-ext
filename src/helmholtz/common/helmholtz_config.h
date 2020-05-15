@@ -44,7 +44,7 @@
 // Bracketing methods iteration limit
 #define MAX_IT_BRACKET 10
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
-#define TOL_REL_SAT_G 1e-12
+#define TOL_SAT 1e-10
 // Saturation curve max iterations
 #define MAX_IT_SAT 20
 // Saturation solver gamma factor Akasaka (2008)
