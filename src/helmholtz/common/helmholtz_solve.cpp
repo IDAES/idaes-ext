@@ -478,7 +478,7 @@ inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
 }
 
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
-  s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1], Kdiff, Jdiff;
+  s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], Kdiff, Jdiff;
   int n=0, max_it=MAX_IT_SAT;
 
      if(tau - 1 < 1e-12){
