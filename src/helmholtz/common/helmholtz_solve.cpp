@@ -41,6 +41,7 @@ FuncWrapper::FuncWrapper(char apos, s_real a, s_real c){
   hes_pos = 2*apos; // this is used for binary->unary functions
   _f1 = NULL;
   _f2 = NULL;
+  _f3 = NULL;
   _f2n = NULL;
 }
 
@@ -50,6 +51,10 @@ void FuncWrapper::set_f1(f_ptr1 f1){
 
 void FuncWrapper::set_f2(f_ptr2 f2){
   this->_f2 = f2;
+}
+
+void FuncWrapper::set_f3(f_ptr3 f3){
+  this->_f3 = f3;
 }
 
 void FuncWrapper::set_f2n(f_ptr2n f2){
@@ -87,6 +92,9 @@ s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
+  if (this->_f3){
+    return (*_f3)(x0, x1, this->_a, grad, hes) - this->_c;
+  }
   return (*_f2)(x0, x1, grad, hes) - this->_c;
 }
 
@@ -423,45 +431,48 @@ inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
          J_delta(delta_l, tau)*K_delta(delta_v, tau);
 }
 
+inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
+  s_real gradl[2], gradv[2], f;
+  f = p_with_derivs(delta_v, tau, gradv, NULL) - p_with_derivs(delta_l, tau, gradl, NULL);
+  if(grad){
+    grad[0] = gradl[0] - gradv[0];
+    grad[1] = gradl[0] - gradv[0];
+  }  // for now can't imagine why I'd need to return hessian, but I could
+  return f;
+}
+
+inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
+  s_real gradl[2], gradv[2], hesl[2], hesv[2], f;
+  f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
+  if(grad){
+    grad[0] = gradl[0] - gradv[0];
+    grad[1] = gradl[0] - gradv[0];
+  }  // for now can't imagine why I'd need to return hessian, but I could
+  return f;
+}
+
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
     //Get saturated phase densities at tau by Akasaka (2008) method
-    s_real delta_l, delta_v, fg, gradl[1], hesl[1], gradv[1], hesv[1];
-    int n=0, max_it=MAX_IT_SAT;
+    s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], grl[2], grv[2];
+    int n=0;
 
     if(tau - 1 < 1e-12){
-      delta_l = 1.0;
-      delta_v = 1.0;
-      max_it=0;
+      *delta_l_sol = 1.0;
+      *delta_v_sol = 1.0;
     }
     else{
       // okay so you've decided to solve this thing
-      delta_l = DELTA_LIQ_SAT_GUESS;
-      delta_v = DELTA_VAP_SAT_GUESS;
+      FuncWrapper f0(0, tau, 0), f1(0, tau, 0);
+      f0.set_f3(pvpl);
+      f1.set_f3(gvgl);
+      n = newton_2d(&f0, &f1, DELTA_VAP_SAT_GUESS, DELTA_LIQ_SAT_GUESS,
+                    grl, NULL, grv, NULL, delta_l_sol, delta_v_sol,
+                    MAX_IT_SAT, TOL_REL_SAT_G);
     }
-    // Since the equilibrium conditions are gl = gv and pl = pv, I am using the
-    // the relative difference in g as a convergence criteria, that is easy to
-    // understand.  fg < tol for convergence, fg is calculated upfront in the
-    // off chance that the guess is the solution
-    *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
-    *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
-    fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
-    while(n<max_it && fg > TOL_REL_SAT_G){
-      ++n; // Count iterations
-      //calculations deltas at next step (Akasaka (2008))
-      *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-             (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_v,tau) -
-             (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_v,tau));
-      *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-             (K(delta_v, tau) - K(delta_l, tau))*J_delta(delta_l,tau) -
-             (J(delta_v, tau) - J(delta_l, tau))*K_delta(delta_l,tau));
-      delta_v = *delta_v_sol; //step
-      delta_l = *delta_l_sol;
-      //calculate convergence criterium
-      fg = fabs((g(delta_v, tau) - g(delta_l, tau))/g(delta_l, tau));
-    }
+    delta_l = *delta_l_sol;
+    delta_v = *delta_v_sol;
 
     //Calculate grad and hes for and memoize
-
     gradv[0] = LHM/LGM;
     gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
     hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
