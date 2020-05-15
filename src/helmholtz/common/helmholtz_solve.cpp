@@ -447,38 +447,9 @@ inline s_real Delta_Aka(s_real delta_l, s_real delta_v, s_real tau){
          J_delta(delta_l, tau)*K_delta(delta_v, tau);
 }
 
-inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
-  s_real gradl[2], gradv[2], hesl[3], hesv[3], f;
-  f = p_with_derivs(delta_v, tau, gradv, hesv) - p_with_derivs(delta_l, tau, gradl, hesl);
-  if(grad){
-    grad[0] = gradv[0] - gradl[0];
-    grad[1] = gradv[1] - gradl[1];
-  }
-  if(hes){
-    hes[0] = hesv[0] - hesl[0];
-    hes[1] = hesv[1] - hesl[1];
-    hes[2] = hesv[2] - hesl[2];
-  }
-  return f;
-}
-
-inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_real *hes){
-  s_real gradl[2], gradv[2], hesl[3], hesv[3], f;
-  f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
-  if(grad){
-    grad[0] = gradv[0] - gradl[0];
-    grad[1] = gradv[1] - gradl[1];
-  }  // for now can't imagine why I'd need to return hessian, but I could
-  if(hes){
-    hes[0] = hesv[0] - hesl[0];
-    hes[1] = hesv[1] - hesl[1];
-    hes[2] = hesv[2] - hesl[2];
-  }
-  return f;
-}
-
 int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
   s_real delta_l, delta_v, gradl[1], hesl[1], gradv[1], hesv[1], Kdiff, Jdiff;
+  s_real Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
   int n=0, max_it=MAX_IT_SAT;
 
      if(tau - 1 < 1e-12){
@@ -494,23 +465,39 @@ int sat(s_real tau, s_real *delta_l_sol, s_real *delta_v_sol){
      *delta_l_sol = delta_l; // just in case we don't do at least 1 iteration
      *delta_v_sol = delta_v; // just in case we don't do at least 1 iteration
 
-     Jdiff = J(delta_v, tau) - J(delta_l, tau);
-     Kdiff = K(delta_v, tau) - K(delta_l, tau);
+     Jv = J(delta_v, tau);
+     Jl = J(delta_l, tau);
+     Kv = K(delta_v, tau);
+     Kl = K(delta_l, tau);
+     Jdiff = Jv - Jl;
+     Kdiff = Kv - Kl;
+     dJv = J_delta(delta_v, tau);
+     dJl = J_delta(delta_l, tau);
+     dKv = K_delta(delta_v, tau);
+     dKl = K_delta(delta_l, tau);
+     det = dJv*dKl - dJl*dKv;
      while(n<max_it && (Jdiff > TOL_SAT || Kdiff > TOL_SAT)){
        ++n; // Count iterations
-       //calculations deltas at next step (Akasaka (2008))
-       *delta_l_sol = delta_l + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              Kdiff*J_delta(delta_v, tau) - Jdiff*K_delta(delta_v, tau));
-       *delta_v_sol = delta_v + SAT_GAMMA/Delta_Aka(delta_l, delta_v, tau)*(
-              Kdiff*J_delta(delta_l, tau) - Jdiff*K_delta(delta_l, tau));
+       *delta_l_sol = delta_l + SAT_GAMMA/det*(Kdiff*dJv - Jdiff*dKv);
+       *delta_v_sol = delta_v + SAT_GAMMA/det*(Kdiff*dJl - Jdiff*dKl);
+
        delta_v = *delta_v_sol; //step
        delta_l = *delta_l_sol;
-       Jdiff = J(delta_v, tau) - J(delta_l, tau);
-       Kdiff = K(delta_v, tau) - K(delta_l, tau);
+
+       Jv = J(delta_v, tau);
+       Jl = J(delta_l, tau);
+       Kv = K(delta_v, tau);
+       Kl = K(delta_l, tau);
+       Jdiff = Jv - Jl;
+       Kdiff = Kv - Kl;
+       dJv = J_delta(delta_v, tau);
+       dJl = J_delta(delta_l, tau);
+       dKv = K_delta(delta_v, tau);
+       dKl = K_delta(delta_l, tau);
+       det = dJv*dKl - dJl*dKv;
      }
 
      //Calculate grad and hes for and memoize
-
      gradv[0] = LHM/LGM;
      gradl[0] = gradv[0]*LBV/LBL + (LCV - LCL)/LBL;
      hesv[0] = LdHdt(delta_l, delta_v, tau, gradl[0], gradv[0])/LGM
