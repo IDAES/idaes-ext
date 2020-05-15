@@ -436,7 +436,7 @@ inline s_real pvpl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
   f = p_with_derivs(delta_v, tau, gradv, NULL) - p_with_derivs(delta_l, tau, gradl, NULL);
   if(grad){
     grad[0] = gradv[0] - gradl[0];
-    grad[1] = gradv[0] - gradl[0];
+    grad[1] = gradv[1] - gradl[1];
   }  // for now can't imagine why I'd need to return hessian, but I could
   return f;
 }
@@ -446,7 +446,7 @@ inline s_real gvgl(s_real delta_v, s_real delta_l, s_real tau, s_real *grad, s_r
   f = g_with_derivs(delta_v, tau, gradv, hesv) - g_with_derivs(delta_l, tau, gradl, hesl);
   if(grad){
     grad[0] = gradv[0] - gradl[0];
-    grad[1] = gradv[0] - gradl[0];
+    grad[1] = gradv[1] - gradl[1];
   }  // for now can't imagine why I'd need to return hessian, but I could
   return f;
 }
