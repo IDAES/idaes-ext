@@ -44,14 +44,14 @@
 // Bracketing methods iteration limit
 #define MAX_IT_BRACKET 10
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
-#define TOL_SAT 1e-9
+#define TOL_SAT 1e-12
 // Saturation curve max iterations
-#define MAX_IT_SAT 15
+#define MAX_IT_SAT 20
 // Saturation solver gamma factor Akasaka (2008)
 #define SAT_GAMMA 1.0
 //Parameters for solving for tau_sat as a function of pressure
 #define MAX_IT_SAT_TAU 20
-#define TOL_SAT_TAU 1e-11
+#define TOL_SAT_TAU 1e-12
 
 // Set types and functions that specify precision
 #ifdef PRECISION_DOUBLE
