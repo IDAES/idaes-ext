@@ -8,31 +8,42 @@
 // one for functions of one variable and one for functions of two variables,
 // The pointer arguments are for the gradient and hessian.
 
-typedef s_real (*f_ptr1)(s_real, s_real*, s_real*);
-typedef s_real (*f_ptr2)(s_real, s_real, s_real*, s_real*);
-typedef s_real (*f_ptr2n)(s_real, s_real); //two vars no derivatives
+typedef s_real (*f_ptr1)(s_real, s_real*, s_real*); //1 var, gad, hes
+typedef s_real (*f_ptr2)(s_real, s_real, s_real*, s_real*); //2 vars, grad, hes
+typedef s_real (*f_ptr1n)(s_real); //1 var no derivatives
+typedef s_real (*f_ptr2n)(s_real, s_real); //2 vars no derivatives
 
-// For a lot of solves I want to use binary functions where on of the two
-// arguments is fixed.  To avoid implimneting the solvers three times for
-// f(x), f(a, x), f(x, a), I'll use a functor to wrap up functions for solves
+// For a lot of solves I want to use binary functions where one of the two
+// arguments is fixed.  To avoid implimenting the solvers three times for
+// f(x), f(a, x), f(x, a), I'll use a functor to wrap up functions for solves,
+// so I can easily get functions into a standard from for solver functions.
 class FuncWrapper {
 public:
   FuncWrapper(char apos, s_real a, s_real c);
+  /*----------------------------------------------------------------------------
+  apos is possition for the variable if using a 2d function in a 1d solve
+  a is fixed argument value if using a 2d fuction in a 1d solve
+  c is constant to be subtracted from a function for example to solve
+    p = f(x) we need f(x) - p = 0, so c would be the know value of p.
+  ----------------------------------------------------------------------------*/
   s_real operator() (s_real, s_real *grad, s_real *hes);
   s_real operator() (s_real, s_real, s_real *grad, s_real *hes);
   s_real operator() (s_real, s_real);
   s_real operator() (s_real);
   int grad_pos;
   int hes_pos;
-  void set_f1(f_ptr1 f1);
-  void set_f2(f_ptr2 f2);
-  void set_f2n(f_ptr2n f2);
+  void set_f1(f_ptr1 f1, s_real scale);
+  void set_f2(f_ptr2 f2, s_real scale);
+  void set_f1n(f_ptr1n f1, s_real scale);
+  void set_f2n(f_ptr2n f2, s_real scale);
 private:
+  s_real _scale;
   s_real _a;
   s_real _c;
   unsigned char _apos;
   f_ptr1 _f1;
   f_ptr2 _f2;
+  f_ptr1n _f1n;
   f_ptr2n _f2n;
 };
 
@@ -46,7 +57,7 @@ int bracket(FuncWrapper *f, s_real xa, s_real xb,
 int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
            int max_it, s_real ftol);
 int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
-              int max_it, s_real ftol);
+              int max_it, s_real ftol, char lsearch=1, s_real c=0.001, s_real t=0.5);
 int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
               s_real *grad0, s_real *hes0, s_real *grad1, s_real *hes1,
               s_real *sol0, s_real *sol1, int max_it, s_real ftol);
@@ -80,7 +91,6 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes);
 s_real p_from_htau_with_derivs(s_real ht, s_real tau, s_real *grad, s_real *hes);
 s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes);
 s_real p_from_utau_with_derivs(s_real ut, s_real tau, s_real *grad, s_real *hes);
-
 
 
 #endif
