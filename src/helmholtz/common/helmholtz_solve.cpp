@@ -37,64 +37,78 @@ FuncWrapper::FuncWrapper(char apos, s_real a, s_real c){
   _apos = apos;
   _a = a;
   _c = c;
+  _scale = 1;
   grad_pos = apos;  // this is used for binary->unary functions
   hes_pos = 2*apos; // this is used for binary->unary functions
   _f1 = NULL;
   _f2 = NULL;
+  _f1n = NULL;
   _f2n = NULL;
 }
 
-void FuncWrapper::set_f1(f_ptr1 f1){
+void FuncWrapper::set_f1(f_ptr1 f1, s_real scale=1.0){
   this->_f1 = f1;
+  this->_scale = scale;
 }
 
-void FuncWrapper::set_f2(f_ptr2 f2){
+void FuncWrapper::set_f1n(f_ptr1n f1, s_real scale=1.0){
+  this->_f1n = f1;
+  this->_scale = scale;
+}
+
+void FuncWrapper::set_f2(f_ptr2 f2, s_real scale=1.0){
   this->_f2 = f2;
+  this->_scale = scale;
 }
 
-void FuncWrapper::set_f2n(f_ptr2n f2){
+void FuncWrapper::set_f2n(f_ptr2n f2, s_real scale=1.0){
   this->_f2n = f2;
+  this->_scale = scale;
 }
 
 s_real FuncWrapper:: operator () (s_real x){
-  // There is a lack of error checking here, but since this is ment for internal
-  // use, I'll be careful to use it right.
-  if(this->_f1){
-    return (*_f1)(x, NULL, NULL) - this->_c;
+  // This is the most complicated call.  Any function from could be used for
+  // this, so we'll see what's available starting with the most efficent form
+  if(this->_f1n){
+    return _scale*( (*_f1n)(x) - this->_c );
+  }
+  else if(this->_f1){
+    return _scale*( (*_f1)(x, NULL, NULL) - this->_c );
   }
   else if(this->_f2n && this->_apos==0){
-    return (*_f2n)(x, this->_a) - this->_c;
+    return _scale*( (*_f2n)(x, this->_a) - this->_c );
   }
   else if(this->_f2n && this->_apos==1){
-    return (*_f2n)(this->_a, x) - this->_c;
+    return _scale*( (*_f2n)(this->_a, x) - this->_c );
   }
   else if(this->_apos==0){
-    return (*_f2)(x, this->_a, NULL, NULL) - this->_c;
+    return _scale*( (*_f2)(x, this->_a, NULL, NULL) - this->_c );
   }
-  return (*_f2)(this->_a, x, NULL, NULL) - this->_c;
+  return _scale*( (*_f2)(this->_a, x, NULL, NULL) - this->_c );
 }
 
 s_real FuncWrapper:: operator () (s_real x, s_real *grad, s_real *hes){
-  // There is a lack of error checking here, but since this is ment for internal
-  // use, I'll be careful to use it right.
+  // Check the forms that work for 1D with derivatives.
   if(this->_f1){
-    return (*_f1)(x, grad, hes) - this->_c;
+    return _scale*( (*_f1)(x, grad, hes) - this->_c );
   }
   else if(this->_apos==0){
-    return (*_f2)(x, this->_a, grad, hes) - this->_c;
+    return _scale*( (*_f2)(x, this->_a, grad, hes) - this->_c );
   }
-  return (*_f2)(this->_a, x, grad, hes) - this->_c;
+  return _scale*( (*_f2)(this->_a, x, grad, hes) - this->_c );
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1, s_real *grad, s_real *hes){
-  return (*_f2)(x0, x1, grad, hes) - this->_c;
+  // Only one form works for 2D with derivaties
+  return _scale*( (*_f2)(x0, x1, grad, hes) - this->_c );
 }
 
 s_real FuncWrapper:: operator () (s_real x0, s_real x1){
+  // Two forms could work for 2D without derivatives.
   if(this->_f2n){
-    return (*_f2n)(x0, x1) - this->_c;
+    return _scale*( (*_f2n)(x0, x1) - this->_c );
   }
-  return (*_f2)(x0, x1, NULL, NULL) - this->_c;
+  return _scale*( (*_f2)(x0, x1, NULL, NULL) - this->_c );
 }
 
 /*------------------------------------------------------------------------------
@@ -166,12 +180,13 @@ int bracket(FuncWrapper *f, s_real xa, s_real xb, s_real *sol,
 int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
            int max_it, s_real ftol){
   int it=0;
-  s_real fun = (*f)(x0, grad, hes);
+  s_real fun = (*f)(x0, grad, hes), fun_prev=0;
   s_real x = x0;
 
-  while(fabs(fun) > ftol && it < max_it){
+  while(fabs(fun) > ftol && it < max_it && fun != fun_prev){
    x -= fun*grad[f->grad_pos]/
         (grad[f->grad_pos]*grad[f->grad_pos] - 0.5*fun*hes[f->hes_pos]);
+   fun_prev = fun;
    fun = (*f)(x, grad, hes);
    ++it;
   }
@@ -183,17 +198,36 @@ int halley(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
 }
 
 /*------------------------------------------------------------------------------
-  1D Newton's method (not sure this would be preferable to halley considering
-  I'm calculating the second derivative either way)
+  1D Newton's method with backtracking line search.  If you start out with a
+  point that's not good the linesearch keeps things from getting too crazy.
+  Both Helley's method and Newton with linesearch work.  This is less efficent
+  than Halley but maybe more robust.  If I can not calculate derivatives for
+  line search evaluations, it would probably be a good bit faster too.  I'm
+  keeping this around to experiment with.
 ------------------------------------------------------------------------------*/
 int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
-           int max_it, s_real ftol){
-  int it=0;
-  s_real fun = (*f)(x0, grad, hes);
-  s_real x = x0;
+           int max_it, s_real ftol, char lsearch, s_real c, s_real t){
+  int it=0, it2=0;
+  s_real fun = (*f)(x0, grad, hes), funx;
+  s_real x = x0, alpha, p;
 
   while(fabs(fun) > ftol && it < max_it){
-    x -= fun/grad[f->grad_pos];
+    alpha = -fun/grad[f->grad_pos];
+    if (lsearch){
+      p = (alpha < 0) ? -1 : 1;
+      funx = fun;
+      fun = (*f)(x + alpha);
+      it2 = 0;
+      // The while loop cuts step if 1) improvment is not enough, 2) function is NaN or 3) function is inf.
+      // The c parameter determines what is considered enough improvment to accept the step and t determines
+      // how much to cut the step.
+      while((fabs(funx) - fabs(fun) < c*p*grad[f->grad_pos] || std::isnan(fun) || std::isinf(fun)) && it2 < 40){
+        alpha *= t;
+        fun = (*f)(x + alpha);
+        ++it2;
+      }
+    }
+    x += alpha;
     fun = (*f)(x, grad, hes);
     ++it;
   }
@@ -205,7 +239,9 @@ int newton_1d(FuncWrapper *f, s_real x0, s_real *sol, s_real *grad, s_real *hes,
 }
 
 /*------------------------------------------------------------------------------
-  2D Newton's method with backtracking line search
+  2D Newton's method with backtracking line search, the immediate goal for this
+  is to solver for density and temperature given H and S, but it's not complete
+  and currently not used.
 ------------------------------------------------------------------------------*/
 int newton_2d(FuncWrapper *f0, FuncWrapper *f1, s_real x00, s_real x10,
               s_real *grad0, s_real *hes0, s_real *grad1, s_real *hes1,
@@ -585,7 +621,7 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     FuncWrapper f(1, pr, ht);
     f.set_f2(fun_ptr);
     bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
-    halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
+    halley(&f, tau, &tau, gradh, hesh, 15, 1e-12);
 
     if(tau < 0.0 || tau > TAU_HIGH){
         std::cerr << "WARNING: External Helmholtz EOS low temperature clip, h= ";
@@ -663,7 +699,7 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
   FuncWrapper f(1, pr, st);
   f.set_f2(fun_ptr);
   bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
-  halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
+  halley(&f, tau, &tau, gradh, hesh, 15, 1e-12);
 
   if(tau < 0.0 || tau > TAU_HIGH){
       std::cerr << "WARNING: External Helmholtz EOS low temperature clip, s= ";
@@ -741,7 +777,7 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
     FuncWrapper f(1, pr, ut);
     f.set_f2(fun_ptr);
     bracket(&f, a, b, &tau, 10, 1e-5, 1e-5);
-    halley(&f, tau, &tau, gradh, hesh, 15, 1e-11);
+    halley(&f, tau, &tau, gradh, hesh, 15, 1e-12);
 
     if(tau < 0.0 || tau > TAU_HIGH){
         std::cerr << "WARNING: External Helmholtz EOS low temperature clip, u= ";
@@ -820,7 +856,7 @@ s_real p_from_stau_with_derivs(s_real st, s_real tau, s_real *grad, s_real *hes)
     FuncWrapper f(0, tau, st);
     f.set_f2(fun_ptr);
     bracket(&f, a, b, &pr, 10, 1e-5, 1e-5);
-    halley(&f, pr, &pr, gradh, hesh, 15, 1e-11);
+    halley(&f, pr, &pr, gradh, hesh, 15, 1e-12);
 
     //STEP 5 -- check answer for sanity
     if(pr > P_HIGH){

@@ -31,27 +31,27 @@
 //#define PRECISION_LONG_DOUBLE //DON'T USE THIS WITHOUT ADDING DERIVATIVE CASTS BACK TO ASL FUNCS
 #define PRECISION_DOUBLE
 // Residual abs tolerance for solving for vapor reduced density from p, tau
-#define TOL_DELTA_VAP 1e-13
+#define TOL_DELTA_VAP 1e-14
 // Residual abs tolerance for solving for liquid reduced density from p, tau
-#define TOL_DELTA_LIQ 1e-13
+#define TOL_DELTA_LIQ 1e-14
 // Max iterations for solving for delta (reduced density) from p, tau
-#define MAX_IT_DELTA 20
+#define MAX_IT_DELTA 30
 // Use bracketing methods in particularly difficult areas when solving for
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-6
+#define TOL_BRACKET 1e-7
 // Bracketing methods iteration limit
 #define MAX_IT_BRACKET 10
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
-#define TOL_SAT 1e-12
+#define TOL_SAT 1e-14
 // Saturation curve max iterations
-#define MAX_IT_SAT 20
+#define MAX_IT_SAT 30
 // Saturation solver gamma factor Akasaka (2008)
 #define SAT_GAMMA 1.0
 //Parameters for solving for tau_sat as a function of pressure
-#define MAX_IT_SAT_TAU 20
-#define TOL_SAT_TAU 1e-12
+#define MAX_IT_SAT_TAU 30
+#define TOL_SAT_TAU 1e-14
 
 // Set types and functions that specify precision
 #ifdef PRECISION_DOUBLE
