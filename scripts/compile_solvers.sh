@@ -47,7 +47,8 @@ cp ../coinbrew/dist/bin/ipopt ./
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
-mv tmp version_solvers.txt
+sed s/"(PLAT)"/${osname}/g tmp > tmp2
+mv tmp2 version_solvers.txt
 
 
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
