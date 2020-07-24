@@ -6,7 +6,8 @@ osname=$1; shift
 export IDAES_EXT=`pwd`
 
 # get stuff
-wget https://ampl.com/netlib/ampl/solvers.tgz
+wget https://coin-or-tools.github.io/ThirdParty-ASL/solvers-20180528.tgz
+mv solvers-20180528.tgz solvers.tgz
 tar -zxvf solvers.tgz
 
 # Compile ASL, warnings about files existing seem to be okay
