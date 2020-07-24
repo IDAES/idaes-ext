@@ -21,9 +21,12 @@ RUN cd \repo; \
     cd idaes-pse; \
     git checkout $env:branch; \
     pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt; \
-    python setup.py develop; \
+    pip install -e .; \
     idaes get-extensions --url file:///c:/repo/; \
-    cd idaes\generic_models; \
+    cd idaes-pse\idaes; \
+    pytest tests\test_have_pynumero.py; \
+    pytest tests\test_ipopt.py;\
+    cd generic_models; \
     pytest; \
     cd ../core; \
     pytest; \
