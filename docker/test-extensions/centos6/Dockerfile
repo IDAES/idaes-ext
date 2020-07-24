@@ -15,14 +15,17 @@ RUN cd repo; \
     echo "cloned repo"; \
     conda create -n idaes python=3.7.4 pip psutil; \
     conda activate idaes; \
-    python setup.py develop; \
+    pip install -e .; \
     cd ..; \
     idaes get-extensions --url file:////repo/ --platform centos6
 
 RUN cd repo; \
     eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
     conda activate idaes; \
-    cd idaes-pse/idaes/generic_models; \
+    cd idaes-pse/idaes; \
+    pytest tests/test_have_pynumero.py; \
+    pytest tests/test_ipopt.py;\
+    cd ./generic_models; \
     pytest; \
     cd ../core; \
     pytest; \
