@@ -22,7 +22,7 @@ then
   sed -e "s/\[ -v LD_LIBRARY_PATH \]/ \"1\" = \"0\" /g" -i coinbrew
 fi
 
-bash coinbrew fetch $IPOPT_REPO:$IPOPT_BRANCH --no-prompt
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
   # if the HSL source zip is in place...
