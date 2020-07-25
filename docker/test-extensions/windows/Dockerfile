@@ -23,7 +23,7 @@ RUN cd \repo; \
     pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt; \
     pip install -e .; \
     idaes get-extensions --url file:///c:/repo/; \
-    cd idaes-pse\idaes; \
+    cd idaes; \
     pytest tests\test_have_pynumero.py; \
     pytest tests\test_ipopt.py;\
     cd generic_models; \
