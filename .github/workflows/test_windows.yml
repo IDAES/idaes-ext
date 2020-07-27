@@ -28,26 +28,26 @@ jobs:
           pip install -e .
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
 
-      - name "Test Solvers"
-        shell powershell
-        run |
+      - name: "Test Solvers"
+        shell: powershell
+        run: |
           cd \repo
           conda activate idaes
           cd idaes
           pytest tests\test_have_pynumero.py
           pytest tests\test_ipopt.py
 
-      - name "Test Generic Models"
-        shell powershell
-        run |
+      - name: "Test Generic Models"
+        shell: powershell
+        run: |
           cd \repo
           conda activate idaes
           cd idaes\generic_models
           pytest
 
-#      - name "Test Power Models"
-#        shell powershell
-#        run |
+#      - name: "Test Power Models"
+#        shell: powershell
+#        run: |
 #          cd \repo
 #          conda activate idaes
 #          cd idaes\power_generation
