@@ -1,4 +1,4 @@
-name: test_ubuntu2004
+name: test_windows
 
 on: [workflow_dispatch]
 
