@@ -1,4 +1,4 @@
-FROM ubuntu1910_idaes_build:latest
+FROM eslickj/idaes-ext-ubuntu1910-build:latest
 
 ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master

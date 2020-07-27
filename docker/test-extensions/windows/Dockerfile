@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows:1909
+FROM eslickj/idaes-ext-windows-test:latest
 
 ARG repo=https://github.com/idaes/idaes-pse.git
 ARG branch=master

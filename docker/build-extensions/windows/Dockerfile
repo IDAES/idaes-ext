@@ -1,4 +1,4 @@
-FROM windows_idaes_build:latest
+FROM eslickj/idaes-ext-windows-build:latest
 
 ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master
