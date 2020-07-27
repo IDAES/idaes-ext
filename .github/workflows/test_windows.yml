@@ -1,0 +1,10 @@
+name: test_ubuntu2004
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: ./docker/test-extensions/windows
