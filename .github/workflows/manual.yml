@@ -15,4 +15,4 @@ jobs:
     steps:
       - name: "tests on centos6"
         id: centos6
-        uses: eslickj/idaes-ext/test-centos6@master
+        uses: eslickj/idaes-ext/docker/test-extensions/centos6@master
