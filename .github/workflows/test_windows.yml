@@ -8,18 +8,20 @@ jobs:
     steps:
       - name: "Install Miniconda"
         shell: powershell
-        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; \
-          cmd /c %UserProfile%\Miniconda3\condabin\conda.bat init; \
-          cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          cmd /c %UserProfile%\Miniconda3\condabin\conda.bat init
+          cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest"
 
       - name: "Clone IDAES-PSE"
         shell: powershell
-        run: mkdir C:\repo; \
-          cd \repo; \
-          conda activate idaes; \
-          git clone $Env:repo;\
-          cd idaes-pse; \
-          git checkout $env:branch; \
-          pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt; \
-          pip install -e .; \
+        run: |
+          mkdir C:\repo
+          cd \repo
+          conda activate idaes
+          git clone $Env:repo
+          cd idaes-pse
+          git checkout $env:branch
+          pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+          pip install -e .
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
