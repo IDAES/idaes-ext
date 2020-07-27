@@ -1,7 +1,7 @@
 FROM eslickj/idaes-ext-centos6-build:latest
 
 ARG repo=https://github.com/idaes/idaes-ext.git
-ARG branch=master
+ARG branch=main
 
 COPY ./extras/ /repo/
 

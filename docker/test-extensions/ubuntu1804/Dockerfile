@@ -1,6 +1,6 @@
 FROM eslickj/idaes-ext-ubuntu1804-test:latest
 
-ARG repo=https://github.com/idaes/idaes-ext.git
+ARG repo=https://github.com/idaes/idaes-pse.git
 ARG branch=master
 
 RUN cd repo; \
@@ -24,6 +24,6 @@ RUN cd repo; \
     cd ./generic_models; \
     pytest; \
     cd ../core; \
-    pytest; \
-    cd ../power_generation; \
     pytest
+    #cd ../power_generation; \
+    #pytest

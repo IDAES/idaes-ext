@@ -24,6 +24,6 @@ RUN cd repo; \
     cd ./generic_models; \
     pytest; \
     cd ../core; \
-    pytest; \
-    cd ../power_generation; \
     pytest
+    #cd ../power_generation; \
+    #pytest
