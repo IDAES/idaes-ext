@@ -3,8 +3,6 @@ FROM eslickj/idaes-ext-ubuntu1804-test:latest
 ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master
 
-COPY ./extras/ /repo/
-
 RUN cd repo; \
     eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
     git clone ${repo}; \
@@ -15,7 +13,7 @@ RUN cd repo; \
     conda activate idaes; \
     pip install -e .; \
     cd ..; \
-    idaes get-extensions --url file:////repo/ --platform ubuntu1804
+    idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ubuntu1804
 
 RUN cd repo; \
     eval "$(/root/miniconda/bin/conda shell.bash hook)"; \

@@ -31,8 +31,6 @@ ELSE{
   exit 1
 }
 
-xcopy /y /E extras ${flavor}\extras\
-
 cd ${flavor}
 docker build --rm ${buildarg_1} --build-arg repo=${repo} --build-arg branch=${branch} -t ${flavor}_idaes_test_itmp .
 Remove-Item extras -Recurse -Force -Confirm:$false
