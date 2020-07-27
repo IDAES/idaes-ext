@@ -16,7 +16,7 @@ jobs:
           cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest
 
       - name: "Clone IDAES-PSE"
-        shell: powershell
+        shell: cmd
         run: |
           conda activate idaes
           git clone https://github.com/idaes/idaes-pse.git
@@ -27,7 +27,7 @@ jobs:
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
 
       - name: "Test Solvers"
-        shell: powershell
+        shell: cmd
         run: |
           conda activate idaes
           cd idaes-pse\idaes
@@ -35,7 +35,7 @@ jobs:
           pytest tests\test_ipopt.py
 
       - name: "Test Generic Models"
-        shell: powershell
+        shell: cmd
         run: |
           cd \repo
           conda activate idaes
@@ -43,7 +43,7 @@ jobs:
           pytest
 
 #      - name: "Test Power Models"
-#        shell: powershell
+#        shell: cmd
 #        run: |
 #          cd \repo
 #          conda activate idaes
