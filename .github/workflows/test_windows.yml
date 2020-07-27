@@ -6,5 +6,20 @@ jobs:
   test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@main
-      - uses: ./docker/test-extensions/windows
+      - name: "Install Miniconda"
+        shell: powershell
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+        run: cmd /c %UserProfile%\Miniconda3\condabin\conda.bat init
+        run: cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest
+
+      - name: "Clone IDAES-PSE"
+        shell: powershell
+        run: mkdir C:\repo
+        run: cd \repo; \
+          conda activate idaes; \
+          git clone $Env:repo;\
+          cd idaes-pse; \
+          git checkout $env:branch; \
+          pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt; \
+          pip install -e .; \
+          idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
