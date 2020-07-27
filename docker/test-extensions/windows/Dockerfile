@@ -7,10 +7,6 @@ SHELL ["powershell", "-command"]
 
 WORKDIR c:/windows/temp
 
-RUN Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-RUN cmd /c %UserProfile%\Miniconda3\condabin\conda.bat init
-RUN cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest
-
 RUN cd \repo; \
     conda activate idaes; \
     git clone $Env:repo;\
