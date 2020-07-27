@@ -20,24 +20,28 @@ CentOS 7
 CentOS 8
 --------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_centos8/badge.svg)
+
 
 Ubuntu 18.04
 ------------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_ubuntu1804/badge.svg)
+
 
 Ubuntu 19.10
 ------------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_ubuntu1910/badge.svg)
+
 
 Ubuntu 20.04
 ------------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_ubuntu2004/badge.svg)
+
 
 Windows
 -------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_windows/badge.svg)
