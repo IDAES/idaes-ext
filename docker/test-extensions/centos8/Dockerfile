@@ -1,4 +1,4 @@
-FROM centos8_idaes_test:latest
+FROM eslickj/idaes-ext-centos8-test:latest
 
 ARG repo=https://github.com/idaes/idaes-pse.git
 ARG branch=master

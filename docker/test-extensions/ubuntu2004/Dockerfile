@@ -1,4 +1,4 @@
-FROM ubuntu2004_idaes_test:latest
+FROM eslickj/idaes-ext-ubuntu2004-test:latest
 
 ARG repo=https://github.com/idaes/idaes-pse.git
 ARG branch=master
