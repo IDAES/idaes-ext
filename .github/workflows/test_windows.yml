@@ -15,7 +15,7 @@ jobs:
           cmd /c %UserProfile%\Miniconda3\condabin\conda.bat init
           cmd /c conda create -n idaes python=3.7.4 pip psutil git pytest
 
-      - name: "Clone IDAES-PSE"
+      - name: "Clone/Install IDAES-PSE"
         shell: cmd
         run: |
           conda activate idaes
