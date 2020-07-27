@@ -16,3 +16,5 @@ jobs:
       - name: "tests on centos6"
         id: centos6
         uses: eslickj/idaes-ext/docker/test-extensions/centos6@master
+        with:
+          max_attempts: 1

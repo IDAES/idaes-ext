@@ -1,5 +1,0 @@
-name: 'Test CentOS 6'
-description: 'Test IDAES binary distribution on CentOS 6'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
