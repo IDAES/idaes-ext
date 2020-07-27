@@ -1,0 +1,13 @@
+name: test_centos6
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "docker build"
+        id: dockerbuild
+        uses: eslickj/idaes-ext/docker/test-extensions/centos6@master
+        with:
+          max_attempts: 1

@@ -10,12 +10,12 @@ Released binaries will have passed testing.
 CentOS 6
 --------
 
-![Run Tests](https://github.com/eslickj/idaes-ext/workflows/Run%20Tests/badge.svg)
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_centos6/badge.svg)
 
 CentOS 7
 --------
 
-Coming soon...
+![Run Tests](https://github.com/eslickj/idaes-ext/workflows/test_centos7/badge.svg)
 
 CentOS 8
 --------
