@@ -18,7 +18,7 @@ jobs:
       - name: "Clone IDAES-PSE"
         shell: powershell
         run: |
-          mkdir C:\repo
+          mkdir \repo
           cd \repo
           conda activate idaes
           git clone $Env:repo
