@@ -18,8 +18,6 @@ jobs:
       - name: "Clone IDAES-PSE"
         shell: powershell
         run: |
-          mkdir \repo
-          cd \repo
           conda activate idaes
           git clone https://github.com/idaes/idaes-pse.git
           cd idaes-pse
@@ -31,9 +29,8 @@ jobs:
       - name: "Test Solvers"
         shell: powershell
         run: |
-          cd \repo
           conda activate idaes
-          cd idaes
+          cd idaes-pse\idaes
           pytest tests\test_have_pynumero.py
           pytest tests\test_ipopt.py
 
@@ -42,7 +39,7 @@ jobs:
         run: |
           cd \repo
           conda activate idaes
-          cd idaes\generic_models
+          cd idaes-pse\idaes\generic_models
           pytest
 
 #      - name: "Test Power Models"
