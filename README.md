@@ -2,6 +2,10 @@
 
 This repository hosts IDAES binary extensions.  These extensions include solvers and function libraries.  These binary extensions are intended for use with the IDAES Process Modeling Framework https://github.com/IDAES/idaes-pse.
 
+## Testing
+
+Latest binary test results are [here](test_status.md). The results are just for the latest testing release.  All othere released binaries were tested and work with the corresonding IDEAS-PSE release.
+
 ## Getting Extensions
 
 If you have the IDAES framework installed, you can get the extensions by running the following command:
