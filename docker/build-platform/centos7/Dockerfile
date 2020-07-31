@@ -8,5 +8,3 @@ RUN yum -y install epel-release
 RUN yum -y install cmake3
 RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
 RUN mkdir repo
-
-ENTRYPOINT ["/bin/bash"]

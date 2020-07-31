@@ -9,5 +9,3 @@ RUN apt-get -y update; \
 RUN apt-get -y install gfortran libboost-all-dev cmake
 RUN apt-get -y install pkg-config
 RUN mkdir repo
-
-ENTRYPOINT ["/bin/bash"]
