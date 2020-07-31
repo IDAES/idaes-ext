@@ -1,0 +1,12 @@
+name: test_centos6_refactor.py
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: eslickj/idaes-ext-centos6-test:latest
+    steps:
+      - name: Install IDAES-PSE
+        run: uname -a
