@@ -6,5 +6,3 @@ RUN apt-get -y update; \
 
 RUN apt-get -y install gfortran libboost-all-dev cmake
 RUN mkdir repo
-
-ENTRYPOINT ["/bin/bash"]

@@ -8,5 +8,3 @@ RUN yum -y install dnf-plugins-core
 RUN yum config-manager --set-enabled PowerTools
 RUN dnf --enablerepo=PowerTools -y install lapack-devel
 RUN mkdir repo
-
-ENTRYPOINT ["/bin/bash"]
