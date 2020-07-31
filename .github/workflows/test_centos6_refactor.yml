@@ -14,7 +14,7 @@ jobs:
           docker run eslickj/idaes-ext-centos6-test:latest bash -c \
             cd repo; \
             eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
-            git clone ${repo}; \
+            git clone https://github.com/idaes/idaes-pse.git; \
             cd idaes-pse; \
             git checkout ${branch}; \
             echo "cloned repo"; \
