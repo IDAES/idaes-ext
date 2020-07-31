@@ -8,10 +8,10 @@ jobs:
     steps:
       - uses: docker://eslickj/idaes-ext-centos6-test:latest
       - name: Check OS
-        run: cat /etc/redhat-release
+        run: docker run eslickj/idaes-ext-centos6-test:latest cat /etc/redhat-release
       - name: Install IDAES-PSE
         run: |
-          bash -c \
+          docker run eslickj/idaes-ext-centos6-test:latest bash -c \
             cd repo; \
             eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
             git clone ${repo}; \
