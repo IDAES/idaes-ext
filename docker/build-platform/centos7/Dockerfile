@@ -7,8 +7,6 @@ RUN yum -y install wget unzip patch which file lapack-devel blas-devel
 RUN yum -y install epel-release
 RUN yum -y install cmake3
 RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
-
-##
-# Pull down the repo
-##
 RUN mkdir repo
+
+ENTRYPOINT ["/bin/bash"]

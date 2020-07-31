@@ -5,8 +5,6 @@ RUN apt-get -y update; \
     apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
 
 RUN apt-get -y install gfortran libboost-all-dev cmake
-
-##
-# Pull down the repo
-##
 RUN mkdir repo
+
+ENTRYPOINT ["/bin/bash"]
