@@ -6,6 +6,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: eslickj/idaes-ext-centos6-test:latest
+      - uses: docker://eslickj/idaes-ext-centos6-test:latest
       - name: Install IDAES-PSE
         run: uname -a
