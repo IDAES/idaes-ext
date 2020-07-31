@@ -29,29 +29,24 @@ jobs:
           - name: "Test Have Solvers"
             run: |
               docker run eslickj/idaes-ext-centos6-test:latest bash -c '
-                cd repo
+                cd repo/idaes-pse/idaes
                 eval "$(/root/miniconda/bin/conda shell.bash hook)"
                 conda activate idaes
-                cd idaes-pse\idaes
-                pytest tests\test_have_pynumero.py
-                pytest tests\test_ipopt.py'
+                pytest tests/test_have_pynumero.py
+                pytest tests/test_ipopt.py'
 
           - name: "Test Core"
             run: |
               docker run eslickj/idaes-ext-centos6-test:latest bash -c '
-                cd repo
+                cd repo/idaes-pse/idaes/core
                 eval "$(/root/miniconda/bin/conda shell.bash hook)"
-                cd \repo
                 conda activate idaes
-                cd idaes-pse\idaes\core
                 pytest'
 
           - name: "Test Generic Models"
             run: |
               docker run eslickj/idaes-ext-centos6-test:latest bash -c '
-                cd repo
+                cd repo/idaes-pse/idaes/generic_models
                 eval "$(/root/miniconda/bin/conda shell.bash hook)"
-                cd \repo
                 conda activate idaes
-                cd idaes-pse\idaes\generic_models
                 pytest'
