@@ -7,5 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: docker://eslickj/idaes-ext-centos6-test:latest
+      - name: Check OS
+        run: cat /etc/redhat-release
       - name: Install IDAES-PSE
-        run: uname -a
+        run: |
+          bash -c \
+            cd repo; \
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"; \
+            git clone ${repo}; \
+            cd idaes-pse; \
+            git checkout ${branch}; \
+            echo "cloned repo"; \
+            conda create -n idaes python=3.7.4 pip psutil; \
+            conda activate idaes; \
+            pip install -e .; \
+            cd ..; \
+            idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform centos6
