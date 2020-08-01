@@ -8,52 +8,45 @@ jobs:
     steps:
       - uses: docker://eslickj/idaes-ext-centos6-test:latest
 
+      - name: Start Docker container
+        run: docker run -it eslickj/idaes-ext-centos6-test:latest bash
+
       - name: Check OS
-        run: docker run eslickj/idaes-ext-centos6-test:latest cat /etc/redhat-release
+        run: cat /etc/redhat-release
+
+      - name: Set up to run Conda
+        run: |
+          eval "$(/root/miniconda/bin/conda shell.bash hook)"
+          cd /repo
+          conda create -n idaes python=3.7.4 pip psutil
+          conda activate idaes
 
       - name: "Install IDAES-PSE"
         run: |
-          docker run eslickj/idaes-ext-centos6-test:latest bash -c '
-            cd repo
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            git clone https://github.com/idaes/idaes-pse.git
-            cd idaes-pse
-            git checkout master
-            echo "cloned repo"
-            conda create -n idaes python=3.7.4 pip psutil
-            conda activate idaes
-            pip install -e .
-            idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform centos6'
+          git clone https://github.com/idaes/idaes-pse.git
+          cd idaes-pse
+          git checkout master
+          pip install -e .
+          idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform centos6
 
       - name: "Test Have Pynumero"
         run: |
-          docker run eslickj/idaes-ext-centos6-test:latest bash -c '
             cd /repo/idaes-pse/idaes
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
             pytest tests/test_have_pynumero.py
-            pytest tests/test_ipopt.py'
 
       - name: "Test Have Ipopt"
         run: |
-          docker run eslickj/idaes-ext-centos6-test:latest bash -c '
-            cd /repo/idaes-pse/idaes
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest tests/test_ipopt.py'
+            pytest tests/test_ipopt.py
 
       - name: "Test Core"
         run: |
-          docker run eslickj/idaes-ext-centos6-test:latest bash -c '
             cd /repo/idaes-pse/idaes/core
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest'
+            pytest
 
       - name: "Test Generic Models"
         run: |
-          docker run eslickj/idaes-ext-centos6-test:latest bash -c '
             cd /repo/idaes-pse/idaes/generic_models
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest'
+            pytest
+
+      - name: "Exit Docker Container"
+        run: exit
