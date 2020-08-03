@@ -21,7 +21,7 @@ jobs:
       - name: Install IDAES
         run: |
            docker exec test /bin/bash -c 'cd repo
-            eval \"$(/root/miniconda/bin/conda shell.bash hook)\"
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"
             git clone https://github.com/idaes/idaes-pse.git
             cd idaes-pse
             git checkout master
@@ -37,7 +37,7 @@ jobs:
         run: |
           docker exec test /bin/bash -c '
             cd /repo/idaes-pse/idaes
-            eval \"$(/root/miniconda/bin/conda shell.bash hook)\"
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
             pytest tests/test_have_pynumero.py'
 
@@ -45,7 +45,7 @@ jobs:
         run: |
           docker exec test /bin/bash -c '
             cd /repo/idaes-pse/idaes
-            eval \"$(/root/miniconda/bin/conda shell.bash hook)\"
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
             pytest tests/test_ipopt.py'
 
@@ -53,7 +53,7 @@ jobs:
         run: |
           docker exec test /bin/bash -c '
             cd /repo/idaes-pse/idaes/core
-            eval \"$(/root/miniconda/bin/conda shell.bash hook)\"
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
             pytest
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           docker exec test /bin/bash -c '
             cd /repo/idaes-pse/idaes/generic_models
-            eval \"$(/root/miniconda/bin/conda shell.bash hook)\"
+            eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
             pytest
 
