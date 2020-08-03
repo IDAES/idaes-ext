@@ -55,7 +55,7 @@ jobs:
             cd /repo/idaes-pse/idaes/core
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
-            pytest
+            pytest'
 
       - name: "Test Generic Models"
         run: |
@@ -63,7 +63,7 @@ jobs:
             cd /repo/idaes-pse/idaes/generic_models
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
-            pytest
+            pytest'
 
       - name: "Stop Docker"
         run: docker stop test
