@@ -15,8 +15,6 @@ jobs:
           - docker_image: eslickj/idaes-ext-centos7-test:latest
             bin_platform: centos7
     steps:
-      - uses: docker://${{ matrix.docker_image }}
-
       - name: Start Docker Container
         run: docker run --name test -d -i ${{ matrix.docker_image }} /bin/bash
 
