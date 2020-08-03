@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        docker_image: []
+        bin_platform: []
         include:
           - docker_image: eslickj/idaes-ext-centos6-test:latest
             bin_platform: centos6
