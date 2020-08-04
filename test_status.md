@@ -15,6 +15,8 @@ Windows
 Linux
 -----
 
+Linux tests include CentOS 6, 7, and 8 and Ubuntu 18.04, 19.10, and 20.04.
+
 ![Test Linux](https://github.com/IDAES/idaes-ext/workflows/Test%20Linux/badge.svg)
 
 
