@@ -46,11 +46,11 @@ jobs:
 
       - name: Push Hashes
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
           git clone https://github.com/idaes/idaes-ext
           cd idaes-ext/releases
           cp ../../sha256sum_${RTAG}.txt ./
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add sha256sum_${RTAG}.txt
           git commit -m "Add release hashes"
           git push origin main
