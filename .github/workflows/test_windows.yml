@@ -1,4 +1,4 @@
-name: test_windows
+name: Test Windows
 
 on: [workflow_dispatch]
 
@@ -37,20 +37,20 @@ jobs:
       - name: "Test Core"
         shell: cmd
         run: |
-          cd \repo\idaes-pse\idaes\core
+          cd idaes-pse\idaes\core
           conda activate idaes
           pytest
 
       - name: "Test Generic Models"
         shell: cmd
         run: |
-          cd \repo\idaes-pse\idaes\generic_models
+          cd idaes-pse\idaes\generic_models
           conda activate idaes
           pytest
 
 #      - name: "Test Power Models"
 #        shell: cmd
 #        run: |
-#          cd \repo\idaes\power_generation
+#          cd idaes\power_generation
 #          conda activate idaes
 #          pytest
