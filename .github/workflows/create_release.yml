@@ -43,9 +43,11 @@ jobs:
           sha256sum idaes-solvers-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-windows-64.tar.gz >> sha256sum_${RTAG}.txt
-          
+
       - name: Push Hashes
         run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git clone https://github.com/idaes/idaes-ext
           cd idaes-ext/releases
           cp ../../sha256sum_${RTAG}.txt ./
