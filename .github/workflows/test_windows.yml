@@ -34,18 +34,23 @@ jobs:
           pytest tests\test_have_pynumero.py
           pytest tests\test_ipopt.py
 
+      - name: "Test Core"
+        shell: cmd
+        run: |
+          cd \repo\idaes-pse\idaes\core
+          conda activate idaes
+          pytest
+
       - name: "Test Generic Models"
         shell: cmd
         run: |
-          cd \repo
+          cd \repo\idaes-pse\idaes\generic_models
           conda activate idaes
-          cd idaes-pse\idaes\generic_models
           pytest
 
 #      - name: "Test Power Models"
 #        shell: cmd
 #        run: |
-#          cd \repo
+#          cd \repo\idaes\power_generation
 #          conda activate idaes
-#          cd idaes\power_generation
 #          pytest
