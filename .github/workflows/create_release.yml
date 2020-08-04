@@ -9,6 +9,8 @@ jobs:
       RTAG: testing  
 
     steps:
+      - uses: actions/checkout@v2
+        
       - name: Get Binaries
         run: |
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos6-64.tar.gz
@@ -43,3 +45,15 @@ jobs:
           sha256sum idaes-lib-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           
+      - name: Push Hashes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git clone https://github.com/idaes/idaes-ext
+          cd releases
+          cp ../sha256sum_${RTAG}.txt ./
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add sha256sum_${RTAG}.txt
+          git commit -m "Add release hashes"
+          git push origin main
