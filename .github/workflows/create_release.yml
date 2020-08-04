@@ -46,7 +46,7 @@ jobs:
           
       - name: Push Hashes
         run: |
-          git checkout https://github.com/idaes/idaes-ext
+          git clone https://github.com/idaes/idaes-ext
           cd idaes-ext/releases
           cp ../../sha256sum_${RTAG}.txt ./
           git add sha256sum_${RTAG}.txt
