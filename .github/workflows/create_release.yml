@@ -43,3 +43,13 @@ jobs:
           sha256sum idaes-solvers-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-windows-64.tar.gz >> sha256sum_${RTAG}.txt
+          
+      - name: Push Hashes
+        run: |
+          git checkout https://githuh.com/idaes/idaes-ext
+          cd idaes-ext/releases
+          cp ../../sha256sum_${RTAG}.txt ./
+          git add sha256sum_${RTAG}.txt
+          git commit -m "Add release hashes"
+          git push origin main
+          
