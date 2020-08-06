@@ -26,7 +26,7 @@ jobs:
       - name: Start Docker Container
         run: docker run --name test -d -i ${{ matrix.docker_image }} /bin/bash
 
-      - name: Install IDAES
+      - name: Install IDAES-PSE
         run: |
            docker exec test /bin/bash -c 'cd repo
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
@@ -38,40 +38,10 @@ jobs:
             pip install -e .
             idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ${{ matrix.bin_platform }}'
 
-      - name: Check OS
-        run: docker exec test /bin/bash -c cat /etc/redhat-release
-
-      - name: "Test Have Pynumero"
+      - name: Test IDAES-PSE
         run: |
           docker exec test /bin/bash -c '
             cd /repo/idaes-pse/idaes
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
             conda activate idaes
-            pytest tests/test_have_pynumero.py'
-
-      - name: "Test Have Ipopt"
-        run: |
-          docker exec test /bin/bash -c '
-            cd /repo/idaes-pse/idaes
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest tests/test_ipopt.py'
-
-      - name: "Test Core"
-        run: |
-          docker exec test /bin/bash -c '
-            cd /repo/idaes-pse/idaes/core
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest'
-
-      - name: "Test Generic Models"
-        run: |
-          docker exec test /bin/bash -c '
-            cd /repo/idaes-pse/idaes/generic_models
-            eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            conda activate idaes
-            pytest'
-
-      - name: "Stop Docker"
-        run: docker stop test
+            pytest
