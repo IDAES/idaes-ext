@@ -1,4 +1,4 @@
-name: Test Windows
+name: Test Windows Release
 
 on: [workflow_dispatch]
 
