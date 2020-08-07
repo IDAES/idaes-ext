@@ -11,7 +11,7 @@ jobs:
         run: |
           git clone https://github.com/idaes/idaes-pse.git
           cd idaes-pse
-          git checkout master
+          git checkout 1.6_rel
           pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
           pip install -e .
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
