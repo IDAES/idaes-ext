@@ -6,7 +6,7 @@ jobs:
   test:
     runs-on: windows-latest
     steps:
-      - name: "Clone/Install IDAES-PSE"
+      - name: "Install IDAES-PSE"
         shell: cmd
         run: |
           pip install idaes-pse
@@ -15,5 +15,4 @@ jobs:
       - name: "Test IDAES-PSE"
         shell: cmd
         run: |
-          cd idaes-pse\idaes
           pytest --pyargs idaes -W ignore
