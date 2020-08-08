@@ -1,4 +1,4 @@
-name: Windows Test IDAES-PSE Latest PyPI Release
+name: Windows Test IDAES-PSE PyPI
 
 on: [workflow_dispatch]
 
