@@ -1,4 +1,4 @@
-name: Test Linux
+name: Linux Test IDAES-PSE Main
 
 on: [workflow_dispatch]
 
