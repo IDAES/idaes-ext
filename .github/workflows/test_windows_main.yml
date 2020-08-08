@@ -1,4 +1,4 @@
-name: Test Windows
+name: Windows Test IDAES-PSE Main
 
 on: [workflow_dispatch]
 
