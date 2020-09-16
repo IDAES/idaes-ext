@@ -99,9 +99,9 @@ cd k_aug
 git checkout $K_AUG_BRANCH
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  cmake -DLINK_DLOPEN=OFF -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ -G"MSYS Makefiles" .
+  cmake -DLINK_DLOPEN=OFF -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
-  cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ .
+  cmake -DCMAKE_C_COMPILER=gcc .
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
