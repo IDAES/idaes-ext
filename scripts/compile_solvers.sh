@@ -60,7 +60,7 @@ sed s/"(PLAT)"/${osname}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 
 
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
     # Winodws MinGW linked libraries
     cp /mingw64/bin/libstdc++-6.dll ./
