@@ -35,8 +35,14 @@ a distribution license. All technical papers, sales and publicity material resul
 must contain the following acknowledgement: HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk. The Ipopt source code for IDAES was modified only to add additional messages as required by the HSL
 distribution license.  The modified Ipopt code is available here https://github.com/IDAES/Ipopt/tree/idaes-3.12.13.
 
+A build Pynumero-ASL is included, see https://github.com/Pyomo/pyomo/tree/master/pyomo/contrib/pynumero.  The Pynumero build specifically excludes the HSL functions.
+
+A build of k\_aug is included that used the HSL ma57 linear solver, for which the IDAES project has obtained a distribution license.  For more information on, k\_aug see https://github.com/dthierry/k_aug.   
+
 See https://github.com/IDAES/idaes-ext/blob/master/license.txt for additional information on third-party code contained
 in the binaries.
+
+
 
 ## Building
 
@@ -54,7 +60,7 @@ To build the IDAES binaries.
 
 ### Windows and Linux
 
-Refer to the Dockerfiles. 
+Refer to the Dockerfiles.
 
 ### OSX
 

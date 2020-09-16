@@ -11,6 +11,15 @@ export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="master"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
+export K_AUG_BRANCH="ma57"
+export K_AUG_REPO="https://github.com/dthierry/k_aug"
+
+# Work-around for mumps gcc v10 gfortran bug
+export GCC_VERSION=`gcc -dumpversion`
+if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
+  export FCFLAGS="-w -fallow-argument-mismatch -O2"
+  export FFLAGS="-w -fallow-argument-mismatch -O2"
+fi
 
 mkdir coinbrew
 cd coinbrew
@@ -51,13 +60,13 @@ sed s/"(PLAT)"/${osname}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 
 
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
     # Winodws MinGW linked libraries
     cp /mingw64/bin/libstdc++-6.dll ./
     cp /mingw64/bin/libgcc_s_seh-1.dll ./
     cp /mingw64/bin/libwinpthread-1.dll ./
-    cp /mingw64/bin/libgfortran-4.dll ./
+    cp /mingw64/bin/libgfortran-*.dll ./
     cp /mingw64/bin/libquadmath-0.dll ./
     cp /mingw64/bin/libgomp-1.dll ./
     cp /mingw64/bin/liblapack.dll ./
@@ -73,17 +82,31 @@ git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
 mkdir build
 cd build
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
-  cmake -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
+  cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
-  cmake .. -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
+  cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
 make
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
-#cp sparse_utils/libpynumero_SPARSE* $IDAES_EXT/dist-lib
-cd $IDAES_EXT/dist-solvers
+
+# Compile k_aug
+cd $IDAES_EXT
+git clone $K_AUG_REPO
+cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
+cd k_aug
+git checkout $K_AUG_BRANCH
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+then
+  cmake -DLINK_DLOPEN=OFF -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
+else
+  cmake -DCMAKE_C_COMPILER=gcc .
+fi
+make
+cp bin/k_aug* $IDAES_EXT/dist-solvers
 
 # here you pack files
+cd $IDAES_EXT/dist-solvers
 tar -czvf idaes-solvers-${osname}-64.tar.gz *
 echo "HSL Present: ${with_hsl}"

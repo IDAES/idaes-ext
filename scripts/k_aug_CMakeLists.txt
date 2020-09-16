@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.5)
+project(k_aug C)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "-g -Wall -ansi -pedantic-errors -W")
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
+set(PRINT_VERBOSE 1)
+option(LINK_DLOPEN "Link dlopen?" ON)
+
+configure_file("${PROJECT_SOURCE_DIR}/src/common/config_kaug.h.in" "${PROJECT_SOURCE_DIR}/config_kaug.h")
+
+include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or)
+include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or/hsl)
+include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or/asl)
+
+find_library(COINASL NAMES asl coinasl HINTS ../coinbrew/dist/lib REQUIRED)
+find_library(COINHSL NAMES coinhsl HINTS ../coinbrew/dist/lib REQUIRED)
+find_library(COINMETIS NAMES metis coinmetis HINTS ../coinbrew/dist/lib REQUIRED)
+find_library(BLAS NAMES blas HINTS REQUIRED)
+find_library(LAPACK NAMES lapack HINTS REQUIRED)
+
+set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/assemble_rhs_dcdp.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/assemble_rhs_rh.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/csr_driver.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/dot_driver.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/find_inequalities.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/get_jac_asl_aug.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/get_hess_asl_aug.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/inertia_strategy.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/mu_adjust_primal.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/sigma_compute.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/suffix_decl_hand.c
+        ${PROJECT_SOURCE_DIR}/src/interfaces/hsl/mc19_driver.c
+        ${PROJECT_SOURCE_DIR}/src/interfaces/hsl/ma57_driver.c
+        ${PROJECT_SOURCE_DIR}/src/matrix/dsyev_driver.c
+        ${PROJECT_SOURCE_DIR}/src/matrix/dpotri_driver.c)
+
+add_executable(k_aug ${SRC_FILES})
+add_executable(dot_sens src/k_aug/dot_driver/dot_driver.c)
+
+if (LINK_DLOPEN)
+  target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m dl)
+  target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m dl)
+else (LINK_DLOPEN)
+  target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m)
+  target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m)
+endif (LINK_DLOPEN)
+
+set_target_properties( k_aug
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
