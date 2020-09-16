@@ -15,8 +15,11 @@ export K_AUG_BRANCH="ma57"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
 
 # Work-around for mumps gcc v10 gfortran bug
-export FCFLAGS="-w -fallow-argument-mismatch -O2"
-export FFLAGS="-w -fallow-argument-mismatch -O2"
+export GCC_VERSION=`gcc -dumpversion`
+if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
+  export FCFLAGS="-w -fallow-argument-mismatch -O2"
+  export FFLAGS="-w -fallow-argument-mismatch -O2"
+fi
 
 mkdir coinbrew
 cd coinbrew
@@ -80,7 +83,7 @@ git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
 mkdir build
 cd build
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
