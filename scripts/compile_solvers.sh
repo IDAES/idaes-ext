@@ -12,7 +12,7 @@ export IPOPT_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="master"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="ma57"
-export K_AUG_REPO="git clone https://github.com/dthierry/k_aug"
+export K_AUG_REPO="https://github.com/dthierry/k_aug"
 
 mkdir coinbrew
 cd coinbrew
@@ -87,14 +87,14 @@ cp libpynumero_ASL* $IDAES_EXT/dist-solvers
 # Compile k_aug
 cd $IDAES_EXT
 git clone $K_AUG_REPO
-cp ./scripts/k_aug_CMakeLists.txt ./k_aug/
+cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
 cd k_aug
 git checkout $K_AUG_BRANCH
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ -G"MSYS Makefiles" k_aug_CMakeLists.txt
+  cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ -G"MSYS Makefiles" .
 else
-  cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ k_aug_CMakeLists.txt
+  cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_LINKER=g++ .
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
