@@ -38,8 +38,8 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
 add_executable(k_aug ${SRC_FILES})
 add_executable(dot_sens src/k_aug/dot_driver/dot_driver.c)
 
-target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m)
-target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m)
+target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} dl gfortran m)
+target_link_libraries(dot_sens ${COINASL} ${BLAS} dl gfortran m)
 
 set_target_properties( k_aug
         PROPERTIES
