@@ -1,8 +1,8 @@
 $flavor = $args[0]
 $buildarg_1 = $args[1]  # just use this to pass in --no-cache or some such
 
-$repo = "https://github.com/idaes/idaes-ext.git"
-$branch = "master"
+$repo = "https://github.com/eslickj/idaes-ext.git"
+$branch = "main"
 
 IF ($flavor -eq "windows"){
   $wdir = "c:/repo"

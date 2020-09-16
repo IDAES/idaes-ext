@@ -14,6 +14,10 @@ export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="ma57"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
 
+# Work-around for mumps gcc v10 gfortran bug
+export FCFLAGS="-w -fallow-argument-mismatch -O2"
+export FFLAGS="-w -fallow-argument-mismatch -O2"
+
 mkdir coinbrew
 cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
