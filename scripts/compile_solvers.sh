@@ -77,7 +77,6 @@ fi
 
 cd $IDAES_EXT
 git clone $PYNU_REPO
-patch pyomo/pyomo/contrib/pynumero/src/CMakeLists.txt < scripts/pynumero_cmake.diff
 cd pyomo
 git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
