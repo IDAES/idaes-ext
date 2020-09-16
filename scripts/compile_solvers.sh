@@ -74,6 +74,7 @@ fi
 
 cd $IDAES_EXT
 git clone $PYNU_REPO
+patch pyomo/pyomo/contrib/pynumero/src/CMakeLists.txt < scripts/pynumero_cmake.diff
 cd pyomo
 git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
@@ -81,9 +82,9 @@ mkdir build
 cd build
 if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
 then
-  cmake -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
+  cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
-  cmake .. -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
+  cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
 make
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
