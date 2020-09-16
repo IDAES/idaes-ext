@@ -97,7 +97,7 @@ git clone $K_AUG_REPO
 cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
 cd k_aug
 git checkout $K_AUG_BRANCH
-if [ "$(expr substr $(uname -s) 1 7)" == "MINGW64" ]
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DLINK_DLOPEN=OFF -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
