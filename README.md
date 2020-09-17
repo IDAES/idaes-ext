@@ -14,19 +14,23 @@ If you have the IDAES framework installed, you can get the extensions by running
 idaes get-extensions
 ```
 
+You can get a particular release tag (2.1.1 and higher) by providing a release tag:
+
+```sh
+idaes get-extensions --release <tag>
+```
+
 You can also download a particular release of the extensions by providing a URL:
 
 ```sh
 idaes get-extensions --url <url>
 ```
 
-To get a build for a particular platform, there is a platform option:
+To get a build for a particular platform, there is a platform option. The get-extensions command can detect operating system and common Linux distributions, so specifying a platform is rarely required. Current platform options are: centos6, centos7, centos8, rhel6, rhel7, rhel8, ubuntu1804, ubuntu1910, ubuntu2004, windows, and darwin. Darwin (Mac) is not currently available, but will be soon.  Currently, if no platform is specified or detected on Linux, the "centos7" build will be used.
 
 ```sh
 idaes get-extensions --platform <platform>
 ```
-
-Current platform options are: centos6, centos7, centos8, rhel6, rhel7, rhel8, ubuntu1804, ubuntu1910, ubuntu2004, windows, and darwin.  Darwin (Mac) is not currently available, but will be soon.  Currently if no platform is specified on Linux, the "centos7" build will be used.
 
 ## Contents
 
