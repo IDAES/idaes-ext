@@ -105,6 +105,7 @@ else
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
+cp dot_sens* $IDAES_EXT/dist-solvers
 
 # here you pack files
 cd $IDAES_EXT/dist-solvers
