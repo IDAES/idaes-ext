@@ -19,6 +19,10 @@ find_library(COINMETIS NAMES metis coinmetis HINTS ../coinbrew/dist/lib REQUIRED
 find_library(BLAS NAMES blas HINTS REQUIRED)
 find_library(LAPACK NAMES lapack HINTS REQUIRED)
 
+if (${OS} MATCHES "MINGW64")
+    set(USE_MINGW64 1)
+endif (${OS} MATCHES "MINGW64")
+
 set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/assemble_rhs_dcdp.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/assemble_rhs_rh.c
