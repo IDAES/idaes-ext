@@ -51,14 +51,14 @@ in the binaries.
 These build instructions require Windows since Windows can run both Linux and Windows docker containers.  You will also need to have Docker Desktop installed.
 
 1) Download the idaes-ext repository as a zip-file.  We suggest not cloning the repo when doing a build to avoid inadvertantly pushing back changes or files that shouldn't be there.
-2) Unzip the idaes-ext zip-file in a conventient location.
+2) Unzip the idaes-ext zip-file in a convenient location.
 3) Make sure Docker Desktop is in the appropriate mode, Linux or Windows, for the binaries to be built.
 4) In PowerShell, change to the directory ```idaes-ext\docker\build-extensions```
 5) Copy ```coinhsl.zip``` into the ```.\extras``` directory.
 6) Execute the build script, where *platform* is in {windows, ubuntu1804, ubuntu1910, ubuntu2004, centos6, centos7, centos8}.
   > .\build-windows.ps1 *platform* --no-cache
   
-The build scripts will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 3 and 6 for all paltforms.
+The build scripts will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 3 and 6 for all platforms.
 
 ## Releasing a New Version
 
