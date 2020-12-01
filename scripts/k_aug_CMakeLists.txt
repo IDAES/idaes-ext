@@ -5,7 +5,11 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-g -Wall -ansi -pedantic-errors -W")
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 set(PRINT_VERBOSE 1)
-option(LINK_DLOPEN "Link dlopen?" ON)
+option(WITH_MINGW "MinGW?" OFF)
+
+if (WITH_MINGW)
+  set(USE_MINGW64 1)
+endif (WITH_MINGW)
 
 configure_file("${PROJECT_SOURCE_DIR}/src/common/config_kaug.h.in" "${PROJECT_SOURCE_DIR}/config_kaug.h")
 
@@ -39,14 +43,13 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
 add_executable(k_aug ${SRC_FILES})
 add_executable(dot_sens src/k_aug/dot_driver/dot_driver.c)
 
-if (LINK_DLOPEN)
-  target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m dl)
-  target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m dl)
-else (LINK_DLOPEN)
-  set(USE_MINGW64 1)
+if (WITH_MINGW)
   target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m)
   target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m)
-endif (LINK_DLOPEN)
+else (WITH_MINGW)
+  target_link_libraries(k_aug ${COINASL} ${COINHSL} ${COINMETIS} ${LAPACK} ${BLAS} gfortran m dl)
+  target_link_libraries(dot_sens ${COINASL} ${BLAS} gfortran m dl)
+endif (WITH_MINGW)
 
 set_target_properties( k_aug
         PROPERTIES
