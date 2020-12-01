@@ -69,10 +69,11 @@ Once binaries have been compiled successfully for all platforms, they can be tes
 3) Add the newly created binary tar files to the "test-release" release.
 4) Go to the actions tab, and manually run the Linux and Windows test actions.
 5) Check the test results to ensure that the tests pass, or at least do not have any failures related to the binaries.
-6) Run the "Release From Tests" action.  This will calculate hashes for the tar-files and commit a file "sha256_testing.txt" containing the hash information to the "releases" directory in the "new_release_testing" branch.
-7) Rename the "sha256_testing.txt" by replacing testing with the tag to be used for the new release.
-8) Create a PR from the "new_release_testing" branch to the "main" branch.  This should just add the new hash file, and nothing else.
-9) Create the new release.  The tag should be the release number, for example "2.2.2".
-10) Upload the binary tar-files as artifacts to the newly created release.  These should be the same ones tested previously, and should match the calculated hashes.
-11) Update the default binary release tag in the IDAES-PSE repo.
+6) Delete the "new_release_testing" branch.
+7) Run the "Release From Tests" action.  This will calculate hashes for the tar-files and commit a file "sha256_testing.txt" containing the hash information to the "releases" directory in the "new_release_testing" branch.
+8) Rename the "sha256_testing.txt" by replacing testing with the tag to be used for the new release.
+9) Create a PR from the "new_release_testing" branch to the "main" branch.  This should just add the new hash file, and nothing else.
+10) Create the new release.  The tag should be the release number, for example "2.2.2".
+11) Upload the binary tar-files as artifacts to the newly created release.  These should be the same ones tested previously, and should match the calculated hashes.
+12) Update the default binary release tag in the IDAES-PSE repo.
 
