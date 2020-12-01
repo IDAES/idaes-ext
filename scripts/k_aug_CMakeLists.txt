@@ -29,6 +29,7 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/csr_driver.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/dot_driver.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/find_inequalities.c
+        ${PROJECT_SOURCE_DIR}/src/k_aug/get_grad_f.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/get_jac_asl_aug.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/get_hess_asl_aug.c
         ${PROJECT_SOURCE_DIR}/src/k_aug/inertia_strategy.c
@@ -38,7 +39,8 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/src/k_aug/main_.c
         ${PROJECT_SOURCE_DIR}/src/interfaces/hsl/mc19_driver.c
         ${PROJECT_SOURCE_DIR}/src/interfaces/hsl/ma57_driver.c
         ${PROJECT_SOURCE_DIR}/src/matrix/dsyev_driver.c
-        ${PROJECT_SOURCE_DIR}/src/matrix/dpotri_driver.c)
+        ${PROJECT_SOURCE_DIR}/src/matrix/dpotri_driver.c
+        )
 
 add_executable(k_aug ${SRC_FILES})
 add_executable(dot_sens src/k_aug/dot_driver/dot_driver.c)
