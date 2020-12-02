@@ -50,16 +50,31 @@ in the binaries.
 
 These build instructions require Windows since Windows can run both Linux and Windows docker containers.  You will also need to have Docker Desktop installed.
 
-1) Download the idaes-ext repository as a zip-file.  We suggest not cloning the repo when doing a build to avoid inadvertantly pushing back changes or files that shouldn't be there.
-2) Unzip the idaes-ext zip-file in a convenient location.
-3) Make sure Docker Desktop is in the appropriate mode, Linux or Windows, for the binaries to be built.
-4) In PowerShell, change to the directory ```idaes-ext\docker\build-extensions```
-5) Copy ```coinhsl.zip``` into the ```.\extras``` directory.
-6) Execute the build script, where *platform* is in {windows, ubuntu1804, ubuntu1910, ubuntu2004, centos6, centos7, centos8}.
+1) Update the version.txt file to the new release number if a new release will be created.
+2) Download the idaes-ext repository as a zip-file.  We suggest not cloning the repo when doing a build to avoid inadvertantly pushing back changes or files that shouldn't be there.
+3) Unzip the idaes-ext zip-file in a convenient location.
+4) Make sure Docker Desktop is in the appropriate mode, Linux or Windows, for the binaries to be built.
+5) In PowerShell, change to the directory ```idaes-ext\docker\build-extensions```
+6) Copy ```coinhsl.zip``` into the ```.\extras``` directory.
+7) Execute the build script, where *platform* is in {windows, ubuntu1804, ubuntu1910, ubuntu2004, centos6, centos7, centos8}.
   > .\build-windows.ps1 *platform* --no-cache
   
-The build scripts will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 3 and 6 for all platforms.
+The powershell script will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 3 and 6 for all platforms.
 
 ## Releasing a New Version
 
-Todo
+Once binaries have been compiled successfully for all platforms, they can be tested and released by the following procedure.  The eventual goal is to develop a GitHub Actions workflow to automatically do most of the release steps, but for now, many of the steps are manual.
+
+1) Go to releases and locate the "Prerelease Binary Testing" release with the tag "test-release."
+2) Edit the release to remove the tar-files from the previous release.
+3) Add the newly created binary tar files to the "test-release" release.
+4) Go to the actions tab, and manually run the Linux and Windows test actions.
+5) Check the test results to ensure that the tests pass, or at least do not have any failures related to the binaries.
+6) Delete the "new_release_testing" branch.
+7) Run the "Release From Tests" action.  This will calculate hashes for the tar-files and commit a file "sha256_testing.txt" containing the hash information to the "releases" directory in the "new_release_testing" branch.
+8) Rename the "sha256_testing.txt" by replacing testing with the tag to be used for the new release.
+9) Create a PR from the "new_release_testing" branch to the "main" branch.  This should just add the new hash file, and nothing else.
+10) Create the new release.  The tag should be the release number, for example "2.2.2".
+11) Upload the binary tar-files as artifacts to the newly created release.  These should be the same ones tested previously, and should match the calculated hashes.
+12) Update the default binary release tag in the IDAES-PSE repo.
+
