@@ -47,6 +47,9 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
+# This did not work.
+#bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --CC="gcc" --CCX="g++" --reconfigure
+# We can remove the --reconfigure
 bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
 
 cd $IDAES_EXT
@@ -86,7 +89,7 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
-  cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
+  cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++
 fi
 make
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
@@ -101,7 +104,13 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
-  cmake -DCMAKE_C_COMPILER=gcc .
+  # This is the original version
+  # cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER.
+  
+  # This is my hack to get macOS to work
+  cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_FORTRAN_COMPILER=/usr/local/bin/gfortran .
+  # cmake -DCMAKE_C_COMPILER=/usr/bin/gcc .  
+  
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
