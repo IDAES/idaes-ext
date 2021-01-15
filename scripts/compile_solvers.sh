@@ -108,7 +108,10 @@ else
   # cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER.
   
   # This is my hack to get macOS to work
-  cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_FORTRAN_COMPILER=/usr/local/bin/gfortran .
+  # cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_FORTRAN_COMPILER=/usr/local/bin/gfortran .
+  # cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_FORTRAN_COMPILER=/usr/local/bin/gfortran -DCMAKE_EXE_LINKER_FLAGS=/usr/bin/ld -DCMAKE_BUILD_TYPE=DEBUG .
+  cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_FORTRAN_COMPILER=/usr/local/bin/gfortran -DCMAKE_BUILD_TYPE=DEBUG .
+  # CC=gcc CCX=g++ F77=gfortran cmake . -DCMAKE_BUILD_TYPE=DEBUG
   # cmake -DCMAKE_C_COMPILER=/usr/bin/gcc .  
   
 fi
