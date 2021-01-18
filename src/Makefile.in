@@ -26,12 +26,12 @@ BOOST=$(BOOST_HEADER)
 # The last part is pretty standard, and specifies the C and C++ compilers as
 # well as the file remove and copy commands.
 
-CC = gcc
-CXX = g++
+CC = gcc-10
+CXX = g++-10
 RM = rm
 CP = cp
 MKDIR = mkdir
-LINK = g++
+LINK = g++-10
 
 ifeq ($(ASL),)
     #CFLAGS = -Wall -Wextra -O3 -static -fPIC -I/usr/local/Cellar/boost/1.74.0/include -static-libstdc++
