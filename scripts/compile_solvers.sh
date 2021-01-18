@@ -21,6 +21,13 @@ if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
   export FFLAGS="-w -fallow-argument-mismatch -O2"
 fi
 
+# Work-around for mumps gcc v12 gfortran bug
+# some reason this did not work on macOS
+if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
+  export FCFLAGS="-w -fallow-argument-mismatch -O2"
+  export FFLAGS="-w -fallow-argument-mismatch -O2"
+fi
+
 mkdir coinbrew
 cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
@@ -47,7 +54,7 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure --without-hsl CC="gcc-10" CXX="g++-10" F77="gfortran-10"
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure --without-hsl CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
 
 cd $IDAES_EXT
 mkdir dist-solvers
