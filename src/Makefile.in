@@ -34,9 +34,9 @@ MKDIR = mkdir
 LINK = g++
 
 ifeq ($(ASL),)
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I/usr/local/Cellar/boost/1.74.0/include
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I/usr/local/Cellar/boost/1.74.0/include -static-libstdc++
 else
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL) -I/usr/local/Cellar/boost/1.74.0/include
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL) -I/usr/local/Cellar/boost/1.74.0/include -static-libstdc++
 endif
 
 LDFLAGS = -shared

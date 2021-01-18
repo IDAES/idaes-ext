@@ -47,7 +47,7 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --reconfigure --without-hsl
 
 cd $IDAES_EXT
 mkdir dist-solvers
