@@ -50,7 +50,7 @@ fi
 # This did not work.
 #bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --CC="gcc" --CCX="g++" --reconfigure
 # We can remove the --reconfigure
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc"
 
 cd $IDAES_EXT
 mkdir dist-solvers
