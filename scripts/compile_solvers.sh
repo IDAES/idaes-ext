@@ -15,14 +15,8 @@ export K_AUG_BRANCH="ma57"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
 
 # Work-around for mumps gcc v10 gfortran bug
+# Some reason this did not work on macOS. That is b/c gcc points to the clang/XCode version.
 export GCC_VERSION=`gcc -dumpversion`
-if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
-  export FCFLAGS="-w -fallow-argument-mismatch -O2"
-  export FFLAGS="-w -fallow-argument-mismatch -O2"
-fi
-
-# Work-around for mumps gcc v12 gfortran bug
-# some reason this did not work on macOS
 if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
   export FCFLAGS="-w -fallow-argument-mismatch -O2"
   export FFLAGS="-w -fallow-argument-mismatch -O2"
