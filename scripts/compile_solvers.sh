@@ -54,7 +54,7 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure --without-hsl CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
 
 cd $IDAES_EXT
 mkdir dist-solvers
@@ -108,7 +108,7 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
-  cmake -DCMAKE_C_COMPILER=gcc .
+  cmake -DCMAKE_C_COMPILER=gcc-10 .
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers

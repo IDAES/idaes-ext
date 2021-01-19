@@ -13,7 +13,7 @@ tar -zxvf solvers.tgz
 # Compile ASL, warnings about files existing seem to be okay
 
 cd solvers
-./configure CC=gcc-10
+./configure CC=gcc-10 F77=gfortran-10
 make 
 export ASL_BUILD=`pwd`/sys.`uname -m`.`uname -s`
 cd $IDAES_EXT
