@@ -37,10 +37,17 @@ if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
   # if the HSL source zip is in place...
   echo -n >ThirdParty/HSL/.build
-  mkdir ThirdParty/HSL/coinhsl
-  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
-  cd ThirdParty/HSL/coinhsl
+  
+  # original
+  #mkdir ThirdParty/HSL/coinhsl
+  #cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
+  #cd ThirdParty/HSL/coinhsl
+  
+  # changes to get this working on macOS
+  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/
+  cd ThirdParty/HSL/
   unzip coinhsl.zip
+  
   cd $IDAES_EXT/coinbrew
   with_hsl="YES"
 else
@@ -58,7 +65,9 @@ fi
 #  bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9" --without-hsl
 #else
 #  echo "This should compile with HSL..."
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
+
+# TODO: try --static flag. This might be the missing piece to get it working with macOS
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" CC="gcc-9" CXX="g++-9" F77="gfortran-9"
 #fi
 
 # adowling2 desktop ( HSL)
