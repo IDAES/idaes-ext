@@ -99,7 +99,7 @@ You should replace `./binaries/` with the path to the folder containing the two 
 
 In the terminal, run:
 ```
-pytest -m "no integration"
+pytest -m "not integration"
 ```
 
 This will take ~5 minutes to run. The final output will include a summary of the tests (passed, failed, skipped, etc.)
