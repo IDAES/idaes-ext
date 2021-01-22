@@ -57,7 +57,9 @@ In the file `/src/Makeline.in` do the following:
 * Specify `BOOST=` as the path to the boost header files
 
 In the file `/scripts/compile_solvers.sh` do the following:
-* Update the line `bash coinbrew build` to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `bash coinbrew build` line to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `cmake -DCMAKE_C_COMPILER=gcc-9 .` to `gcc-10` if needed.
+
 
 In the file `/scripts/compile_libs.sh` do the following:
 * Update the line `./configure` to specify the connect version of `gcc`, `g++`, and `gfortran`
