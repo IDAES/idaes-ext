@@ -15,6 +15,7 @@ export K_AUG_BRANCH="ma57"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
 
 # Work-around for mumps gcc v10 gfortran bug
+# Some reason this did not work on macOS. That is b/c gcc points to the clang/XCode version.
 export GCC_VERSION=`gcc -dumpversion`
 if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
   export FCFLAGS="-w -fallow-argument-mismatch -O2"
@@ -47,10 +48,15 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
-# This did not work.
-#bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --CC="gcc" --CCX="g++" --reconfigure
-# We can remove the --reconfigure
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc"
+
+# original
+# bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
+
+# adowling2 desktop
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
+
+# adowling2 laptopn
+# bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
 
 cd $IDAES_EXT
 mkdir dist-solvers
@@ -104,12 +110,16 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
+<<<<<<< HEAD
   # This is the original version
   # cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER.
   
   # This is my hack to get macOS to work
   cmake -DCMAKE_C_COMPILER=gcc .
   
+=======
+  cmake -DCMAKE_C_COMPILER=gcc-10 .
+>>>>>>> adowling2-macos-laptop
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers

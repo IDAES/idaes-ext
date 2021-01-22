@@ -26,17 +26,27 @@ BOOST=$(BOOST_HEADER)
 # The last part is pretty standard, and specifies the C and C++ compilers as
 # well as the file remove and copy commands.
 
-CC = gcc
-CXX = g++
+# these likely do NOT need to be changed
 RM = rm
 CP = cp
 MKDIR = mkdir
-LINK = g++
+
+# adowling2 laptop
+# CC = gcc-10
+# CXX = g++-10
+# LINK = g++-10
+# BOOST=/usr/local/Cellar/boost/1.75.0_1/include
+
+# adowling2 desktop
+CC = gcc-9
+CXX = g++-9
+LINK = g++-9
+BOOST= /usr/local/Cellar/boost/1.74.0/include
 
 ifeq ($(ASL),)
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I/usr/local/Cellar/boost/1.74.0/include -static-libstdc++
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(BOOST) -static-libstdc++
 else
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL) -I/usr/local/Cellar/boost/1.74.0/include -static-libstdc++
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL) -I$(BOOST) -static-libstdc++
 endif
 
 LDFLAGS = -shared
