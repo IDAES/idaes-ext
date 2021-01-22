@@ -39,13 +39,13 @@ then
   echo -n >ThirdParty/HSL/.build
   
   # original
-  #mkdir ThirdParty/HSL/coinhsl
-  #cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
-  #cd ThirdParty/HSL/coinhsl
+  mkdir ThirdParty/HSL/coinhsl
+  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
+  cd ThirdParty/HSL/coinhsl
   
   # changes to get this working on macOS
-  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/
-  cd ThirdParty/HSL/
+  # cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/
+  # cd ThirdParty/HSL/
   unzip coinhsl.zip
   
   cd $IDAES_EXT/coinbrew
@@ -127,16 +127,15 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
 else
-<<<<<<< HEAD
+
   # This is the original version
   # cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER.
   
   # This is my hack to get macOS to work
-  cmake -DCMAKE_C_COMPILER=gcc .
+  cmake -DCMAKE_C_COMPILER=gcc-9 .
   
-=======
-  cmake -DCMAKE_C_COMPILER=gcc-10 .
->>>>>>> adowling2-macos-laptop
+  # cmake -DCMAKE_C_COMPILER=gcc-10 .
+
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
