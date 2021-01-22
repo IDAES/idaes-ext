@@ -64,7 +64,7 @@ In the file `/scripts/compile_solvers.sh` do the following:
 
 
 In the file `/scripts/compile_libs.sh` do the following:
-* Update the line `./configure` to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `./configure` to specify the connect version of `gcc` and `gfortran`
 
 # Step 5: Obtain coinhsl.zip and place one directory up from this directory
 
