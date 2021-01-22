@@ -59,21 +59,12 @@ fi
 # original
 # bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
 
-# adowling2 desktop
-#then
-#  echo "Configuring coinbrew using --without-hsl flag"
-#  bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9" --without-hsl
-#else
-#  echo "This should compile with HSL..."
 
-# TODO: try --static flag. This might be the missing piece to get it working with macOS
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" CC="gcc-9" CXX="g++-9" F77="gfortran-9"
-#fi
+# adowling2 desktop (with HSL)
+#  bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
 
-# adowling2 desktop ( HSL)
-
-# adowling2 laptopn
-# bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
+# adowling2 laptop
+bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
 
 cd $IDAES_EXT
 mkdir dist-solvers
@@ -132,9 +123,8 @@ else
   # cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER.
   
   # This is my hack to get macOS to work
-  cmake -DCMAKE_C_COMPILER=gcc-9 .
-  
-  # cmake -DCMAKE_C_COMPILER=gcc-10 .
+  # cmake -DCMAKE_C_COMPILER=gcc-9 .
+  cmake -DCMAKE_C_COMPILER=gcc-10 .
 
 fi
 make

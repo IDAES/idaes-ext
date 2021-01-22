@@ -15,10 +15,10 @@ tar -zxvf solvers.tgz
 cd solvers
 
 # adowling laptop
-# ./configure CC=gcc-10 F77=gfortran-10
+./configure CC=gcc-10 F77=gfortran-10
 
 # adowling desktop
-./configure CC=gcc-9 F77=gfortran-9
+# ./configure CC=gcc-9 F77=gfortran-9
 
 
 make 
