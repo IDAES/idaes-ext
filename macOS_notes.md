@@ -50,7 +50,17 @@ The external functions need the C++ library boost. We need to find where homebre
 
 # Step 4: Edit the scripts and makefiles
 
-TODO: fill in with details. In summary, we need to update the boost path and set gcc-10, g++-10, gfortran-10 as the compilers.
+In the file `/src/Makeline.in` do the following:
+* Specify either `CC=gcc-9` or `CC=gcc-10`
+* Specify either `CXX=g++-9` or `CXX=g++-10`
+* Specify either `LINK=g++-9` or `LINK=g++-10`
+* Specify `BOOST=` as the path to the boost header files
+
+In the file `/scripts/compile_solvers.sh` do the following:
+* Update the line `bash coinbrew build` to specify the connect version of `gcc`, `g++`, and `gfortran`
+
+In the file `/scripts/compile_libs.sh` do the following:
+* Update the line `./configure` to specify the connect version of `gcc`, `g++`, and `gfortran`
 
 # Step 5: Obtain coinhsl.zip and place one directory up from this directory
 
