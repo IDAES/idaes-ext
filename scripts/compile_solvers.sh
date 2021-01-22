@@ -53,7 +53,15 @@ fi
 # bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
 
 # adowling2 desktop
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
+if [$(with_hsl) == "NO"]
+then
+  echo "Configuring coinbrew using --without-hsl flag"
+  bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9" --without-hsl
+else
+  bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
+fi
+
+# adowling2 desktop ( HSL)
 
 # adowling2 laptopn
 # bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-10" CXX="g++-10" F77="gfortran-10" FCFLAGS="-w -fallow-argument-mismatch -O2" FFLAGS="-w -fallow-argument-mismatch -O2"
