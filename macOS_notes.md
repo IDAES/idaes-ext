@@ -2,6 +2,8 @@ Compiling the IDAES binaries on macOS can be challenging. One of these biggest o
 
 This document outlines the (approximate) steps to compile the solver and library binaries on a macOS machine. For more details, see https://github.com/IDAES/idaes-ext/issues/69.
 
+# Step 0: Clone this repository onto your computer
+
 # Step 1: Install homebrew and dependencies
 
 The first step is to install homebrew, which is an unofficial package manager for macOS.  At the time of writing, do this by running the following command in the terminal:
