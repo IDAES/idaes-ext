@@ -105,7 +105,7 @@ idaes get-extensions --url file:./binaries/
 
 You should replace `./binaries/` with the path to the folder containing the two `.tar.gz` files.
 
-# Step 8: Run the IDAES test (for developer installation)
+# Step 8: Run the IDAES test (from developer installation)
 
 In the terminal, run:
 ```
