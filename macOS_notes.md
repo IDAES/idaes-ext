@@ -12,7 +12,7 @@ https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/
 
 Tip: use GitHub desktop, Sourcetree, or another git GUI.
 
-Tip: you can close the main branch
+Tip: you can clone the main branch. You don't need to make your own fork.
 
 # Step 1: Install homebrew and dependencies
 
