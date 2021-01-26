@@ -83,13 +83,13 @@ In the file `/scripts/compile_libs.sh` do the following:
 First run:
 
 ```
-sh ./script/compile_solvers.sh darwin
+sh ./scripts/compile_solvers.sh darwin
 ```
 
 Then run:
 
 ```
-sh ./script/compile_libs.sh darwin
+sh ./scripts/compile_libs.sh darwin
 ```
 
 # Step 7: Copy and install files
