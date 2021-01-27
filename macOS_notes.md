@@ -142,4 +142,4 @@ This might be caused by missing headerfiles with XCode. A work around is to run 
 open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
 ```
 
-Update this commend with the correct version of macOS. Here is the origin of the work around: https://www.google.com/url?q=https://stackoverflow.com/a/52530212/1377912&sa=D&ust=1611768519689000&usg=AOvVaw0dioNymjFGx1WeBccUT4ht
+Update this command with the correct version of macOS. Here is the origin of the work around: https://www.google.com/url?q=https://stackoverflow.com/a/52530212/1377912&sa=D&ust=1611768519689000&usg=AOvVaw0dioNymjFGx1WeBccUT4ht
