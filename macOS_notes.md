@@ -114,5 +114,32 @@ pytest -m "not integration"
 
 This will take ~5 minutes to run. The final output will include a summary of the tests (passed, failed, skipped, etc.)
 
-# Tips
-1. It is important to install all of the IDAES dependencies; this is handled when you pip install IDAES in a conda environment (see https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/index.html). Remember to switch to the conda environment where IDAES is installed to successfully compile the binaries.
+# Tips and Debugging
+
+## Install in your IDAES environment
+
+It is important to install all of the IDAES dependencies; this is handled when you pip install IDAES in a conda environment (see https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/index.html). Remember to switch to the conda environment where IDAES is installed to successfully compile the binaries.
+
+## Cannot use Ipopt in Pyomo outside of IDAES
+
+By default, IDAES will install the executables in `/Users/yourusername/.idaes/bin`. You can either specific the executable path in Pyomo and add this folder to your PATH variable (e.g., edit `.bash_profile`).
+
+## Error about missing file when compiling libraries
+
+Here is an example error message:
+
+```
+In file included from helmholtz_external.cpp:22:
+/usr/local/Cellar/gcc/10.2.0_3/lib/gcc/10/gcc/x86_64-apple-darwin18/10.2.0/include-fixed/stdio.h:219:10: fatal error: _ctermid.h: No such file or directory
+  219 | #include <_ctermid.h>
+      |          ^~~~~~~~~~~~
+compilation terminated.
+```
+
+This might be caused by missing headerfiles with XCode. A work around is to run the following in the terminal:
+
+```
+open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+```
+
+Update this commend with the correct version of macOS. Here is the origin of the work around: https://www.google.com/url?q=https://stackoverflow.com/a/52530212/1377912&sa=D&ust=1611768519689000&usg=AOvVaw0dioNymjFGx1WeBccUT4ht
