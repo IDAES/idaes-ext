@@ -122,7 +122,7 @@ It is important to install all of the IDAES dependencies; this is handled when y
 
 ## Cannot use Ipopt in Pyomo outside of IDAES
 
-By default, IDAES will install the executables in `/Users/yourusername/.idaes/bin`. You can either specific the executable path in Pyomo and add this folder to your PATH variable (e.g., edit `.bash_profile`).
+By default, IDAES will install the executables in `/Users/yourusername/.idaes/bin`. You can either specify the executable path in Pyomo and add this folder to your PATH variable (e.g., edit `.bash_profile`).
 
 ## Error about missing file when compiling libraries
 
