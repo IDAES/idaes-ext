@@ -136,8 +136,12 @@ In file included from helmholtz_external.cpp:22:
 compilation terminated.
 ```
 
-This might be caused by missing headerfiles with XCode. A work around is to run the following in the terminal:
+This might be caused by missing headerfiles with XCode. First run this command to make sure the XCode command line tools are installed:
+```
+sudo xcode-select --install
+```
 
+Next try this command:
 ```
 open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
 ```
