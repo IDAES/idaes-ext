@@ -41,9 +41,10 @@ double cubic_root2(int phase, double b, double c, double d){
       if(zr[0] > zr[1]){z = zr[1]; zr[1] = zr[0]; zr[0] = z;}
       //Vapor is the highest and liquid is the lowest
       if(phase == 0) z = zr[0]; //liquid
-      else z = zr[2]; //vapor
+      else if(phase == 1) z = zr[2]; //vapor
+      else z = zr[1]; //middle (just to be complete)
   }
-  else{ //Only one root
+  else{ //Only one real root
       R = -G/2.0 + sqrt(H);
       T = -G/2.0 - sqrt(H);
       S =  curoot(R);
@@ -224,6 +225,33 @@ real ceos_z_vap_extend(arglist *al){
     return cubic_root_ext(1, eos, A, B, al->derivs, al->hes);
 }
 
+real cubic_root_l(arglist *al){
+  return cubic_root_three_params(
+    0,
+    al->ra[al->at[0]],
+    al->ra[al->at[1]],
+    al->ra[al->at[2]],
+    al->derivs, al->hes);
+}
+
+real cubic_root_m(arglist *al){
+  return cubic_root_three_params(
+    2,
+    al->ra[al->at[0]],
+    al->ra[al->at[1]],
+    al->ra[al->at[2]],
+    al->derivs, al->hes);
+}
+
+real cubic_root_h(arglist *al){
+  return cubic_root_three_params(
+    1,
+    al->ra[al->at[0]],
+    al->ra[al->at[1]],
+    al->ra[al->at[2]],
+    al->derivs, al->hes);
+}
+
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
      * 1) Name of function in AMPL
@@ -239,6 +267,9 @@ void funcadd(AmplExports *ae){
     addfunc("ceos_z_liq", (rfunc)ceos_z_liq, t, -1, NULL);
     addfunc("ceos_z_vap_extend", (rfunc)ceos_z_vap_extend, t, -1, NULL);
     addfunc("ceos_z_liq_extend", (rfunc)ceos_z_liq_extend, t, -1, NULL);
+    addfunc("cubic_root_l", (rfunc)cubic_root_l, t, -1, NULL);
+    addfunc("cubic_root_m", (rfunc)cubic_root_m, t, -1, NULL);
+    addfunc("cubic_root_h", (rfunc)cubic_root_h, t, -1, NULL);
 }
 
 /***********************************************************************
@@ -509,4 +540,23 @@ int cuderiv(eos_indx eos, char ext, double A, double B, double z, double *derivs
     hes[5] = hes1[2];
 
     return 0;
+}
+
+double cubic_root_three_params(int i, double b, double c, double d, double *derivs, double *hes){
+  double z;
+  z = cubic_root2(i, b, c, d);
+  if (derivs != NULL) {
+    derivs[0] = 1.0/(-1.0 + c/z/z + 2*d/z/z/z); // dz/db
+    derivs[1] = 1.0/(-2.0*z - b + d/z/z); // dz/dc
+    derivs[2] = 1.0/(-3.0*z*z - 2*b*z - c); // dz/dd
+  }
+  if (hes != NULL){
+    hes[0] = derivs[0]*derivs[0]*derivs[0]*(2*c/z/z/z + 6*d/z/z/z/z); // dz2/db2
+    hes[1] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[1] + 6*d/z/z/z/z*derivs[1] - 1/z/z); // dz2/dbdc
+    hes[2] = derivs[1]*derivs[1]*derivs[1]*(2 + 2*d/z/z/z); // dz2/dc2
+    hes[3] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[2] + 6*d/z/z/z/z*derivs[2] - 2/z/z/z); // dz2/dbdd
+    hes[4] = derivs[1]*derivs[1]*(2*derivs[2] + 2*d/z/z/z*derivs[2] - 1/z/z); // dz2/dcdd
+    hes[5] = derivs[2]*derivs[2]*derivs[2]*(6*z + 2*b); // dz2/dd2
+  }
+  return z;
 }

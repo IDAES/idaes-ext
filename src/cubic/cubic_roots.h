@@ -45,3 +45,4 @@ int cubic_derivs(double b, double c, double z, double *grad, double *hes);
 int ext_cubic_derivs(int phase, double b, double c, double z, double *grad, double *hes);
 int AB_derivs(eos_indx eos, char ext, double A, double B, double z, double *grad, double *hes);
 int cuderiv(eos_indx eos, char ext, double A, double B, double z, double *derivs, double *hes);
+double cubic_root_three_params(int i, double b, double c, double d, double *derivs, double *hes);
