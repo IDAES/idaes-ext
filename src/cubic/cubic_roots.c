@@ -545,14 +545,18 @@ int cuderiv(eos_indx eos, char ext, double A, double B, double z, double *derivs
 double cubic_root_three_params(int i, double b, double c, double d, double *derivs, double *hes){
   double z;
   z = cubic_root2(i, b, c, d);
-  derivs[0] = 1.0/(-1.0 + c/z/z + 2*d/z/z/z); // dz/db
-  derivs[1] = 1.0/(-2.0*z - b + d/z/z); // dz/dc
-  derivs[2] = 1.0/(-3.0*z*z - 2*b*z - c); // dz/dd
-  hes[0] = derivs[0]*derivs[0]*derivs[0]*(2*c/z/z/z + 6*d/z/z/z/z); // dz2/db2
-  hes[1] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[1] + 6*d/z/z/z/z*derivs[1] - 1/z/z); // dz2/dbdc
-  hes[2] = derivs[1]*derivs[1]*derivs[1]*(2 + 2*d/z/z/z); // dz2/dc2
-  hes[3] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[2] + 6*d/z/z/z/z*derivs[2] - 2/z/z/z); // dz2/dbdd
-  hes[4] = derivs[1]*derivs[1]*(2*derivs[2] + 2*d/z/z/z*derivs[2] - 1/z/z); // dz2/dcdd
-  hes[5] = derivs[2]*derivs[2]*derivs[2]*(6*z + 2*b); // dz2/dd2
+  if (derivs != NULL) {
+    derivs[0] = 1.0/(-1.0 + c/z/z + 2*d/z/z/z); // dz/db
+    derivs[1] = 1.0/(-2.0*z - b + d/z/z); // dz/dc
+    derivs[2] = 1.0/(-3.0*z*z - 2*b*z - c); // dz/dd
+  }
+  if (hes != NULL){
+    hes[0] = derivs[0]*derivs[0]*derivs[0]*(2*c/z/z/z + 6*d/z/z/z/z); // dz2/db2
+    hes[1] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[1] + 6*d/z/z/z/z*derivs[1] - 1/z/z); // dz2/dbdc
+    hes[2] = derivs[1]*derivs[1]*derivs[1]*(2 + 2*d/z/z/z); // dz2/dc2
+    hes[3] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[2] + 6*d/z/z/z/z*derivs[2] - 2/z/z/z); // dz2/dbdd
+    hes[4] = derivs[1]*derivs[1]*(2*derivs[2] + 2*d/z/z/z*derivs[2] - 1/z/z); // dz2/dcdd
+    hes[5] = derivs[2]*derivs[2]*derivs[2]*(6*z + 2*b); // dz2/dd2
+  }
   return z;
 }
