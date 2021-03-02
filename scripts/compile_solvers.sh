@@ -58,6 +58,7 @@ then
   echo "Configuring coinbrew using --without-hsl flag"
   bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9" --without-hsl
 else
+  echo "This should compile with HSL..."
   bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas -lgcc" --reconfigure CC="gcc-9" CXX="g++-9" F77="gfortran-9"
 fi
 
