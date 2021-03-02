@@ -100,10 +100,13 @@ then
     cp /mingw64/bin/libblas.dll ./
 fi
 
-if [ "$(expr substr $(uname -s) 1 7)" = "darwin" ]
+#if [ "$(expr substr $(uname -s) 1 6)" = "Darwin" ]
+if [ "$(uname -s)" = "Darwin" ]
 then
+    echo "Copying libraries for macOS"
     # macOS linked libraries
-    cp /usr/lib/libstdc++.6.dylib
+    # For some reason, this code block is not executing...
+    cp /usr/lib/libstdc++.6.dylib ./
     #cp /mingw64/bin/libgcc_s_seh-1.dll ./
     #cp /mingw64/bin/libwinpthread-1.dll ./
     #cp /mingw64/bin/libgfortran-*.dll ./
