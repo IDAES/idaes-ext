@@ -100,6 +100,19 @@ then
     cp /mingw64/bin/libblas.dll ./
 fi
 
+if [ "$(expr substr $(uname -s) 1 7)" = "darwin" ]
+then
+    # macOS linked libraries
+    cp /usr/lib/libstdc++.6.dylib
+    #cp /mingw64/bin/libgcc_s_seh-1.dll ./
+    #cp /mingw64/bin/libwinpthread-1.dll ./
+    #cp /mingw64/bin/libgfortran-*.dll ./
+    cp /usr/local/opt/gcc/lib/gcc/9/libquadmath.0.dylib ./
+    #cp /mingw64/bin/libgomp-1.dll ./
+    #cp /mingw64/bin/liblapack.dll ./
+    #cp /mingw64/bin/libblas.dll ./
+fi
+
 # Compile Pynumero
 
 cd $IDAES_EXT
@@ -113,6 +126,7 @@ if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
   cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
+  # Should this be changes to "gcc-9", etc.?
   cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++
 fi
 make
