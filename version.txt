@@ -1,1 +1,1 @@
-2.3.0 (DATE) (PLAT)
+2.4.0 (DATE) (PLAT)
