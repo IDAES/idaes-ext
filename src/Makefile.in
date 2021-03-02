@@ -32,16 +32,16 @@ CP = cp
 MKDIR = mkdir
 
 # adowling2 laptop
-# CC = gcc-10
-# CXX = g++-10
-# LINK = g++-10
-# BOOST=/usr/local/Cellar/boost/1.75.0_1/include
+CC = gcc-10
+CXX = g++-10
+LINK = g++-10
+BOOST=/usr/local/Cellar/boost/1.75.0_1/include
 
 # adowling2 desktop
-CC = gcc-9
-CXX = g++-9
-LINK = g++-9
-BOOST= /usr/local/Cellar/boost/1.74.0/include
+# CC = gcc-9
+# CXX = g++-9
+# LINK = g++-9
+# BOOST= /usr/local/Cellar/boost/1.74.0/include
 
 ifeq ($(ASL),)
     CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(BOOST) -static-libstdc++

@@ -2,6 +2,18 @@ Compiling the IDAES binaries on macOS can be challenging. One of these biggest o
 
 This document outlines the (approximate) steps to compile the solver and library binaries on a macOS machine. For more details, see https://github.com/IDAES/idaes-ext/issues/69.
 
+# Step 0a: Clone this repository onto your computer
+
+Tip: use GitHub desktop, Sourcetree, or another git GUI.
+
+# Step 0b: Install IDAES using the developer instructions (main branch)
+
+https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/index.html
+
+Tip: use GitHub desktop, Sourcetree, or another git GUI.
+
+Tip: you can clone the main branch. You don't need to make your own fork.
+
 # Step 1: Install homebrew and dependencies
 
 The first step is to install homebrew, which is an unofficial package manager for macOS.  At the time of writing, do this by running the following command in the terminal:
@@ -57,10 +69,12 @@ In the file `/src/Makeline.in` do the following:
 * Specify `BOOST=` as the path to the boost header files
 
 In the file `/scripts/compile_solvers.sh` do the following:
-* Update the line `bash coinbrew build` to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `bash coinbrew build` line to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `cmake -DCMAKE_C_COMPILER=gcc-9 .` to `gcc-10` if needed.
+
 
 In the file `/scripts/compile_libs.sh` do the following:
-* Update the line `./configure` to specify the connect version of `gcc`, `g++`, and `gfortran`
+* Update the line `./configure` to specify the connect version of `gcc` and `gfortran`
 
 # Step 5: Obtain coinhsl.zip and place one directory up from this directory
 
@@ -69,13 +83,13 @@ In the file `/scripts/compile_libs.sh` do the following:
 First run:
 
 ```
-sh ./script/compile_solvers.sh darwin
+sh ./scripts/compile_solvers.sh darwin
 ```
 
 Then run:
 
 ```
-sh ./script/compile_libs.sh darwin
+sh ./scripts/compile_libs.sh darwin
 ```
 
 # Step 7: Copy and install files
@@ -91,14 +105,45 @@ idaes get-extensions --url file:./binaries/
 
 You should replace `./binaries/` with the path to the folder containing the two `.tar.gz` files.
 
-# Step 8: Run the IDAES test (for developer installation)
+# Step 8: Run the IDAES test (from developer installation)
 
 In the terminal, run:
 ```
-pytest -m "no integration"
+pytest -m "not integration"
 ```
 
 This will take ~5 minutes to run. The final output will include a summary of the tests (passed, failed, skipped, etc.)
 
-# Tips
-1. It is important to install all of the IDAES dependencies; this is handled when you pip install IDAES in a conda environment (see https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/index.html). Remember to switch to the conda environment where IDAES is installed to successfully compile the binaries.
+# Tips and Debugging
+
+## Install in your IDAES environment
+
+It is important to install all of the IDAES dependencies; this is handled when you pip install IDAES in a conda environment (see https://idaes-pse.readthedocs.io/en/stable/advanced_user_guide/advanced_install/index.html). Remember to switch to the conda environment where IDAES is installed to successfully compile the binaries.
+
+## Cannot use Ipopt in Pyomo outside of IDAES
+
+By default, IDAES will install the executables in `/Users/yourusername/.idaes/bin`. You can either specify the executable path in Pyomo and add this folder to your PATH variable (e.g., edit `.bash_profile`).
+
+## Error about missing file when compiling libraries
+
+Here is an example error message:
+
+```
+In file included from helmholtz_external.cpp:22:
+/usr/local/Cellar/gcc/10.2.0_3/lib/gcc/10/gcc/x86_64-apple-darwin18/10.2.0/include-fixed/stdio.h:219:10: fatal error: _ctermid.h: No such file or directory
+  219 | #include <_ctermid.h>
+      |          ^~~~~~~~~~~~
+compilation terminated.
+```
+
+This might be caused by missing headerfiles with XCode. First run this command to make sure the XCode command line tools are installed:
+```
+sudo xcode-select --install
+```
+
+Next try this command:
+```
+open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+```
+
+Update this command with the correct version of macOS. Here is the origin of the work around: https://www.google.com/url?q=https://stackoverflow.com/a/52530212/1377912&sa=D&ust=1611768519689000&usg=AOvVaw0dioNymjFGx1WeBccUT4ht
