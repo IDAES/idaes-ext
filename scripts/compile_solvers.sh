@@ -1,21 +1,27 @@
 #!/bin/sh
-# First argument is OS name
+# First argument is OS name provided by user when running this
 osname=$1; shift
+if [ -z $osname ]
+then
+  echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
+  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  exit 1
+fi
 
-# Make a directory to work in
+# Get path of directory we're working in
 export IDAES_EXT=`pwd`
 
 # Set a few basic things
-
 export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="master"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="ma57"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
+export GCC="gcc"
 
 # Work-around for mumps gcc v10 gfortran bug
-export GCC_VERSION=`gcc -dumpversion`
+export GCC_VERSION=`$GCC -dumpversion`
 if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
   export FCFLAGS="-w -fallow-argument-mismatch -O2"
   export FFLAGS="-w -fallow-argument-mismatch -O2"
@@ -25,17 +31,30 @@ mkdir coinbrew
 cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 
-# a line in the coinbrew script throws a syntax error on centos6 so change it
-if [ ${osname} == "centos6" ]
-then
-  sed -e "s/\[ -v LD_LIBRARY_PATH \]/ \"1\" = \"0\" /g" -i coinbrew
-fi
-
+# Fetch coin-or stuff and dependencies
+bash coinbrew fetch Clp --no-prompt
+bash coinbrew fetch Cbc --no-prompt
+bash coinbrew fetch Bonmin --no-prompt
+bash coinbrew fetch Couenne --no-prompt
+rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
+#bash coinbrew fetch MibS@stable/1.1 --no-prompt
+rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt
+
+# I let fetch get dependencies, but delete ones where I don't have permission
+# to distribute, have incompatible licences, or I want a differnt version. This
+# isn't really needed, but it helps keep track of what I want and what I don't
+rm -rf ThirdParty/Blas
+rm -rf ThirdParty/Lapack
+rm -rf ThirdParty/FilterSQP
+rm -rf ThirdParty/SCIP
+rm -rf ThirdParty/SoPlex
+rm -rf ThirdParty/glpk
+
+# If we have the HSL stuff copy and extract it in the right place
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
   # if the HSL source zip is in place...
-  echo -n >ThirdParty/HSL/.build
   mkdir ThirdParty/HSL/coinhsl
   cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
   cd ThirdParty/HSL/coinhsl
@@ -47,22 +66,179 @@ else
   echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
   with_hsl="NO"
 fi
-bash coinbrew build Ipopt --no-prompt --disable-shared --enable-static LDFLAGS="-lgfortran -lm -llapack -lblas"
+
+# Set PKG_CONFIG_PATH so configure scripts can find the stuff we build
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
+
+echo "#########################################################################"
+echo "# Thirdparty/ASL                                                        #"
+echo "#########################################################################"
+cd ThirdParty/ASL
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Thirdparty/Metis                                                      #"
+echo "#########################################################################"
+cd ThirdParty/Metis
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Thirdparty/HSL                                                        #"
+echo "#########################################################################"
+cd ThirdParty/HSL
+./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Thirdparty/Mumps                                                      #"
+echo "#########################################################################"
+cd ThirdParty/Mumps
+./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Data/Netlib                                                           #"
+echo "#########################################################################"
+cd Data/Netlib
+./configure --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Data/Sample                                                           #"
+echo "#########################################################################"
+cd Data/Sample
+./configure --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Data/miplib3                                                          #"
+echo "#########################################################################"
+cd Data/miplib3
+./configure --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Ipopt                                                                 #"
+echo "#########################################################################"
+cd Ipopt
+./configure  --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# CoinUtils                                                             #"
+echo "#########################################################################"
+cd CoinUtils
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Osi                                                                   #"
+echo "#########################################################################"
+cd Osi
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Clp                                                                   #"
+echo "#########################################################################"
+cd Clp
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Cgl                                                                   #"
+echo "#########################################################################"
+cd Cgl
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Cbc                                                                   #"
+echo "#########################################################################"
+cd Cbc
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Bonmin                                                                #"
+echo "#########################################################################"
+cd Bonmin
+# Two replacemnts below are a temporary fix until I can nail the problem down better
+# There is a problem linking the exception class TMINLP_INVALID so replaced
+# it with a similar one from IPOPT that works
+sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp > atmpfile
+mv atmpfile Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
+sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cpp > atmpfile
+mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Couenne                                                               #"
+echo "#########################################################################"
+cd Couenne
+./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
 
 cd $IDAES_EXT
 mkdir dist-solvers
 cd dist-solvers
+# Executables
 cp ../coinbrew/dist/bin/ipopt ./
+cp ../coinbrew/dist/bin/ipopt_sens ./
+cp ../coinbrew/dist/bin/clp ./
+cp ../coinbrew/dist/bin/cbc ./
+cp ../coinbrew/dist/bin/bonmin ./
+cp ../coinbrew/dist/bin/couenne ./
+# Windows *.DLL, be explicit so don't include anything we shouldn't
+cp ../coinbrew/dist/bin/libipopt*.dll ./
+cp ../coinbrew/dist/bin/libsipopt*.dll ./
+# Linux *.so, be explicit so don't include anything we shouldn't
+cp ../coinbrew/dist/lib/libipopt*.so ./
+cp ../coinbrew/dist/lib/libsipopt*.so ./
+
+# Text information files include build time
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
 sed s/"(PLAT)"/${osname}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 
-
-if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+if [ ${osname} = "windows" ]
 then
-    # Winodws MinGW linked libraries
+    # Winodws MinGW linked redistributable libraries
     cp /mingw64/bin/libstdc++-6.dll ./
     cp /mingw64/bin/libgcc_s_seh-1.dll ./
     cp /mingw64/bin/libwinpthread-1.dll ./

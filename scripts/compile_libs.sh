@@ -1,32 +1,25 @@
-#/bin/sh
+#!/bin/sh
 # First argument is OS name
 osname=$1; shift
+if [ -z $osname ]
+then
+  echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
+  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  exit 1
+fi
 
 # Make a directory to work in
 export IDAES_EXT=`pwd`
 
-# get stuff
-wget https://coin-or-tools.github.io/ThirdParty-ASL/solvers-20180528.tgz
-mv solvers-20180528.tgz solvers.tgz
-tar -zxvf solvers.tgz
-
-# Compile ASL, warnings about files existing seem to be okay
-
-cd solvers
-./configure
-make
-export ASL_BUILD=`pwd`/sys.`uname -m`.`uname -s`
-cd $IDAES_EXT
+# Run this after solvers are compiled, uses the ASL header from solver build
+export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 
 # Compile IDAES function libraries
-
-cd src
+cd $IDAES_EXT/src
 make
 cd $IDAES_EXT
 
 # Collect files
-
-cd $IDAES_EXT
 rm -rf ./dist-lib
 mkdir dist-lib
 cd dist-lib
