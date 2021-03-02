@@ -16,5 +16,5 @@ RUN cd repo; \
 ##
 RUN pwd; cd repo/idaes-ext; \
     export BOOST_HEADER=/repo/boost_1_61_0; \
-    bash scripts/compile_libs.sh centos6; \
-    bash scripts/compile_solvers.sh centos6
+    bash scripts/compile_solvers.sh centos6; \
+    bash scripts/compile_libs.sh centos6

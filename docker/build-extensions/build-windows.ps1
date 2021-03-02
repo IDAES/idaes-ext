@@ -46,7 +46,7 @@ catch{
   echo "Solvers were not built."
 }
 docker rm ${flavor}_build_tmp
-#docker rmi ${flavor}_build_itmp
+docker rmi ${flavor}_build_itmp
 cp *.tar.gz ../tarballs/
 Remove-Item *.tar.gz
 cd ..

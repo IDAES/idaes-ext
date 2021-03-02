@@ -15,5 +15,5 @@ RUN cd repo; \
 # Build all the things
 ##
 RUN pwd; cd repo/idaes-ext; \
-    bash scripts/compile_libs.sh centos7; \
-    bash scripts/compile_solvers.sh centos7
+    bash scripts/compile_solvers.sh centos7; \
+    bash scripts/compile_libs.sh centos7
