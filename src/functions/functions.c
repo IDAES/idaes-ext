@@ -14,7 +14,7 @@ void funcadd(AmplExports *ae){
 
 extern real scbrt(arglist *al){
     // al is the argument list data structure
-    // al->ra is an array real arguments
+    // al->ra is an array of real arguments
     // al->at is an array of of argument positions
     // The reason for using al->at for the position is 
     // that there could also be integer or string 
@@ -29,8 +29,8 @@ extern real scbrt(arglist *al){
       else al->derivs[0] = pow(cbrt(x), -2.0)/3.0;
       //al->hes is a pointer the Hessian matrix if NULL second
       //derivatives are not requested.  This function takes a
-      //single argument, but the Hessian form is upper triangle
-      //column-major like
+      //single argument, but the Hessian form in general is 
+      //the upper triangle in column-major form like
       // Args Index  0 1 2 3 ...
       //          0  0 1 3 6
       //          1    2 4 7
