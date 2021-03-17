@@ -59,7 +59,7 @@ These build instructions require Windows since Windows can run both Linux and Wi
 7) Execute the build script, where *platform* is in {windows, ubuntu1804, ubuntu1910, ubuntu2004, centos6, centos7, centos8}.
   > .\build-windows.ps1 *platform* --no-cache
   
-The powershell script will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 3 and 6 for all platforms.
+The powershell script will checkout a build container from DockerHub and execute the build scripts.  When the script completes, review the output for errors.  Source from outside repositories keeps changing, so it's not unusual to encounter errors. If there are errors, the solution is either to update the build scripts here or complain to the developers of the external pacakages. The binary tarball will be in the ```.\tarballs``` directory.  Repeat steps 4 and 7 for all platforms.
 
 ## Releasing a New Version
 
