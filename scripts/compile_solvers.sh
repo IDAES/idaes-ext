@@ -228,6 +228,10 @@ cp ../coinbrew/dist/bin/libsipopt*.dll ./
 # Linux *.so, be explicit so don't include anything we shouldn't
 cp ../coinbrew/dist/lib/libipopt*.so ./
 cp ../coinbrew/dist/lib/libsipopt*.so ./
+# Copy links, this means we'll have two copies of the *.so files with
+#   differnt names, but what are you going to do?
+cp ../coinbrew/dist/lib/libipopt*.so.* ./
+cp ../coinbrew/dist/lib/libsipopt*.so.* ./
 
 # Text information files include build time
 cp ../license.txt ./
@@ -247,6 +251,7 @@ then
     cp /mingw64/bin/libgomp-1.dll ./
     cp /mingw64/bin/liblapack.dll ./
     cp /mingw64/bin/libblas.dll ./
+    cp /mingw64/bin/libbz2-*.dll ./
 fi
 
 # Compile Pynumero
