@@ -232,6 +232,9 @@ cp ../coinbrew/dist/lib/libsipopt*.so ./
 #   differnt names, but what are you going to do?
 cp ../coinbrew/dist/lib/libipopt*.so.* ./
 cp ../coinbrew/dist/lib/libsipopt*.so.* ./
+# Run strip to remove unneeded symbols (it's okay that some files
+#  aren't exe or libraries)
+strip --strip-unneeded *
 
 # Text information files include build time
 cp ../license.txt ./
