@@ -101,7 +101,7 @@ echo "#########################################################################"
 echo "# Thirdparty/Mumps                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Mumps
-./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist CPPFLAGS="-fPIC"
 make
 make install
 cd $IDAES_EXT/coinbrew
