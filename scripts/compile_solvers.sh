@@ -146,7 +146,7 @@ echo "#########################################################################"
 echo "# CoinUtils                                                             #"
 echo "#########################################################################"
 cd CoinUtils
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -155,7 +155,7 @@ echo "#########################################################################"
 echo "# Osi                                                                   #"
 echo "#########################################################################"
 cd Osi
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -164,7 +164,7 @@ echo "#########################################################################"
 echo "# Clp                                                                   #"
 echo "#########################################################################"
 cd Clp
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -173,7 +173,7 @@ echo "#########################################################################"
 echo "# Cgl                                                                   #"
 echo "#########################################################################"
 cd Cgl
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -182,7 +182,7 @@ echo "#########################################################################"
 echo "# Cbc                                                                   #"
 echo "#########################################################################"
 cd Cbc
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -198,7 +198,7 @@ sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 mv atmpfile Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cpp > atmpfile
 mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -207,7 +207,7 @@ echo "#########################################################################"
 echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
-./configure --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
