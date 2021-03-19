@@ -92,7 +92,7 @@ echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
 cd ThirdParty/HSL
-./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -101,7 +101,7 @@ echo "#########################################################################"
 echo "# Thirdparty/Mumps                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Mumps
-./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist CPPFLAGS="-fPIC"
+./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 make
 make install
 cd $IDAES_EXT/coinbrew
