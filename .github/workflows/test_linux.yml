@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         docker_image: ["eslickj/idaes-ext-centos6-test:latest"]
         bin_platform: ["centos6"]
