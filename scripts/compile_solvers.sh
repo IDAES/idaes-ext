@@ -16,7 +16,7 @@ export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="master"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
-export K_AUG_BRANCH="ma57"
+export K_AUG_BRANCH="default"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
 export GCC="gcc"
 
