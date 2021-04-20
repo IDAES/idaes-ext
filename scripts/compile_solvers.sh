@@ -134,10 +134,10 @@ make install
 cd $IDAES_EXT/coinbrew
 
 echo "#########################################################################"
-echo "# Ipopt                                                                 #"
+echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure  --enable-shared --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -146,7 +146,7 @@ echo "#########################################################################"
 echo "# CoinUtils                                                             #"
 echo "#########################################################################"
 cd CoinUtils
-./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -155,7 +155,7 @@ echo "#########################################################################"
 echo "# Osi                                                                   #"
 echo "#########################################################################"
 cd Osi
-./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -164,7 +164,7 @@ echo "#########################################################################"
 echo "# Clp                                                                   #"
 echo "#########################################################################"
 cd Clp
-./configure --disable-shared --enable-static  --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -212,6 +212,16 @@ make
 make install
 cd $IDAES_EXT/coinbrew
 
+echo "#########################################################################"
+echo "# Ipopt Shared Libraries                                                #"
+echo "#########################################################################"
+cd Ipopt
+./configure --enable-shared --without-asl --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+# Copy files
 cd $IDAES_EXT
 mkdir dist-solvers
 cd dist-solvers
@@ -228,10 +238,6 @@ cp ../coinbrew/dist/bin/libsipopt*.dll ./
 # Linux *.so, be explicit so don't include anything we shouldn't
 cp ../coinbrew/dist/lib/libipopt*.so ./
 cp ../coinbrew/dist/lib/libsipopt*.so ./
-# Copy links, this means we'll have two copies of the *.so files with
-#   differnt names, but what are you going to do?
-cp ../coinbrew/dist/lib/libipopt*.so.* ./
-cp ../coinbrew/dist/lib/libsipopt*.so.* ./
 # Run strip to remove unneeded symbols (it's okay that some files
 #  aren't exe or libraries)
 strip --strip-unneeded *
@@ -255,6 +261,7 @@ then
     cp /mingw64/bin/liblapack.dll ./
     cp /mingw64/bin/libblas.dll ./
     cp /mingw64/bin/libbz2-*.dll ./
+    cp /mingw64/bin/zlib*.dll ./
 fi
 
 # Compile Pynumero
