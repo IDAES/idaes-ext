@@ -182,7 +182,7 @@ echo "#########################################################################"
 echo "# Cbc                                                                   #"
 echo "#########################################################################"
 cd Cbc
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -198,7 +198,7 @@ sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 mv atmpfile Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cpp > atmpfile
 mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 make
 make install
 cd $IDAES_EXT/coinbrew
