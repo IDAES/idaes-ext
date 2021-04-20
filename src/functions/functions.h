@@ -8,5 +8,6 @@
 
 
 real scbrt(arglist *al);
+real testing_only(arglist *al);
 
 #endif
