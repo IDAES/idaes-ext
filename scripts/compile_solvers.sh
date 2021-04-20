@@ -182,7 +182,7 @@ echo "#########################################################################"
 echo "# Cbc                                                                   #"
 echo "#########################################################################"
 cd Cbc
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -207,7 +207,7 @@ echo "#########################################################################"
 echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -215,11 +215,11 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
-#cd Ipopt
-#./configure --enable-shared --without-asl --prefix=$IDAES_EXT/coinbrew/dist
-#make
-#make install
-#cd $IDAES_EXT/coinbrew
+cd Ipopt
+./configure --enable-shared --without-asl --prefix=$IDAES_EXT/coinbrew/dist
+make
+make install
+cd $IDAES_EXT/coinbrew
 
 # Copy files
 cd $IDAES_EXT
