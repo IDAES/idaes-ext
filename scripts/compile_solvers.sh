@@ -249,6 +249,7 @@ cp ../version.txt ./version_solvers.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
 sed s/"(PLAT)"/${osname}/g tmp > tmp2
 mv tmp2 version_solvers.txt
+rm tmp
 
 if [ ${osname} = "windows" ]
 then
