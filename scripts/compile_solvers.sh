@@ -216,7 +216,8 @@ echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure --enable-shared --without-asl --prefix=$IDAES_EXT/coinbrew/dist
+make clean
+./configure --enable-shared --disable-static --without-asl --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
