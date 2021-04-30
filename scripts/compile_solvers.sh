@@ -242,8 +242,8 @@ cd dist-solvers
 # Executables
 if [ ${osname} = "windows" ]
 then
-  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1.exe
-  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1.exe
+  cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
+  cp ../coinbrew/dist_l1/bin/ipopt_sense.exe ./ipopt_sens_l1.exe
 else
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
   cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
