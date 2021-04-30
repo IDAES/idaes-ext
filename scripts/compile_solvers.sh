@@ -14,6 +14,8 @@ export IDAES_EXT=`pwd`
 # Set a few basic things
 export IPOPT_BRANCH="idaes-3.13"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
+export IPOPT_L1_BRANCH="restoration_mod"
+export IPOPT_L1_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="master"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="default"
@@ -37,7 +39,8 @@ bash coinbrew fetch Cbc --no-prompt
 bash coinbrew fetch Bonmin --no-prompt
 bash coinbrew fetch Couenne --no-prompt
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-#bash coinbrew fetch MibS@stable/1.1 --no-prompt
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt
+mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt
 
@@ -142,6 +145,16 @@ make
 make install
 cd $IDAES_EXT/coinbrew
 
+
+echo "#########################################################################"
+echo "# Ipopt_L1 ampl executables                                             #"
+echo "#########################################################################"
+cd Ipopt_L1
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist_l1
+make
+make install
+cd $IDAES_EXT/coinbrew
+
 echo "#########################################################################"
 echo "# CoinUtils                                                             #"
 echo "#########################################################################"
@@ -227,6 +240,14 @@ cd $IDAES_EXT
 mkdir dist-solvers
 cd dist-solvers
 # Executables
+if [ ${osname} = "windows" ]
+then
+  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1.exe
+  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1.exe
+else
+  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+fi
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../coinbrew/dist/bin/ipopt_sens ./
 cp ../coinbrew/dist/bin/clp ./
