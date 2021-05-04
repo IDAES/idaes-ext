@@ -149,7 +149,7 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
-cd Ipopt_L1
+cd Ipopt_l1
 ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist_l1
 make
 make install
