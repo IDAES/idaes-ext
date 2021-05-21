@@ -7,9 +7,6 @@ $branch = "main"
 IF ($flavor -eq "windows"){
   $wdir = "c:/repo"
 }
-ELSEIF ($flavor -eq "centos6"){
-  $wdir = "/repo"
-}
 ELSEIF ($flavor -eq "centos7"){
   $wdir = "/repo"
 }
@@ -26,7 +23,7 @@ ELSEIF ($flavor -eq "ubuntu2004"){
   $wdir = "/repo"
 }
 ELSE{
-  echo "Please specify a flavor in {windows, centos6, centos7, centos8,"
+  echo "Please specify a flavor in {windows, centos7, centos8,"
   echo "                            ubuntu1804, ubuntu1910, ubuntu2004}."
   exit 1
 }
