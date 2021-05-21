@@ -31,11 +31,12 @@ static const double sqrt_3=1.73205080756888; //square root of 3
 typedef enum{ // Equations of state
     EOS_PR = 0,
     EOS_SRK = 1,
-    EOS_END = 2
+    EOS_VDW = 2,
+    EOS_END = 3
 }eos_indx;
 
-static const double eos_u[EOS_END] = {+2.0, +1.0};
-static const double eos_w[EOS_END] = {-1.0, +0.0};
+static const double eos_u[EOS_END] = {+2.0, +1.0, +0.0};
+static const double eos_w[EOS_END] = {-1.0, +0.0, +0.0};
 
 static const char liquid = 0;
 static const char vapor = 1;
