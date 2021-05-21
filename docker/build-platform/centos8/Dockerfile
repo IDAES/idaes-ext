@@ -6,8 +6,8 @@ RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel cmake
 RUN yum -y install wget unzip patch which file valgrind
 RUN yum -y install flex bison
 RUN yum -y install dnf-plugins-core
-RUN yum config-manager --set-enabled PowerTools
-RUN dnf --enablerepo=PowerTools -y install lapack-devel
+RUN yum config-manager --set-enabled powertools
+RUN dnf --enablerepo=powertools -y install lapack-devel
 RUN mkdir repo
 
 RUN cd repo; \
