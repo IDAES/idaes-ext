@@ -11,8 +11,6 @@ jobs:
         docker_image: ["eslickj/idaes-ext-centos6-test:latest"]
         bin_platform: ["centos6"]
         include:
-          - docker_image: eslickj/idaes-ext-centos6-test:latest
-            bin_platform: centos6
           - docker_image: eslickj/idaes-ext-centos7-test:latest
             bin_platform: centos7
           - docker_image: eslickj/idaes-ext-centos8-test:latest
@@ -35,7 +33,7 @@ jobs:
             conda activate idaes
             pip install idaes-pse
             idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ${{ matrix.bin_platform }}'
-            
+
       - name: Test IDAES-PSE
         run: |
           docker exec test /bin/bash -c '

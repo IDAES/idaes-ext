@@ -6,15 +6,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      RTAG: testing  
+      RTAG: testing
 
     steps:
       - uses: actions/checkout@v2
-        
+
       - name: Get Binaries
         run: |
-          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos6-64.tar.gz
-          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-centos6-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos7-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-centos7-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos8-64.tar.gz
@@ -27,7 +25,7 @@ jobs:
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-ubuntu2004-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-windows-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-windows-64.tar.gz
-         
+
       - name: Calculate Hashes
         run: |
           sha256sum idaes-lib-centos6-64.tar.gz >> sha256sum_${RTAG}.txt
@@ -44,7 +42,7 @@ jobs:
           sha256sum idaes-solvers-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-windows-64.tar.gz >> sha256sum_${RTAG}.txt
-          
+
       - name: Push Hashes
         run: |
           git config user.name github-actions
