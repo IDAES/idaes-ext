@@ -287,8 +287,9 @@ then
     cp /mingw64/bin/zlib*.dll ./
 fi
 
-# Compile Pynumero
-
+echo "#########################################################################"
+echo "# Pynumero                                                              #"
+echo "#########################################################################"
 cd $IDAES_EXT
 git clone $PYNU_REPO
 cd pyomo
@@ -305,7 +306,9 @@ fi
 make
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
 
-# Compile k_aug
+echo "#########################################################################"
+echo "# k_aug, dotsens                                                        #"
+echo "#########################################################################"
 cd $IDAES_EXT
 git clone $K_AUG_REPO
 cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
@@ -321,7 +324,24 @@ make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
 cp dot_sens* $IDAES_EXT/dist-solvers
 
+if [ ${osname} != "windows" ]
+then
+  echo "#########################################################################"
+  echo "# PETSc                                                                 #"
+  echo "#########################################################################"
+  export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
+  export PETSC_DIR=/repo/petsc-dist 
+  export PETSC_ARCH=""
+  cd $IDAES_EXT/petsc
+  make
+  cp petsc $IDAES_EXT/dist-solvers
+fi
+
 # here you pack files
+echo "#########################################################################"
+echo "# Finish                                                                #"
+echo "#########################################################################"
 cd $IDAES_EXT/dist-solvers
 tar -czvf idaes-solvers-${osname}-64.tar.gz *
+echo "Done"
 echo "HSL Present: ${with_hsl}"
