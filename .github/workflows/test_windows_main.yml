@@ -23,4 +23,4 @@ jobs:
         shell: cmd
         run: |
           cd idaes-pse\idaes
-          pytest
+          pytest -m not integration
