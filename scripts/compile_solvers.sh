@@ -329,18 +329,22 @@ then
   echo "#########################################################################"
   echo "# PETSc                                                                 #"
   echo "#########################################################################"
-  export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
-  export PETSC_DIR=/repo/petsc-dist 
+  export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
+  export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
+  export PETSC_DIR=/repo/petsc-dist
   export PETSC_ARCH=""
   cd $IDAES_EXT/petsc
   make
-  cp petsc $IDAES_EXT/dist-solvers
+  mkdir $IDAES_EXT/dist-petsc
+  cp petsc $IDAES_EXT/dist-petsc
 fi
 
 # here you pack files
 echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
+cd $IDAES_EXT/dist-petsc
+tar -czvf idaes-petsc-${osname}-64.tar.gz *
 cd $IDAES_EXT/dist-solvers
 tar -czvf idaes-solvers-${osname}-64.tar.gz *
 echo "Done"

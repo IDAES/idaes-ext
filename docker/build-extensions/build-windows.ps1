@@ -42,6 +42,12 @@ try{
 catch{
   echo "Solvers were not built."
 }
+try{
+  docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-solvers/idaes-petsc-${flavor}-64.tar.gz .
+}
+catch{
+  echo "PETSc was not built."
+}
 docker rm ${flavor}_build_tmp
 docker rmi ${flavor}_build_itmp
 cp *.tar.gz ../tarballs/
