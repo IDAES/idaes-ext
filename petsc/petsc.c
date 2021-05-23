@@ -354,7 +354,7 @@ int main(int argc, char **argv){
 
 char **transform_args(int argc, char** argv, int *size){
   /* change the format of the command line arguments from ASL to PETSc*/
-  const int max_args=200, max_arg_len=200;
+  const int max_args=200, max_arg_len=300;
   char argv2[max_args][max_arg_len]; // buffer for reformatted args
   char **argv3;
   int argc2 = argc; //reformatted number of args
@@ -362,6 +362,11 @@ char **transform_args(int argc, char** argv, int *size){
 
   for(i=0; i<argc; ++i){
     for(j=0;argv[i][j]!='\0';++j){
+      if (j==0){
+        if (argv[i][j] == '-' && argv[i][j+1] == '-'){ //convert leading -- to -
+          continue;
+        }
+      }
       if(argv[i][j]==' '||argv[i][j]=='\t'||argv[i][j]=='\n'){} //strip white spc
       else if(argv[i][j]=='='){ // split on '=''
         h=0;
