@@ -2,7 +2,10 @@ This file contains the license information for the third-party libraries and
 solvers included in the IDAES binary distribution: idaes-lib-<platform>.tar.gz
 and idaes-solvers-<platform>.tar.gz.  In general the idaes-lib-<platform>.tar.gz
 contains compiled IDAES code, while idaes-solvers-<platform>.tar.gz contains
-complied third-party libraries and solvers.
+complied third-party libraries and solvers. The idaes-petsc-<platform>.tar.gz
+file contains an optional experimental AMPL solver wrapper for the PETSc solver.
+The petsc binary is only available for Linux and contains PETSc and several
+third-party solver libraries.
 
 idaes-lib-<platform>.tar.gz
 ===========================
@@ -109,3 +112,65 @@ idaes-solvers-<platform>.tar.gz
   whatsoever resulting from loss of use, data or profits, whether in an
   action of contract, negligence or other tortious action, arising out
   of or in connection with the use or performance of this software.
+
+idaes-petsc-<platform>.tar.gz
+===============================
+
+  PETSc
+  -----
+
+  Source: https://www.mcs.anl.gov/petsc/
+  License: https://www.mcs.anl.gov/petsc/documentation/license.html
+
+  AMPL Solver Library (ASL)
+  -------------------------
+  Source: https://ampl.com/netlib/ampl/solvers/index.html
+  License: See Above
+
+  MPICH
+  -----
+
+  Source: https://www.mpich.org/
+  License: https://github.com/pmodels/mpich/blob/master/COPYRIGHT
+
+  MUMPS
+  -----
+
+  Source: http://mumps.enseeiht.fr/
+  License: https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+
+  Sundials
+  --------
+
+  Source: https://computing.llnl.gov/projects/sundials
+  License: https://computing.llnl.gov/projects/sundials/license
+
+  Scalapack
+  ---------
+
+  Source: http://www.netlib.org/scalapack/
+  License: http://www.netlib.org/scalapack/#_licensing
+
+  PTScotch
+  --------
+
+  Source: https://www.labri.fr/perso/pelegrin/scotch/
+  License: https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+
+  Hypre
+  -----
+
+  Source: https://computing.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods
+  License: https://github.com/hypre-space/hypre/blob/master/LICENSE-MIT
+
+  SuiteSparse
+  -----------
+
+  Source: https://people.engr.tamu.edu/davis/suitesparse.html
+  License: https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/master/LICENSE.txt
+
+  Strumpack
+  ---------
+
+  Source: https://github.com/pghysels/STRUMPACK
+  License: https://github.com/pghysels/STRUMPACK/blob/master/LICENSE
