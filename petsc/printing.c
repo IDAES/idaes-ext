@@ -27,9 +27,9 @@ void print_x_asl(ASL *asl){
   PetscPrintf(PETSC_COMM_SELF, "Initial Values (scaled)\n");
   for (i=0;i<n_var;++i){
      if(X0[i] > Uvx[i] || X0[i] < LUv[i]){
-       memcpy(color_code, COLOR_RED, 15*sizeof(char));
+       strcpy(color_code, COLOR_RED);
      }
-     else memcpy(color_code, COLOR_NORMAL, 15*sizeof(char));
+     else strcpy(color_code, COLOR_NORMAL);
      PetscPrintf(PETSC_COMM_SELF, "%sv%d: %e <= %e <= %e%s\n",
      color_code, i, LUv[i], X0[i], Uvx[i], COLOR_NORMAL);
   }
@@ -64,9 +64,9 @@ void print_jac_asl(ASL *asl, real u, real l){
     PetscPrintf(PETSC_COMM_SELF, "c%d", i);
     while(cg!=NULL){
       if(fabs(Jac[cg->goff]) > u || fabs(Jac[cg->goff]) < l){
-        memcpy(color_code, COLOR_RED, 15*sizeof(char));}
-      else memcpy(color_code, COLOR_NORMAL, 15*sizeof(char));
-      PetscPrintf(PETSC_COMM_SELF, 
+        strcpy(color_code, COLOR_RED);}
+      else strcpy(color_code, COLOR_NORMAL);
+      PetscPrintf(PETSC_COMM_SELF,
         " %sv%d(%e)%s",
         color_code,cg->varno,
         Jac[cg->goff],

@@ -70,9 +70,9 @@ int get_snes_sol_message(char *msg, SNESConvergedReason term_reason, ASL *asl){
   else if(term_reason==SNES_CONVERGED_ITS){
     strcpy(msg, "SNES_CONVERGED_ITS");
     solve_result_num = 400;}
-  else if(term_reason==SNES_CONVERGED_TR_DELTA){
-    strcpy(msg, "SNES_CONVERGED_TR_DELTA");
-    solve_result_num = 2;}
+  else if(term_reason==SNES_DIVERGED_TR_DELTA){
+    strcpy(msg, "SNES_DIVERGED_TR_DELTA");
+    solve_result_num = 300;}
   else if(term_reason==SNES_DIVERGED_FUNCTION_DOMAIN){
     strcpy(msg, "SNES_DIVERGED_FUNCTION_DOMAIN");
     solve_result_num = 300;}

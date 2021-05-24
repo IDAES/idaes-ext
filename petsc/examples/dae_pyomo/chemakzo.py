@@ -85,8 +85,7 @@ if __name__ == "__main__":
     # The scaling factor stuff here is just for testing and demonstration
     # You don't need to supply scaling factors and if you do provide the
     # scaling_factor suffix you don't need factors for each varibale and
-    # constaint.  These are used only for user scaling options
-    # "--scale_eqs 3" and "--scale_vars 1"
+    # constaint.
     model.scaling_factor = Suffix(direction=Suffix.EXPORT, datatype=Suffix.FLOAT)
     model.scaling_factor[model.Fin] = 0.5
 
@@ -137,10 +136,6 @@ if __name__ == "__main__":
             "--snes_monitor":"",          #show progress on nonlinear solves
             "--pc_type":"lu",             #direct solve MUMPS default LU fact
             "--ksp_type":"preonly",       #no ksp used direct solve preconditioner
-            "--scale_vars":1,             #variable scaling method
-            "--scale_eqs":3,              #equation scaling method
-            #"--scale_eq_jac_max":100,    #set max J element to 1 for eq scaling
-            #"--show_scale_factors":"",
             #"--show_jac":"",
             #"--show_initial":"",
             "--snes_type":"newtonls",     # newton line search for nonliner solver
