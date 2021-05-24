@@ -1,13 +1,3 @@
-#  ___________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright 2017 National Technology and Engineering Solutions of Sandia, LLC
-#  Under the terms of Contract DE-NA0003525 with National Technology and
-#  Engineering Solutions of Sandia, LLC, the U.S. Government retains certain
-#  rights in this software.
-#  This software is distributed under the 3-clause BSD License.
-#  ___________________________________________________________________________
-
 """
 A test problem from https://archimede.dm.uniba.it/~testset/report/chemakzo.pdf
 """
@@ -87,9 +77,7 @@ if __name__ == "__main__":
     # scaling_factor suffix you don't need factors for each varibale and
     # constaint.
     model.scaling_factor = Suffix(direction=Suffix.EXPORT, datatype=Suffix.FLOAT)
-    model.scaling_factor[model.Fin] = 0.5
-
-    model.scaling_factor[model.eq_Fin] = 100
+    model.scaling_factor[model.eq_Fin] = 1000.0 # just testing scaling
     #---------------------------------------------------------------------------
 
     print("Solving initial conditions:")
@@ -98,12 +86,9 @@ if __name__ == "__main__":
         tee=True,
         options={
             "--snes_monitor":"",
-            "--on_error_attach_debugger":"",
-            "--scale_vars":1,
-            "--scale_eqs":3})
+            "--on_error_attach_debugger":""})
 
     for i in [1,2,3,4,5]: model.y[i].unfix()
-    model.display() # show the initial state
 
     #Set suffixes to show the structure of the problem
     # dae_suffix holds variable types 0=algebraic 1=differential 2=derivative
