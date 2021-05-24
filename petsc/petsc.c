@@ -71,6 +71,7 @@ int main(int argc, char **argv){
     PetscPrintf(PETSC_COMM_SELF, "-----------------------------------------------------------------\n");
   }
   // Make sure that a file was specified, and get the string length
+  if(argc < 2) exit(P_EXIT_NL_FILE_ERROR);
   if(!sol_ctx.opt.got_stub) strcpy(sol_ctx.opt.stub, argv[1]); //assume first arg is file if no -s
   if(sol_ctx.opt.stub[0]=='-') exit(P_EXIT_NL_FILE_ERROR); // is an option name not filename
   if(strlen(sol_ctx.opt.stub)==0) exit(P_EXIT_NL_FILE_ERROR);
