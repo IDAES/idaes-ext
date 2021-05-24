@@ -2,8 +2,8 @@
 #
 #  Pyomo: Python Optimization Modeling Objects
 #  Copyright 2017 National Technology and Engineering Solutions of Sandia, LLC
-#  Under the terms of Contract DE-NA0003525 with National Technology and 
-#  Engineering Solutions of Sandia, LLC, the U.S. Government retains certain 
+#  Under the terms of Contract DE-NA0003525 with National Technology and
+#  Engineering Solutions of Sandia, LLC, the U.S. Government retains certain
 #  rights in this software.
 #  This software is distributed under the 3-clause BSD License.
 #  ___________________________________________________________________________
@@ -11,14 +11,22 @@
 """
 A test problem from https://archimede.dm.uniba.it/~testset/report/chemakzo.pdf
 """
-from __future__ import division  # No integer division
-from __future__ import print_function  # Python 3 style print
-
+import sys
 from pyomo.environ import ConcreteModel, Param, Var, Constraint, Suffix, SolverFactory
+from pyomo.common.tempfiles import TempfileManager
+
 
 if __name__ == "__main__":
-    opt = SolverFactory('petsc')
-    model = ConcreteModel(name="example01")
+    TempfileManager.tempdir = "./"
+    if sys.platform.startswith('win32'):
+        # On Windows, assume running the solver using WSL
+        opt = SolverFactory(
+            "petsc_wsl",
+            executable="petsc_wsl.bat",
+            type='asl')
+    else:
+        opt = SolverFactory("petsc")
+    model = ConcreteModel(name="chemakzo")
 
     # Set problem parameter values
     model.k = Param([1,2,3,4], initialize={
@@ -78,7 +86,7 @@ if __name__ == "__main__":
     # You don't need to supply scaling factors and if you do provide the
     # scaling_factor suffix you don't need factors for each varibale and
     # constaint.  These are used only for user scaling options
-    # "-scale_eqs 3" and "-scale_vars 1"
+    # "--scale_eqs 3" and "--scale_vars 1"
     model.scaling_factor = Suffix(direction=Suffix.EXPORT, datatype=Suffix.FLOAT)
     model.scaling_factor[model.Fin] = 0.5
 
@@ -90,10 +98,10 @@ if __name__ == "__main__":
         model,
         tee=True,
         options={
-            "-snes_monitor":"",
-            "-on_error_attach_debugger":"",
-            "-scale_vars":0,
-            "-scale_eqs":1})
+            "--snes_monitor":"",
+            "--on_error_attach_debugger":"",
+            "--scale_vars":1,
+            "--scale_eqs":3})
 
     for i in [1,2,3,4,5]: model.y[i].unfix()
     model.display() # show the initial state
@@ -118,31 +126,31 @@ if __name__ == "__main__":
     # Solve threw in a lot of example options, but the important ones are
     # the final time and the one to specify that it's a dae.  Probably also
     # would want to specify a time step, or an adaptive time stepping method
-    res = opt.solve(model, tee=True,
+    res = opt.solve(model, tee=True, keepfiles=True, symbolic_solver_labels=True,
         options={
-            "-on_error_attach_debugger":"",
-            "-dae_solve":"",             #tell solver to expect dae problem
-            "-ts_monitor":"",            #show progess of TS solver
-            "-ts_max_snes_failures":40,  #max nonlin solve fails before give up
-            "-ts_max_reject":20,         #max steps to reject
-            "-ts_type":"alpha",          #ts_solver
-            "-snes_monitor":"",          #show progress on nonlinear solves
-            "-pc_type":"lu",             #direct solve MUMPS default LU fact
-            "-ksp_type":"preonly",       #no ksp used direct solve preconditioner
-            "-scale_vars":0,             #variable scaling method
-            "-scale_eqs":1,              #equation scaling method
-            #"-scale_eq_jac_max":100,    #set max J element to 1 for eq scaling
-            #"-show_scale_factors":"",
-            #"-show_jac":"",
-            #"-show_initial":"",
-            "-snes_type":"newtonls",     # newton line search for nonliner solver
-            "-ts_adapt_type":"basic",
-            "-ts_max_time":180,          # final time
-            "-ts_save_trajectory":1,
-            "-ts_trajectory_type":"visualization",
-            #"-ts_exact_final_time":"stepover",
-            #"-ts_exact_final_time":"matchstep",
-            "-ts_exact_final_time":"interpolate",
-            #"-ts_view":""
+            "--on_error_attach_debugger":"",
+            "--dae_solve":"",             #tell solver to expect dae problem
+            "--ts_monitor":"",            #show progess of TS solver
+            "--ts_max_snes_failures":40,  #max nonlin solve fails before give up
+            "--ts_max_reject":20,         #max steps to reject
+            "--ts_type":"alpha",          #ts_solver
+            "--snes_monitor":"",          #show progress on nonlinear solves
+            "--pc_type":"lu",             #direct solve MUMPS default LU fact
+            "--ksp_type":"preonly",       #no ksp used direct solve preconditioner
+            "--scale_vars":1,             #variable scaling method
+            "--scale_eqs":3,              #equation scaling method
+            #"--scale_eq_jac_max":100,    #set max J element to 1 for eq scaling
+            #"--show_scale_factors":"",
+            #"--show_jac":"",
+            #"--show_initial":"",
+            "--snes_type":"newtonls",     # newton line search for nonliner solver
+            "--ts_adapt_type":"basic",
+            "--ts_max_time":180,          # final time
+            "--ts_save_trajectory":1,
+            "--ts_trajectory_type":"visualization",
+            #"--ts_exact_final_time":"stepover",
+            #"--ts_exact_final_time":"matchstep",
+            "--ts_exact_final_time":"interpolate",
+            #"--ts_view":""
             })
     model.display() # display final state of the model (at -ts_max_time)

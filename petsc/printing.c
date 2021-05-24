@@ -66,7 +66,11 @@ void print_jac_asl(ASL *asl, real u, real l){
       if(fabs(Jac[cg->goff]) > u || fabs(Jac[cg->goff]) < l){
         memcpy(color_code, COLOR_RED, 15*sizeof(char));}
       else memcpy(color_code, COLOR_NORMAL, 15*sizeof(char));
-      PetscPrintf(PETSC_COMM_SELF, " %sv%d(%e)%s", color_code,cg->varno, Jac[cg->goff], COLOR_NORMAL);
+      PetscPrintf(PETSC_COMM_SELF, 
+        " %sv%d(%e)%s",
+        color_code,cg->varno,
+        Jac[cg->goff],
+        COLOR_NORMAL);
       cg=cg->next;
     }
     PetscPrintf(PETSC_COMM_SELF, "\n");

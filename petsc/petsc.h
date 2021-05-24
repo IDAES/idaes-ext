@@ -28,20 +28,6 @@ John Eslick
 #define COLOR_RED     "\x1b[31m"
 #define COLOR_GREEN   "\x1b[32m"
 
-/* Variable scaling methods */
-typedef enum{
-    VAR_SCALE_NONE = 0,
-    VAR_SCALE_USER = 1
-}VARSCALE_TYPE;
-
-/* Equation scaling methods */
-typedef enum{
-    EQ_SCALE_NONE = 0,
-    EQ_SCALE_MAX_GRAD = 1,
-    EQ_SCALE_MAX_MULTIGRAD = 2, //not ready yet
-    EQ_SCALE_USER = 3
-}EQSCALE_TYPE;
-
 typedef enum{  //keep these under 50 and shouldn't confilict with PETSc codes
    P_EXIT_NORMAL = 0, //Finished okay (solved is another matter)
    P_EXIT_INTEGER = 1, //Exited due to integer variables
@@ -65,8 +51,6 @@ typedef struct{
   PetscBool      show_init; // show initial values for x vec
   PetscBool      show_jac;  // show jacobian at intial value
   PetscBool      show_scale_factors;  // show jacobian at intial value
-  PetscScalar    scale_eq_jac_max; //Max jacobian entry for scaling
-  PetscScalar    scale_eq_fac_min; //Minimum scaling factor to use (overrides scale_eq_jac_max)
   PetscBool      ampl_opt;  // -AMPL specified I catch it but ignore
   PetscBool      per_test;  // perturb inital solved value and resolve  to test
   PetscBool      use_bounds; // give solver variable bounds
@@ -74,8 +58,6 @@ typedef struct{
   PetscBool      scale_eq;  // scale the equations based on jacobian at init
   PetscBool      dae_solve; //use dae solver (requires suffix information)
   PetscBool      jac_explicit_diag; // explicitly include jacobian diagonal
-  EQSCALE_TYPE   eq_scale_method; // method to scale equations
-  VARSCALE_TYPE  var_scale_method; // method to scale variables
   PetscScalar    ptest; // factor for perturb test
 }Solver_options;
 
@@ -111,10 +93,7 @@ void get_dae_info(Solver_ctx *sol_ctx);
 void dae_var_map(Solver_ctx *sol_ctx);
 void sol_ctx_init(Solver_ctx *ctx);
 int get_snes_sol_message(char *msg, SNESConvergedReason term_reason, ASL *asl);
-int ScaleVars(Solver_ctx *sol_ctx);
 int ScaleVarsUser(Solver_ctx *sol_ctx);
-int ScaleEqs(Solver_ctx *sol_ctx);
-int ScaleEqs_Largest_Grad(Solver_ctx *sol_ctx);
 int ScaleEqsUser(Solver_ctx *sol_ctx);
 char **transform_args(int argc, char** argv, int *size);
 void print_commandline(const char* msg, int argc, char **argv);
