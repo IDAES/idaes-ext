@@ -11,18 +11,29 @@ To run this you need either:
 
 Option 1) $PETSC_DIR/lib/petsc/bin/ in PYTHONPATH
 
-Option 2) Get these files and put them in your PYTHONPATH
+Option 2) Get these files and put them in PYTHONPATH
   * https://github.com/petsc/petsc/blob/main/lib/petsc/bin/PetscBinaryIO.py
   * https://github.com/petsc/petsc/blob/main/lib/petsc/bin/PetscBinaryIOTrajectory.py
 """
-
+import sys
 import PetscBinaryIOTrajectory as pbt
 
-if __name__ == '__main__':
+def main():
+    try:
+        stub = sys.argv[1]
+    except:
+        print("Specify nl file stub")
+        return
     (t,v,names) = pbt.ReadTrajectory("Visualization-data")
-    with open('vars.col') as f:
+    with open(f'{stub}.col') as f:
         names = list(map(str.strip, f.readlines()))
-    with open('vars.typ') as f:
+    with open(f'{stub}.typ') as f:
         typ = list(map(int,f.readlines()))
     names = [name for i, name in enumerate(names) if typ[i] in [0,1]]
-    pbt.PlotTrajectories(t,v,names,["x1", "x2", "x3"])
+    skip = ["xdummy", "timedummy"]
+    for name in names:
+        if name in skip: continue
+        pbt.PlotTrajectories(t,v,names,[name])
+
+if __name__ == '__main__':
+    main()

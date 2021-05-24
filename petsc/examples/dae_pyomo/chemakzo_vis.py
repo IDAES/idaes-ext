@@ -2,30 +2,23 @@
 Visualize the trajectory from example01.py. Assuming it was run with these
 options:
 
-    -ts_save_trajectory=1
-    -ts_trajectory_type=visualization
+    --ts_save_trajectory=1
+    --ts_trajectory_type=visualization
 
 That should put results from each time step in the directory Visualization-data
 
-To run this you need $PETSC_DIR/lib/petsc/bin/ in PYTHONPATH
-> export PYTHONPATH=$PYTHONPATH:$PETSC_DIR/lib/petsc/bin/
+To run this you need either:
+
+Option 1) $PETSC_DIR/lib/petsc/bin/ in PYTHONPATH
+
+Option 2) Get these files and put them in your PYTHONPATH
+  * https://github.com/petsc/petsc/blob/main/lib/petsc/bin/PetscBinaryIO.py
+  * https://github.com/petsc/petsc/blob/main/lib/petsc/bin/PetscBinaryIOTrajectory.py
 """
 
-
-from __future__ import division  # No integer division
-from __future__ import print_function  # Python 3 style print
-
-try:
-    import PetscBinaryIOTrajectory as pbt
-except:
-    pbt = None
-    print("Could not find PetscBinaryIOTrajectory.py.\n"
-          "Make sure the PETSc python files are in your PYTHONPATH\n"
-          "Try > export PYTHONPATH=$PYTHONPATH:$PETSC_DIR/lib/petsc/bin/")
+import PetscBinaryIOTrajectory as pbt
 
 if __name__ == '__main__':
-    if pbt is None:
-        exit()
     (t,v,names) = pbt.ReadTrajectory("Visualization-data")
     with open('vars.col') as f:
         names = list(map(str.strip, f.readlines()))

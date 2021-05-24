@@ -60,20 +60,10 @@ int main(int argc, char **argv){
   PetscOptionsHasName(NULL, NULL, "-use_bounds", &sol_ctx.opt.use_bounds);
   PetscOptionsGetScalar(NULL, NULL, "-perturb_test",&sol_ctx.opt.ptest, &sol_ctx.opt.per_test);
   if(!sol_ctx.opt.per_test) sol_ctx.opt.ptest = 1.0;
-  PetscOptionsGetInt(NULL, NULL, "-scale_eqs", &temp_int, &sol_ctx.opt.scale_eq);
-  sol_ctx.opt.eq_scale_method = (EQSCALE_TYPE)temp_int;
-  PetscOptionsGetInt(NULL, NULL, "-scale_vars", &temp_int, &sol_ctx.opt.scale_var);
-  sol_ctx.opt.var_scale_method = (VARSCALE_TYPE)temp_int;
   PetscOptionsHasName(NULL, NULL, "-AMPL", &sol_ctx.opt.ampl_opt); // I don't use this
   PetscOptionsHasName(NULL, NULL, "-jac_explicit_diag", &sol_ctx.opt.jac_explicit_diag);
   PetscOptionsHasName(NULL, NULL, "-dae_solve", &sol_ctx.opt.dae_solve);
   PetscOptionsHasName(NULL, NULL, "-show_cl", &sol_ctx.opt.show_cl);
-  PetscOptionsGetScalar(NULL, NULL, "-scale_eq_jac_max",&temp_scalar, &temp_bool);
-  if(temp_bool) sol_ctx.opt.scale_eq_jac_max = temp_scalar;
-  else sol_ctx.opt.scale_eq_jac_max = 100;
-  PetscOptionsGetScalar(NULL, NULL, "-scale_eq_fac_min",&temp_scalar, &temp_bool);
-  if(temp_bool) sol_ctx.opt.scale_eq_fac_min = temp_scalar;
-  else sol_ctx.opt.scale_eq_fac_min = 1e-6;
 
   // If show_cl otion, show the original and transformed command line
   if(sol_ctx.opt.show_cl){
@@ -184,8 +174,8 @@ int main(int argc, char **argv){
       }
     }
     // Equation/variable scaling
-    ScaleVars(&sol_ctx);
-    ScaleEqs(&sol_ctx);
+    ScaleVarsUser(&sol_ctx);
+    ScaleEqsUser(&sol_ctx);
     // Print the variable types for reading trajectories
     strcpy(sol_ctx.opt.typ_file, sol_ctx.opt.stub);
     if(sol_ctx.opt.stublen > 3){
@@ -261,8 +251,8 @@ int main(int argc, char **argv){
   } //end ts solve
   else{ // nonlinear solver setup and solve
     // Equation/variable scaling
-    ScaleVars(&sol_ctx);
-    ScaleEqs(&sol_ctx);
+    ScaleVarsUser(&sol_ctx);
+    ScaleEqsUser(&sol_ctx);
     // Print requested diagnostic info
     print_init_diagnostic(&sol_ctx);
     /*Create nonlinear solver context*/
@@ -400,7 +390,45 @@ void sol_ctx_init(Solver_ctx *ctx){
   ctx->n_ineq=0;  // Number of inequality constraints
   ctx->explicit_time=0; //DAE includes time variable? 1=yes 0=no
   ctx->dof=0; //degrees of freedom
-  ctx->opt.ptest=1.0; // method to scale equations
-  ctx->opt.eq_scale_method=EQ_SCALE_MAX_GRAD; // method to scale equations
-  ctx->opt.var_scale_method=VAR_SCALE_NONE; // method to scale variables
+  ctx->opt.ptest=1.0; // special test option
+}
+
+int ScaleEqsUser(Solver_ctx *sol_ctx){
+    ASL *asl = sol_ctx->asl;
+    int i = 0, err=0;
+    real s;
+
+    if (sol_ctx->scaling_factor_con->u.r == NULL) return 0; //no scaling factors provided
+    for(i=0;i<n_con;++i){ //n_con is asl vodoo incase you wonder where it came from
+      s = sol_ctx->scaling_factor_con->u.r[i];
+      if(s != 0.0) conscale(i, 1.0/s, &err); // invert scale to match Ipopt
+    }
+    return err;
+}
+
+int ScaleVarsUser(Solver_ctx *sol_ctx){
+    //Use scalling factors set in the scaling_factor suffix, for DAEs ignore
+    //scaling on the derivatives and use scaling from the differntial vars
+    //instead varaibles and there derivatives should be scaled the same
+    int i = 0, err=0;
+    real s;
+    ASL *asl = sol_ctx->asl;
+    if (sol_ctx->scaling_factor_var->u.r == NULL) return 0; //no scaling factors
+    if(sol_ctx->opt.dae_solve){ //dae so match scaling on derivatives
+      for(i=0;i<n_var;++i){ //n_var is asl vodoo
+        s = sol_ctx->scaling_factor_var->u.r[i];
+        if(sol_ctx->dae_suffix_var->u.i[i] == 2){
+          else s = sol_ctx->scaling_factor_var->u.r[sol_ctx->dae_link[i]];
+        }
+        else if(sol_ctx->dae_suffix_var->u.i[i] == 3) s = 0.0; //can't scale time
+        if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
+      }
+    }
+    else{ // no dae so use scale factors given
+      for(i=0;i<n_var;++i){ //n_var is asl vodoo
+        s = sol_ctx->scaling_factor_var->u.r[i];
+        if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
+      }
+    }
+    return err;
 }
