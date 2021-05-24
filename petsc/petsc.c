@@ -401,7 +401,7 @@ int ScaleEqsUser(Solver_ctx *sol_ctx){
     if (sol_ctx->scaling_factor_con->u.r == NULL) return 0; //no scaling factors provided
     for(i=0;i<n_con;++i){ //n_con is asl vodoo incase you wonder where it came from
       s = sol_ctx->scaling_factor_con->u.r[i];
-      if(s != 0.0) conscale(i, 1.0/s, &err); // invert scale to match Ipopt
+      if(s != 0.0) conscale(i, s, &err);
     }
     return err;
 }
@@ -414,15 +414,8 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
     real s;
     ASL *asl = sol_ctx->asl;
     if (sol_ctx->scaling_factor_var->u.r == NULL) return 0; //no scaling factors
-    if(sol_ctx->opt.dae_solve){ //dae so match scaling on derivatives
-      for(i=0;i<n_var;++i){ //n_var is asl vodoo
-        s = sol_ctx->scaling_factor_var->u.r[i];
-        if(sol_ctx->dae_suffix_var->u.i[i] == 2){
-          s = sol_ctx->scaling_factor_var->u.r[sol_ctx->dae_link[i]];
-        }
-        else if(sol_ctx->dae_suffix_var->u.i[i] == 3) s = 0.0; //can't scale time
-        if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
-      }
+    if(sol_ctx->opt.dae_solve){ //dae variable scaling
+      return 0; //variable scaling will mess up DAE problems, work-in-progress
     }
     else{ // no dae so use scale factors given
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
