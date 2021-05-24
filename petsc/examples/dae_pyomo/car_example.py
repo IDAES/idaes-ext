@@ -126,8 +126,6 @@ if __name__ == "__main__":
             "--snes_monitor":"",          #show progress on nonlinear solves
             "--pc_type":"lu",             #direct solve MUMPS default LU fact
             "--ksp_type":"preonly",       #no ksp used direct solve preconditioner
-            "--scale_vars":0,             #variable scaling method
-            "--scale_eqs":0,              #equation scaling method
             "--snes_type":"newtonls",     # newton line search for nonliner solver
             "--ts_adapt_type":"basic",
             "--ts_adapt_dt_min":1e-1,

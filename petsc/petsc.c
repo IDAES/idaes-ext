@@ -18,9 +18,6 @@ int main(int argc, char **argv){
   Solver_ctx     sol_ctx;     // solver context
   int            err;         // Error code  from ASL fulctions
   int            i=0;         // Loop counters
-  PetscInt       temp_int;    // a temporary variable to store a option
-  PetscScalar    temp_scalar; // a temporary scalar for reading options
-  PetscBool      temp_bool;   // a temporart bool for reading options
   int            argc_new;    // new number of arguments reformated for PETSc
   char           **argv_new;  // argv transformed to PETSc's format
   static SufDecl suftab[] = { // suffixes to read in
@@ -47,6 +44,7 @@ int main(int argc, char **argv){
 
   // Set some initial values in sol_ctx
   sol_ctx_init(&sol_ctx);
+  sol_ctx.opt.stub[0] = '\0'
   // Change the AMPL style args into what PETSc would expect
   argv_new = transform_args(argc, argv, &argc_new);
   // Initialize up PETSc stuff
@@ -75,6 +73,7 @@ int main(int argc, char **argv){
   // Make sure that a file was specified, and get the string length
   if(!sol_ctx.opt.got_stub) strcpy(sol_ctx.opt.stub, argv[1]); //assume first arg is file if no -s
   if(sol_ctx.opt.stub[0]=='-') exit(P_EXIT_NL_FILE_ERROR); // is an option name not filename
+  if(strlen(sol_ctx.opt.stub)==0) exit(P_EXIT_NL_FILE_ERROR);
   sol_ctx.opt.stublen = strlen(sol_ctx.opt.stub);
   // Create ASL context and read nl file
   sol_ctx.asl = ASL_alloc(ASL_read_fg); // asl context
@@ -418,7 +417,7 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
         s = sol_ctx->scaling_factor_var->u.r[i];
         if(sol_ctx->dae_suffix_var->u.i[i] == 2){
-          else s = sol_ctx->scaling_factor_var->u.r[sol_ctx->dae_link[i]];
+          s = sol_ctx->scaling_factor_var->u.r[sol_ctx->dae_link[i]];
         }
         else if(sol_ctx->dae_suffix_var->u.i[i] == 3) s = 0.0; //can't scale time
         if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
