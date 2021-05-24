@@ -44,7 +44,7 @@ int main(int argc, char **argv){
 
   // Set some initial values in sol_ctx
   sol_ctx_init(&sol_ctx);
-  sol_ctx.opt.stub[0] = '\0'
+  sol_ctx.opt.stub[0] = '\0';
   // Change the AMPL style args into what PETSc would expect
   argv_new = transform_args(argc, argv, &argc_new);
   // Initialize up PETSc stuff
