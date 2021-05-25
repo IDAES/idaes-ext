@@ -13,14 +13,16 @@ jobs:
 
       - name: Get Binaries
         run: |
+          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-petsc-centos7-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos7-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-centos7-64.tar.gz
+          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-petsc-centos8-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-centos8-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-centos8-64.tar.gz
+          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-petsc-ubuntu1804-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-ubuntu1804-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-ubuntu1804-64.tar.gz
-          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-ubuntu1910-64.tar.gz
-          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-ubuntu1910-64.tar.gz
+          wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-petsc-ubuntu2004-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-ubuntu2004-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-lib-ubuntu2004-64.tar.gz
           wget https://github.com/IDAES/idaes-ext/releases/download/test-release/idaes-solvers-windows-64.tar.gz
@@ -28,18 +30,18 @@ jobs:
 
       - name: Calculate Hashes
         run: |
-          sha256sum idaes-lib-centos6-64.tar.gz >> sha256sum_${RTAG}.txt
-          sha256sum idaes-solvers-centos6-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-centos7-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-centos7-64.tar.gz >> sha256sum_${RTAG}.txt
+          sha256sum idaes-petsc-centos7-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-centos8-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-centos8-64.tar.gz >> sha256sum_${RTAG}.txt
+          sha256sum idaes-petsc-centos8-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-ubuntu1804-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-ubuntu1804-64.tar.gz >> sha256sum_${RTAG}.txt
-          sha256sum idaes-lib-ubuntu1910-64.tar.gz >> sha256sum_${RTAG}.txt
-          sha256sum idaes-solvers-ubuntu1910-64.tar.gz >> sha256sum_${RTAG}.txt
+          sha256sum idaes-petsc-ubuntu1804-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
+          sha256sum idaes-petsc-ubuntu2004-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-lib-windows-64.tar.gz >> sha256sum_${RTAG}.txt
           sha256sum idaes-solvers-windows-64.tar.gz >> sha256sum_${RTAG}.txt
 
