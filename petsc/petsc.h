@@ -5,6 +5,7 @@ John Eslick
 #ifndef PETSC_H
 #define PETSC_H
 
+#include <sys/types.h> // fix an issue with ssize_t on CentOS 7 build 
 #include<asl.h>
 #undef filename
 #include<petscsnes.h>

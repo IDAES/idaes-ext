@@ -9,14 +9,13 @@ jobs:
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: '3.7' 
+          python-version: '3.7'
       - name: "Clone/Install IDAES-PSE"
         shell: cmd
         run: |
           git clone https://github.com/idaes/idaes-pse.git
           cd idaes-pse
           git checkout master
-          pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
           pip install -e .
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
       - name: "Test IDAES-PSE"

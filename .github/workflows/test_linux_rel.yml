@@ -17,8 +17,6 @@ jobs:
             bin_platform: centos8
           - docker_image: eslickj/idaes-ext-ubuntu1804-test:latest
             bin_platform: ubuntu1804
-          - docker_image: eslickj/idaes-ext-ubuntu1910-test:latest
-            bin_platform: ubuntu1910
           - docker_image: eslickj/idaes-ext-ubuntu2004-test:latest
             bin_platform: ubuntu2004
     steps:

@@ -16,15 +16,12 @@ ELSEIF ($flavor -eq "centos8"){
 ELSEIF ($flavor -eq "ubuntu1804"){
   $wdir = "/repo"
 }
-ELSEIF ($flavor -eq "ubuntu1910"){
-  $wdir = "/repo"
-}
 ELSEIF ($flavor -eq "ubuntu2004"){
   $wdir = "/repo"
 }
 ELSE{
   echo "Please specify a flavor in {windows, centos7, centos8,"
-  echo "                            ubuntu1804, ubuntu1910, ubuntu2004}."
+  echo "                            ubuntu1804, ubuntu2004}."
   exit 1
 }
 
