@@ -119,8 +119,8 @@ idaes-petsc-<platform>.tar.gz
   PETSc
   -----
 
-  Source: https://www.mcs.anl.gov/petsc/
-  License: https://www.mcs.anl.gov/petsc/documentation/license.html
+  Source: https://petsc.org
+  License: https://petsc.org/main/install/license/#doc-license
 
   AMPL Solver Library (ASL)
   -------------------------
