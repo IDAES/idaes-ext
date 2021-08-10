@@ -60,7 +60,7 @@ The powershell script will checkout a build container from DockerHub and execute
 
 Once binaries have been compiled successfully for all platforms, they can be tested and released by the following procedure.  The eventual goal is to develop a GitHub Actions workflow to automatically do most of the release steps, but for now, many of the steps are manual.
 
-1) Go to releases and locate the "Prerelease Binary Testing" release with the tag "test-release."
+1) Go to releases and locate the "Prerelease Binary Testing" release with the tag "test-release." (https://github.com/IDAES/idaes-ext/releases/tag/test-release)
 2) Edit the release to remove the tar-files from the previous release.
 3) Add the newly created binary tar files to the "test-release" release.
 4) Go to the actions tab, and manually run the Linux and Windows test actions.
