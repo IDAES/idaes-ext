@@ -120,10 +120,12 @@ idaes-petsc-<platform>.tar.gz
   -----
 
   Source: https://petsc.org
-  License: https://petsc.org/main/install/license/#doc-license
+  License: BSD 2-Clause 
+           https://petsc.org/main/install/license/#doc-license
 
   AMPL Solver Library (ASL)
   -------------------------
+  
   Source: https://ampl.com/netlib/ampl/solvers/index.html
   License: See Above
 
