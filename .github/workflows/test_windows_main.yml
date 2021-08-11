@@ -16,7 +16,7 @@ jobs:
           git clone https://github.com/idaes/idaes-pse.git
           cd idaes-pse
           git checkout master
-          pip install -e .
+          pip install -r requirements-dev.txt
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/
       - name: "Test IDAES-PSE"
         shell: cmd
