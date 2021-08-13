@@ -351,6 +351,11 @@ char **transform_args(int argc, char** argv, int *size){
   int i=0, j=0, k=0, h=0; // another counter
 
   for(i=0; i<argc; ++i){
+    if(strcmp(argv[i], "-v"==0)){
+        strcpy(argv2[i], "-version");
+        ++k;
+        continue;
+    }
     for(j=0;argv[i][j]!='\0';++j){
       if (j==0){
         if (argv[i][j] == '-' && argv[i][j+1] == '-'){ //convert leading -- to -
