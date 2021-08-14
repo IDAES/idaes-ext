@@ -351,7 +351,7 @@ char **transform_args(int argc, char** argv, int *size){
   int i=0, j=0, k=0, h=0; // another counter
 
   for(i=0; i<argc; ++i){
-    if(strcmp(argv[i], "-v"==0)){
+    if(strcmp(argv[i], "-v") == 0){
         strcpy(argv2[i], "-version");
         ++k;
         continue;
