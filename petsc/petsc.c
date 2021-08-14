@@ -351,10 +351,10 @@ char **transform_args(int argc, char** argv, int *size){
   int i=0, j=0, k=0, h=0; // another counter
 
   for(i=0; i<argc; ++i){
-    if(strcmp(argv[i], "-v") == 0){
-        strcpy(argv2[i], "-version");
-        ++k;
-        continue;
+    if(memcmp(argv[i], "-v", sizeof(char)*3) == 0){
+      memcpy(argv2[i], "-version", sizeof(char)*9);
+      ++k;
+      continue;
     }
     for(j=0;argv[i][j]!='\0';++j){
       if (j==0){
