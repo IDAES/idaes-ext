@@ -93,8 +93,13 @@ int main(int argc, char **argv){
   Uvx = (real*)Malloc(n_var*sizeof(real)); /* Variable upper bounds */
   LUrhs = (real*)Malloc(n_con*sizeof(real)); /* Lower constraint right side */
   Urhsx = (real*)Malloc(n_con*sizeof(real)); /* Upper constraint right side */
+
+  // Read nl file and make function for jacobian
+  err = fg_read(sol_ctx.nl, 0);
+  PetscPrintf(PETSC_COMM_SELF, "Called fg_read, err: %d (0 is good)\n", err);
+
   // count inequalities
-  for(i=0; i<n_con; ++i) if(LUrhs[i] - Urhsx[i] > 1e-8) {
+  for(i=0; i<n_con; ++i) if(LUrhs[i] - Urhsx[i] > 1e-9) {
     ++sol_ctx.n_ineq;
     PetscPrintf(PETSC_COMM_SELF, "%d, ineq (%f < body < %f)", i, LUrhs[i], Urhsx[i]);
   }
@@ -127,9 +132,6 @@ int main(int argc, char **argv){
     PetscPrintf(PETSC_COMM_SELF, "ERROR: contains inequalities");
     ASL_free(&(sol_ctx.asl));
     exit(P_EXIT_INEQ);}
-  // Read nl file and make function for jacobian
-  err = fg_read(sol_ctx.nl, 0);
-  PetscPrintf(PETSC_COMM_SELF, "Called fg_read, err: %d (0 is good)\n", err);
   // If DAES, get DAE var types and map vars between ASL and PETSc
   if(sol_ctx.opt.dae_solve){
     get_dae_info(&sol_ctx);
