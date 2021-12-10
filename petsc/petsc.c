@@ -94,7 +94,10 @@ int main(int argc, char **argv){
   LUrhs = (real*)Malloc(n_con*sizeof(real)); /* Lower constraint right side */
   Urhsx = (real*)Malloc(n_con*sizeof(real)); /* Upper constraint right side */
   // count inequalities
-  for(i=0; i<n_con; ++i) if(LUrhs[i] - Urhsx[i] > 1e-10) ++sol_ctx.n_ineq;
+  for(i=0; i<n_con; ++i) if(LUrhs[i] - Urhsx[i] > 1e-8) {
+    ++sol_ctx.n_ineq;
+    PetscPrintf(PETSC_COMM_SELF, "%d, ineq (%f < body < %f)", i, LUrhs[i], Urhsx[i]);
+  }
   // count degrees of freedom (n_var and n_con are macros from asl.h)
   sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq;
   // Print basic problem information
