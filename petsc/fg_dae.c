@@ -11,7 +11,7 @@ PetscErrorCode FormDAEFunction(TS ts, PetscReal t, Vec x, Vec xdot, Vec f, void 
   real              x_asl[n_var];
 
   /* Take values from petsc vectors and put into ASL vector */
-  if(sol_ctx->dae_map_t > 0) x_asl[sol_ctx->dae_map_t] = t;
+  if(sol_ctx->dae_map_t >= 0) x_asl[sol_ctx->dae_map_t] = t;
   ierr = VecGetArrayRead(x, &xx); CHKERRQ(ierr);
   ierr = VecGetArrayRead(xdot, &xxdot); CHKERRQ(ierr);
   for(i=0;i<sol_ctx->n_var_state;++i){
@@ -42,7 +42,7 @@ PetscErrorCode FormDAEJacobian(
 
   /* Compute Jacobian entries */
   /* Take values from petsc vectors and put into ASL vector */
-  if(sol_ctx->dae_map_t > 0) x_asl[sol_ctx->dae_map_t] = t;
+  if(sol_ctx->dae_map_t >= 0) x_asl[sol_ctx->dae_map_t] = t;
   ierr = VecGetArrayRead(x, &xx); CHKERRQ(ierr);
   ierr = VecGetArrayRead(xdot, &xxdot); CHKERRQ(ierr);
   for(i=0;i<sol_ctx->n_var_state;++i){
