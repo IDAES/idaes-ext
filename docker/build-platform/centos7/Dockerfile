@@ -11,12 +11,12 @@ RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
 RUN mkdir repo
 
 RUN cd repo; \
-    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.15.0.tar.gz; \
-    tar -zxvf petsc-3.15.0.tar.gz; \
-    mv petsc-3.15.0 petsc; \
+    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.16.2.tar.gz; \
+    tar -zxvf petsc-3.16.2.tar.gz; \
+    mv petsc-3.16.2 petsc; \
     mkdir petsc-dist
 
 RUN cd repo/petsc; \
-    ./configure CPPFLAGS="-D_POSIX_C_SOURCE=199309L" --with-debug=0 --with-shared=0 --with-fortran-bindings=0 --download-mpich --download-mumps --download-hypre --download-sundials --download-superlu --download-scalapack --download-metis --download-parmetis --download-ptscotch --download-ml --download-suitesparse --download-strumpack --prefix=/repo/petsc-dist; \
+    ./configure CPPFLAGS="-D_POSIX_C_SOURCE=199309L" --with-debug=0 --with-shared=0 --with-fortran-bindings=0 --download-mpich --download-mumps --download-hypre --download-sundials2 --download-superlu --download-scalapack --download-metis --download-parmetis --download-ptscotch --download-ml --download-suitesparse --download-strumpack --prefix=/repo/petsc-dist; \
     make;\
     make install;\

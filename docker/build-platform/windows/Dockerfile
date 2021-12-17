@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows:1909
+FROM mcr.microsoft.com/windows:20H2
 
 SHELL ["powershell", "-command"]
 
