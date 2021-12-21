@@ -22,4 +22,4 @@ jobs:
         shell: cmd
         run: |
           cd idaes-pse\idaes
-          pytest -m "not integration"
+          pytest -m "not integration" --ignore dmf --ignore commands
