@@ -5,7 +5,7 @@ John Eslick
 #ifndef PETSC_H
 #define PETSC_H
 
-#include <sys/types.h> // fix an issue with ssize_t on CentOS 7 build 
+#include <sys/types.h> // fix an issue with ssize_t on CentOS 7 build
 #include<asl.h>
 #undef filename
 #include<petscsnes.h>
@@ -24,10 +24,6 @@ John Eslick
 #define DEFAULT_KSP_RTOL 1e-15
 #define DEFAULT_SNES_MAX_IT 2000
 #define DEFAULT_SNES_MAX_FUNC 50000
-
-#define COLOR_NORMAL  "\x1b[0m"
-#define COLOR_RED     "\x1b[31m"
-#define COLOR_GREEN   "\x1b[32m"
 
 typedef enum{  //keep these under 50 and shouldn't confilict with PETSc codes
    P_EXIT_NORMAL = 0, //Finished okay (solved is another matter)
@@ -99,7 +95,7 @@ int ScaleEqsUser(Solver_ctx *sol_ctx);
 char **transform_args(int argc, char** argv, int *size);
 void print_commandline(const char* msg, int argc, char **argv);
 void print_x_asl(ASL *asl);
-void print_jac_asl(ASL *asl, real u, real l);
+void print_jac_asl(ASL *asl);
 void print_var_scale_factors_asl(ASL *asl);
 void print_con_scale_factors_asl(ASL *asl);
 void print_init_diagnostic(Solver_ctx *sol_ctx);

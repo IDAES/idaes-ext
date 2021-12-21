@@ -10,7 +10,7 @@ void print_commandline(const char* msg, int argc, char **argv){
 
 void print_init_diagnostic(Solver_ctx *sol_ctx){
   if(sol_ctx->opt.show_jac){
-    print_jac_asl(sol_ctx->asl, 100, 1e-6);
+    print_jac_asl(sol_ctx->asl);
   }
   if(sol_ctx->opt.show_init){
     print_x_asl(sol_ctx->asl);
@@ -23,35 +23,38 @@ void print_init_diagnostic(Solver_ctx *sol_ctx){
 
 void print_x_asl(ASL *asl){
   int i=0;
-  char color_code[20];
   PetscPrintf(PETSC_COMM_SELF, "Initial Values (scaled)\n");
   for (i=0;i<n_var;++i){
-     if(X0[i] > Uvx[i] || X0[i] < LUv[i]){
-       strcpy(color_code, COLOR_RED);
-     }
-     else strcpy(color_code, COLOR_NORMAL);
-     PetscPrintf(PETSC_COMM_SELF, "%sv%d: %e <= %e <= %e%s\n",
-     color_code, i, LUv[i], X0[i], Uvx[i], COLOR_NORMAL);
+     PetscPrintf(PETSC_COMM_SELF, "v%d: %e <= %e <= %e\n", i, LUv[i], X0[i], Uvx[i]);
   }
 }
 
 void print_var_scale_factors_asl(ASL *asl){
   int i;
+  PetscPrintf(PETSC_COMM_SELF, "Variable Scale Factors:\n");
   if(asl->i.vscale!=NULL){
-    for(i=0;i<n_var;++i) printf("scale Factor v%d: %f\n", i, asl->i.vscale[i]);}
+    for(i=0;i<n_var;++i) PetscPrintf(PETSC_COMM_SELF, "  v%d: %f\n", i, asl->i.vscale[i]);
+  }
+  else{
+    PetscPrintf(PETSC_COMM_SELF, "  None\n");
+  }
 }
 
 void print_con_scale_factors_asl(ASL *asl){
   int i;
+  PetscPrintf(PETSC_COMM_SELF, "Constraint Scale Factors:\n");
   if(asl->i.cscale!=NULL){
-    for(i=0;i<n_con;++i) printf("scale factor c%d: %f\n", i, asl->i.cscale[i]);}
+    for(i=0;i<n_con;++i) PetscPrintf(PETSC_COMM_SELF, "  c%d: %f\n", i, asl->i.cscale[i]);
+  }
+  else{
+    PetscPrintf(PETSC_COMM_SELF, "  None\n");
+  }
 }
 
-void print_jac_asl(ASL *asl, real u, real l){
+void print_jac_asl(ASL *asl){
   /* Print sparse Jacobian  highlight elements over u or under l*/
   cgrad          *cg;  /* sparse jacobian elements*/
   real           *Jac; /* ASL test Jacobian */
-  char           color_code[20] = COLOR_NORMAL;
   int            err;  /* Error code  from ASL fulctions */
   int            i=0;
 
@@ -63,14 +66,7 @@ void print_jac_asl(ASL *asl, real u, real l){
     cg = Cgrad[i];
     PetscPrintf(PETSC_COMM_SELF, "c%d", i);
     while(cg!=NULL){
-      if(fabs(Jac[cg->goff]) > u || fabs(Jac[cg->goff]) < l){
-        strcpy(color_code, COLOR_RED);}
-      else strcpy(color_code, COLOR_NORMAL);
-      PetscPrintf(PETSC_COMM_SELF,
-        " %sv%d(%e)%s",
-        color_code,cg->varno,
-        Jac[cg->goff],
-        COLOR_NORMAL);
+      PetscPrintf(PETSC_COMM_SELF, " v%d(%e)", cg->varno, Jac[cg->goff]);
       cg=cg->next;
     }
     PetscPrintf(PETSC_COMM_SELF, "\n");

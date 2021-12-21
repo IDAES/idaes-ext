@@ -47,11 +47,14 @@ PetscErrorCode FormDAEJacobian(
   ierr = VecGetArrayRead(xdot, &xxdot); CHKERRQ(ierr);
   for(i=0;i<sol_ctx->n_var_state;++i){
     x_asl[sol_ctx->dae_map_x[i]] = xx[i];
-    if(sol_ctx->dae_map_xdot[i] >= 0) x_asl[sol_ctx->dae_map_xdot[i]] = xxdot[i];
+    if(sol_ctx->dae_map_xdot[i] >= 0){
+      x_asl[sol_ctx->dae_map_xdot[i]] = xxdot[i];
+    }
   }
   ierr = VecRestoreArrayRead(x,&xx);CHKERRQ(ierr);
   ierr = VecRestoreArrayRead(xdot,&xxdot);CHKERRQ(ierr);
   jacval((real*)x_asl, (real*)A, &err);
+
   /* The ASL isn't setup for DAEs, but not too hard to make the right Jacobian
     From asl we have a Jacobian where t, x, and xdot are all treated the same,
     PETSc want J = sigma*F_xdot(t, x, xdot) + F_x(t, x, xdot), so we need to
@@ -62,7 +65,8 @@ PetscErrorCode FormDAEJacobian(
     while(cg!=NULL){
       j = cg->varno;
       if(sol_ctx->dae_suffix_var->u.i[j]==2){
-        MatSetValue(B, i, sol_ctx->dae_map_back[j], sig*A[cg->goff], ADD_VALUES);}
+        MatSetValue(B, i, sol_ctx->dae_map_back[j], sig*A[cg->goff], ADD_VALUES);
+      }
       else if(sol_ctx->dae_suffix_var->u.i[j]==3); //drop t
       else MatSetValue(B, i, sol_ctx->dae_map_back[j], A[cg->goff], ADD_VALUES);
       cg=cg->next;

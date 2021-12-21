@@ -142,7 +142,7 @@ int main(int argc, char **argv){
     PetscPrintf(PETSC_COMM_SELF, "Number of algebraic vars: %d\n", sol_ctx.n_var_alg);
     PetscPrintf(PETSC_COMM_SELF, "Number of state vars: %d\n", sol_ctx.n_var_state);
     if(sol_ctx.explicit_time>1){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variable (allowed 1 at most)");
+      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variables (allowed 1 at most)");
       ASL_free(&(sol_ctx.asl));
       exit(P_EXIT_MULTIPLE_TIME);
     }
@@ -165,6 +165,10 @@ int main(int argc, char **argv){
   sol_ctx.scaling_factor_var = suf_get("scaling_factor", ASL_Sufkind_var);
   sol_ctx.scaling_factor_con = suf_get("scaling_factor", ASL_Sufkind_con);
 
+  // Equation/variable scaling
+  ScaleVarsUser(&sol_ctx);
+  ScaleEqsUser(&sol_ctx);
+
   if(sol_ctx.opt.dae_solve){  //This block sets up DAE solve and solves
     ierr = TSCreate(PETSC_COMM_WORLD, &ts); CHKERRQ(ierr);
     ierr = VecCreate(PETSC_COMM_WORLD,&x); CHKERRQ(ierr); //create an x vector
@@ -178,9 +182,6 @@ int main(int argc, char **argv){
         xx[sol_ctx.dae_map_back[i]] = X0[i];
       }
     }
-    // Equation/variable scaling
-    ScaleVarsUser(&sol_ctx);
-    ScaleEqsUser(&sol_ctx);
     // Print the variable types for reading trajectories
     strcpy(sol_ctx.opt.typ_file, sol_ctx.opt.stub);
     if(sol_ctx.opt.stublen > 3){
@@ -231,7 +232,6 @@ int main(int argc, char **argv){
     ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
     ierr = PCSetType(pc,DEFAULT_PC);CHKERRQ(ierr);
     ierr = PCFactorSetMatSolverType(pc, DEFAULT_LINEAR_PACK);CHKERRQ(ierr);
-    ierr = PCFactorReorderForNonzeroDiagonal(pc, 1e-10);CHKERRQ(ierr);
     ierr = KSPSetType(ksp,DEFAULT_KSP);CHKERRQ(ierr);
     ierr = TSSetTimeStep(ts, 1);
     ierr = TSSetMaxTime(ts, 10);
@@ -255,9 +255,6 @@ int main(int argc, char **argv){
     ierr = TSDestroy(&ts);
   } //end ts solve
   else{ // nonlinear solver setup and solve
-    // Equation/variable scaling
-    ScaleVarsUser(&sol_ctx);
-    ScaleEqsUser(&sol_ctx);
     // Print requested diagnostic info
     print_init_diagnostic(&sol_ctx);
     /*Create nonlinear solver context*/
@@ -292,7 +289,6 @@ int main(int argc, char **argv){
     ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
     ierr = PCSetType(pc,DEFAULT_PC);CHKERRQ(ierr);
     ierr = PCFactorSetMatSolverType(pc, DEFAULT_LINEAR_PACK);CHKERRQ(ierr);
-    ierr = PCFactorReorderForNonzeroDiagonal(pc, 1e-10);CHKERRQ(ierr);
     ierr = KSPSetType(ksp,DEFAULT_KSP);CHKERRQ(ierr);
     ierr = SNESSetTolerances(snes, DEFAULT_SNES_ATOL, DEFAULT_SNES_RTOL,
           0, DEFAULT_SNES_MAX_IT, DEFAULT_SNES_MAX_FUNC);CHKERRQ(ierr);
@@ -420,17 +416,30 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
     //Use scalling factors set in the scaling_factor suffix, for DAEs ignore
     //scaling on the derivatives and use scaling from the differntial vars
     //instead varaibles and there derivatives should be scaled the same
-    int i = 0, err=0;
+    int i=0, j=0, err=0;
     real s;
     ASL *asl = sol_ctx->asl;
     if (sol_ctx->scaling_factor_var->u.r == NULL) return 0; //no scaling factors
-    if(sol_ctx->opt.dae_solve){ //dae variable scaling
-      return 0; //variable scaling will mess up DAE problems, work-in-progress
+    if (sol_ctx->opt.dae_solve){ //dae variable scaling
+      for(i=0;i<n_var;++i){ //n_var is asl vodoo
+        s = sol_ctx->scaling_factor_var->u.r[i];
+        if (s == 0.0 || sol_ctx->dae_suffix_var->u.i[i] == 2) {
+          continue;
+        }
+        else if (sol_ctx->dae_suffix_var->u.i[i] == 1) {
+          j = sol_ctx->dae_link[i];
+          varscale(j, 1.0/s, &err);
+          varscale(i, 1.0/s, &err);
+        }
+        else{
+          varscale(i, 1.0/s, &err);
+        }
+      }
     }
     else{ // no dae so use scale factors given
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
         s = sol_ctx->scaling_factor_var->u.r[i];
-        if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
+        if(s != 0.0) varscale(i, s, &err); // invert scale to match Ipopt
       }
     }
     return err;
