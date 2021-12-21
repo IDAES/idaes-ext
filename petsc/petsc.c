@@ -439,7 +439,7 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
     else{ // no dae so use scale factors given
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
         s = sol_ctx->scaling_factor_var->u.r[i];
-        if(s != 0.0) varscale(i, s, &err); // invert scale to match Ipopt
+        if(s != 0.0) varscale(i, 1.0/s, &err); // invert scale to match Ipopt
       }
     }
     return err;
