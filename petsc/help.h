@@ -1,5 +1,18 @@
+/*###############################################################################
+# The Institute for the Design of Advanced Energy Systems Integrated Platform
+# Framework (IDAES IP) was produced under the DOE Institute for the
+# Design of Advanced Energy Systems (IDAES), and is copyright (c) 2018-2021
+# by the software owners: The Regents of the University of California, through
+# Lawrence Berkeley National Laboratory,  National Technology & Engineering
+# Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia University
+# Research Corporation, et al.  All rights reserved.
+#
+# Please see the files COPYRIGHT.md and LICENSE.md for full copyright and
+# license information.
+###############################################################################*/
 
-/* Help message prepended to the regular PETSc help */
+// AMPL solver interface for PETSc, help for additional cl args
+// Author: John Eslick
 
 static char help[] ="\
 --------------------------------------------------------------------------\n\
@@ -12,11 +25,6 @@ in an AMPL nl file. Optimization solver support will be added soon.\n\n\
      -show_jac: Show non-zero jacobian values at initial point\n\
      -show_intial: Show the guess intial values \n\
      -show_cl: Show the command line input and transformation from AMPL format\n\
-     -perturb_test <factor>: Test using nl file where initial value is solution \n\
-        This just multiplies the inital value by factor and resolves, then it \n\
-        compares the new solution to the intial value and report differnces > \n\
-        1e-6. It's a fairly crude test but it should ensure the Jacobian and \n\
-        function are calculating right.\n\
      -dae_solve: Run DAE solver, must provide appropriate suffixes\n\
-     -jac_explicit_diag: Create explicit Jacobian entries in diagonal\n\
+     -ignore_scaling: ignore scaling suffixes\n\
     ";
