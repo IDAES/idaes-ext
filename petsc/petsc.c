@@ -1,10 +1,21 @@
-/*
-AMPL solver interface for PETSc
-John Eslick
-*/
+/*###############################################################################
+# The Institute for the Design of Advanced Energy Systems Integrated Platform
+# Framework (IDAES IP) was produced under the DOE Institute for the
+# Design of Advanced Energy Systems (IDAES), and is copyright (c) 2018-2021
+# by the software owners: The Regents of the University of California, through
+# Lawrence Berkeley National Laboratory,  National Technology & Engineering
+# Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia University
+# Research Corporation, et al.  All rights reserved.
+#
+# Please see the files COPYRIGHT.md and LICENSE.md for full copyright and
+# license information.
+###############################################################################*/
 
-//TODO<jce> Need to return asl solver status code for DAE solver
-//TODO<jce> Add TAO optimization solvers
+// AMPL solver interface for PETSc
+// Author: John Eslick
+
+// TODO<jce> TS Solver return code
+// TODO<jce> Add TAO optimization solvers
 
 #include"help.h"
 #include"petsc.h"
@@ -56,12 +67,10 @@ int main(int argc, char **argv){
   PetscOptionsHasName(NULL, NULL, "-show_initial", &sol_ctx.opt.show_init);
   PetscOptionsHasName(NULL, NULL, "-show_scale_factors", &sol_ctx.opt.show_scale_factors);
   PetscOptionsHasName(NULL, NULL, "-use_bounds", &sol_ctx.opt.use_bounds);
-  PetscOptionsGetScalar(NULL, NULL, "-perturb_test",&sol_ctx.opt.ptest, &sol_ctx.opt.per_test);
-  if(!sol_ctx.opt.per_test) sol_ctx.opt.ptest = 1.0;
   PetscOptionsHasName(NULL, NULL, "-AMPL", &sol_ctx.opt.ampl_opt); // I don't use this
-  PetscOptionsHasName(NULL, NULL, "-jac_explicit_diag", &sol_ctx.opt.jac_explicit_diag);
   PetscOptionsHasName(NULL, NULL, "-dae_solve", &sol_ctx.opt.dae_solve);
   PetscOptionsHasName(NULL, NULL, "-show_cl", &sol_ctx.opt.show_cl);
+  PetscOptionsHasName(NULL, NULL, "-ignore_scaling", &sol_ctx.opt.ignore_scaling);
 
   // If show_cl otion, show the original and transformed command line
   if(sol_ctx.opt.show_cl){
@@ -166,8 +175,10 @@ int main(int argc, char **argv){
   sol_ctx.scaling_factor_con = suf_get("scaling_factor", ASL_Sufkind_con);
 
   // Equation/variable scaling
-  ScaleVarsUser(&sol_ctx);
-  ScaleEqsUser(&sol_ctx);
+  if(!sol_ctx.opt.ignore_scaling){
+    ScaleVarsUser(&sol_ctx);
+    ScaleEqsUser(&sol_ctx);
+  }
 
   if(sol_ctx.opt.dae_solve){  //This block sets up DAE solve and solves
     ierr = TSCreate(PETSC_COMM_WORLD, &ts); CHKERRQ(ierr);
@@ -204,7 +215,6 @@ int main(int argc, char **argv){
     }
     err = PetscViewerDestroy(&pv);
 
-
     print_init_diagnostic(&sol_ctx); //print initial diagnostic information
     ierr = VecRestoreArray(x, &xx);CHKERRQ(ierr);
     // Make Jacobian matrix (by default sparse AIJ)
@@ -212,10 +222,6 @@ int main(int argc, char **argv){
     ierr = MatSetSizes(J, PETSC_DECIDE, PETSC_DECIDE, n_con, sol_ctx.n_var_state); CHKERRQ(ierr);
     ierr = MatSetFromOptions(J); CHKERRQ(ierr); //command line options override defaults
     ierr = MatSetUp(J); CHKERRQ(ierr);
-    /* Explicitly add diagonal elements if needed (some preconditioners need)*/
-    for(i=n_conjac[0];i<n_conjac[1]; ++i){
-      ierr = MatSetValue(J, i, i, 0.0, INSERT_VALUES);CHKERRQ(ierr);
-    }
     /* finish up jacobian */
     ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
     ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -226,6 +232,7 @@ int main(int argc, char **argv){
     ierr = TSSetProblemType(ts, TS_NONLINEAR);
     ierr = TSSetEquationType(ts, TS_EQ_IMPLICIT);
     ierr = TSGetSNES(ts, &snes);CHKERRQ(ierr);
+    ierr = TSSetMaxSNESFailures(ts, DEFAULT_TS_SNES_MAX_FAIL);CHKERRQ(ierr);
     ierr = SNESGetKSP(snes, &ksp);CHKERRQ(ierr);
     ierr = SNESGetLineSearch(snes, &linesearch);CHKERRQ(ierr);
     ierr = SNESLineSearchSetType(linesearch, SNESLINESEARCHBT);
@@ -255,8 +262,7 @@ int main(int argc, char **argv){
     ierr = TSDestroy(&ts);
   } //end ts solve
   else{ // nonlinear solver setup and solve
-    // Print requested diagnostic info
-    print_init_diagnostic(&sol_ctx);
+    print_init_diagnostic(&sol_ctx); // Print requested diagnostic info
     /*Create nonlinear solver context*/
     ierr = SNESCreate(PETSC_COMM_WORLD, &snes); CHKERRQ(ierr);
     /*Create vectors for solution and nonlinear function*/
@@ -271,10 +277,6 @@ int main(int argc, char **argv){
     ierr = MatSetSizes(J,PETSC_DECIDE,PETSC_DECIDE,n_con,n_var);CHKERRQ(ierr);
     ierr = MatSetFromOptions(J);CHKERRQ(ierr); //command line options override defaults
     ierr = MatSetUp(J);CHKERRQ(ierr);
-    /* Explicitly add diagonal elements if needed (some preconditioners need)*/
-    if(sol_ctx.opt.jac_explicit_diag) for(i=n_conjac[0];i<n_conjac[1]; ++i){
-        ierr = MatSetValue(J, i, i, 0.0, INSERT_VALUES);CHKERRQ(ierr);
-    }
     /* finish up jacobian */
     ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
     ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -301,7 +303,7 @@ int main(int argc, char **argv){
     ierr = VecGetArray(xl,&xxl);CHKERRQ(ierr);
     ierr = VecGetArray(xu,&xxu);CHKERRQ(ierr);
     for(i=0;i<n_var;++i){
-        xx[i] = X0[i]*sol_ctx.opt.ptest; //ptest is usually 1.0 could be differnt to test solver
+        xx[i] = X0[i]; //initial values
         xxl[i] = LUv[i]; //lower bound
         xxu[i] = Uvx[i]; //upper bound
     }
@@ -317,13 +319,6 @@ int main(int argc, char **argv){
     ierr = SNESGetIterationNumber(snes, &its);CHKERRQ(ierr);
     /* Get the results */
     ierr = VecGetArray(x, &xx);CHKERRQ(ierr);
-    /* If duing the perturb test compare to intial values from nl file */
-    if(sol_ctx.opt.per_test){
-        PetscPrintf(PETSC_COMM_SELF, "Perturb test result, showing differences from initial > 1e-6\n");
-        for(i=0;i<n_var;++i) if(xx[i] - X0[i] > 1e-6){
-            PetscPrintf(PETSC_COMM_SELF, "v%d - %e, %e, %e\n",i, xx[i], X0[i], xx[i] - X0[i]);
-        }
-    }
     /* write the AMPL solution file */
     PetscPrintf(PETSC_COMM_SELF, "SNESConvergedReason = %d, in %d iterations\n", cr, its);
     get_snes_sol_message(msg, cr, sol_ctx.asl);
@@ -396,7 +391,6 @@ void sol_ctx_init(Solver_ctx *ctx){
   ctx->n_ineq=0;  // Number of inequality constraints
   ctx->explicit_time=0; //DAE includes time variable? 1=yes 0=no
   ctx->dof=0; //degrees of freedom
-  ctx->opt.ptest=1.0; // special test option
 }
 
 int ScaleEqsUser(Solver_ctx *sol_ctx){
