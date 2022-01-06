@@ -10,5 +10,8 @@ bindir = $(prefix)/bin
 petsc: petsc.o fg_nl.o fg_dae.o printing.o
 	${CLINKER} -o petsc petsc.o fg_nl.o fg_dae.o printing.o $(ASL_LIB) ${PETSC_LIB}
 
+py: petscpy
+	${PYTHON} get_petsc_py.py
+
 install: petsc
 	${CP} petsc ${bindir}
