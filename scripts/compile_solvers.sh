@@ -335,8 +335,10 @@ then
   export PETSC_ARCH=""
   cd $IDAES_EXT/petsc
   make
+  make py
   mkdir $IDAES_EXT/dist-petsc
   cp petsc $IDAES_EXT/dist-petsc
+  cp -r petscpy $IDAES_EXT/dist-petsc
   cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
   cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
 fi

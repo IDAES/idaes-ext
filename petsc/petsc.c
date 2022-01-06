@@ -34,7 +34,7 @@ int main(int argc, char **argv){
   static SufDecl suftab[] = { // suffixes to read in
     //doc for this at https://ampl.com/netlib/ampl/solvers/README.suf
     {"dae_suffix", NULL, ASL_Sufkind_var}, //var kinds for DAE solver
-    {"dae_link",   NULL, ASL_Sufkind_var}, //link derivatives to vars
+    {"dae_link", NULL, ASL_Sufkind_var}, //link derivatives to vars
     {"scaling_factor", NULL, ASL_Sufkind_var|ASL_Sufkind_real}, //var scale factors
     {"scaling_factor", NULL, ASL_Sufkind_con|ASL_Sufkind_real} //constraint scale factors
   };
