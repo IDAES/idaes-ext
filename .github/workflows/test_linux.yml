@@ -33,7 +33,7 @@ jobs:
             conda create -n idaes python=3.7.4 pip psutil
             conda activate idaes
             pip install -r requirements-dev.txt
-            idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ${{ matrix.bin_platform }}'
+            idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ${{ matrix.bin_platform }} --extra petsc'
 
       - name: Test IDAES-PSE
         run: |
