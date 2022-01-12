@@ -153,3 +153,40 @@ void get_dae_info(Solver_ctx *sol_ctx){
   sol_ctx->n_var_state = n_var - sol_ctx->n_var_deriv - sol_ctx->explicit_time;
   sol_ctx->n_var_alg = sol_ctx->n_var_state - sol_ctx->n_var_diff;
 }
+
+int get_ts_sol_message(char *msg, TSConvergedReason term_reason, ASL *asl){
+  //solve_result_num is an ASL macro.  I stole the code numbers from ipopt
+  //so at least I know pyomo will recognize them.  I havent found documentation
+  //yet.
+  if(term_reason==TS_CONVERGED_TIME){ //reached final time
+    strcpy(msg, "TS_CONVERGED_TIME");
+    solve_result_num = 2;}
+  else if(term_reason==TS_CONVERGED_EVENT){ //stopped due to event detection
+    strcpy(msg, "TS_CONVERGED_EVENT");
+    solve_result_num = 2;}
+  else if(term_reason==TS_CONVERGED_USER){ //stopped due to event detection
+    strcpy(msg, "TS_CONVERGED_USER");
+    solve_result_num = 2;}
+  else if(term_reason==TS_CONVERGED_ITS){ //maxed out allowed time steps
+    strcpy(msg, "TS_CONVERGED_ITS");
+    solve_result_num = 400;}
+  else if(term_reason==TS_CONVERGED_ITERATING){ //means it's still running
+      strcpy(msg, "TS_CONVERGED_ITERATING");
+      solve_result_num = 400;}
+  else if(term_reason==TS_DIVERGED_NONLINEAR_SOLVE){
+    strcpy(msg, "TS_DIVERGED_NONLINEAR_SOLVE");
+    solve_result_num = 300;}
+  else if(term_reason==TS_DIVERGED_STEP_REJECTED){
+    strcpy(msg, "TS_DIVERGED_STEP_REJECTED");
+    solve_result_num = 300;}
+  else if(term_reason==TSFORWARD_DIVERGED_LINEAR_SOLVE){
+    strcpy(msg, "TSFORWARD_DIVERGED_LINEAR_SOLVE");
+    solve_result_num = 300;}
+  else if(term_reason==TSADJOINT_DIVERGED_LINEAR_SOLVE){
+    strcpy(msg, "TSADJOINT_DIVERGED_LINEAR_SOLVE");
+    solve_result_num = 300;}
+  else{
+    strcpy(msg, "Unknown Error");
+    solve_result_num = 500;}
+  return solve_result_num;
+}

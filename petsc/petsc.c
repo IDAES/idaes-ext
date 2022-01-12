@@ -113,7 +113,15 @@ int main(int argc, char **argv){
     PetscPrintf(PETSC_COMM_SELF, "%d, ineq (%f < body < %f)", i, LUrhs[i], Urhsx[i]);
   }
   // count degrees of freedom (n_var and n_con are macros from asl.h)
-  sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq;
+  if(sol_ctx.opt.dae_solve){
+    get_dae_info(&sol_ctx);
+    dae_var_map(&sol_ctx);
+    sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq -
+      sol_ctx.n_var_deriv - sol_ctx.explicit_time;
+  }
+  else{
+    sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq;
+  }
   // Print basic problem information
   PetscPrintf(PETSC_COMM_SELF, "---------------------------------------------------\n");
   PetscPrintf(PETSC_COMM_SELF, "DAE: %d\n", sol_ctx.opt.dae_solve);
@@ -127,41 +135,38 @@ int main(int argc, char **argv){
   PetscPrintf(PETSC_COMM_SELF, "Number of binary: %d\n", nbv);
   PetscPrintf(PETSC_COMM_SELF, "Number of objectives: %d (Ignoring)\n", n_obj);
   PetscPrintf(PETSC_COMM_SELF, "Number of non-zeros in Jacobian: %d \n", nzc);
-  PetscPrintf(PETSC_COMM_SELF, "Number of degrees of freedom: %d\n", sol_ctx.dof);
-  // There are some restrictions (at least for now) to check
-  if(nbv + niv > 0){ // no integer vars (nbv and niv are ASL macros)
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: Contains integer or binary variables.");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_INTEGER);}
-  else if(sol_ctx.dof != 0 && !sol_ctx.opt.dae_solve){ //dof must == 0 for nonlinear solve
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: Degrees of freedom not equal to 0\n");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_DOF);}
-  else if(sol_ctx.n_ineq > 0){ // no inequalities for nonlinear sys or DAE
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: contains inequalities");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_INEQ);}
   // If DAES, get DAE var types and map vars between ASL and PETSc
   if(sol_ctx.opt.dae_solve){
-    get_dae_info(&sol_ctx);
-    dae_var_map(&sol_ctx);
     PetscPrintf(PETSC_COMM_SELF, "Explicit time variable: %d\n", sol_ctx.explicit_time);
     PetscPrintf(PETSC_COMM_SELF, "Number of derivatives: %d\n", sol_ctx.n_var_deriv);
     PetscPrintf(PETSC_COMM_SELF, "Number of differential vars: %d\n", sol_ctx.n_var_diff);
     PetscPrintf(PETSC_COMM_SELF, "Number of algebraic vars: %d\n", sol_ctx.n_var_alg);
     PetscPrintf(PETSC_COMM_SELF, "Number of state vars: %d\n", sol_ctx.n_var_state);
-    if(sol_ctx.explicit_time>1){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variables (allowed 1 at most)");
-      ASL_free(&(sol_ctx.asl));
-      exit(P_EXIT_MULTIPLE_TIME);
-    }
-    if(sol_ctx.dof != sol_ctx.n_var_deriv + sol_ctx.explicit_time){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: DOF != number of derivative vars");
-      ASL_free(&(sol_ctx.asl));
-      exit(P_EXIT_DOF_DAE);
-    }
   }
+  PetscPrintf(PETSC_COMM_SELF, "Number of degrees of freedom: %d\n", sol_ctx.dof);
   PetscPrintf(PETSC_COMM_SELF, "---------------------------------------------------\n");
+
+  // There are some restrictions (at least for now) to check
+  if(nbv + niv > 0){ // no integer vars (nbv and niv are ASL macros)
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: Contains integer or binary variables.");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_INTEGER);
+  }
+  if(sol_ctx.dof != 0){ //dof must == 0 for nonlinear solve
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: Degrees of freedom not equal to 0\n");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_DOF);
+  }
+  if(sol_ctx.n_ineq > 0){ // no inequalities for nonlinear sys or DAE
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: contains inequalities");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_INEQ);
+  }
+  if(sol_ctx.explicit_time > 1){
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variables (allowed 1 at most)");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_MULTIPLE_TIME);
+  }
 
   // Equation/variable scaling
   sol_ctx.dae_suffix_var = suf_get("dae_suffix", ASL_Sufkind_var);
@@ -262,7 +267,7 @@ int main(int argc, char **argv){
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
     if(sol_ctx.explicit_time) x_asl[sol_ctx.dae_map_t] = t;
     /* write the AMPL solution file */
-    sprintf(msg, "TSConvergedReason = %d", tscr);  //Reason it stopped
+    get_ts_sol_message(msg, cr, sol_ctx.asl);
     write_sol(msg, x_asl, NULL, NULL); // write ASL sol file
     ierr = TSDestroy(&ts);
   } //end ts solve
