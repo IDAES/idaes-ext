@@ -113,7 +113,15 @@ int main(int argc, char **argv){
     PetscPrintf(PETSC_COMM_SELF, "%d, ineq (%f < body < %f)", i, LUrhs[i], Urhsx[i]);
   }
   // count degrees of freedom (n_var and n_con are macros from asl.h)
-  sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq;
+  if(sol_ctx.opt.dae_solve){
+    get_dae_info(&sol_ctx);
+    dae_var_map(&sol_ctx);
+    sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq -
+      sol_ctx.n_var_deriv - sol_ctx.explicit_time;
+  }
+  else{
+    sol_ctx.dof = n_var - n_con + sol_ctx.n_ineq;
+  }
   // Print basic problem information
   PetscPrintf(PETSC_COMM_SELF, "---------------------------------------------------\n");
   PetscPrintf(PETSC_COMM_SELF, "DAE: %d\n", sol_ctx.opt.dae_solve);
@@ -127,46 +135,38 @@ int main(int argc, char **argv){
   PetscPrintf(PETSC_COMM_SELF, "Number of binary: %d\n", nbv);
   PetscPrintf(PETSC_COMM_SELF, "Number of objectives: %d (Ignoring)\n", n_obj);
   PetscPrintf(PETSC_COMM_SELF, "Number of non-zeros in Jacobian: %d \n", nzc);
-  PetscPrintf(PETSC_COMM_SELF, "Number of degrees of freedom: %d\n", sol_ctx.dof);
-  // There are some restrictions (at least for now) to check
-  if(nbv + niv > 0){ // no integer vars (nbv and niv are ASL macros)
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: Contains integer or binary variables.");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_INTEGER);}
-  else if(sol_ctx.dof != 0 && !sol_ctx.opt.dae_solve){ //dof must == 0 for nonlinear solve
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: Degrees of freedom not equal to 0\n");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_DOF);}
-  else if(sol_ctx.n_ineq > 0){ // no inequalities for nonlinear sys or DAE
-    PetscPrintf(PETSC_COMM_SELF, "ERROR: contains inequalities");
-    ASL_free(&(sol_ctx.asl));
-    exit(P_EXIT_INEQ);}
   // If DAES, get DAE var types and map vars between ASL and PETSc
   if(sol_ctx.opt.dae_solve){
-    get_dae_info(&sol_ctx);
-    dae_var_map(&sol_ctx);
     PetscPrintf(PETSC_COMM_SELF, "Explicit time variable: %d\n", sol_ctx.explicit_time);
     PetscPrintf(PETSC_COMM_SELF, "Number of derivatives: %d\n", sol_ctx.n_var_deriv);
     PetscPrintf(PETSC_COMM_SELF, "Number of differential vars: %d\n", sol_ctx.n_var_diff);
     PetscPrintf(PETSC_COMM_SELF, "Number of algebraic vars: %d\n", sol_ctx.n_var_alg);
     PetscPrintf(PETSC_COMM_SELF, "Number of state vars: %d\n", sol_ctx.n_var_state);
-    if(sol_ctx.explicit_time>1){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variables (allowed 1 at most)");
-      ASL_free(&(sol_ctx.asl));
-      exit(P_EXIT_MULTIPLE_TIME);
-    }
-    if(sol_ctx.dof != sol_ctx.n_var_deriv + sol_ctx.explicit_time){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: DOF != number of derivative vars");
-      ASL_free(&(sol_ctx.asl));
-      exit(P_EXIT_DOF_DAE);
-    }
-    if(sol_ctx.n_var_diff != sol_ctx.n_var_deriv){
-      PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: number of differential vars != number of derivatives");
-      ASL_free(&(sol_ctx.asl));
-      exit(P_EXIT_VAR_DAE_MIS);
-    }
   }
+  PetscPrintf(PETSC_COMM_SELF, "Number of degrees of freedom: %d\n", sol_ctx.dof);
   PetscPrintf(PETSC_COMM_SELF, "---------------------------------------------------\n");
+
+  // There are some restrictions (at least for now) to check
+  if(nbv + niv > 0){ // no integer vars (nbv and niv are ASL macros)
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: Contains integer or binary variables.");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_INTEGER);
+  }
+  if(sol_ctx.dof != 0){ //dof must == 0 for nonlinear solve
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: Degrees of freedom not equal to 0\n");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_DOF);
+  }
+  if(sol_ctx.n_ineq > 0){ // no inequalities for nonlinear sys or DAE
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: contains inequalities");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_INEQ);
+  }
+  if(sol_ctx.explicit_time > 1){
+    PetscPrintf(PETSC_COMM_SELF, "ERROR: DAE: Multiple time variables (allowed 1 at most)");
+    ASL_free(&(sol_ctx.asl));
+    exit(P_EXIT_MULTIPLE_TIME);
+  }
 
   // Equation/variable scaling
   sol_ctx.dae_suffix_var = suf_get("dae_suffix", ASL_Sufkind_var);
@@ -186,13 +186,22 @@ int main(int argc, char **argv){
     ierr = VecSetSizes(x, PETSC_DECIDE, sol_ctx.n_var_state); CHKERRQ(ierr);
     ierr = VecSetFromOptions(x); CHKERRQ(ierr); //command line options for vec
     ierr = VecDuplicate(x, &r);CHKERRQ(ierr);  // duplicate x for resuiduals
+    ierr = VecDuplicate(x,&xl);CHKERRQ(ierr); // duplicate x for lower bounds
+    ierr = VecDuplicate(x,&xu);CHKERRQ(ierr); // duplicate x for upper bounds
     /* Make x vec set initial guess from nl file, also get lb and ub */
     ierr = VecGetArray(x,&xx);CHKERRQ(ierr);
+    ierr = VecGetArray(xl,&xxl);CHKERRQ(ierr);
+    ierr = VecGetArray(xu,&xxu);CHKERRQ(ierr);
     for(i=0;i<n_var;++i){
       if(sol_ctx.dae_suffix_var->u.i[i]!=2 && sol_ctx.dae_suffix_var->u.i[i]!=3){
         xx[sol_ctx.dae_map_back[i]] = X0[i];
+        xxl[sol_ctx.dae_map_back[i]] = LUv[i]; //lower bound
+        xxu[sol_ctx.dae_map_back[i]] = Uvx[i]; //upper bound
       }
     }
+    ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
+    ierr = VecRestoreArray(xl,&xxl);CHKERRQ(ierr);
+    ierr = VecRestoreArray(xu,&xxu);CHKERRQ(ierr);
     // Print the variable types for reading trajectories
     strcpy(sol_ctx.opt.typ_file, sol_ctx.opt.stub);
     if(sol_ctx.opt.stublen > 3){
@@ -245,6 +254,7 @@ int main(int argc, char **argv){
     ierr = TSSetExactFinalTime(ts, TS_EXACTFINALTIME_MATCHSTEP);
     // Set up solver from CL options
     ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
+    if(sol_ctx.opt.use_bounds) ierr = SNESVISetVariableBounds(snes, xl, xu);CHKERRQ(ierr);
     // Solve
     ierr = TSSolve(ts, x);
     ierr = TSGetTime(ts, &t);
@@ -257,7 +267,8 @@ int main(int argc, char **argv){
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
     if(sol_ctx.explicit_time) x_asl[sol_ctx.dae_map_t] = t;
     /* write the AMPL solution file */
-    sprintf(msg, "TSConvergedReason = %d", tscr);  //Reason it stopped
+    get_ts_sol_message(msg, cr, sol_ctx.asl);
+    PetscPrintf(PETSC_COMM_SELF, "TSConvergedReason = %s\n", msg);
     write_sol(msg, x_asl, NULL, NULL); // write ASL sol file
     ierr = TSDestroy(&ts);
   } //end ts solve
@@ -308,8 +319,8 @@ int main(int argc, char **argv){
         xxu[i] = Uvx[i]; //upper bound
     }
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
-    ierr = VecRestoreArray(x,&xxl);CHKERRQ(ierr);
-    ierr = VecRestoreArray(x,&xxu);CHKERRQ(ierr);
+    ierr = VecRestoreArray(xl,&xxl);CHKERRQ(ierr);
+    ierr = VecRestoreArray(xu,&xxu);CHKERRQ(ierr);
     /* Set upper and lower bound most solver don't like but a few can use
        if you include bounds and solver can't use will cause failure */
     if(sol_ctx.opt.use_bounds) ierr = SNESVISetVariableBounds(snes, xl, xu);CHKERRQ(ierr);
@@ -320,8 +331,8 @@ int main(int argc, char **argv){
     /* Get the results */
     ierr = VecGetArray(x, &xx);CHKERRQ(ierr);
     /* write the AMPL solution file */
-    PetscPrintf(PETSC_COMM_SELF, "SNESConvergedReason = %d, in %d iterations\n", cr, its);
     get_snes_sol_message(msg, cr, sol_ctx.asl);
+    PetscPrintf(PETSC_COMM_SELF, "SNESConvergedReason = %s, in %d iterations\n", msg, its);
     write_sol(msg, (real*)xx, NULL, NULL);
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
     ierr = VecDestroy(&xl);CHKERRQ(ierr);
@@ -416,17 +427,17 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
     if (sol_ctx->scaling_factor_var->u.r == NULL) return 0; //no scaling factors
     if (sol_ctx->opt.dae_solve){ //dae variable scaling
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
-        s = sol_ctx->scaling_factor_var->u.r[i];
-        if (s == 0.0 || sol_ctx->dae_suffix_var->u.i[i] == 2) {
-          continue;
+        if (sol_ctx->dae_suffix_var->u.i[i] == 2) {
+          j = sol_ctx->dae_link[i]; //use differntial var scale
+          s = sol_ctx->scaling_factor_var->u.r[j];
+          if(s != 0.0) varscale(i, 1.0/s, &err);
         }
-        else if (sol_ctx->dae_suffix_var->u.i[i] == 1) {
-          j = sol_ctx->dae_link[i];
-          varscale(j, 1.0/s, &err);
-          varscale(i, 1.0/s, &err);
+        else if (sol_ctx->dae_suffix_var->u.i[i] == 3) {
+          continue; //for now ignore time scaling
         }
-        else{
-          varscale(i, 1.0/s, &err);
+        else {
+          s = sol_ctx->scaling_factor_var->u.r[i];
+          if(s != 0.0) varscale(i, 1.0/s, &err);
         }
       }
     }

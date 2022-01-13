@@ -115,6 +115,7 @@ void dae_var_map(Solver_ctx *sol_ctx);
 
 // get solver status for sol file
 int get_snes_sol_message(char *msg, SNESConvergedReason term_reason, ASL *asl);
+int get_ts_sol_message(char *msg, TSConvergedReason term_reason, ASL *asl);
 
 // Extra diagnostic printing functions.
 void print_commandline(const char* msg, int argc, char **argv);
