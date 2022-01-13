@@ -268,6 +268,7 @@ int main(int argc, char **argv){
     if(sol_ctx.explicit_time) x_asl[sol_ctx.dae_map_t] = t;
     /* write the AMPL solution file */
     get_ts_sol_message(msg, cr, sol_ctx.asl);
+    PetscPrintf(PETSC_COMM_SELF, "TSConvergedReason = %s\n", msg);
     write_sol(msg, x_asl, NULL, NULL); // write ASL sol file
     ierr = TSDestroy(&ts);
   } //end ts solve
@@ -330,8 +331,8 @@ int main(int argc, char **argv){
     /* Get the results */
     ierr = VecGetArray(x, &xx);CHKERRQ(ierr);
     /* write the AMPL solution file */
-    PetscPrintf(PETSC_COMM_SELF, "SNESConvergedReason = %d, in %d iterations\n", cr, its);
     get_snes_sol_message(msg, cr, sol_ctx.asl);
+    PetscPrintf(PETSC_COMM_SELF, "SNESConvergedReason = %s, in %d iterations\n", msg, its);
     write_sol(msg, (real*)xx, NULL, NULL);
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
     ierr = VecDestroy(&xl);CHKERRQ(ierr);
