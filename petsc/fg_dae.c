@@ -171,8 +171,8 @@ int get_ts_sol_message(char *msg, TSConvergedReason term_reason, ASL *asl){
     strcpy(msg, "TS_CONVERGED_ITS");
     solve_result_num = 400;}
   else if(term_reason==TS_CONVERGED_ITERATING){ //means it's still running
-      strcpy(msg, "TS_CONVERGED_ITERATING");
-      solve_result_num = 400;}
+    strcpy(msg, "TS_CONVERGED_ITERATING");
+    solve_result_num = 400;}
   else if(term_reason==TS_DIVERGED_NONLINEAR_SOLVE){
     strcpy(msg, "TS_DIVERGED_NONLINEAR_SOLVE");
     solve_result_num = 300;}

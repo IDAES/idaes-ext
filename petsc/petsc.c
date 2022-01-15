@@ -258,7 +258,6 @@ int main(int argc, char **argv){
     // Solve
     ierr = TSSolve(ts, x);
     ierr = TSGetTime(ts, &t);
-    ierr = SNESGetConvergedReason(snes, &cr); CHKERRQ(ierr);
     ierr = TSGetConvergedReason(ts, &tscr); CHKERRQ(ierr);
     /* Get the results */
     x_asl = (real*)malloc((n_var)*sizeof(real));
@@ -267,7 +266,7 @@ int main(int argc, char **argv){
     ierr = VecRestoreArray(x,&xx);CHKERRQ(ierr);
     if(sol_ctx.explicit_time) x_asl[sol_ctx.dae_map_t] = t;
     /* write the AMPL solution file */
-    get_ts_sol_message(msg, cr, sol_ctx.asl);
+    get_ts_sol_message(msg, tscr, sol_ctx.asl);
     PetscPrintf(PETSC_COMM_SELF, "TSConvergedReason = %s\n", msg);
     write_sol(msg, x_asl, NULL, NULL); // write ASL sol file
     ierr = TSDestroy(&ts);
