@@ -24,7 +24,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
   function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'wget https://github.com/eslickj/idaes-ext/blob/main/scripts/compile_petsc_windows.sh'; \
+  msys 'wget https://raw.githubusercontent.com/eslickj/idaes-ext/main/scripts/compile_petsc_windows.sh'; \
   msys 'sh ./compile_petsc_windows.sh';
 
 
