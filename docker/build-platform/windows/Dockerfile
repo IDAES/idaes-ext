@@ -20,8 +20,18 @@ RUN 'exit'; \
     'pacman -Scc --noconfirm';
 
 RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake mingw-w64-x86_64-pkg-config'
-RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git mingw-w64-x86_64-lapack'
+RUN 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack mingw-w64-x86_64-msmpi'
 
 ENV MSYSTEM MINGW64
 
 RUN 'mkdir /c/repo/'
+
+RUN 'cd /c/repo'; \
+    'wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.16.5.tar.gz'; \
+    'tar -zxvf petsc-3.16.5.tar.gz'; \
+    'mv petsc-3.16.5 petsc'; \
+    'cd petsc'; \
+    'export CMAKE_GENERATOR="MSYS Makefiles"'; \
+    '/usr/bin/python configure --with-debug=0 --with-shared=0 --with-mpi=1 --with-fortran-bindings=0 --download-mumps --download-scalapack --download-metis --download-suitesparse --prefix=/c/repo/petsc-dist'; \
+    'make'; \
+    'make install';

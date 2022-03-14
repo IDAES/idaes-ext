@@ -12,9 +12,9 @@ RUN dnf -y install python3
 RUN mkdir repo
 
 RUN cd repo; \
-    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.16.2.tar.gz; \
-    tar -zxvf petsc-3.16.2.tar.gz; \
-    mv petsc-3.16.2 petsc; \
+    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.16.5.tar.gz; \
+    tar -zxvf petsc-3.16.5.tar.gz; \
+    mv petsc-3.16.5 petsc; \
     mkdir petsc-dist; \
     cd petsc; \
     ./configure --with-debug=0 --with-shared=0 --with-fortran-bindings=0 --download-mpich --download-mumps --download-hypre --download-sundials2 --download-superlu --download-scalapack --download-metis --download-parmetis --download-ptscotch --download-ml --download-suitesparse --download-strumpack --prefix=/repo/petsc-dist; \
