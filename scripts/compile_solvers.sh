@@ -285,6 +285,7 @@ then
     cp /mingw64/bin/libblas.dll ./
     cp /mingw64/bin/libbz2-*.dll ./
     cp /mingw64/bin/zlib*.dll ./
+
 fi
 
 echo "#########################################################################"
@@ -324,24 +325,26 @@ make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
 cp dot_sens* $IDAES_EXT/dist-solvers
 
-if [ ${osname} != "windows" ]
+echo "#########################################################################"
+echo "# PETSc                                                                 #"
+echo "#########################################################################"
+export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
+export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
 then
-  echo "#########################################################################"
-  echo "# PETSc                                                                 #"
-  echo "#########################################################################"
-  export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
-  export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
+  export PETSC_DIR=/c/repo/petsc-dist
+else
   export PETSC_DIR=/repo/petsc-dist
-  export PETSC_ARCH=""
-  cd $IDAES_EXT/petsc
-  make
-  make py
-  mkdir $IDAES_EXT/dist-petsc
-  cp petsc $IDAES_EXT/dist-petsc
-  cp -r petscpy $IDAES_EXT/dist-petsc
-  cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
-  cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
 fi
+export PETSC_ARCH=""
+cd $IDAES_EXT/petsc
+make
+make py
+mkdir $IDAES_EXT/dist-petsc
+cp petsc $IDAES_EXT/dist-petsc
+cp -r petscpy $IDAES_EXT/dist-petsc
+cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
+cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
 
 # here you pack files
 echo "#########################################################################"
