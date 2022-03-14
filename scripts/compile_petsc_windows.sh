@@ -8,5 +8,5 @@ tar -zxvf petsc-3.16.5.tar.gz
 mv petsc-3.16.5 petsc
 cd petsc
 /usr/bin/python configure --with-debug=0 --with-shared=0 --with-mpi=1 --with-fortran-bindings=0 --download-mumps --download-scalapack --download-metis --download-suitesparse --prefix=/c/repo/petsc-dist
-cd /repo/petsc && make
-cd /repo/petsc && make install
+make
+make install
