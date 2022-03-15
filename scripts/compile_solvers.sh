@@ -36,8 +36,8 @@ wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 # Fetch coin-or stuff and dependencies
 bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Bonmin@master --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Couenne@master --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
 bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 mv ./Ipopt ./Ipopt_l1
@@ -220,6 +220,10 @@ echo "#########################################################################"
 echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
+cp ./scripts/CouenneMatrix.hpp.patch ./
+cp ./scripts/CouenneProblem.hpp.patch ./
+patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
+patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 make
 make install

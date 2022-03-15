@@ -1,0 +1,29 @@
+--- Couenne/src/cut/sdpcuts/CouenneMatrix.hpp	2022-03-15 17:25:20.065671700 -0400
++++ Couenne/src/cut/sdpcuts/CouenneMatrix.hpp.fix	2022-03-15 17:49:43.444699400 -0400
+@@ -69,7 +69,7 @@
+ 
+     struct compare_scalars {
+       inline bool operator() (register CouenneScalar * const &a, 
+-			      register CouenneScalar * const &b)
++			      register CouenneScalar * const &b) const
+       {return a -> getIndex () < b -> getIndex ();}
+     };
+ 
+@@ -106,7 +106,7 @@
+   public:
+ 
+     struct compare_pair_ind {
+-      inline bool operator() (register const std::pair <int, CouenneSparseVector *> &a, 
++      inline bool operator() (register const std::pair <int, CouenneSparseVector *> &a,
+ 			      register const std::pair <int, CouenneSparseVector *> &b) const
+       {return a. first < b. first;}
+     };
+@@ -137,7 +137,7 @@
+     void print () const;
+     long unsigned int size ();
+ 
+-    CouenneSparseVector &operator * (const CouenneSparseVector &factor) const; ///< matrix * vector 
++    CouenneSparseVector &operator * (const CouenneSparseVector &factor) const; ///< matrix * vector
+     CouenneExprMatrix   &operator * (const CouenneExprMatrix   &post)   const; ///< matrix * matrix
+   };
+ }
