@@ -38,6 +38,13 @@ bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas Th
 bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+# Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
+cd Couenne
+cp ./scripts/CouenneMatrix.hpp.patch ./
+cp ./scripts/CouenneProblem.hpp.patch ./
+patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
+patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
+cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
 bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 mv ./Ipopt ./Ipopt_l1
@@ -145,7 +152,6 @@ make
 make install
 cd $IDAES_EXT/coinbrew
 
-
 echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
@@ -220,10 +226,6 @@ echo "#########################################################################"
 echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
-cp ./scripts/CouenneMatrix.hpp.patch ./
-cp ./scripts/CouenneProblem.hpp.patch ./
-patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
-patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 make
 make install
