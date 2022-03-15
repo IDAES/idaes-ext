@@ -40,8 +40,8 @@ bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas
 bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
-cp ./scripts/CouenneMatrix.hpp.patch ./
-cp ./scripts/CouenneProblem.hpp.patch ./
+cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
+cp $IDAES_EXT/scripts/CouenneProblem.hpp.patch ./
 patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
