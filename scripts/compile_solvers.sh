@@ -37,7 +37,7 @@ wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Couenne@main --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
 bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 mv ./Ipopt ./Ipopt_l1
@@ -285,7 +285,7 @@ then
     cp /mingw64/bin/libblas.dll ./
     cp /mingw64/bin/libbz2-*.dll ./
     cp /mingw64/bin/zlib*.dll ./
-
+    cp /mingw64/bin/libssp*.dll ./
 fi
 
 echo "#########################################################################"
