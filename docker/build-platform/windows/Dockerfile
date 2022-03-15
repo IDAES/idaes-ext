@@ -19,13 +19,23 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
   function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake'; \
-  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack mingw-w64-x86_64-msmpi';
+  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake mingw-w64-x86_64-make'; \
+  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack';
 
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
   function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'wget https://raw.githubusercontent.com/eslickj/idaes-ext/main/scripts/compile_petsc_windows.sh'; \
-  msys 'sh ./compile_petsc_windows.sh';
+  msys 'mkdir /c/repo'; \
+  msys 'mkdir /c/repo/petsc-dist';
 
+WORKDIR c:/repo
 
-RUN taskkill /F /FI "MODULES eq msys-2.0.dll"
+# The PETSc build really doesn't like MinGW on docker, so need to put extra effort in
+RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
+  msys 'cd /c/repo && wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.16.5.tar.gz'; \
+  msys 'cd /c/repo && tar -zxvf petsc-3.16.5.tar.gz'; \
+  msys 'cd /c/repo/petsc-3.16.5 && export CPATH=/c/repo/petsc-dist/include && /usr/bin/python configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --with-make-exec=mingw32-make --prefix=/c/repo/petsc-dist'; \
+  msys 'cd /c/repo/petsc-3.16.5 && mingw32-make PETSC_DIR=/c/repo/petsc-3.16.5 PETSC_ARCH=arch-mswin-c-opt all'; \
+  msys 'cd /c/repo/petsc-3.16.5 && mingw32-make PETSC_DIR=/c/repo/petsc-3.16.5 PETSC_ARCH=arch-mswin-c-opt install';
+
+#RUN taskkill /F /FI "MODULES eq msys-2.0.dll"
