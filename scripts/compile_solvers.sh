@@ -34,15 +34,22 @@ cd coinbrew
 wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt
-bash coinbrew fetch Cbc --no-prompt
-bash coinbrew fetch Bonmin --no-prompt
-bash coinbrew fetch Couenne --no-prompt
+bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+# Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
+cd Couenne
+cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
+cp $IDAES_EXT/scripts/CouenneProblem.hpp.patch ./
+patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
+patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
+cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 
 # I let fetch get dependencies, but delete ones where I don't have permission
 # to distribute, have incompatible licences, or I want a differnt version. This
@@ -144,7 +151,6 @@ cd Ipopt
 make
 make install
 cd $IDAES_EXT/coinbrew
-
 
 echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
@@ -285,7 +291,7 @@ then
     cp /mingw64/bin/libblas.dll ./
     cp /mingw64/bin/libbz2-*.dll ./
     cp /mingw64/bin/zlib*.dll ./
-
+    cp /mingw64/bin/libssp*.dll ./
 fi
 
 echo "#########################################################################"
@@ -341,7 +347,12 @@ cd $IDAES_EXT/petsc
 make
 make py
 mkdir $IDAES_EXT/dist-petsc
-cp petsc $IDAES_EXT/dist-petsc
+if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+then
+  cp petsc.exe $IDAES_EXT/dist-petsc
+else
+  cp petsc $IDAES_EXT/dist-petsc
+fi
 cp -r petscpy $IDAES_EXT/dist-petsc
 cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
 cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
