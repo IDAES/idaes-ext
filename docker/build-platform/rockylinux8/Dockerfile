@@ -1,13 +1,11 @@
-FROM centos:centos8
+FROM rockylinux:8
 
 RUN yum -y update; yum clean all
 RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel cmake
-RUN yum -y install wget unzip patch which file valgrind
-RUN yum -y install flex bison
+RUN yum -y install wget unzip patch which file valgrind flex bison
 RUN yum -y install dnf-plugins-core
 RUN yum config-manager --set-enabled powertools
-RUN dnf --enablerepo=powertools -y install lapack-devel
-RUN dnf -y install python3
+RUN yum -y install lapack-devel python3
 RUN mkdir repo
 
 RUN cd repo; \
