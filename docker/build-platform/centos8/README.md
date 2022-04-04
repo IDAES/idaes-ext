@@ -1,5 +1,4 @@
 IDAES Binary Extensions Build Platform
 ======================================
 
-This Docker container can be used to build IDAES binary extensions on Rocky
-Linux 8. 
+This Docker container can be used to build IDAES binary extensions on CentOS 8. 
