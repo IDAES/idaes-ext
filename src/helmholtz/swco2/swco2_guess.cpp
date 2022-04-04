@@ -37,7 +37,7 @@ s_real delta_p_tau_supercritical_guess_swco2(s_real p, s_real tau){
   // No two phase in supercritical so shouldn't need to worry about multiple
   // roots.  Due to some steep slopes a newton method could fail though.  Use
   // False position to get close.
-  return delta_p_tau_rf(p, tau, 5e-6/rho_c, 1180/rho_c);
+  return delta_p_tau_rf(p, tau, 1.0/rho_c, 1180/rho_c);
 }
 
 s_real delta_p_tau_vap_guess_swco2(s_real p, s_real tau){

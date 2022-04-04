@@ -40,9 +40,9 @@
 // density from temperature and pressure.  This lets me get a very accurate
 // initial guess that I just feed to the newton type solve.
 // Bracketing methods tolerance, for absolute error on delta (reduced density)
-#define TOL_BRACKET 1e-7
+#define TOL_BRACKET 1e-10
 // Bracketing methods iteration limit
-#define MAX_IT_BRACKET 10
+#define MAX_IT_BRACKET 20
 // Saturation curve relative tolerances for phase Gibbs free enegy difference
 #define TOL_SAT 1e-14
 // Saturation curve max iterations

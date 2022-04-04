@@ -315,7 +315,7 @@ s_real delta_p_tau_rf(s_real pr, s_real tau, s_real a, s_real b){
   //Okay, now do bracket
   FuncWrapper f(0, tau, pr);
   f.set_f2n(&p);
-  bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-6);
+  bracket(&f, a, b, &c, MAX_IT_BRACKET, TOL_BRACKET, 1e-10);
   return c;
 }
 
