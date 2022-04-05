@@ -56,7 +56,7 @@ s_real delta_p_tau_supercritical_guess_iapws95(s_real p, s_real tau){
   //since it's super critical there is not two phase region so there shouldn't
   //be multiple solutions to worry about.  There are some steep slopes in places
   //so I'm using a flase position backeting method to get close.
-  return delta_p_tau_rf(p, tau, 1e-5/rho_c, 1100/rho_c);
+  return delta_p_tau_rf(p, tau, 1.0/rho_c, 1100.0/rho_c);
 }
 
 s_real delta_p_tau_vap_guess_iapws95(s_real p, s_real tau){
