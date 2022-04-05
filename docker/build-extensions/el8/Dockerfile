@@ -15,5 +15,5 @@ RUN cd repo; \
 # Build all the things
 ##
 RUN pwd; cd repo/idaes-ext; \
-    bash scripts/compile_solvers.sh rockylinux8; \
-    bash scripts/compile_libs.sh rockylinux8
+    bash scripts/compile_solvers.sh el8; \
+    bash scripts/compile_libs.sh el8
