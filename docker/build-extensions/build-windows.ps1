@@ -8,13 +8,10 @@ $mname = "x86_64"
 IF ($flavor -eq "windows"){
   $wdir = "c:/repo"
 }
-ELSEIF ($flavor -eq "centos7"){
+ELSEIF ($flavor -eq "el7"){
   $wdir = "/repo"
 }
-ELSEIF ($flavor -eq "centos8"){
-  $wdir = "/repo"
-}
-ELSEIF ($flavor -eq "rockylinux8"){
+ELSEIF ($flavor -eq "el8"){
   $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "ubuntu1804"){
