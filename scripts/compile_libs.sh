@@ -3,8 +3,7 @@
 osname=$1; shift
 if [ -z $osname ]
 then
-  echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
-  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  echo "Must spcify plaform in {windows, darwin, el7, el8, ubuntu1804, ubuntu2004}."
   exit 1
 fi
 
