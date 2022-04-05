@@ -24,8 +24,7 @@ ELSEIF ($flavor -eq "ubuntu2004"){
   $wdir = "/repo"
 }
 ELSE{
-  echo "Please specify a flavor in {windows, centos7, centos8, rockylinux8"
-  echo "                            ubuntu1804, ubuntu2004}."
+  echo "Please specify a flavor in {windows, el7, el8, ubuntu1804, ubuntu2004}."
   exit 1
 }
 
