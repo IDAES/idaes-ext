@@ -8,6 +8,9 @@ then
   exit 1
 fi
 
+# Get the machine type
+export MNAME=`uname -m`
+
 # Get path of directory we're working in
 export IDAES_EXT=`pwd`
 
@@ -274,7 +277,7 @@ strip --strip-unneeded *
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
-sed s/"(PLAT)"/${osname}/g tmp > tmp2
+sed s/"(PLAT)"/${osname} ${MNAME}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 rm tmp
 
@@ -362,8 +365,8 @@ echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
 cd $IDAES_EXT/dist-petsc
-tar -czvf idaes-petsc-${osname}-64.tar.gz *
+tar -czvf idaes-petsc-${osname}-${MNAME}.tar.gz *
 cd $IDAES_EXT/dist-solvers
-tar -czvf idaes-solvers-${osname}-64.tar.gz *
+tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
 echo "Done"
 echo "HSL Present: ${with_hsl}"

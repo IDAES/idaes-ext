@@ -8,6 +8,9 @@ then
   exit 1
 fi
 
+# Get the machine type
+export MNAME=`uname -m`
+
 # Make a directory to work in
 export IDAES_EXT=`pwd`
 
@@ -27,9 +30,9 @@ cp ../src/dist/*.so ./
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
-sed s/"(PLAT)"/${osname}/g tmp > tmp2
+sed s/"(PLAT)"/${osname} ${MNAME}/g tmp > tmp2
 mv tmp2 version_lib.txt
 rm tmp
 
 # here you pack files
-tar -czvf idaes-lib-${osname}-64.tar.gz *
+tar -czvf idaes-lib-${osname}-${MNAME}.tar.gz *
