@@ -277,7 +277,7 @@ strip --strip-unneeded *
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
-sed s/"(PLAT)"/${osname} ${MNAME}/g tmp > tmp2
+sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 rm tmp
 

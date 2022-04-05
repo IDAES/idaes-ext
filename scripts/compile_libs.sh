@@ -3,8 +3,7 @@
 osname=$1; shift
 if [ -z $osname ]
 then
-  echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
-  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  echo "Must spcify plaform in {windows, darwin, el7, el8, ubuntu1804, ubuntu2004}."
   exit 1
 fi
 
@@ -30,7 +29,7 @@ cp ../src/dist/*.so ./
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
-sed s/"(PLAT)"/${osname} ${MNAME}/g tmp > tmp2
+sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
 mv tmp2 version_lib.txt
 rm tmp
 
