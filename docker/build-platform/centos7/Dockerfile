@@ -16,6 +16,6 @@ RUN cd repo; \
     mkdir petsc-dist
 
 RUN cd repo/petsc; \
-    ./configure CPPFLAGS="-D_POSIX_C_SOURCE=199309L" --with-debug=0 --with-shared=0 --with-fortran-bindings=0 --download-mpich --download-mumps --download-hypre --download-sundials2 --download-superlu --download-scalapack --download-metis --download-parmetis --download-ptscotch --download-ml --download-suitesparse --download-strumpack --prefix=/repo/petsc-dist; \
+    ./configure CPPFLAGS="-D_POSIX_C_SOURCE=199309L" --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
     make;\
     make install;\
