@@ -21,6 +21,8 @@ jobs:
             bin_platform: ubuntu2004
           - docker_image: eslickj/idaes-ext-debian9-test:latest
             bin_platform: debian9
+          - docker_image: eslickj/idaes-ext-debian10-test:latest
+            bin_platform: debian10
     steps:
       - name: Start Docker Container
         run: docker run --name test -d -i ${{ matrix.docker_image }} /bin/bash
