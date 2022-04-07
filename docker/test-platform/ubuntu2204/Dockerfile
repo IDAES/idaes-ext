@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
 
+RUN apt-get remove libappstream3
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 git wget
