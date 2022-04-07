@@ -1,4 +1,4 @@
 IDAES Binary Extensions Testing Platform
 =========================================
 
-This Docker container can be used to test IDAES binary extensions on CentOS 7. 
+This Docker container can be used to test IDAES binary extensions on Debian 9.
