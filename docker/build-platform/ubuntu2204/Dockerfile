@@ -1,10 +1,8 @@
 FROM ubuntu:22.04
 
-RUN apt-get -y update; \
-    export DEBIAN_FRONTEND=noninteractive; \
-    apt-get -y upgrade; \
-    apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
-
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
 RUN apt-get -y install gfortran libboost-all-dev cmake
 RUN apt-get -y install pkg-config bison
 RUN apt-get -y install flex valgrind
