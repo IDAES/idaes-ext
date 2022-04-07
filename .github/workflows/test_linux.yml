@@ -14,11 +14,13 @@ jobs:
           - docker_image: eslickj/idaes-ext-centos7-test:latest
             bin_platform: centos7
           - docker_image: eslickj/idaes-ext-rockylinux8-test:latest
-            bin_platform: rockylinux8
+            bin_platform: rocky8
           - docker_image: eslickj/idaes-ext-ubuntu1804-test:latest
             bin_platform: ubuntu1804
           - docker_image: eslickj/idaes-ext-ubuntu2004-test:latest
             bin_platform: ubuntu2004
+          - docker_image: eslickj/idaes-ext-debian9-test:latest
+            bin_platform: debian9
     steps:
       - name: Start Docker Container
         run: docker run --name test -d -i ${{ matrix.docker_image }} /bin/bash
@@ -29,8 +31,7 @@ jobs:
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
             git clone https://github.com/idaes/idaes-pse.git
             cd idaes-pse
-            git checkout master
-            conda create -n idaes python=3.7.4 pip psutil
+            conda create -n idaes python=3.9 pip psutil
             conda activate idaes
             pip install -r requirements-dev.txt
             idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --platform ${{ matrix.bin_platform }} --extra petsc'
