@@ -1,9 +1,8 @@
 FROM ubuntu:22.04
 
-RUN apt-get -y update; \
-    export DEBIAN_FRONTEND=noninteractive; \
-    apt-get -y upgrade; \
-    apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 git wget
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 git wget
 RUN mkdir repo
 RUN cd repo; \
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh; \
