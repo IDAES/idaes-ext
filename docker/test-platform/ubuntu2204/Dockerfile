@@ -1,7 +1,9 @@
 FROM ubuntu:22.04
 
-RUN apt-get -y update
-RUN apt-get -y upgrade
+RUN apt-get -y update; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime; \
+    apt-get -y upgrade
 RUN apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 git wget
 RUN mkdir repo
 RUN cd repo; \
