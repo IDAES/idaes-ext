@@ -1,6 +1,6 @@
 #!/bin/sh
 # First argument is OS name provided by user when running this
-osname=$1; shift
+osname=$1;
 if [ -z $osname ]
 then
   echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
