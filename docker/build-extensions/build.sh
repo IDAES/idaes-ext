@@ -38,7 +38,7 @@ fi
 
 
 docker run --name "$flavor"_"$mname"_build_tmp -dt "$image"
-docker cp ./extras "$flavor"_"$mname"_build_tmp:"$wdir"/extras
+docker cp ./extras "$flavor"_"$mname"_build_tmp:"$wdir"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "ls ${wdir}/extras"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/extras && pwd"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir} && git clone ${repo} && cd idaes-ext && git checkout ${branch}"

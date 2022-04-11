@@ -13,7 +13,6 @@ export MNAME=`uname -m`
 
 # Get path of directory we're working in
 export IDAES_EXT=`pwd`
-echo $IDAES_EXT
 
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
