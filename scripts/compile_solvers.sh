@@ -4,7 +4,7 @@ osname=$1;
 if [ -z $osname ]
 then
   echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
-  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  echo "  ubuntu180, ubuntu2004, ubuntu2204}."
   exit 1
 fi
 
@@ -13,6 +13,13 @@ export MNAME=`uname -m`
 
 # Get path of directory we're working in
 export IDAES_EXT=`pwd`
+
+if [ -f $IDAES_EXT/../coinhsl.zip ]
+then
+  echo "HSL: YES"
+else
+  echo "HSL: NO"
+fi
 
 # Set a few basic things
 export IPOPT_BRANCH="idaes-3.13"
@@ -123,7 +130,11 @@ echo "#########################################################################"
 echo "# Data/Netlib                                                           #"
 echo "#########################################################################"
 cd Data/Netlib
-./configure --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -132,7 +143,11 @@ echo "#########################################################################"
 echo "# Data/Sample                                                           #"
 echo "#########################################################################"
 cd Data/Sample
-./configure --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -141,7 +156,11 @@ echo "#########################################################################"
 echo "# Data/miplib3                                                          #"
 echo "#########################################################################"
 cd Data/miplib3
-./configure --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -168,7 +187,11 @@ echo "#########################################################################"
 echo "# CoinUtils                                                             #"
 echo "#########################################################################"
 cd CoinUtils
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -177,7 +200,11 @@ echo "#########################################################################"
 echo "# Osi                                                                   #"
 echo "#########################################################################"
 cd Osi
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -186,7 +213,11 @@ echo "#########################################################################"
 echo "# Clp                                                                   #"
 echo "#########################################################################"
 cd Clp
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -195,7 +226,11 @@ echo "#########################################################################"
 echo "# Cgl                                                                   #"
 echo "#########################################################################"
 cd Cgl
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -204,7 +239,11 @@ echo "#########################################################################"
 echo "# Cbc                                                                   #"
 echo "#########################################################################"
 cd Cbc
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -220,7 +259,11 @@ sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 mv atmpfile Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cpp > atmpfile
 mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -229,7 +272,11 @@ echo "#########################################################################"
 echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+if [ "$MNAME" = "aarch64" ]; then
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
