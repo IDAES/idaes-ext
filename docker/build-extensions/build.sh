@@ -38,8 +38,8 @@ fi
 
 
 docker run --name "$flavor"_"$mname"_build_tmp -dt "$image"
-docker cp ./extras "$flavor"_"$mname"_build_tmp:"$wdir"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "ls ${wdir}/extras"
+docker cp ./extras/ "$flavor"_"$mname"_build_tmp:"$wdir"
+docker exec "$flavor"_"$mname"_build_tmp sh -c "cp ${wdir}/extras/* ${wdir}"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/extras && pwd"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir} && git clone ${repo} && cd idaes-ext && git checkout ${branch}"
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_solvers.sh ${flavor}"
@@ -50,6 +50,6 @@ docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-lib/idaes-lib-"$fl
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-solvers/idaes-solvers-"$flavor"-"$mname".tar.gz .
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-petsc/idaes-petsc-"$flavor"-"$mname".tar.gz .
 
-#docker rm /"$flavor"_"$mname"_build_tmp
+docker rm /"$flavor"_"$mname"_build_tmp
 
-#mv *.tar.gz ./tarballs/
+mv *.tar.gz ./tarballs/
