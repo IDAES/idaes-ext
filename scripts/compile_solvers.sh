@@ -4,7 +4,7 @@ osname=$1;
 if [ -z $osname ]
 then
   echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
-  echo "  ubuntu1804, ubuntu1910, ubuntu2004}."
+  echo "  ubuntu180, ubuntu2004, ubuntu2204}."
   exit 1
 fi
 
@@ -13,6 +13,14 @@ export MNAME=`uname -m`
 
 # Get path of directory we're working in
 export IDAES_EXT=`pwd`
+
+if [ -f $IDAES_EXT/../coinhsl.zip ]
+then
+  echo "HSL: YES"
+else
+  echo "HSL: NO"
+fi
+
 
 # Set a few basic things
 export IPOPT_BRANCH="idaes-3.13"
