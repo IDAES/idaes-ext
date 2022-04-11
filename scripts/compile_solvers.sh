@@ -13,6 +13,7 @@ export MNAME=`uname -m`
 
 # Get path of directory we're working in
 export IDAES_EXT=`pwd`
+echo $IDAES_EXT
 
 if [ -f $IDAES_EXT/../coinhsl.zip ]
 then
@@ -20,7 +21,6 @@ then
 else
   echo "HSL: NO"
 fi
-
 
 # Set a few basic things
 export IPOPT_BRANCH="idaes-3.13"

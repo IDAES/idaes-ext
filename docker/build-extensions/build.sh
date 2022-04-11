@@ -1,6 +1,6 @@
 flavor=$1
 
-repo="https://github.com/idaes/idaes-ext.git"
+repo="https://github.com/eslickj/idaes-ext.git"
 branch="main"
 
 if [ "$flavor" = "windows" ]; then
