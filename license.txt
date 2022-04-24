@@ -77,13 +77,25 @@ idaes-solvers-<platform>.tar.gz
 
   MUMPS
   -----
-  Licence: CeCILL-C,  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+  License CeCILL-C,  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
   Source: http://mumps.enseeiht.fr/index.php?page=dwnld.
 
 
   METIS
   -----
   METIS v4 is included with permission.
+
+
+  GCC Libraries
+  -------------
+
+  GCC runtime libraries are covered by the GCC runtime exception, so they can be
+  linked and distributed.  The libraries were used unmodified.
+  License:
+    https://www.gnu.org/licenses/gpl-3.0.en.html
+    https://www.gnu.org/licenses/gcc-exception-3.1-faq.en.html
+  Source: https://gcc.gnu.org/
+
 
 
   MinGW
@@ -120,12 +132,12 @@ idaes-petsc-<platform>.tar.gz
   -----
 
   Source: https://petsc.org
-  License: BSD 2-Clause 
+  License: BSD 2-Clause
            https://petsc.org/main/install/license/#doc-license
 
   AMPL Solver Library (ASL)
   -------------------------
-  
+
   Source: https://ampl.com/netlib/ampl/solvers/index.html
   License: See Above
 

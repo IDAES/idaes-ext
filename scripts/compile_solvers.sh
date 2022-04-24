@@ -30,18 +30,27 @@ export PYNU_BRANCH="main"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="default"
 export K_AUG_REPO="https://github.com/dthierry/k_aug"
-export GCC="gcc"
+export CC="gcc"
+export CXX="g++"
 
 # Work-around for mumps gcc v10 gfortran bug
-export GCC_VERSION=`$GCC -dumpversion`
-if [ "$(expr substr "$GCC_VERSION" 1 2)" = "10" ]; then
+GFORT_VERSION=`gfortran -dumpversion`
+GFMV=(${GFORT_VERSION//./ })
+if [ ${GFMV[0]} -ge 10 ]; then
   export FCFLAGS="-w -fallow-argument-mismatch -O2"
   export FFLAGS="-w -fallow-argument-mismatch -O2"
 fi
 
 mkdir coinbrew
 cd coinbrew
-wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+
+if [ ${osname} = "darwin" ]; then
+  curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  export CC="gcc-11"
+  export CXX="g++-11"
+else
+  wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+fi
 
 # Fetch coin-or stuff and dependencies
 bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
@@ -61,9 +70,7 @@ mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 
-# I let fetch get dependencies, but delete ones where I don't have permission
-# to distribute, have incompatible licences, or I want a differnt version. This
-# isn't really needed, but it helps keep track of what I want and what I don't
+# Make sure I don't include any dependencies I don't want
 rm -rf ThirdParty/Blas
 rm -rf ThirdParty/Lapack
 rm -rf ThirdParty/FilterSQP
@@ -72,8 +79,7 @@ rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/glpk
 
 # If we have the HSL stuff copy and extract it in the right place
-if [ -f $IDAES_EXT/../coinhsl.zip ]
-then
+if [ -f $IDAES_EXT/../coinhsl.zip ]; then
   # if the HSL source zip is in place...
   mkdir ThirdParty/HSL/coinhsl
   cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
@@ -188,6 +194,7 @@ echo "# CoinUtils                                                             #"
 echo "#########################################################################"
 cd CoinUtils
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
@@ -201,6 +208,7 @@ echo "# Osi                                                                   #"
 echo "#########################################################################"
 cd Osi
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
@@ -214,6 +222,7 @@ echo "# Clp                                                                   #"
 echo "#########################################################################"
 cd Clp
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
@@ -227,6 +236,7 @@ echo "# Cgl                                                                   #"
 echo "#########################################################################"
 cd Cgl
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
@@ -240,6 +250,7 @@ echo "# Cbc                                                                   #"
 echo "#########################################################################"
 cd Cbc
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
@@ -260,6 +271,7 @@ mv atmpfile Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cpp > atmpfile
 mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
@@ -273,6 +285,7 @@ echo "# Couenne                                                               #"
 echo "#########################################################################"
 cd Couenne
 if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
@@ -291,18 +304,33 @@ make
 make install
 cd $IDAES_EXT/coinbrew
 
-# Copy files
+echo "#########################################################################"
+echo "# Copy Coin Solver Files to dist-solvers                                #"
+echo "#########################################################################"
 cd $IDAES_EXT
 mkdir dist-solvers
 cd dist-solvers
 # Executables
-if [ ${osname} = "windows" ]
-then
+if [ ${osname} = "windows" ]; then
+  # windows
   cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
   cp ../coinbrew/dist_l1/bin/ipopt_sense.exe ./ipopt_sens_l1.exe
-else
+  # Explicitly only get ipopt so we don't get anything we shouldn't
+  cp ../coinbrew/dist/bin/libipopt*.dll ./
+  cp ../coinbrew/dist/bin/libsipopt*.dll ./
+elif [ ${osname} = "darwin" ]; then
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
   cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  # Explicitly only get ipopt so we don't get anything we shouldn't
+  cp ../coinbrew/dist/lib/libipopt*.dylib ./
+  cp ../coinbrew/dist/lib/libsipopt*.dylib ./
+else
+  # linux
+  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  # Explicitly only get ipopt so we don't get anything we shouldn't
+  cp ../coinbrew/dist/lib/libipopt*.so ./
+  cp ../coinbrew/dist/lib/libsipopt*.so ./
 fi
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../coinbrew/dist/bin/ipopt_sens ./
@@ -310,16 +338,14 @@ cp ../coinbrew/dist/bin/clp ./
 cp ../coinbrew/dist/bin/cbc ./
 cp ../coinbrew/dist/bin/bonmin ./
 cp ../coinbrew/dist/bin/couenne ./
-# Windows *.DLL, be explicit so don't include anything we shouldn't
-cp ../coinbrew/dist/bin/libipopt*.dll ./
-cp ../coinbrew/dist/bin/libsipopt*.dll ./
-# Linux *.so, be explicit so don't include anything we shouldn't
-cp ../coinbrew/dist/lib/libipopt*.so ./
-cp ../coinbrew/dist/lib/libsipopt*.so ./
 # Run strip to remove unneeded symbols (it's okay that some files
 #  aren't exe or libraries)
 strip --strip-unneeded *
 
+
+echo "#########################################################################"
+echo "# Copy License and Version Files to dist-solvers                        #"
+echo "#########################################################################"
 # Text information files include build time
 cp ../license.txt ./
 cp ../version.txt ./version_solvers.txt
@@ -328,8 +354,15 @@ sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
 mv tmp2 version_solvers.txt
 rm tmp
 
-if [ ${osname} = "windows" ]
-then
+#
+# Copy some linked libraries from homebrew or mingw, covered by gcc runtime
+# exception https://www.gnu.org/licenses/gcc-exception-3.1.en.html license
+# info is included in the license text file.
+#
+echo "#########################################################################"
+echo "# Copy GCC/MinGW Runtime Libraries to dist-solvers                      #"
+echo "#########################################################################"
+if [ ${osname} = "windows" ]; then
     # Winodws MinGW linked redistributable libraries
     cp /mingw64/bin/libstdc++-6.dll ./
     cp /mingw64/bin/libgcc_s_seh-1.dll ./
@@ -344,6 +377,15 @@ then
     cp /mingw64/bin/libssp*.dll ./
 fi
 
+if [ ${osname} = "darwin" ]; then
+    # some libraries from homebrew
+    cp /opt/homebrew/opt/gcc/lib/gcc/11/libgfortran.5.dylib ./
+    cp opt/homebrew/opt/gcc/lib/gcc/11/libgcc_s.1.1.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/11/libstdc++.6.dylib ./
+    cp opt/homebrew/opt/gcc/lib/gcc/11/libgomp.1.dylib ./
+fi
+
+
 echo "#########################################################################"
 echo "# Pynumero                                                              #"
 echo "#########################################################################"
@@ -354,7 +396,7 @@ git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
 mkdir build
 cd build
-if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+if [ ${osname} = "windows" ]
 then
   cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
 else
@@ -371,11 +413,11 @@ git clone $K_AUG_REPO
 cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
 cd k_aug
 git checkout $K_AUG_BRANCH
-if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+if [ ${osname} = "windows" ]
 then
-  cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=gcc -G"MSYS Makefiles" .
+  cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
 else
-  cmake -DCMAKE_C_COMPILER=gcc .
+  cmake -DCMAKE_C_COMPILER=$CC .
 fi
 make
 cp bin/k_aug* $IDAES_EXT/dist-solvers
@@ -386,9 +428,11 @@ echo "# PETSc                                                                 #"
 echo "#########################################################################"
 export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
-if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+if [ ${osname} = "windows" ]
 then
   export PETSC_DIR=/c/repo/petsc-dist
+elif [ ${osname} = "darwin" ]; then
+  export PETSC_DIR="$HOME/src/petsc-dist"
 else
   export PETSC_DIR=/repo/petsc-dist
 fi
@@ -397,7 +441,7 @@ cd $IDAES_EXT/petsc
 make
 make py
 mkdir $IDAES_EXT/dist-petsc
-if [ "$(expr substr $(uname -s) 1 7)" = "MINGW64" ]
+if [ ${osname} = "windows" ]
 then
   cp petsc.exe $IDAES_EXT/dist-petsc
 else
