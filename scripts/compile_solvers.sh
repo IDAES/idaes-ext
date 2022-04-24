@@ -78,6 +78,10 @@ rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/glpk
 
+
+echo "#########################################################################"
+echo "# Get coinhsl.zip if available                                          #"
+echo "#########################################################################"
 # If we have the HSL stuff copy and extract it in the right place
 if [ -f $IDAES_EXT/../coinhsl.zip ]; then
   # if the HSL source zip is in place...
@@ -86,6 +90,7 @@ if [ -f $IDAES_EXT/../coinhsl.zip ]; then
   cd ThirdParty/HSL/coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
+  echo "HSL is available, building with HSL"
   with_hsl="YES"
 else
   # If the HSL isn't there, build without it.
