@@ -18,6 +18,9 @@ export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 
 # Compile IDAES function libraries
 cd $IDAES_EXT/src
+if [ ${osname} = "darwin" ]; then
+  export BOOST_HEADER=/opt/homebrew/include
+fi
 make
 cd $IDAES_EXT
 
