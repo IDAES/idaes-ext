@@ -8,6 +8,11 @@
 #include "cubic_roots.h"
 
 
+double curoot(double x){
+    //cube root function that can take negatives and just returns the real root
+    if(x < 0.0) return -pow(-x, 1.0/3.0);
+    else return pow(x, 1.0/3.0);
+}
 
 /***********************************************************************
  * CUBIC FORMULA FUNCTION
@@ -17,6 +22,19 @@
  * if you want to check on it also check out the errata:
  * http://www.mathtable.com/smtf/
  **********************************************************************/
+
+
+
+
+
+
+
+
+
+ /***********************************************************************
+  * Deprecated Below
+  **********************************************************************/
+
 double cubic_root2(int phase, double b, double c, double d){
   double F, G, H, I, J, K, M, N, P, R, S, T, U;
   double zr[3], z;
@@ -277,11 +295,7 @@ void funcadd(AmplExports *ae){
  * helpful little functions
  *
  **********************************************************************/
-double curoot(double x){
-    //cube root function that can take negatives
-    if(x < 0) return -pow(-x, 1.0/3.0);
-    else return pow(x, 1.0/3.0);
-}
+
 
 /***********************************************************************
  * CUBIC ROOT FINDER DERIVATIVES FUNCTION

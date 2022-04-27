@@ -25,9 +25,17 @@
  * CONSTANTS
  *
  **********************************************************************/
-static const double deriv_cap=1e9; // Largest derivative magnitude allowed
+static const double deriv_cap=1e10; // Largest derivative magnitude allowed
 static const double sqrt_3=1.73205080756888; //square root of 3
 
+int low_root(double b, double c, double d, double *grad, double *hes);
+int high_root(double b, double c, double d, double *grad, double *hes);
+
+/***********************************************************************
+ *
+ * Deprecated, changing to simpler interface
+ *
+ **********************************************************************/
 typedef enum{ // Equations of state
     EOS_PR = 0,
     EOS_SRK = 1,

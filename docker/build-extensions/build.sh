@@ -1,38 +1,29 @@
 flavor=$1
+mname=$2
 
 repo="https://github.com/idaes/idaes-ext.git"
 branch="main"
 
 if [ "$flavor" = "windows" ]; then
-  echo "Cannot build Windows binaries on Linux"
-  exit 1
+  image="eslickj/idaes-ext-windows-build:latest"
+  wdir="c:/repo"
 elif [ "$flavor" = "el7" ]; then
-  image="eslickj/idaes-ext-ubuntu-2004-build:latest"
-  mname="x86_64"
+  image="eslickj/idaes-ext-el7-build:latest"
   wdir="/repo"
 elif [ "$flavor" = "el8" ]; then
-  image="eslickj/idaes-ext-ubuntu-2004-build:latest"
-  mname="x86_64"
+  image="idaes-ext-el8-build:latest"
   wdir="/repo"
 elif [ "$flavor" = "ubuntu1804" ]; then
-  image="eslickj/idaes-ext-ubuntu1804-build:latest"
-  mname="x86_64"
+  image="idaes-ext-ubuntu1804-build:latest"
   wdir="/repo"
 elif [ "$flavor" = "ubuntu2004" ]; then
-  image="eslickj/idaes-ext-ubuntu-2004-build:latest"
-  mname="x86_64"
-  wdir="/repo"
-elif [ "$flavor" = "ubuntu2004_aarch64" ]; then
-  image="ubuntu2004_build_aarch64:latest"
-  flavor="ubuntu2004"
-  mname="aarch64"
+  image="idaes-ext-ubuntu2004-build:latest"
   wdir="/repo"
 elif [ "$flavor" = "ubuntu2204" ]; then
-  image="eslickj/idaes-ext-ubuntu-2204-build:latest"
-  mname="x86_64"
+  image="idaes-ext-ubuntu2204-build:latest"
   wdir="/repo"
 else
-  echo "Specify flavor in {el7, el8, ubuntu1804, ubuntu2004, ubuntu2204}."
+  echo "Specify flavor in {el7, el8, ubuntu1804, ubuntu2004, ubuntu2204, windows}."
   exit 1
 fi
 
