@@ -7,13 +7,6 @@
 
 #include "cubic_roots.h"
 
-
-double curoot(double x){
-    //cube root function that can take negatives and just returns the real root
-    if(x < 0.0) return -pow(-x, 1.0/3.0);
-    else return pow(x, 1.0/3.0);
-}
-
 /***********************************************************************
  * CUBIC FORMULA FUNCTION
  * The root finding approach given in CRC Standard Mathematical
@@ -23,542 +16,67 @@ double curoot(double x){
  * http://www.mathtable.com/smtf/
  **********************************************************************/
 
+double cubic_root_low(double b, double c, double d){
+ double F, G, H, I, J, K, M, N, P, R, S, T, U, zr[3];
 
-
-
-
-
-
-
-
- /***********************************************************************
-  * Deprecated Below
-  **********************************************************************/
-
-double cubic_root2(int phase, double b, double c, double d){
-  double F, G, H, I, J, K, M, N, P, R, S, T, U;
-  double zr[3], z;
-
-  F = (3*c - b*b)/3.0;
-  G = (2*b*b*b - 9*b*c + 27*d)/27.0;
-  H = G*G/4.0 + F*F*F/27.0;
-  P = -b/3.0;
-  if(H <= 0.0){
-      //Three roots, can include double or triple roots too
-      I = sqrt(G*G/4.0 - H);
-      J = curoot(I);
-      K = acos(-G/2.0/I);
-      M = cos(K/3);
-      N = sqrt_3*sin(K/3.0);
-      zr[0] = P + 2*J*M;
-      zr[1] = P - J*(M + N);
-      zr[2] = P - J*(M - N);
-      //Sort lowest to highest, may not need this, but for saftey...
-      if(zr[0] > zr[1]){z = zr[1]; zr[1] = zr[0]; zr[0] = z;}
-      if(zr[1] > zr[2]){z = zr[2]; zr[2] = zr[1]; zr[1] = z;}
-      if(zr[0] > zr[1]){z = zr[1]; zr[1] = zr[0]; zr[0] = z;}
-      //Vapor is the highest and liquid is the lowest
-      if(phase == 0) z = zr[0]; //liquid
-      else if(phase == 1) z = zr[2]; //vapor
-      else z = zr[1]; //middle (just to be complete)
-  }
-  else{ //Only one real root
-      R = -G/2.0 + sqrt(H);
-      T = -G/2.0 - sqrt(H);
-      S =  curoot(R);
-      U = -curoot(-T);
-      z = S + U + P;
-    }
-    return z;
+ F = (3*c - b*b)/3.0;
+ G = (2*b*b*b - 9*b*c + 27*d)/27.0;
+ H = G*G/4.0 + F*F*F/27.0;
+ P = -b/3.0;
+ if(H <= 0.0){
+     //Three roots, can include double or triple roots too
+     I = sqrt(G*G/4.0 - H);
+     J = cbrt(I);
+     K = acos(-G/2.0/I);
+     M = cos(K/3);
+     N = sqrt_3*sin(K/3.0);
+     zr[0] = P + 2*J*M;
+     zr[1] = P - J*(M + N);
+     zr[2] = P - J*(M - N);
+     //Sort to get lowest (don't need full sort)
+     if(zr[1] > zr[2]) zr[1] = zr[2];
+     if(zr[0] > zr[1]) return zr[1];
+     return zr[0];
+ }
+ R = -G/2.0 + sqrt(H);
+ T = -G/2.0 - sqrt(H);
+ S = cbrt(R);
+ U = cbrt(T);
+ return S + U + P;
 }
 
-double cubic_root(int phase, eos_indx eos, double A, double B,
-                  double *derivs, double *hes){
-    /*
-     * Find solution to the cubic equation:
-     * 0 = z^3 - (1+B-uB)z^2 + (A+-uB-uB^2+wB^2)z - AB-wB^2 - wB^3
-     *
-     * Also using the definition below (no a, a = 1)
-     *
-     * 0 = z^3 + b*z2 + c*z + d
-     * a = 1
-     * b = -(1 + B - u*B)
-     * c =  (A - u*B - u*B^2 + w*B^2)
-     * d = -(A*B + w*B^2 + w*B^3)
-     *
-     * Return either what should be the liquid root if phase == 0 or the
-     * vapor root if phase == 1, and the derivatives of the returned
-     * root
-     *
-     *
-     */
-    const double u = eos_u[eos];
-    const double w = eos_w[eos];
-    static double b, c, d, z;
+double cubic_root_high(double b, double c, double d){
+ double F, G, H, I, J, K, M, N, P, R, S, T, U, zr[3];
 
-    b = -(1.0 + B - u*B);
-    c = A + w*B*B - u*B - u*B*B;
-    d = -A*B - w*B*B - w*B*B*B;
-    z = cubic_root2(phase, b, c, d);
-    if(derivs) cuderiv(eos, 0, A, B, z, derivs, hes);
-    return z;
+ F = (3*c - b*b)/3.0;
+ G = (2*b*b*b - 9*b*c + 27*d)/27.0;
+ H = G*G/4.0 + F*F*F/27.0;
+ P = -b/3.0;
+ if(H <= 0.0){
+     //Three roots, can include double or triple roots too
+     I = sqrt(G*G/4.0 - H);
+     J = cbrt(I);
+     K = acos(-G/2.0/I);
+     M = cos(K/3);
+     N = sqrt_3*sin(K/3.0);
+     zr[0] = P + 2*J*M;
+     zr[1] = P - J*(M + N);
+     zr[2] = P - J*(M - N);
+     //Sort to get highest (don't need full sort)
+     if(zr[0] > zr[1]) zr[1] = zr[0];
+     if(zr[1] > zr[2]) return zr[1];
+     return zr[2];
+ }
+ R = -G/2.0 + sqrt(H);
+ T = -G/2.0 - sqrt(H);
+ S = cbrt(R);
+ U = cbrt(T);
+ return S + U + P;
 }
 
-double cubic_root_ext(int phase, eos_indx eos, double A, double B,
-                      double *derivs, double *hes){
-
-  const double u = eos_u[eos];
-  const double w = eos_w[eos];
-  double b, c, d, z, a, pm;
-  double bext, cext, dext;
-  double det;
-
-  b = -(1.0 + B - u*B);
-  c = A + w*B*B - u*B - u*B*B;
-  d = -A*B - w*B*B - w*B*B*B;
-
-  if(phase == liquid) pm = -1.0; //liquid
-  else pm = 1.0;  //vapor
-
-  det = b*b - 3*c;
-  if(det > 0){
-    // could need the extension on liquid side so check
-    a = -1.0/3.0*b + pm*1.0*sqrt(det)/3.0;
-    if( ((a*a*a + b*a*a + c*a + d < 0)&&(phase==liquid)) ||
-        ((a*a*a + b*a*a + c*a + d > 0)&&(phase==vapor))){
-      //use extension liquid
-      a = 2*a;
-      bext = -b - 3.0*a;
-      cext = 3*a*a + 2*b*a + c;
-      dext = d - 0.75*a*a*a - 0.5*b*a*a;
-      z = cubic_root2(!phase, bext, cext, dext);
-      if(derivs) cuderiv(eos, phase+1, A, B, z, derivs, hes);
-    }
-    else{
-      z = cubic_root2(phase, b, c, d);
-      if(derivs) cuderiv(eos, 0, A, B, z, derivs, hes);
-    }
-  }
-  else{
-    z = cubic_root2(phase, b, c, d);
-    if(derivs) cuderiv(eos, 0, A, B, z, derivs, hes);
-  }
-  return z;
-}
-
-/***********************************************************************
- *
- * LIQUID/VAPOR ROOT PROPERTY FUNCTIONS
- *
- **********************************************************************/
-
-real ceos_z_liq(arglist *al){
-  /* This finds the liquid root for a cubic EOS
-   *
-   * It also calculates first and second derivative.  Returns the vapor root
-   * if the liquid phase doesn't exist, so it is discontinuous.  The extended
-   * version of this may be better, but this has the nice property that where
-   * a vapor root doesn't exist any very small vapor component would have the
-   * same properties as the liquid. The exisitence of a liquid root doesn't
-   * necessarily mean that liquid is present, so the non-existing liquid phase
-   * would not always have the same properies as the vapor.
-   * The arguments are:
-   *     0) eos_index, specifies the specific eos (e.g. Peng-Robinson)
-   *     1) A from the general cubic eos
-   *     2) B from the general cubic eos
-   */
-    double A, B;
-    eos_indx eos;
-    eos = (eos_indx)(al->ra[al->at[0]] + 0.5);  //cast to int is floor
-    A = al->ra[al->at[1]];
-    B = al->ra[al->at[2]];
-    return cubic_root(0, eos, A, B, al->derivs, al->hes);
-}
-
-real ceos_z_vap(arglist *al){
-    /* This finds the vapor root for a cubic EOS
-     *
-     * It also calculates first and second derivative.  Returns the liquid root
-     * if the vapor phase doesn't exist, so it is discontinuous.  The extended
-     * version of this may be better, but this has the nice property that where
-     * a vapor root doesn't exist any very small vapor component would have the
-     * same properties as the liquid. The exisitence of a vapor root doesn't
-     * necessarily mean that vapor is present, so the non-existing vapor phase
-     * would not always have the same properies as the vapor.
-     *
-     * The arguments are:
-     *     0) eos_index, specifies the specific eos (e.g. Peng-Robinson)
-     *     1) A from the general cubic eos
-     *     2) B from the general cubic eos
-     */
-    double A, B;
-    eos_indx eos;
-    eos = (eos_indx)(al->ra[al->at[0]] + 0.5);  //cast to int is floor
-    A = al->ra[al->at[1]];
-    B = al->ra[al->at[2]];
-    return cubic_root(1, eos, A, B, al->derivs, al->hes);
-}
-
-real ceos_z_liq_extend(arglist *al){
-    /* This finds the liquid root for a cubic EOS
-     *
-     * It also calculates first and second derivative. If the liquid root
-     * doesn't exist it uses a smooth extention of the cubic to find a real
-     * fake root, which should be nice numerically, and the property
-     * calculations. Should be done in such a way that is the fake root is
-     * returned the liquid fraction will be zero (or very close to zero).
-     *
-     * The arguments are:
-     *     0) eos_index, specifies the specific eos (e.g. Peng-Robinson)
-     *     1) A from the general cubic eos
-     *     2) B from the general cubic eos
-     */
-    double A, B;
-    eos_indx eos;
-    eos = (eos_indx)(al->ra[al->at[0]] + 0.5);  //cast to int is floor
-    A = al->ra[al->at[1]];
-    B = al->ra[al->at[2]];
-    return cubic_root_ext(0, eos, A, B, al->derivs, al->hes);
-}
-
-real ceos_z_vap_extend(arglist *al){
-  /* This finds the vapor root for a cubic EOS
-   *
-   * It also calculates first and second derivative. If the vapor root
-   * doesn't exist it uses a smooth extention of the cubic to find a real
-   * fake root, which should be nice numerically, and the property
-   * calculations. Should be done in such a way that is the fake root is
-   * returned the vapor fraction will be zero (or very close to zero).
-   *
-   * The arguments are:
-   *     0) eos_index, specifies the specific eos (e.g. Peng-Robinson)
-   *     1) A from the general cubic eos
-   *     2) B from the general cubic eos
-   */
-    double A, B;
-    eos_indx eos;
-    eos = (eos_indx)(al->ra[al->at[0]] + 0.5);  //cast to int is floor
-    A = al->ra[al->at[1]];
-    B = al->ra[al->at[2]];
-    return cubic_root_ext(1, eos, A, B, al->derivs, al->hes);
-}
-
-real cubic_root_l(arglist *al){
-  return cubic_root_three_params(
-    0,
-    al->ra[al->at[0]],
-    al->ra[al->at[1]],
-    al->ra[al->at[2]],
-    al->derivs, al->hes);
-}
-
-real cubic_root_m(arglist *al){
-  return cubic_root_three_params(
-    2,
-    al->ra[al->at[0]],
-    al->ra[al->at[1]],
-    al->ra[al->at[2]],
-    al->derivs, al->hes);
-}
-
-real cubic_root_h(arglist *al){
-  return cubic_root_three_params(
-    1,
-    al->ra[al->at[0]],
-    al->ra[al->at[1]],
-    al->ra[al->at[2]],
-    al->derivs, al->hes);
-}
-
-void funcadd(AmplExports *ae){
-    /* Arguments for addfunc (this is not fully detailed see funcadd.h)
-     * 1) Name of function in AMPL
-     * 2) Function pointer to C function
-     * 3) see FUNCADD_TYPE enum in funcadd.h
-     * 4) Number of arguments (the -1 is variable arg list length)
-     * 5) Void pointer to function info
-     */
-    //Real value function, and suppress anoying warings that, I think
-    //happen when this gets called on an already loaded library.
-    int t = FUNCADD_REAL_VALUED;
-    addfunc("ceos_z_vap", (rfunc)ceos_z_vap, t, -1, NULL);
-    addfunc("ceos_z_liq", (rfunc)ceos_z_liq, t, -1, NULL);
-    addfunc("ceos_z_vap_extend", (rfunc)ceos_z_vap_extend, t, -1, NULL);
-    addfunc("ceos_z_liq_extend", (rfunc)ceos_z_liq_extend, t, -1, NULL);
-    addfunc("cubic_root_l", (rfunc)cubic_root_l, t, -1, NULL);
-    addfunc("cubic_root_m", (rfunc)cubic_root_m, t, -1, NULL);
-    addfunc("cubic_root_h", (rfunc)cubic_root_h, t, -1, NULL);
-}
-
-/***********************************************************************
- *
- * helpful little functions
- *
- **********************************************************************/
-
-
-/***********************************************************************
- * CUBIC ROOT FINDER DERIVATIVES FUNCTION
- **********************************************************************/
-int cubic_derivs(double b, double c, double z, double *grad, double *hes){
-      // 0 = z^3 + b*z^2 + c*z + d
-      // grad[0] = dz/db, grad[1] = dz/dc, grad[2] = dz/dd
-      // hes[0] = d2z/db2, hes[1] = d2z/db/dc, hes[3] = d2z/db/dd
-      // hes[2] = d2z/dc2, hes[4] = d2z/dc/dd, hes[5] = d2z/dd2
-      // derivatives don't depend on d, so don't need a d argument
-      //   (but derivatives with respect to d are not 0)
-      double Y = 3.0*z*z + 2.0*b*z + c;
-      double Y2 = Y*Y;
-
-      grad[0] = -z*z/Y;
-      grad[1] = -z/Y;
-      grad[2] = -1.0/Y;
-
-      hes[0] = -2*z*grad[0]/Y + z*z/Y2*(6.0*z*grad[0] + 2.0*b*grad[0] + 2.0*z);
-      hes[1] = -2*z*grad[1]/Y + z*z/Y2*(6.0*z*grad[1] + 2.0*b*grad[1] + 1.0);
-      hes[3] = -2*z*grad[2]/Y + z*z/Y2*(6.0*z*grad[2] + 2.0*b*grad[2]);
-
-      hes[2] = -grad[1]/Y + z/Y2*(6.0*z*grad[1] + 2.0*b*grad[1] + 1.0);
-      hes[4] = -grad[2]/Y + z/Y2*(6.0*z*grad[2] + 2.0*b*grad[2]);
-
-      hes[5] = 1.0/Y2*(6.0*z*grad[2] + 2.0*b*grad[2]);
-      return 0;
-}
-
-int ext_cubic_derivs(int phase, double b, double c, double z, double *grad, double *hes){
-      // derivatives with respect to coefficents for an extended cubic
-      // that produces real root answers where real roots shouldn't exist
-      // this should help numerically when solving problems with disappearing
-      // phases.
-      // grad[0] = dz/db, grad[1] = dz/dc, grad[2] = dz/dd
-      // hes[0] = d2z/db2, hes[1] = d2z/db/dc, hes[3] = d2z/db/dd
-      // hes[2] = d2z/dc2, hes[4] = d2z/dc/dd, hes[5] = d2z/dd2
-      double a, bext, cext, pm, det;
-      double dadb, dadc;
-      double dbextdb, dbextdc, dbextdd;
-      double dcextdb, dcextdc, dcextdd;
-      double ddextdb, ddextdc, ddextdd;
-
-      double d2bextdb2, d2bextdbdc, d2bextdbdd;
-      double d2bextdc2, d2bextdcdd;
-      double d2bextdd2;
-
-      double d2cextdb2, d2cextdbdc, d2cextdbdd;
-      double d2cextdc2, d2cextdcdd;
-      double d2cextdd2;
-
-      double d2dextdb2, d2dextdbdc, d2dextdbdd;
-      double d2dextdc2, d2dextdcdd;
-      double d2dextdd2;
-
-      double d2adb2, d2adbdc; // d2adbdd;
-      double d2adc2; //d2adcdd;
-      //double d2add2;
-
-      double ddb_dzdbext, ddc_dzdbext, ddd_dzdbext;
-      double ddb_dzdcext, ddc_dzdcext, ddd_dzdcext;
-      double ddb_dzddext, ddc_dzddext, ddd_dzddext;
-
-      double grad1[3];
-      double hes1[6];
-
-      if(phase == liquid) pm = -1.0; //liquid
-      else pm = 1.0;  //vapor
-
-      det = b*b-3*c;
-      a = -2.0/3.0*b + pm*2.0*sqrt(det)/3.0;
-      bext = -b - 3.0*a;
-      cext = 3*a*a + 2*b*a + c;
-      //dext = d - 0.75*a*a*a - 0.5*b*a*a;
-
-      cubic_derivs(bext, cext, z, grad1, hes1);
-
-      dadb = -2.0/3.0 + pm*2.0*b/3.0/sqrt(det);
-      dadc = -pm/sqrt(det);
-
-      dbextdb = -1.0 - 3.0*dadb;
-      dbextdc = -3.0*dadc;
-      dbextdd = 0;
-
-      dcextdb = 6.0*a*dadb + 2.0*b*dadb + 2.0*a;
-      dcextdc = 6.0*a*dadc + 2.0*b*dadc + 1.0;
-      dcextdd = 0;
-
-      ddextdb = -2.25*a*a*dadb - b*a*dadb - 0.5*a*a;
-      ddextdc = -2.25*a*a*dadc - b*a*dadc;
-      ddextdd = 1;
-
-      grad[0] = grad1[0]*dbextdb + grad1[1]*dcextdb + grad1[2]*ddextdb;
-      grad[1] = grad1[0]*dbextdc + grad1[1]*dcextdc + grad1[2]*ddextdc;
-      grad[2] = grad1[0]*dbextdd + grad1[1]*dcextdd + grad1[2]*ddextdd;
-
-      d2adb2 = pm*2.0/3.0/sqrt(det) - 2*pm*b*b/3.0/pow(det, 1.5);
-      d2adbdc = pm*b/pow(det,1.5);
-      //d2adbdd = 0;
-      d2adc2 = -pm*1.5/pow(det, 1.5);
-      //d2adcdd = 0;
-      //d2add2 = 0;
-
-      d2bextdb2 = -3.0*d2adb2;
-      d2bextdbdc = -3.0*d2adbdc;
-      d2bextdbdd = 0;
-      d2bextdc2 = -3.0*d2adc2;
-      d2bextdcdd = 0;
-      d2bextdd2 = 0;
-
-      d2cextdb2 = 6.0*dadb*dadb + 6.0*a*d2adb2 + 4.0*dadb + 2*b*d2adb2;
-      d2cextdbdc = 6.0*dadc*dadb + 6.0*a*d2adbdc + 2.0*b*d2adbdc + 2.0*dadc;
-      d2cextdbdd = 0;
-
-      d2cextdc2 = 6.0*dadc*dadc + 6.0*a*d2adc2 + 2.0*b*d2adc2;
-      d2cextdcdd = 0;
-      d2cextdd2 = 0;
-
-      d2dextdb2 = -4.5*a*dadb*dadb - 2.25*a*a*d2adb2
-                  - 2.0*a*dadb - b*dadb*dadb - b*a*d2adb2;
-                  // wrong? ddextdb = -2.25*a*a*dadb - b*a*dadb - 0.5*a*a;
-      d2dextdbdc = -4.5*a*dadc*dadb - 2.25*a*a*d2adbdc
-                   - a*dadc - b*dadc*dadb - b*a*d2adbdc;
-      d2dextdbdd = 0;
-      d2dextdc2 = -4.5*a*dadc*dadc - 2.25*a*a*d2adc2 - b*dadc*dadc - b*a*d2adc2;
-      d2dextdcdd = 0;
-      d2dextdd2 = 0;
-
-      ddb_dzdbext = hes1[0]*dbextdb + hes1[1]*dcextdb + hes1[3]*ddextdb;
-      ddc_dzdbext = hes1[0]*dbextdc + hes1[1]*dcextdc + hes1[3]*ddextdc;
-      ddd_dzdbext = hes1[0]*dbextdd + hes1[1]*dcextdd + hes1[3]*ddextdd;
-
-      ddb_dzdcext = hes1[1]*dbextdb + hes1[2]*dcextdb + hes1[4]*ddextdb;
-      ddc_dzdcext = hes1[1]*dbextdc + hes1[2]*dcextdc + hes1[4]*ddextdc;
-      ddd_dzdcext = hes1[1]*dbextdd + hes1[2]*dcextdd + hes1[4]*ddextdd;
-
-      ddb_dzddext = hes1[3]*dbextdb + hes1[4]*dcextdb + hes1[5]*ddextdb;
-      ddc_dzddext = hes1[3]*dbextdc + hes1[4]*dcextdc + hes1[5]*ddextdc;
-      ddd_dzddext = hes1[3]*dbextdd + hes1[4]*dcextdd + hes1[5]*ddextdd;
-
-      hes[0] = ddb_dzdbext*dbextdb + grad1[0]*d2bextdb2
-             + ddb_dzdcext*dcextdb + grad1[1]*d2cextdb2
-             + ddb_dzddext*ddextdb + grad1[2]*d2dextdb2;  // wrong ?
-
-      hes[1] = ddc_dzdbext*dbextdb + grad1[0]*d2bextdbdc
-             + ddc_dzdcext*dcextdb + grad1[1]*d2cextdbdc
-             + ddc_dzddext*ddextdb + grad1[2]*d2dextdbdc;
-
-      hes[3] = ddd_dzdbext*dbextdb + grad1[0]*d2bextdbdd
-             + ddd_dzdcext*dcextdb + grad1[1]*d2cextdbdd
-             + ddd_dzddext*ddextdb + grad1[2]*d2dextdbdd;
-
-      hes[2] = ddc_dzdbext*dbextdc + grad1[0]*d2bextdc2
-             + ddc_dzdcext*dcextdc + grad1[1]*d2cextdc2
-             + ddc_dzddext*ddextdc + grad1[2]*d2dextdc2;
-
-      hes[4] = ddd_dzdbext*dbextdc + grad1[0]*d2bextdcdd
-             + ddd_dzdcext*dcextdc + grad1[1]*d2cextdcdd
-             + ddd_dzddext*ddextdc + grad1[2]*d2dextdcdd;
-
-      hes[5] = ddd_dzdbext*dbextdd + grad1[0]*d2bextdd2
-             + ddd_dzdcext*dcextdd + grad1[1]*d2cextdd2
-             + ddd_dzddext*ddextdd + grad1[2]*d2dextdd2;
-
-      return 0;
-}
-
-
-int AB_derivs(eos_indx eos, char ext, double A, double B, double z, double *grad, double *hes){
-    // Calculate derivatives with respect to A and B from the general cubic
-    // equation of state.
-
-    double b,c;
-    double dbdA, dbdB, dcdA, dcdB, dddA, dddB;
-    double d2bdA2, d2bdAdB, d2bdB2;
-    double d2cdA2, d2cdAdB, d2cdB2;
-    double d2ddA2, d2ddAdB, d2ddB2;
-    double ddA_dzdb, ddA_dzdc, ddA_dzdd;
-    double ddB_dzdb, ddB_dzdc, ddB_dzdd;
-    double grad1[3];
-    double hes1[6];
-
-    const double u = eos_u[eos];
-    const double w = eos_w[eos];
-
-    b = -(1.0 + B - u*B);
-    c = A + w*B*B - u*B - u*B*B;
-    //d = -A*B - w*B*B - w*B*B*B;
-
-    if(ext==0) cubic_derivs(b, c, z, grad1, hes1);
-    else if(ext==1) ext_cubic_derivs(liquid, b, c, z, grad1, hes1);
-    else if(ext==2) ext_cubic_derivs(vapor, b, c, z, grad1, hes1);
-
-    dbdA = 0.0;
-    dbdB = u - 1.0;
-    dcdA = 1.0;
-    dcdB = 2*w*B - u - 2.0*u*B;
-    dddA = -B;
-    dddB = -A - 2.0*w*B - 3.0*w*B*B;
-
-    d2bdA2 = 0.0;
-    d2bdAdB = 0.0;
-    d2bdB2 = 0.0;
-    d2cdA2 = 0.0;
-    d2cdAdB = 0.0;
-    d2cdB2 = 2.0*w - 2.0*u;
-    d2ddA2 = 0.0;
-    d2ddAdB = -1.0;
-    d2ddB2 = -2.0*w - 6.0*w*B;
-
-    //grad1[0] = dz/db, grad[1] = dz/dc, grad[2] = dz/dd;
-    grad[0] = dbdA*grad1[0] + dcdA*grad1[1] + dddA*grad1[2]; //dzdA
-    grad[1] = dbdB*grad1[0] + dcdB*grad1[1] + dddB*grad1[2]; //dzdB
-
-    // hes1[0] = d2z/db2, hes1[1] = d2z/db/dc, hes1[3] = d2z/db/dd
-    // hes1[2] = d2z/dc2, hes1[4] = d2z/dc/dd
-    // hes1[5] = d2z/dd2
-    ddA_dzdb = dbdA*hes1[0] + dcdA*hes1[1] + dddA*hes1[3];
-    ddB_dzdb = dbdB*hes1[0] + dcdB*hes1[1] + dddB*hes1[3];
-    ddA_dzdc = dbdA*hes1[1] + dcdA*hes1[2] + dddA*hes1[4];
-    ddB_dzdc = dbdB*hes1[1] + dcdB*hes1[2] + dddB*hes1[4];
-    ddA_dzdd = dbdA*hes1[3] + dcdA*hes1[4] + dddA*hes1[5];
-    ddB_dzdd = dbdB*hes1[3] + dcdB*hes1[4] + dddB*hes1[5];
-
-    // hes[0] = d2z/dA2, hes[1] = d2z/dA/dB, hes[2] = d2z/dB2;
-    hes[0] = d2bdA2*grad1[0] + dbdA*ddA_dzdb
-           + d2cdA2*grad1[1] + dcdA*ddA_dzdc
-           + d2ddA2*grad1[2] + dddA*ddA_dzdd;
-
-    hes[1] = d2bdAdB*grad1[0] + dbdA*ddB_dzdb
-           + d2cdAdB*grad1[1] + dcdA*ddB_dzdc
-           + d2ddAdB*grad1[2] + dddA*ddB_dzdd;
-
-    hes[2] = d2bdB2*grad1[0] + dbdB*ddB_dzdb
-           + d2cdB2*grad1[1] + dcdB*ddB_dzdc
-           + d2ddB2*grad1[2] + dddB*ddB_dzdd;
-
-    return 0;
-}
-
-int cuderiv(eos_indx eos, char ext, double A, double B, double z, double *derivs, double *hes){
-    // implicit calculation of first and second partial derivatives of z with
-    // respect to A and B for the roots found in the cubic_root function
-    double grad1[2], hes1[3];
-    AB_derivs(eos, ext, A, B, z, grad1, hes1);
-    derivs[0] = 0; //wrt the eos parameter
-    derivs[1] = grad1[0]; // dz/dA
-    derivs[2] = grad1[1]; // dz/dB
-
-    hes[0] = 0; //wrt eos parameter
-    hes[1] = 0; //wrt eos parameter
-    hes[3] = 0; //wrt eos parameter
-
-    hes[2] = hes1[0];
-    hes[4] = hes1[1];
-    hes[5] = hes1[2];
-
-    return 0;
-}
-
-double cubic_root_three_params(int i, double b, double c, double d, double *derivs, double *hes){
+double cubic_root_low_with_deriv(double b, double c, double d, double *derivs, double *hes){
   double z;
-  z = cubic_root2(i, b, c, d);
+  z = cubic_root_low(b, c, d); // Liquid low compressibility
   if (derivs != NULL) {
     derivs[0] = 1.0/(-1.0 + c/z/z + 2*d/z/z/z); // dz/db
     derivs[1] = 1.0/(-2.0*z - b + d/z/z); // dz/dc
@@ -573,4 +91,249 @@ double cubic_root_three_params(int i, double b, double c, double d, double *deri
     hes[5] = derivs[2]*derivs[2]*derivs[2]*(6*z + 2*b); // dz2/dd2
   }
   return z;
+}
+
+double cubic_root_high_with_deriv(double b, double c, double d, double *derivs, double *hes){
+  double z;
+  z = cubic_root_high(b, c, d); // Liquid low compressibility
+  if (derivs != NULL) {
+    derivs[0] = 1.0/(-1.0 + c/z/z + 2*d/z/z/z); // dz/db
+    derivs[1] = 1.0/(-2.0*z - b + d/z/z); // dz/dc
+    derivs[2] = 1.0/(-3.0*z*z - 2*b*z - c); // dz/dd
+  }
+  if (hes != NULL){
+    hes[0] = derivs[0]*derivs[0]*derivs[0]*(2*c/z/z/z + 6*d/z/z/z/z); // dz2/db2
+    hes[1] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[1] + 6*d/z/z/z/z*derivs[1] - 1/z/z); // dz2/dbdc
+    hes[2] = derivs[1]*derivs[1]*derivs[1]*(2 + 2*d/z/z/z); // dz2/dc2
+    hes[3] = derivs[0]*derivs[0]*(2*c/z/z/z*derivs[2] + 6*d/z/z/z/z*derivs[2] - 2/z/z/z); // dz2/dbdd
+    hes[4] = derivs[1]*derivs[1]*(2*derivs[2] + 2*d/z/z/z*derivs[2] - 1/z/z); // dz2/dcdd
+    hes[5] = derivs[2]*derivs[2]*derivs[2]*(6*z + 2*b); // dz2/dd2
+  }
+  return z;
+}
+
+double cubic_root_low_ext_with_deriv(double b, double c, double d, double *derivs, double *hes){
+  double x, z, t1, t2, ft1, ft2, det, A;
+  double dt1db, dt2db, dt1dc, dt2dc, dfdb_at_t1, dfdb_at_t2, dfdc_at_t1, dfdc_at_t2;
+  double dxdb, dxdc, dxdd, dAdb, dAdc, dAdd;
+  double d2t1db2, d2t2db2, d2t1dbdc, d2t2dbdc, d2t1dc2, d2t2dc2;
+  double d2fdb2_at_t1, d2fdb2_at_t2, d2fdbdc_at_t1;
+  double d2fdbdc_at_t2, d2fdc2_at_t1, d2fdc2_at_t2;
+
+  det = 4*b*b - 12*c;
+  t1 = (-2*b - sqrt(det))/6.0;
+  t2 = (-2*b + sqrt(det))/6.0;
+
+  ft1 = t1*t1*t1 + b*t1*t1 + c*t1 + d;
+  ft2 = t2*t2*t2 + b*t2*t2 + c*t2 + d;
+  z = cubic_root_high(b, c, d - ft2 + ft1) + t1 - t2;
+  x = z - t1 + t2;
+  A = 3*x*x + 2*b*x + c;
+  dt1db = (-1 - 2*b/sqrt(4*b*b - 12*c))/3.0;
+  dt2db = (-1 + 2*b/sqrt(4*b*b - 12*c))/3.0;
+  dt1dc = 1.0/sqrt(4*b*b - 12*c);
+  dt2dc = -1.0/sqrt(4*b*b - 12*c);
+  dfdb_at_t1 = t1*t1 + 3*t1*t1*dt1db + 2*b*t1*dt1db + c*dt1db;
+  dfdb_at_t2 = t2*t2 + 3*t2*t2*dt2db + 2*b*t2*dt2db + c*dt2db;
+  dfdc_at_t1 = t1 + 3*t1*t1*dt1dc + 2*b*t1*dt1dc + c*dt1dc;
+  dfdc_at_t2 = t2 + 3*t2*t2*dt2dc + 2*b*t2*dt2dc + c*dt2dc;
+
+  derivs[0] = (-x*x + A*(dt1db - dt2db) - dfdb_at_t1 + dfdb_at_t2)/A;
+  derivs[1] = (-x + A*(dt1dc - dt2dc) - dfdc_at_t1 + dfdc_at_t2)/A;
+  derivs[2] = -1/A;
+
+  dxdb = derivs[0] - dt1db + dt2db;
+  dxdc = derivs[1] - dt1dc + dt2dc;
+  dxdd = derivs[2];
+  dAdb = 2*x + 6*x*dxdb + 2*b*dxdb;
+  dAdc = 1 + 6*x*dxdc + 2*b*dxdc;
+  dAdd = 6*x*dxdd + 2*b*dxdd;
+
+  d2t1db2 = -2.0/3.0/sqrt(4*b*b - 12*c) + 8/3.0*b*b*pow(4*b*b - 12*c, -1.5);
+  d2t2db2 = 2.0/3.0/sqrt(4*b*b - 12*c) - 8/3.0*b*b*pow(4*b*b - 12*c, -1.5);
+  d2t1dbdc = -4*b*pow(4*b*b - 12*c, -1.5);
+  d2t2dbdc = 4*b*pow(4*b*b - 12*c, -1.5);
+  d2t1dc2 = 6*pow(4*b*b - 12*c, -1.5);
+  d2t2dc2 = -6*pow(4*b*b - 12*c, -1.5);
+
+  d2fdb2_at_t1 = 2*t1*dt1db + 6*t1*dt1db*dt1db + 3*t1*t1*d2t1db2 + 2*t1*dt1db + 2*b*dt1db*dt1db + 2*b*t1*d2t1db2 + c*d2t1db2;
+  d2fdb2_at_t2 = 2*t2*dt2db + 6*t2*dt2db*dt2db + 3*t2*t2*d2t2db2 + 2*t2*dt2db + 2*b*dt2db*dt2db + 2*b*t2*d2t2db2 + c*d2t2db2;
+  d2fdbdc_at_t1 = 2*t1*dt1dc + 6*t1*dt1db*dt1dc + 3*t1*t1*d2t1dbdc + 2*b*dt1db*dt1dc + 2*b*t1*d2t1dbdc + c*d2t1dbdc + dt1db;
+  d2fdbdc_at_t2 = 2*t2*dt2dc + 6*t2*dt2db*dt2dc + 3*t2*t2*d2t2dbdc + 2*b*dt2db*dt2dc + 2*b*t2*d2t2dbdc + c*d2t2dbdc + dt2db;
+  d2fdc2_at_t1 = dt1dc + 6*t1*dt1dc*dt1dc + 3*t1*t1*d2t1dc2 + 2*b*dt1dc*dt1dc + 2*b*t1*d2t1dc2 + c*d2t1dc2 + dt1dc;
+  d2fdc2_at_t2 = dt2dc + 6*t2*dt2dc*dt2dc + 3*t2*t2*d2t2dc2 + 2*b*dt2dc*dt2dc + 2*b*t2*d2t2dc2 + c*d2t2dc2 + dt2dc;
+
+  hes[0] = -1/A*derivs[0]*dAdb + 1/A*(-2*x*dxdb + dAdb*dt1db + A*d2t1db2 - dAdb*dt2db - A*d2t2db2 - d2fdb2_at_t1 + d2fdb2_at_t2);
+  hes[1] = -1/A*derivs[0]*dAdc + 1/A*(-2*x*dxdc + dAdc*dt1db + A*d2t1dbdc - dAdc*dt2db - A*d2t2dbdc - d2fdbdc_at_t1 + d2fdbdc_at_t2);
+  hes[2] = 1/A/A*dAdb;
+  hes[3] = -1/A*derivs[1]*dAdc + 1/A*(-dxdc + dAdc*dt1dc + A*d2t1dc2 - dAdc*dt2dc - A*d2t2dc2 - d2fdc2_at_t1 + d2fdc2_at_t2);
+  hes[4] = 1/A/A*dAdc;
+  hes[5] = 1/A/A*dAdd;
+
+  return z;
+}
+
+double cubic_root_high_ext_with_deriv(double b, double c, double d, double *derivs, double *hes){
+  double x, z, t1, t2, ft1, ft2, det, A;
+  double dt1db, dt2db, dt1dc, dt2dc, dfdb_at_t1, dfdb_at_t2, dfdc_at_t1, dfdc_at_t2;
+  double dxdb, dxdc, dxdd, dAdb, dAdc, dAdd;
+  double d2t1db2, d2t2db2, d2t1dbdc, d2t2dbdc, d2t1dc2, d2t2dc2;
+  double d2fdb2_at_t1, d2fdb2_at_t2, d2fdbdc_at_t1;
+  double d2fdbdc_at_t2, d2fdc2_at_t1, d2fdc2_at_t2;
+
+  det = 4*b*b - 12*c;
+  t1 = (-2*b - sqrt(det))/6.0;
+  t2 = (-2*b + sqrt(det))/6.0;
+
+  ft1 = t1*t1*t1 + b*t1*t1 + c*t1 + d;
+  ft2 = t2*t2*t2+ b*t2*t2 + c*t2 + d;
+  z = cubic_root_low(b, c, d + ft2 - ft1) - t1 + t2;
+  x = z + t1 - t2;
+  A = 3*x*x + 2*b*x + c;
+  dt1db = (-1 - 2*b/sqrt(4*b*b - 12*c))/3.0;
+  dt2db = (-1 + 2*b/sqrt(4*b*b - 12*c))/3.0;
+  dt1dc = 1.0/sqrt(4*b*b - 12*c);
+  dt2dc = -1.0/sqrt(4*b*b - 12*c);
+  dfdb_at_t1 = t1*t1 + 3*t1*t1*dt1db + 2*b*t1*dt1db + c*dt1db;
+  dfdb_at_t2 = t2*t2 + 3*t2*t2*dt2db + 2*b*t2*dt2db + c*dt2db;
+  dfdc_at_t1 = t1 + 3*t1*t1*dt1dc + 2*b*t1*dt1dc + c*dt1dc;
+  dfdc_at_t2 = t2 + 3*t2*t2*dt2dc + 2*b*t2*dt2dc + c*dt2dc;
+
+  derivs[0] = (-x*x + A*(-dt1db + dt2db) + dfdb_at_t1 - dfdb_at_t2)/A;
+  derivs[1] = (-x + A*(-dt1dc + dt2dc) + dfdc_at_t1 - dfdc_at_t2)/A;
+  derivs[2] = -1/A;
+
+  dxdb = derivs[0] + dt1db - dt2db;
+  dxdc = derivs[1] + dt1dc - dt2dc;
+  dxdd = derivs[2];
+  dAdb = 2*x + 6*x*dxdb + 2*b*dxdb;
+  dAdc = 1 + 6*x*dxdc + 2*b*dxdc;
+  dAdd = 6*x*dxdd + 2*b*dxdd;
+
+  d2t1db2 = -2.0/3.0/sqrt(4*b*b - 12*c) + 8/3.0*b*b*pow(4*b*b - 12*c, -1.5);
+  d2t2db2 = 2.0/3.0/sqrt(4*b*b - 12*c) - 8/3.0*b*b*pow(4*b*b - 12*c, -1.5);
+  d2t1dbdc = -4*b*pow(4*b*b - 12*c, -1.5);
+  d2t2dbdc = 4*b*pow(4*b*b - 12*c, -1.5);
+  d2t1dc2 = 6*pow(4*b*b - 12*c, -1.5);
+  d2t2dc2 = -6*pow(4*b*b - 12*c, -1.5);
+
+  d2fdb2_at_t1 = 2*t1*dt1db + 6*t1*dt1db*dt1db + 3*t1*t1*d2t1db2 + 2*t1*dt1db + 2*b*dt1db*dt1db + 2*b*t1*d2t1db2 + c*d2t1db2;
+  d2fdb2_at_t2 = 2*t2*dt2db + 6*t2*dt2db*dt2db + 3*t2*t2*d2t2db2 + 2*t2*dt2db + 2*b*dt2db*dt2db + 2*b*t2*d2t2db2 + c*d2t2db2;
+  d2fdbdc_at_t1 = 2*t1*dt1dc + 6*t1*dt1db*dt1dc + 3*t1*t1*d2t1dbdc + 2*b*dt1db*dt1dc + 2*b*t1*d2t1dbdc + c*d2t1dbdc + dt1db;
+  d2fdbdc_at_t2 = 2*t2*dt2dc + 6*t2*dt2db*dt2dc + 3*t2*t2*d2t2dbdc + 2*b*dt2db*dt2dc + 2*b*t2*d2t2dbdc + c*d2t2dbdc + dt2db;
+  d2fdc2_at_t1 = dt1dc + 6*t1*dt1dc*dt1dc + 3*t1*t1*d2t1dc2 + 2*b*dt1dc*dt1dc + 2*b*t1*d2t1dc2 + c*d2t1dc2 + dt1dc;
+  d2fdc2_at_t2 = dt2dc + 6*t2*dt2dc*dt2dc + 3*t2*t2*d2t2dc2 + 2*b*dt2dc*dt2dc + 2*b*t2*d2t2dc2 + c*d2t2dc2 + dt2dc;
+
+  hes[0] = -1/A*derivs[0]*dAdb + 1/A*(-2*x*dxdb - dAdb*dt1db - A*d2t1db2 + dAdb*dt2db + A*d2t2db2 + d2fdb2_at_t1 - d2fdb2_at_t2);
+  hes[1] = -1/A*derivs[0]*dAdc + 1/A*(-2*x*dxdc - dAdc*dt1db - A*d2t1dbdc + dAdc*dt2db + A*d2t2dbdc + d2fdbdc_at_t1 - d2fdbdc_at_t2);
+  hes[2] = 1/A/A*dAdb;
+  hes[3] = -1/A*derivs[1]*dAdc + 1/A*(-dxdc - dAdc*dt1dc - A*d2t1dc2 + dAdc*dt2dc + A*d2t2dc2 + d2fdc2_at_t1 - d2fdc2_at_t2);
+  hes[4] = 1/A/A*dAdc;
+  hes[5] = 1/A/A*dAdd;
+
+  return z;
+}
+
+
+/***********************************************************************
+ * Functions to return the cubic roots
+ **********************************************************************/
+
+real cubic_root_l(arglist *al){
+  return cubic_root_low_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+}
+
+real cubic_root_h(arglist *al){
+  return cubic_root_high_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+}
+
+real cubic_root_l_nan(arglist *al){
+  real z;
+  z = cubic_root_low_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+  if (0 >= al->ra[al->at[0]]*al->ra[al->at[0]] - 3*al->ra[al->at[1]]) return z; // no turning points so use same
+  if (z <= -al->ra[al->at[0]]/3.0) return z;
+  return NAN;
+}
+
+real cubic_root_h_nan(arglist *al){
+  real z;
+  z = cubic_root_low_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+  if (0 >= al->ra[al->at[0]]*al->ra[al->at[0]] - 3*al->ra[al->at[1]]) return z; // no turning points so use same
+  if (z >= -al->ra[al->at[0]]/3.0) return z;
+  return NAN;
+}
+
+real cubic_root_l_ext(arglist *al){
+  real z;
+  z = cubic_root_low_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+  if (z <= -al->ra[al->at[0]]/3.0) return z;
+  if (0 >= al->ra[al->at[0]]*al->ra[al->at[0]] - 3*al->ra[al->at[1]]) return z; // no turning points so use same
+  return cubic_root_low_ext_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+}
+
+real cubic_root_h_ext(arglist *al){
+  real z;
+  z = cubic_root_high_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+  if (z >= -al->ra[al->at[0]]/3.0) return z;
+  if (0 >= al->ra[al->at[0]]*al->ra[al->at[0]] - 3*al->ra[al->at[1]]) return z; // no turning points so use same
+  return cubic_root_high_ext_with_deriv(
+      al->ra[al->at[0]],
+      al->ra[al->at[1]],
+      al->ra[al->at[2]],
+      al->derivs, al->hes
+  );
+}
+
+void funcadd(AmplExports *ae){
+    /* Arguments for addfunc (this is not fully detailed see funcadd.h)
+     * 1) Name of function in AMPL
+     * 2) Function pointer to C function
+     * 3) see FUNCADD_TYPE enum in funcadd.h
+     * 4) Number of arguments (the -1 is variable arg list length)
+     * 5) Void pointer to function info
+     */
+    //Real value function, and suppress anoying warings that, I think
+    //happen when this gets called on an already loaded library.
+    int t = FUNCADD_REAL_VALUED;
+    addfunc("cubic_root_l", (rfunc)cubic_root_l, t, -1, NULL);
+    addfunc("cubic_root_h", (rfunc)cubic_root_h, t, -1, NULL);
+    addfunc("cubic_root_l_nan", (rfunc)cubic_root_l_nan, t, -1, NULL);
+    addfunc("cubic_root_h_nan", (rfunc)cubic_root_h_nan, t, -1, NULL);
+    addfunc("cubic_root_l_ext", (rfunc)cubic_root_l_ext, t, -1, NULL);
+    addfunc("cubic_root_h_ext", (rfunc)cubic_root_h_ext, t, -1, NULL);
 }

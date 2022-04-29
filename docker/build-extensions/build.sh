@@ -5,10 +5,10 @@ repo="https://github.com/idaes/idaes-ext.git"
 branch="main"
 
 if [ "$flavor" = "windows" ]; then
-  image="eslickj/idaes-ext-windows-build:latest"
+  image="idaes-ext-windows-build:latest"
   wdir="c:/repo"
 elif [ "$flavor" = "el7" ]; then
-  image="eslickj/idaes-ext-el7-build:latest"
+  image="idaes-ext-el7-build:latest"
   wdir="/repo"
 elif [ "$flavor" = "el8" ]; then
   image="idaes-ext-el8-build:latest"
