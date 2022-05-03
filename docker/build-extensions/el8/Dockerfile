@@ -1,4 +1,4 @@
-FROM eslickj/idaes-ext-rockylinux8-build:latest
+FROM idaes-ext-rockylinux8-build:latest
 
 ARG repo=https://github.com/idaes/idaes-ext.git
 ARG branch=master
