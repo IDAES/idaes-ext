@@ -41,6 +41,6 @@ docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-lib/idaes-lib-"$fl
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-solvers/idaes-solvers-"$flavor"-"$mname".tar.gz .
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-petsc/idaes-petsc-"$flavor"-"$mname".tar.gz .
 
-docker rm /"$flavor"_"$mname"_build_tmp
+docker rm "$flavor"_"$mname"_build_tmp
 
 mv *.tar.gz ./tarballs/
