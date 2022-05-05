@@ -18,5 +18,5 @@ else
 fi
 
 cd "$flavor"
-docker build -t "$image" .
+docker build --no-cache -t "$image" .
 cd ..

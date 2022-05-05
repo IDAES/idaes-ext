@@ -12,6 +12,10 @@ Preliminary Setup
   * brew install gcc
   * brew install pkgconfig
   * brew install boost
+5. Build PETSc (no mpi)
+  * download https://petsc.org/release/download/
+  * extract in ~/src
+  * ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
 Build extensions
 5. Get idaes-ext (clone or download from github)
 6. If you have the HSL, put the coinhsl.zip file in the same directory as

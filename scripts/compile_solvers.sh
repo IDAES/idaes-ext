@@ -394,6 +394,12 @@ fi
 echo "#########################################################################"
 echo "# Pynumero                                                              #"
 echo "#########################################################################"
+
+if [ ${osname} = "darwin" ]; then
+  export CC="cc"
+  export CXX="c++"
+fi
+
 cd $IDAES_EXT
 git clone $PYNU_REPO
 cd pyomo
