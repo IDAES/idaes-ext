@@ -64,10 +64,10 @@ else
 fi
 
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
 cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
@@ -76,10 +76,10 @@ patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
 cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
@@ -88,7 +88,7 @@ rm -rf ThirdParty/Lapack
 rm -rf ThirdParty/FilterSQP
 rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
-rm -rf ThirdParty/glpk
+rm -rf ThirdParty/Glpk
 rm -rf ThirdParty/Metis
 rm -rf ThirdParty/Mumps
 
@@ -182,11 +182,11 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure --disable-shared --enable-static \
-  --with-mumps --with-mumps-lflags="-L$PETSC_DIR/lib" \
+./configure --disable-shared --enable-static --with-mumps \
+  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  CFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -195,11 +195,11 @@ echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
-./configure --disable-shared --enable-static \
-  --with-mumps --with-mumps-lflags="-L$PETSC_DIR/lib" \
+./configure --disable-shared --enable-static --with-mumps \
+  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist_l1 \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  CFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -315,10 +315,10 @@ echo "#########################################################################"
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
   --with-mumps \
-  --with-mumps-lflags="-L$PETSC_DIR/lib" \
+  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist-share \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  CFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
