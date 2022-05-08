@@ -64,10 +64,10 @@ else
 fi
 
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
-bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
-bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
 cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
@@ -76,10 +76,10 @@ patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/Metis, ThirdParty/Mumps'
 cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
@@ -89,8 +89,8 @@ rm -rf ThirdParty/FilterSQP
 rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/glpk
-rm -rf ThirdParty/metis
-rm -rf ThirdParty/mumps
+rm -rf ThirdParty/Metis
+rm -rf ThirdParty/Mumps
 
 
 echo "#########################################################################"

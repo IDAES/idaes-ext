@@ -15,7 +15,7 @@ Preliminary Setup
 5. Build PETSc (no mpi)
   * download https://petsc.org/release/download/
   * extract in ~/src
-  * ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
+  * ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
   * make
   * make install
   * mkdir ../petsc-dist/include/mumps_libseq
