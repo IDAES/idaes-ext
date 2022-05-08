@@ -80,6 +80,7 @@ bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdPar
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
 rm -rf ThirdParty/Blas
@@ -197,7 +198,7 @@ cd Ipopt_l1
 ./configure --disable-shared --enable-static \
   --with-mumps --with-mumps-lflags="-L$PETSC_DIR/lib" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-  --prefix=$IDAES_EXT/coinbrew/dist \
+  --prefix=$IDAES_EXT/coinbrew/dist_l1 \
   LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
@@ -311,12 +312,11 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
-cd Ipopt
-make clean
+cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --with-mumps \
   --with-mumps-lflags="-L$PETSC_DIR/lib" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-  --prefix=$IDAES_EXT/coinbrew/dist
+  --prefix=$IDAES_EXT/coinbrew/dist \
   LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
@@ -332,20 +332,20 @@ cd dist-solvers
 if [ ${osname} = "windows" ]; then
   # windows
   cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
-  cp ../coinbrew/dist_l1/bin/ipopt_sense.exe ./ipopt_sens_l1.exe
+  cp ../coinbrew/dist_l1/bin/ipopt_sens.exe ./ipopt_sens_l1.exe
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/bin/libipopt*.dll ./
   cp ../coinbrew/dist/bin/libsipopt*.dll ./
 elif [ ${osname} = "darwin" ]; then
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/lib/libipopt*.dylib ./
   cp ../coinbrew/dist/lib/libsipopt*.dylib ./
 else
   # linux
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/lib/libipopt*.so ./
   cp ../coinbrew/dist/lib/libsipopt*.so ./
