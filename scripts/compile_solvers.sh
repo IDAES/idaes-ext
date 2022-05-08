@@ -313,10 +313,11 @@ echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt_share
-./configure --enable-shared --disable-static --without-asl --with-mumps \
+./configure --enable-shared --disable-static --without-asl --disable-java \
+  --with-mumps \
   --with-mumps-lflags="-L$PETSC_DIR/lib" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-  --prefix=$IDAES_EXT/coinbrew/dist \
+  --prefix=$IDAES_EXT/coinbrew/dist-share \
   LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
@@ -334,21 +335,21 @@ if [ ${osname} = "windows" ]; then
   cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
   cp ../coinbrew/dist_l1/bin/ipopt_sens.exe ./ipopt_sens_l1.exe
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist/bin/libipopt*.dll ./
-  cp ../coinbrew/dist/bin/libsipopt*.dll ./
+  cp ../coinbrew/dist-share/bin/libipopt*.dll ./
+  cp ../coinbrew/dist-share/bin/libsipopt*.dll ./
 elif [ ${osname} = "darwin" ]; then
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
   cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist/lib/libipopt*.dylib ./
-  cp ../coinbrew/dist/lib/libsipopt*.dylib ./
+  cp ../coinbrew/dist-share/lib/libipopt*.dylib ./
+  cp ../coinbrew/dist-share/lib/libsipopt*.dylib ./
 else
   # linux
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
   cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist/lib/libipopt*.so ./
-  cp ../coinbrew/dist/lib/libsipopt*.so ./
+  cp ../coinbrew/dist/lib-share/libipopt*.so ./
+  cp ../coinbrew/dist/lib-share/libsipopt*.so ./
 fi
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../coinbrew/dist/bin/ipopt_sens ./
