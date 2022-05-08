@@ -77,13 +77,14 @@ idaes-solvers-<platform>.tar.gz
 
   MUMPS
   -----
-  License CeCILL-C,  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+  License: CeCILL-C,  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
   Source: http://mumps.enseeiht.fr/index.php?page=dwnld.
 
 
   METIS
   -----
-  METIS v4 is included with permission.
+  License: Apache 2.0, https://github.com/KarypisLab/METIS/blob/master/LICENSE
+  Source: https://github.com/KarypisLab/METIS
 
 
   GCC Libraries

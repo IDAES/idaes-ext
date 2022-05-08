@@ -33,6 +33,17 @@ export K_AUG_REPO="https://github.com/dthierry/k_aug"
 export CC="gcc"
 export CXX="g++"
 
+# set PETSc location
+if [ ${osname} = "windows" ]
+then
+  export PETSC_DIR=/c/repo/petsc-dist
+elif [ ${osname} = "darwin" ]; then
+  export PETSC_DIR="$HOME/src/petsc-dist"
+else
+  export PETSC_DIR=/repo/petsc-dist
+fi
+export PETSC_ARCH=""
+
 # Work-around for mumps gcc v10 gfortran bug
 GFORT_VERSION=`gfortran -dumpversion`
 GFMV=(${GFORT_VERSION//./ })
@@ -53,10 +64,10 @@ else
 fi
 
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
 cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
@@ -65,10 +76,11 @@ patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk, ThirdParty/metis, ThirdParty/mumps'
+cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
 rm -rf ThirdParty/Blas
@@ -77,6 +89,8 @@ rm -rf ThirdParty/FilterSQP
 rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/glpk
+rm -rf ThirdParty/metis
+rm -rf ThirdParty/mumps
 
 
 echo "#########################################################################"
@@ -98,6 +112,8 @@ else
   with_hsl="NO"
 fi
 
+
+
 # Set PKG_CONFIG_PATH so configure scripts can find the stuff we build
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
 
@@ -111,28 +127,14 @@ make install
 cd $IDAES_EXT/coinbrew
 
 echo "#########################################################################"
-echo "# Thirdparty/Metis                                                      #"
-echo "#########################################################################"
-cd ThirdParty/Metis
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
-make
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
 cd ThirdParty/HSL
-./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-make
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
-echo "# Thirdparty/Mumps                                                      #"
-echo "#########################################################################"
-cd ThirdParty/Mumps
-./configure --disable-shared --enable-static --with-metis --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+./configure --disable-shared --enable-static --with-metis \
+  --with-metis-lflags="-L$PETSC_DIR/lib" \
+  --with-metis-cflags="-I$PETSC_DIR/include" \
+  --prefix=$IDAES_EXT/coinbrew/dist \
+  FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -180,7 +182,11 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+./configure --disable-shared --enable-static \
+  --with-mumps --with-mumps-lflags="-L$PETSC_DIR/lib" \
+  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+  --prefix=$IDAES_EXT/coinbrew/dist \
+  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -189,7 +195,11 @@ echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist_l1
+./configure --disable-shared --enable-static \
+  --with-mumps --with-mumps-lflags="-L$PETSC_DIR/lib" \
+  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+  --prefix=$IDAES_EXT/coinbrew/dist_l1 \
+  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -302,9 +312,12 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
-cd Ipopt
-make clean
-./configure --enable-shared --disable-static --without-asl --prefix=$IDAES_EXT/coinbrew/dist
+cd Ipopt_share
+./configure --enable-shared --disable-static --without-asl --with-mumps \
+  --with-mumps-lflags="-L$PETSC_DIR/lib" \
+  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+  --prefix=$IDAES_EXT/coinbrew/dist \
+  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -319,20 +332,20 @@ cd dist-solvers
 if [ ${osname} = "windows" ]; then
   # windows
   cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
-  cp ../coinbrew/dist_l1/bin/ipopt_sense.exe ./ipopt_sens_l1.exe
+  cp ../coinbrew/dist_l1/bin/ipopt_sens.exe ./ipopt_sens_l1.exe
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/bin/libipopt*.dll ./
   cp ../coinbrew/dist/bin/libsipopt*.dll ./
 elif [ ${osname} = "darwin" ]; then
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/lib/libipopt*.dylib ./
   cp ../coinbrew/dist/lib/libsipopt*.dylib ./
 else
   # linux
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sense ./ipopt_sens_l1
+  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ../coinbrew/dist/lib/libipopt*.so ./
   cp ../coinbrew/dist/lib/libsipopt*.so ./
@@ -439,15 +452,6 @@ echo "# PETSc                                                                 #"
 echo "#########################################################################"
 export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
-if [ ${osname} = "windows" ]
-then
-  export PETSC_DIR=/c/repo/petsc-dist
-elif [ ${osname} = "darwin" ]; then
-  export PETSC_DIR="$HOME/src/petsc-dist"
-else
-  export PETSC_DIR=/repo/petsc-dist
-fi
-export PETSC_ARCH=""
 cd $IDAES_EXT/petsc
 make
 make py

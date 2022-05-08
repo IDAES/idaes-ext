@@ -16,6 +16,10 @@ Preliminary Setup
   * download https://petsc.org/release/download/
   * extract in ~/src
   * ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
+  * make
+  * make install
+  * mkdir ../petsc-dist/include/mumps_libseq
+  * cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/
 Build extensions
 5. Get idaes-ext (clone or download from github)
 6. If you have the HSL, put the coinhsl.zip file in the same directory as
