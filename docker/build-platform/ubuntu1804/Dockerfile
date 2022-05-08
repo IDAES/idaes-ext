@@ -14,7 +14,7 @@ RUN cd repo; \
     mv petsc-3.17.1 petsc; \
     mkdir petsc-dist; \
     cd petsc; \
-    ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
+    ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"; \
     make;\
     make install;\
     mkdir ../petsc-dist/include/mumps_libseq; \
