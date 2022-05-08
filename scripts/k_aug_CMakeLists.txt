@@ -18,10 +18,12 @@ configure_file("${PROJECT_SOURCE_DIR}/src/common/config_kaug.h.in" "${PROJECT_SO
 include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or)
 include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or/hsl)
 include_directories(${PROJECT_SOURCE_DIR}/../coinbrew/dist/include/coin-or/asl)
+include_directories(${PROJECT_SOURCE_DIR}/../../petsc-dist/include)
+
 
 find_library(COINASL NAMES asl coinasl HINTS ../coinbrew/dist/lib REQUIRED)
 find_library(COINHSL NAMES coinhsl HINTS ../coinbrew/dist/lib REQUIRED)
-find_library(COINMETIS NAMES metis coinmetis HINTS ../coinbrew/dist/lib REQUIRED)
+find_library(COINMETIS NAMES metis coinmetis HINTS ../../petsc-dist/lib REQUIRED)
 find_library(BLAS NAMES blas HINTS REQUIRED)
 find_library(LAPACK NAMES lapack HINTS REQUIRED)
 
