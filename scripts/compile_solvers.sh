@@ -348,8 +348,8 @@ else
   cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
   cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist/lib-share/libipopt*.so ./
-  cp ../coinbrew/dist/lib-share/libsipopt*.so ./
+  cp ../coinbrew/dist-share/lib/libipopt*.so ./
+  cp ../coinbrew/dist-share/lib/libsipopt*.so ./
 fi
 cp ../coinbrew/dist/bin/ipopt ./
 cp ../coinbrew/dist/bin/ipopt_sens ./
