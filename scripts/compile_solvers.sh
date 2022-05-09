@@ -45,12 +45,11 @@ fi
 export PETSC_ARCH=""
 
 # Work-around for mumps gcc v10 gfortran bug
-GFORT_VERSION=`gfortran -dumpversion`
-GFMV=(${GFORT_VERSION//./ })
-if [ ${GFMV[0]} -ge 10 ]; then
-  export FCFLAGS="-w -fallow-argument-mismatch -O2"
-  export FFLAGS="-w -fallow-argument-mismatch -O2"
-fi
+# GFMV=(${GFORT_VERSION//./ })
+# if [ ${GFMV[0]} -ge 10 ]; then
+#  export FCFLAGS="-w -fallow-argument-mismatch -O2"
+#  export FFLAGS="-w -fallow-argument-mismatch -O2"
+#fi
 
 mkdir coinbrew
 cd coinbrew
@@ -182,12 +181,21 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure --disable-shared --enable-static --with-mumps \
-  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
-  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-  --prefix=$IDAES_EXT/coinbrew/dist \
-  CFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
-  LDFLAGS="-lgfortran"
+if [ ${osname} = "darwin" ]; then
+  ./configure --disable-shared --enable-static --with-mumps \
+    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
+    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+    --prefix=$IDAES_EXT/coinbrew/dist \
+    CFLAGS="-L$PETSC_DIR/lib -mingw -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+    LDLAGS="-L$PETSC_DIR/lib -mingw -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+
+else
+  ./configure --disable-shared --enable-static --with-mumps \
+    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
+    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+    --prefix=$IDAES_EXT/coinbrew/dist \
+    CFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -197,11 +205,11 @@ echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
 ./configure --disable-shared --enable-static --with-mumps \
-  --with-mumps-lflags="-L$PETSC_DIR/lib -lgfortran -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
+  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist_l1 \
   CFLAGS="-L$PETSC_DIR/lib -lgfortran -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
-  LDFLAGS="-lgfortran"
+  LINK=gfortran
 make
 make install
 cd $IDAES_EXT/coinbrew
