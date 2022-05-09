@@ -50,9 +50,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
   function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
   msys 'cd /c/repo/petsc-3.17.1 && make PETSC_DIR=/c/repo/petsc-3.17.1 PETSC_ARCH=arch-mswin-c-opt all'
-  msys 'cd /c/repo/petsc-3.17.1 && mkdir ../petsc-dist/include/mumps_libseq && cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/'
 
 SHELL ["C:\\msys64\\usr\\bin\\bash.exe", "-l", "-c"]
 RUN 'cd /c/repo/petsc-3.17.1 && mingw32-make PETSC_DIR=/c/repo/petsc-3.17.1 PETSC_ARCH=arch-mswin-c-opt all'
 RUN 'cd /c/repo/petsc-3.17.1 && /usr/bin/python config/install.py'
+RUN 'cd /c/repo/petsc-3.17.1 && mkdir ../petsc-dist/include/mumps_libseq && cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/'
+
 RUN cmd /c 'taskkill /F /FI "MODULES eq msys-2.0.dll"'
