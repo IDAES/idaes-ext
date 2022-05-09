@@ -181,14 +181,11 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-if [ ${osname} = "darwin" ]; then
+if [ ${osname} = "windows" ]; then
   ./configure --disable-shared --enable-static --with-mumps \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
     --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-    --prefix=$IDAES_EXT/coinbrew/dist \
-    CFLAGS="-L$PETSC_DIR/lib -mingw -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
-    LDLAGS="-L$PETSC_DIR/lib -mingw -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
-
+    --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --with-mumps \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
