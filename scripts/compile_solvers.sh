@@ -186,6 +186,7 @@ if [ ${osname} = "windows" ]; then
     --with-mumps-lflags="-L$PETSC_DIR/lib" \
     --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
     --prefix=$IDAES_EXT/coinbrew/dist
+    LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps"
 else
   ./configure --disable-shared --enable-static --with-mumps \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord" \
