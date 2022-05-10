@@ -104,9 +104,9 @@ else
   with_hsl="NO"
 fi
 
-
-
+######
 # Set PKG_CONFIG_PATH so configure scripts can find the stuff we build
+#######
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
 
 echo "#########################################################################"
@@ -132,50 +132,13 @@ make install
 cd $IDAES_EXT/coinbrew
 
 echo "#########################################################################"
-echo "# Data/Netlib                                                           #"
-echo "#########################################################################"
-cd Data/Netlib
-if [ "$MNAME" = "aarch64" ]; then
-  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
-else
-  ./configure --prefix=$IDAES_EXT/coinbrew/dist
-fi
-make
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
-echo "# Data/Sample                                                           #"
-echo "#########################################################################"
-cd Data/Sample
-if [ "$MNAME" = "aarch64" ]; then
-  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
-else
-  ./configure --prefix=$IDAES_EXT/coinbrew/dist
-fi
-make
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
-echo "# Data/miplib3                                                          #"
-echo "#########################################################################"
-cd Data/miplib3
-if [ "$MNAME" = "aarch64" ]; then
-  ./configure --build=aarch64-unknown-linux-gnu --prefix=$IDAES_EXT/coinbrew/dist
-else
-  ./configure --prefix=$IDAES_EXT/coinbrew/dist
-fi
-make
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
 if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --without-mumps \
+  ./configure --disable-shared --enable-static --with-mumps \
+    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
+    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
     --prefix=$IDAES_EXT/coinbrew/dist \
     LDFLAGS="-L$PETSC_DIR/lib -lmetis"
 else
