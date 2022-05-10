@@ -44,13 +44,6 @@ else
 fi
 export PETSC_ARCH=""
 
-# Work-around for mumps gcc v10 gfortran bug
-# GFMV=(${GFORT_VERSION//./ })
-# if [ ${GFMV[0]} -ge 10 ]; then
-#  export FCFLAGS="-w -fallow-argument-mismatch -O2"
-#  export FFLAGS="-w -fallow-argument-mismatch -O2"
-#fi
-
 mkdir coinbrew
 cd coinbrew
 
@@ -328,11 +321,13 @@ echo "#########################################################################"
 cd Ipopt_share
 if [ ${osname} = "el7" ]; then
   ./configure --enable-shared --disable-static --without-asl --disable-java --without-mumps \
+    --with-hsl-cflags="-I$IDAES_EXT/coinbrew/dist/include/coin-or/hsl" \
     --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
     --prefix=$IDAES_EXT/coinbrew/dist-share \
     LDFLAGS="-L$PETSC_DIR/lib -lmetis"
 else
   ./configure --enable-shared --disable-static --without-asl --disable-java --with-mumps \
+    --with-hsl-cflags="-I$IDAES_EXT/coinbrew/dist/include/coin-or/hsl" \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
     --prefix=$IDAES_EXT/coinbrew/dist-share \
