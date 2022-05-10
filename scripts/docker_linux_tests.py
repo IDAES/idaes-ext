@@ -10,6 +10,7 @@ docker exec test /bin/bash -c 'cd repo
     git checkout newbin
     conda create -n idaes python=3.9 pip psutil
     conda activate idaes
+    rm /root/miniconda/envs/idaes/bin/../lib/libstdc++.so.6 # work around for ubuntu 22.04
     pip install -e .
     idaes get-extensions --extra petsc --url https://github.com/IDAES/idaes-ext/releases/download/test-release/'
 
