@@ -3,7 +3,7 @@
 osname=$1;
 if [ -z $osname ]
 then
-  echo "Must spcify plaform in {windows, darwin, centos6, centos7, centos8, "
+  echo "Must spcify plaform in {windows, darwin, el7, el8, "
   echo "  ubuntu180, ubuntu2004, ubuntu2204}."
   exit 1
 fi
@@ -318,12 +318,22 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
-cd Ipopt_share
-./configure --enable-shared --disable-static --without-asl --disable-java --with-mumps \
-  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-  --prefix=$IDAES_EXT/coinbrew/dist-share \
-  LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
+cd Ipopt_share ADD_CXXFLAGS
+
+if [ ${osname} = "el7" ]; then
+  ./configure --enable-shared --disable-static --without-asl --disable-java \
+    --without-mumps \
+    --prefix=$IDAES_EXT/coinbrew/dist-share \
+    LDFLAGS="-L$PETSC_DIR/lib -lmetis" \
+    ADD_CXXFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin-or/"
+else
+  ./configure --enable-shared --disable-static --without-asl --disable-java \
+    --with-mumps \
+    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
+    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+    --prefix=$IDAES_EXT/coinbrew/dist-share \
+    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
