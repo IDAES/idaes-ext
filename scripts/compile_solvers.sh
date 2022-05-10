@@ -182,11 +182,10 @@ echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
 if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --with-mumps \
-    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+  ./configure --disable-shared --enable-static --without-mumps \
     --prefix=$IDAES_EXT/coinbrew/dist \
-    LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord --allow-multiple-definition"
+    ADD_CXXFLAGS="-std=c++11" \
+    LDFLAGS="-L$PETSC_DIR/lib -lmetis"
 else
 ./configure --disable-shared --enable-static --with-mumps \
   --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
