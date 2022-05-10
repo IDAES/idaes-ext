@@ -328,6 +328,7 @@ echo "#########################################################################"
 cd Ipopt_share
 if [ ${osname} = "el7" ]; then
   ./configure --enable-shared --disable-static --without-asl --disable-java --without-mumps \
+    --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
     --prefix=$IDAES_EXT/coinbrew/dist-share \
     LDFLAGS="-L$PETSC_DIR/lib -lmetis"
 else
