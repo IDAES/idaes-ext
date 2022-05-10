@@ -319,20 +319,11 @@ echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt_share
-if [ ${osname} = "el7" ]; then
-  ./configure --enable-shared --disable-static --without-asl --disable-java --without-mumps \
-    --with-hsl-cflags="-I$IDAES_EXT/coinbrew/dist/include/coin-or/hsl" \
-    --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --prefix=$IDAES_EXT/coinbrew/dist-share \
-    LDFLAGS="-L$PETSC_DIR/lib -lmetis"
-else
-  ./configure --enable-shared --disable-static --without-asl --disable-java --with-mumps \
-    --with-hsl-cflags="-I$IDAES_EXT/coinbrew/dist/include/coin-or/hsl" \
-    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-    --prefix=$IDAES_EXT/coinbrew/dist-share \
-    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
-fi
+./configure --enable-shared --disable-static --without-asl --disable-java --with-mumps \
+  --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
+  --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
+  --prefix=$IDAES_EXT/coinbrew/dist-share \
+  LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
