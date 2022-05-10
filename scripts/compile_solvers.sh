@@ -185,7 +185,7 @@ cd Ipopt
   --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -198,7 +198,7 @@ cd Ipopt_l1
   --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist_l1 \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -316,7 +316,7 @@ cd Ipopt_share
   --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
   --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
   --prefix=$IDAES_EXT/coinbrew/dist-share \
-  LDFLAGS="-L$PETSC_DIR/lib -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
+  LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
 make
 make install
 cd $IDAES_EXT/coinbrew
