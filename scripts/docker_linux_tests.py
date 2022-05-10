@@ -6,8 +6,8 @@ docker run --name test -d -i ${image} /bin/bash
 docker exec test /bin/bash -c 'cd repo
     eval "$(/root/miniconda/bin/conda shell.bash hook)"
     git clone https://github.com/eslickj/idaes-pse.git
-    git checkout newbin
     cd idaes-pse
+    git checkout newbin
     conda create -n idaes python=3.9 pip psutil
     conda activate idaes
     pip install -e .
