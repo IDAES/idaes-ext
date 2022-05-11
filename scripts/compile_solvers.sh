@@ -136,6 +136,7 @@ echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
 if [ ${osname} = "el7" ]; then
+  cp $IDAES_EXT/coinbrew/dist/include/coin-or/hsl/* $IDAES_EXT/coinbrew/Ipopt/src/Algorithm/LinearSolvers/
   ./configure --disable-shared --enable-static --with-mumps \
     --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
