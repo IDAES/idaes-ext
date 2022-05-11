@@ -137,6 +137,7 @@ echo "#########################################################################"
 cd Ipopt
 if [ ${osname} = "el7" ]; then
   ./configure --disable-shared --enable-static --with-mumps \
+    --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
     --prefix=$IDAES_EXT/coinbrew/dist \
