@@ -136,13 +136,12 @@ echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
 if [ ${osname} = "el7" ]; then
-  cp $IDAES_EXT/coinbrew/dist/include/coin-or/hsl/* $IDAES_EXT/coinbrew/dist/include/coin-or/
   ./configure --disable-shared --enable-static --with-mumps \
+    --with-hsl-lflags="-I$IDAES_EXT/coinbrew/dist/include/coin-or/hsl" \
     --with-hsl-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
     --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
     --prefix=$IDAES_EXT/coinbrew/dist \
-    ADD_CXXFLAGS="-I$IDAES_EXT/coinbrew/dist/coin-or/hsl" \
     LDFLAGS="-L$PETSC_DIR/lib -lgfortran -lpthread -lmetis -ldmumps -lmumps_common -lmpiseq -lpord"
 else
 ./configure --disable-shared --enable-static --with-mumps \
