@@ -55,11 +55,19 @@ else
   wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
 
+# Work-around for mumps gcc v10 gfortran bug
+GFORT_VERSION=`gfortran -dumpversion`
+GFMV=(${GFORT_VERSION//./ })
+if [ ${GFMV[0]} -ge 10 ]; then
+  export FCFLAGS="-w -fallow-argument-mismatch -O2"
+  export FFLAGS="-w -fallow-argument-mismatch -O2"
+fi
+
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
 cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
@@ -68,10 +76,10 @@ patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk, ThirdParty/Metis, ThirdParty/Mumps'
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk'
 cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
@@ -81,9 +89,24 @@ rm -rf ThirdParty/FilterSQP
 rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/Glpk
-rm -rf ThirdParty/Metis
-rm -rf ThirdParty/Mumps
 
+if [ -f $IDAES_EXT/../metis-4.0-novariadic.tar.gz ]; then
+  rm -rf ./ThirdParty/Metis/metis-4.0/*
+  cp $IDAES_EXT/../metis-4.0-novariadic.tar.gz ./ThirdParty/Metis/metis-4.0/
+  cd ThirdParty/Metis/metis-4.0
+  tar -zxvf metis-4.0-novariadic.tar.gz
+  rm metis-4.0-novariadic.tar.gz
+  echo "#########################################################################"
+  echo "# Use novariadic metis 4.0.3                                            #"
+  echo "#########################################################################"
+  make
+  cd $IDAES_EXT/coinbrew
+fi
+
+######
+# Set PKG_CONFIG_PATH so configure scripts can find the stuff we build
+#######
+export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
 
 echo "#########################################################################"
 echo "# Get coinhsl.zip if available                                          #"
@@ -104,11 +127,6 @@ else
   with_hsl="NO"
 fi
 
-######
-# Set PKG_CONFIG_PATH so configure scripts can find the stuff we build
-#######
-export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
-
 echo "#########################################################################"
 echo "# Thirdparty/ASL                                                        #"
 echo "#########################################################################"
@@ -119,14 +137,31 @@ make install
 cd $IDAES_EXT/coinbrew
 
 echo "#########################################################################"
+echo "# Thirdparty/Metis                                                      #"
+echo "#########################################################################"
+cd ThirdParty/Metis
+./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
 cd ThirdParty/HSL
 ./configure --disable-shared --enable-static --with-metis \
-  --with-metis-lflags="-L$PETSC_DIR/lib" \
-  --with-metis-cflags="-I$PETSC_DIR/include" \
-  --prefix=$IDAES_EXT/coinbrew/dist \
-  FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+make
+make install
+cd $IDAES_EXT/coinbrew
+
+echo "#########################################################################"
+echo "# Thirdparty/Mumps                                                      #"
+echo "#########################################################################"
+cd ThirdParty/Mumps
+./configure --disable-shared --enable-static --with-metis \
+ --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -135,18 +170,8 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --without-mumps \
-    --prefix=$IDAES_EXT/coinbrew/dist \
-    LDFLAGS="-L$PETSC_DIR/lib -lmetis" \
-    ADD_CXXFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin-or/"
-else
-  ./configure --disable-shared --enable-static --with-mumps \
-    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-    --prefix=$IDAES_EXT/coinbrew/dist \
-    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
-fi
+./configure --disable-shared --enable-static --with-mumps --with-hsl \
+  --prefix=$IDAES_EXT/coinbrew/dist
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -155,19 +180,8 @@ echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
-
-if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --without-mumps \
-    --prefix=$IDAES_EXT/coinbrew/dist_l1 \
-    ADD_CXXFLAGS="-std=c++11" \
-    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
-else
-  ./configure --disable-shared --enable-static --with-mumps \
-    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-    --prefix=$IDAES_EXT/coinbrew/dist_l1 \
-    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
-fi
+./configure --disable-shared --enable-static --with-mumps --with-hsl\
+  --prefix=$IDAES_EXT/coinbrew/dist_l1
 make
 make install
 cd $IDAES_EXT/coinbrew
@@ -178,7 +192,8 @@ echo "#########################################################################"
 cd CoinUtils
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
@@ -192,7 +207,8 @@ echo "#########################################################################"
 cd Osi
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
@@ -206,7 +222,8 @@ echo "#########################################################################"
 cd Clp
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+   --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
@@ -220,7 +237,8 @@ echo "#########################################################################"
 cd Cgl
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
@@ -234,7 +252,8 @@ echo "#########################################################################"
 cd Cbc
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
@@ -255,9 +274,11 @@ sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonBranchingTQP.cp
 mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 else
-  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    LDFLAGS=-fopenmp
 fi
 make
 make install
@@ -269,9 +290,11 @@ echo "#########################################################################"
 cd Couenne
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
-  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+  ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
+    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
 else
-  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    LDFLAGS=-fopenmp
 fi
 make
 make install
@@ -280,22 +303,9 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
-cd Ipopt_share ADD_CXXFLAGS
-
-if [ ${osname} = "el7" ]; then
-  ./configure --enable-shared --disable-static --without-asl --disable-java \
-    --without-mumps \
-    --prefix=$IDAES_EXT/coinbrew/dist-share \
-    LDFLAGS="-L$PETSC_DIR/lib -lmetis" \
-    ADD_CXXFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin-or/"
-else
-  ./configure --enable-shared --disable-static --without-asl --disable-java \
-    --with-mumps \
-    --with-mumps-lflags="-L$PETSC_DIR/lib -lmetis" \
-    --with-mumps-cflags="-I$PETSC_DIR/include -I$PETSC_DIR/include/mumps_libseq" \
-    --prefix=$IDAES_EXT/coinbrew/dist-share \
-    LDFLAGS="-L$PETSC_DIR/lib -ldmumps -lmumps_common -lmpiseq -lpord"
-fi
+cd Ipopt_share
+./configure --enable-shared --disable-static --without-asl --disable-java \
+  --with-mumps --with-hsl --prefix=$IDAES_EXT/coinbrew/dist-share
 make
 make install
 cd $IDAES_EXT/coinbrew

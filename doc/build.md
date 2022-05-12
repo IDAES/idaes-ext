@@ -66,7 +66,7 @@ To build the IDAES binary extensions on macOS follow the rough steps below.
   * brew install gcc
   * brew install pkgconfig
   * brew install boost
-
+  
 ### Build PETSc
 
 You only need to rebuild PETSc when you want to update to a new version.  A
