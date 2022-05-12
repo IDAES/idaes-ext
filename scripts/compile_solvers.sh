@@ -180,8 +180,14 @@ echo "#########################################################################"
 echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
-./configure --disable-shared --enable-static --with-mumps --with-hsl\
-  --prefix=$IDAES_EXT/coinbrew/dist_l1
+if [ ${osname} = "el7" ]; then
+  ./configure --disable-shared --enable-static --with-mumps --with-hsl \
+    ADD_CXXFLAGS="-std=c++11" \
+    --prefix=$IDAES_EXT/coinbrew/dist_l1
+else
+  ./configure --disable-shared --enable-static --with-mumps --with-hsl \
+    --prefix=$IDAES_EXT/coinbrew/dist_l1
+fi
 make
 make install
 cd $IDAES_EXT/coinbrew
