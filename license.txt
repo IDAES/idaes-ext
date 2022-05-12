@@ -81,8 +81,12 @@ idaes-solvers-<platform>.tar.gz
   Source: http://mumps.enseeiht.fr/index.php?page=dwnld.
 
 
-  METIS
-  -----
+  METIS (4)
+  ---------
+  Included with permission
+
+  METIS (>5)
+  ----------
   License: Apache 2.0, https://github.com/KarypisLab/METIS/blob/master/LICENSE
   Source: https://github.com/KarypisLab/METIS
 
