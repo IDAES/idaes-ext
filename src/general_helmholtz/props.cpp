@@ -9,16 +9,6 @@ delta = rho/rho_c and tau = Tc/T.
 I used a lot of intermediate variables here to make it easier to check
 and understand. The compiler optimization should optimize them out.
 */
-enum property_cache_enum {
-  p = 1,
-  u = 2,
-  s = 3,
-  h = 4,
-  cv = 5,
-  cp = 6,
-  w = 7,
-};
-
 
 double pressure(comp_enum comp, double delta, double tau){
   std::vector<double> *y = phi_real(comp, delta, tau);

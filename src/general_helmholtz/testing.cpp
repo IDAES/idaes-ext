@@ -1,7 +1,21 @@
 #include"phi.h"
 #include"props.h"
 #include"sat.h"
+#include"testing.h"
 #include <iostream>
+
+void fd1(fptr1 func, comp_enum comp, double x, std::vector<double> *yvec_ptr, double h){
+  std::vector<double> *yvec_ptr0, *yvec_ptr1;
+
+  yvec_ptr0 = func(comp, x);
+  yvec_ptr1 = func(comp, x + h);
+
+  yvec_ptr->resize(3);
+  yvec_ptr->at(0) = yvec_ptr0->at(0);
+  yvec_ptr->at(1) = (yvec_ptr1->at(0) - yvec_ptr0->at(0))/h;
+  yvec_ptr->at(2) = (yvec_ptr1->at(1) - yvec_ptr0->at(1))/h;
+}
+
 
 int main(){
   std::cout << "Ideal" << std::endl;
@@ -73,11 +87,26 @@ int main(){
 
 
   std::cout << "sat" << std::endl;
-  double delta_l, delta_v;
+  std::vector<double> *delta_l_vec_ptr, *delta_v_vec_ptr, *p_vec_ptr;
+  std::vector<double> delta_l_fd_ptr, delta_v_fd_ptr, p_fd_ptr;
+  p_vec_ptr = sat_p(comp_enum::h2o, 647.096/450);
+  delta_l_vec_ptr = sat_delta_l(comp_enum::h2o, 647.096/450);
+  delta_v_vec_ptr = sat_delta_v(comp_enum::h2o, 647.096/450);
+  fd1(sat_p, comp_enum::h2o, 647.096/450, &p_fd_ptr, 1e-9);
+  fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &delta_l_fd_ptr, 1e-8);
+  fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &delta_v_fd_ptr, 1e-8);
 
-  std::cout << sat(comp_enum::h2o, 647.096/450, &delta_l, &delta_v) << std::endl;
-  std::cout << "rho_v = " << 322*delta_v << std::endl;
-  std::cout << "rho_l = " << 322*delta_l << std::endl;
+  std::cout << "p = " << p_vec_ptr->at(0) << std::endl;
+  std::cout << "p_t = " << p_vec_ptr->at(1) << " fd: " << p_fd_ptr.at(1) << std::endl;
+  std::cout << "p_tt = " << p_vec_ptr->at(2) << " fd: " << p_fd_ptr.at(2) << std::endl;
+
+  std::cout << "rho_v " << 322*delta_v_vec_ptr->at(0) << std::endl;
+  std::cout << "delta_v_t = " << delta_v_vec_ptr->at(1) << " fd: " << delta_v_fd_ptr.at(1) << std::endl;
+  std::cout << "delta_v_tt = " << delta_v_vec_ptr->at(2) << " fd: " << delta_v_fd_ptr.at(2) << std::endl;
+
+  std::cout << "rho_v " << 322*delta_l_vec_ptr->at(0) << std::endl;
+  std::cout << "delta_l_t = " << delta_l_vec_ptr->at(1) << " fd: " << delta_l_fd_ptr.at(1) << std::endl;
+  std::cout << "delta_l_tt = " << delta_l_vec_ptr->at(2) << " fd: " << delta_l_fd_ptr.at(2) << std::endl;
 
   return 0;
 }
