@@ -1,15 +1,15 @@
-/*------------------------------------------------------------------------------
- Institute for the Design of Advanced Energy Systems Process Systems
- Engineering Framework (IDAES PSE Framework) Copyright (c) 2018, by the
- software owners: The Regents of the University of California, through
- Lawrence Berkeley National Laboratory,  National Technology & Engineering
- Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia
- University Research Corporation, et al. All rights reserved.
-
- Please see the files COPYRIGHT.txt and LICENSE.txt for full copyright and
- license information, respectively. Both files are also available online
- at the URL "https://github.com/IDAES/idaes".
-------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------+
+| The Institute for the Design of Advanced Energy Systems Integrated Platform    |
+| Framework (IDAES IP) was produced under the DOE Institute for the              |
+| Design of Advanced Energy Systems (IDAES), and is copyright (c) 2018-2021      |
+| by the software owners: The Regents of the University of California, through   |
+| Lawrence Berkeley National Laboratory,  National Technology & Engineering      |
+| Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia University |
+| Research Corporation, et al.  All rights reserved.                             |
+|                                                                                |
+| Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
+| license information.                                                           |
++-------------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------------
  This file provides some configuration parameters.
@@ -23,6 +23,8 @@
 
 #define MAX_MEMO_PHI 200000
 #define MAX_MEMO_PROP 700000
+
+typedef unsigned int uint;
 
 enum comp_enum{
   h2o = 1,
@@ -68,6 +70,6 @@ enum class deriv4_enum {
 #define PHI_REAL_TAPE_H2O 2
 
 extern unsigned int taped_ideal[NCOMPS];
-extern unsigned int taped_real[NCOMPS];
+extern unsigned int taped_resi[NCOMPS];
 
 #endif
