@@ -1,6 +1,41 @@
 #include <adolc/adolc.h>
 #include"config.h"
 
+
+double delta_sat_v_approx_h2o(double tau){
+/*
+  Approximate saturated vapor density
+  This equation is from the original IAPWS-95 paper
+*/
+  double XX = 1 - 1.0/tau;
+  double delta = exp(
+    -2.03150240*pow(XX, 2.0/6.0)
+    - 2.68302940*pow(XX, 4.0/6.0)
+    - 5.38626492*pow(XX, 8.0/6.0)
+    - 17.2991605*pow(XX, 18.0/6.0)
+    - 44.7586581*pow(XX, 37.0/6.0)
+    - 63.9201063*pow(XX, 71.0/6.0)
+  );
+  return delta;
+}
+
+double delta_sat_l_approx_h2o(double tau){
+/*
+  Approximate saturated vapor liquid
+  This equation is from the original IAPWS-95 paper
+*/
+  double XX = 1 - 1.0/tau;
+  double delta =
+    1.001
+    + 1.99274064*pow(XX, 1.0/3.0)
+    + 1.09965342*pow(XX, 2.0/3.0)
+    - 0.510839303*pow(XX, 5.0/3.0)
+    - 1.75493479*pow(XX, 16.0/3.0)
+    - 45.5170352*pow(XX, 43.0/3.0)
+    - 6.74694450e5*pow(XX, 110.0/3.0);
+  return delta;
+}
+
 void phi_h2o_ideal_tape(){
 // Create a ADOL-C tape for the ideal part of phi for H2O
   double out;

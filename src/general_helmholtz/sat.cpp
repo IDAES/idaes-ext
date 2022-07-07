@@ -17,6 +17,7 @@ File sat.cpp
 #include"phi.h"
 #include"props.h"
 #include"config.h"
+#include"function_pointers.h"
 
 static std::unordered_map<
   std::tuple<comp_enum, double>,
@@ -73,8 +74,8 @@ unsigned int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
   }
   else{
     // okay so you've decided to solve this thing
-    *delta_l = 2.89; // DELTA_LIQ_SAT_GUESS;
-    *delta_v = 0.0149; // DELTA_VAP_SAT_GUESS;
+    *delta_l = delta_l_sat_guess_func[comp](tau); // DELTA_LIQ_SAT_GUESS;
+    *delta_v = delta_v_sat_guess_func[comp](tau); // DELTA_VAP_SAT_GUESS;
     while(n < max_iter){
       phi_real_for_sat(comp, *delta_v, tau, &phir_v);
       phi_real_for_sat(comp, *delta_l, tau, &phir_l);

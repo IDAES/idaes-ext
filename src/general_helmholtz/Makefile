@@ -36,4 +36,4 @@ testing: $(OBJECTS)
 clean:
 	rm -f *.o
 	rm -f *.so
-	rm -f helmholtz*
+	rm -f testing

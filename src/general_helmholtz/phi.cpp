@@ -6,6 +6,7 @@
 #include"config.h"
 #include"param.h"
 #include"phi.h"
+#include"function_pointers.h"
 
 unsigned int taped_ideal[NCOMPS] = {0};
 unsigned int taped_real[NCOMPS] = {0};
@@ -38,7 +39,6 @@ std::vector<double> *phi_real(comp_enum comp, double delta, double tau){
     return &memo_table_phi_real.at(std::make_tuple(comp, delta, tau));
   }
   catch(std::out_of_range){
-    std::cout << "real phi not cached" << std::endl;
   }
   double x[2] = {delta, tau};
   double *y[1];
@@ -52,7 +52,7 @@ std::vector<double> *phi_real(comp_enum comp, double delta, double tau){
   y[0] = y0;
 
   if(taped_real[comp] == 0){
-    if(comp==comp_enum::h2o) phi_h2o_real_tape();
+    phi_real_tape_func[comp]();
   }
   tensor_eval(taped_real[comp], 1, 2, 4, 2, x, y, S);
   if(memo_table_phi_real.size() > MAX_MEMO_PHI) memo_table_phi_real.clear();
@@ -90,7 +90,7 @@ std::vector<double> *phi_ideal(comp_enum comp, double delta, double tau){
   y[0] = y0;
 
   if(taped_ideal[comp] == 0){
-    if(comp==comp_enum::h2o) phi_h2o_ideal_tape();
+    phi_ideal_tape_func[comp]();
   }
   tensor_eval(taped_ideal[comp], 1, 2, 4, 2, x, y, S);
   if(memo_table_phi_ideal.size() > MAX_MEMO_PHI) memo_table_phi_ideal.clear();
@@ -116,7 +116,7 @@ void phi_real_for_sat(comp_enum comp, double delta, double tau, std::vector<doub
   S[1] = S1;
   y[0] = y0;
   if(taped_real[comp] == 0){
-    if(comp==comp_enum::h2o) phi_h2o_real_tape();
+    phi_real_tape_func[comp]();
   }
   tensor_eval(taped_real[comp], 1, 2, 2, 1, x, y, S);
   yvec_ptr->assign(y[0], y[0] + 3);

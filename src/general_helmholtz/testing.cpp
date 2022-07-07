@@ -85,7 +85,6 @@ int main(){
   std::cout << "f_d(x) = " << phir.at(1) << std::endl;
   std::cout << "f_dd(x) = " << phir.at(2) << std::endl;
 
-
   std::cout << "sat" << std::endl;
   std::vector<double> *delta_l_vec_ptr, *delta_v_vec_ptr, *p_vec_ptr;
   std::vector<double> delta_l_fd_ptr, delta_v_fd_ptr, p_fd_ptr;
@@ -104,9 +103,26 @@ int main(){
   std::cout << "delta_v_t = " << delta_v_vec_ptr->at(1) << " fd: " << delta_v_fd_ptr.at(1) << std::endl;
   std::cout << "delta_v_tt = " << delta_v_vec_ptr->at(2) << " fd: " << delta_v_fd_ptr.at(2) << std::endl;
 
-  std::cout << "rho_v " << 322*delta_l_vec_ptr->at(0) << std::endl;
+  std::cout << "rho_l " << 322*delta_l_vec_ptr->at(0) << std::endl;
   std::cout << "delta_l_t = " << delta_l_vec_ptr->at(1) << " fd: " << delta_l_fd_ptr.at(1) << std::endl;
   std::cout << "delta_l_tt = " << delta_l_vec_ptr->at(2) << " fd: " << delta_l_fd_ptr.at(2) << std::endl;
+
+  double temperature;
+  for(temperature=250; temperature < 647.096; temperature += 1){
+    std::cout << temperature << "\t";
+    std::cout << pressure(comp_enum::h2o, 900.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 800.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 700.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 600.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 500.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 400.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 300.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 200.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 100.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 10.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 5.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 1/322.0, 647.096/temperature) << std::endl;
+  }
 
   return 0;
 }
