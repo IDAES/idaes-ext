@@ -14,14 +14,15 @@ int bracket(
   double *sol,
   int max_it,
   double ftol,
-  double xtol
+  double xtol,
+  void *data
 ){
   double fa, fb, fc, a=xa, b=xb, c;
   int it;
   bool prev_a=0, prev_b=0;
 
-  fa = (*f)(a);
-  fb = (*f)(b);
+  fa = f(a, data);
+  fb = f(b, data);
 
   if (fa*fb > 0){ //no solution (or multiple solutions)
     if (fabs(fa) < fabs(fb)){
@@ -34,7 +35,7 @@ int bracket(
 
   for(it=0; it<max_it; ++it){
     c = b - fb*(b - a)/(fb - fa);
-    fc = (*f)(c);
+    fc = f(c, data);
     if(fc*fa >= 0){
       a = c;
       fa = fc;
@@ -78,15 +79,16 @@ int halley(
   double *sol,
   std::vector<double> *fg,
   int max_it,
-  double ftol
+  double ftol,
+  void *data
 ){
   int it = 0;
   double fun_prev = 0, x = x0;
-  f(x0, fg);
+  f(x0, fg, data);
   while(fabs((*fg)[0]) > ftol && it < max_it && (*fg)[0] != fun_prev){
     x -= (*fg)[0] * (*fg)[1] / ((*fg)[1]*(*fg)[1] - 0.5 * (*fg)[0] * (*fg)[2]);
     fun_prev = (*fg)[0];
-    f(x, fg);
+    f(x, fg, data);
     ++it;
   }
   *sol = x;
@@ -107,6 +109,7 @@ int newton_ls(
   std::vector<double> *fg,
   int max_it,
   double ftol,
+  void *data,
   bool lsearch,
   double c,
   double t
@@ -114,14 +117,14 @@ int newton_ls(
   int it=0, it2=0;
   const int max_ls_it = 20;
   double x = x0, alpha, p, funx, fun;
-  f(x0, fg);
+  f(x0, fg, data);
 
   while(fabs((*fg)[0]) > ftol && it < max_it){
     alpha = -(*fg)[0]/(*fg)[1];
     if (lsearch){
       p = (alpha < 0) ? -1 : 1;
       funx = (*fg)[0];
-      fun = fls(x + alpha);
+      fun = fls(x + alpha, data);
       it2 = 0;  // line search iterations
       //  The while loop cuts step if
       //    1) improvment is not enough,
@@ -134,12 +137,12 @@ int newton_ls(
         it2 < max_ls_it
       ){
         alpha *= t;
-        fun = fls(x + alpha);
+        fun = fls(x + alpha, data);
         ++it2;
       }
     }
     x += alpha;
-    f(x, fg);
+    f(x, fg, data);
     ++it;
   }
   *sol = x;

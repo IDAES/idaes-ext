@@ -15,6 +15,7 @@
 #include"props.h"
 #include"sat.h"
 #include"solver.h"
+#include"delta.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>
@@ -84,19 +85,19 @@ int fd2(test_fptr2 func, comp_enum comp, double x1, double x2, std::vector<doubl
   return 0;
 }
 
-double solver_test_function1(double x){
+double solver_test_function1(double x, void *dat){
   // simple test function with roots 3 and 10
   return (x - 3) * (x - 10);
 }
 
-void solver_test_function1g(double x, std::vector<double> *out){
+void solver_test_function1g(double x, std::vector<double> *out, void *dat){
   // simple test function with roots 3 and 10 with 1st derivative
   out->resize(2);
   out->at(0) = (x - 3) * (x - 10);
   out->at(1) = (x - 3) + (x - 10);
 }
 
-void solver_test_function1gh(double x, std::vector<double> *out){
+void solver_test_function1gh(double x, std::vector<double> *out, void *dat){
   // simple test function with roots 3 and 10 with 1st and 2nd derivative
   out->resize(3);
   out->at(0) = (x - 3) * (x - 10);
@@ -113,14 +114,14 @@ int test_bracket1(bool dbg){
     ++err;
   }
   if(dbg){
-    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+    std::cout << "iterations: " << n << " solution: " << sol << std::endl;
   }
   n = bracket(solver_test_function1, -10, 5, &sol, 40, 1e-7, 1e-7);
   if(!rel_same(3.0, sol, 1e-7)){
     ++err;
   }
   if(dbg){
-    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+    std::cout << "iterations: " << n << " solution: " << sol << std::endl;
   }
   return err;
 }
@@ -135,14 +136,14 @@ int test_halley1(bool dbg){
     ++err;
   }
   if(dbg){
-    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+    std::cout << "iterations: " << n << " solution: " << sol << std::endl;
   }
   n = halley(solver_test_function1gh, -3, &sol, &fg, 20, 1e-7);
   if(!rel_same(3.0, sol, 1e-7)){
     ++err;
   }
   if(dbg){
-    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+    std::cout << "iterations: " << n << " solution: " << sol << std::endl;
   }
   return err;
 }
@@ -166,14 +167,14 @@ int test_newton_ls1(bool dbg){
   if(dbg){
     std::cout << "iterations : " << n << " solution: " << sol << std::endl;
   }
-  n = newton_ls(solver_test_function1g, NULL, 15.0, &sol, &fg, 20, 1e-7, 0);
+  n = newton_ls(solver_test_function1g, NULL, 15.0, &sol, &fg, 20, 1e-7, NULL, 0);
   if(!rel_same(10.0, sol, 1e-7)){
     ++err;
   }
   if(dbg){
     std::cout << "iterations : " << n << " solution: " << sol << std::endl;
   }
-  n = newton_ls(solver_test_function1g, NULL, -3, &sol, &fg, 20, 1e-7, 0);
+  n = newton_ls(solver_test_function1g, NULL, -3, &sol, &fg, 20, 1e-7, NULL, 0);
   if(!rel_same(3.0, sol, 1e-7)){
     ++err;
   }
@@ -195,7 +196,7 @@ int main(){
   err = !test_halley1(0);
   std::cout << "test_halley1 passed: " << err << std::endl;
 
-  err = !test_newton_ls1(1);
+  err = !test_newton_ls1(0);
   std::cout << "test_newton_ls1 passed: " << err << std::endl;
 
   err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
@@ -210,6 +211,37 @@ int main(){
   err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
 
+  double p = 99.2, t = 300;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.200022515e5, t = 300;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.700004704e6, t = 300;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.999647423e2, t = 500;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.999938125e3, t = 500;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.100003858e5, t = 500;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.220384756e5, t = 647;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.100062559e3, t = 900;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.200000690e5, t = 900;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  p = 0.700000006e6, t = 900;
+  std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
+  std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
+  
 
   std::cout << "sat" << std::endl;
   std::vector<double> *delta_l_vec_ptr, *delta_v_vec_ptr;
@@ -232,23 +264,30 @@ int main(){
   std::cout << "rho_l " << 322*delta_l_vec_ptr->at(0) << std::endl;
   std::cout << "delta_l_t = " << delta_l_vec_ptr->at(1) << " fd: " << delta_l_fd_ptr.at(1) << std::endl;
   std::cout << "delta_l_tt = " << delta_l_vec_ptr->at(2) << " fd: " << delta_l_fd_ptr.at(2) << std::endl;
+
   /*
   double temperature;
   for(temperature=250; temperature < 647.096; temperature += 1){
     std::cout << temperature << "\t";
+    std::cout << pressure(comp_enum::h2o, 1100.0/322.0, 647.096/temperature) << "\t";
+    std::cout << pressure(comp_enum::h2o, 1000.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 900.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 800.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 700.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 600.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 500.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 400.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 300.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 200.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 100.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 10.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 5.0/322.0, 647.096/temperature) << "\t";
-    std::cout << pressure(comp_enum::h2o, 1/322.0, 647.096/temperature) << std::endl;
+    std::cout << pressure(comp_enum::h2o, 300.0/322.0, 647.096/temperature) << std::endl;
+  }
+
+  double tau;
+  for(tau=2.7536; tau > 0.99; tau -= 0.01){
+    std::cout << 647.096/tau << "\t";
+    std::cout << sat_delta_l(comp_enum::h2o, tau)->at(0) << "\t";
+    std::cout << sat_delta_v(comp_enum::h2o, tau)->at(0) << "\t";
+    std::cout << sat_p(comp_enum::h2o, tau)->at(0) << std::endl;
   }
   */
+
   return 0;
 }

@@ -11,7 +11,7 @@ endif
 ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
 ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 
-OBJECTS = phi.o props.o h2o.o sat.o testing.o solver.o
+OBJECTS = phi.o props.o h2o.o sat.o testing.o solver.o delta.o
 
 .PHONY: clean
 
@@ -20,6 +20,9 @@ phi.o: phi.cpp
 
 solver.o: solver.cpp
 	  $(CXX) $(CXXFLAGS) solver.cpp -o solver.o
+
+delta.o: delta.cpp
+	  $(CXX) $(CXXFLAGS) delta.cpp -o delta.o
 
 props.o: props.cpp
 	  $(CXX) $(CXXFLAGS) props.cpp -o props.o

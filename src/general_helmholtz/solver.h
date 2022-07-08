@@ -8,8 +8,8 @@
   Function pointer types for generic solver implimentations
 --------------------------------------------------------------------------------*/
 
-typedef void (*fgh1_ptr)(double, std::vector<double>*); // 1 var, gad, hes
-typedef double (*f1_ptr)(double); // 1 var
+typedef void (*fgh1_ptr)(double, std::vector<double>*, void*); // 1 var, gad, hes
+typedef double (*f1_ptr)(double, void*); // 1 var
 
 /*-------------------------------------------------------------------------------
   General purpose solvers for to f(x) = 0
@@ -25,7 +25,8 @@ int bracket(
   double *sol,
   int max_it,
   double ftol,
-  double xtol
+  double xtol,
+  void *data = NULL
 );
 
 // Halley is a second order newton method (needs 2nd derivatives)
@@ -35,7 +36,8 @@ int halley(
   double *sol,
   std::vector<double> *fg,
   int max_it,
-  double ftol
+  double ftol,
+  void *data = NULL
 );
 
 // 1D Newton with optional line search
@@ -47,6 +49,7 @@ int newton_ls(
   std::vector<double> *fg,
   int max_it,
   double ftol,
+  void *data = NULL,
   bool lsearch=1,
   double c=0.001,
   double t=0.5
