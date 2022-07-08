@@ -21,7 +21,7 @@ double delta_sat_v_approx_h2o(double tau){
   This equation is from the original IAPWS-95 paper
 */
   double XX = 1 - 1.0/tau;
-  double delta = exp(
+  return exp(
     -2.03150240*pow(XX, 2.0/6.0)
     - 2.68302940*pow(XX, 4.0/6.0)
     - 5.38626492*pow(XX, 8.0/6.0)
@@ -29,7 +29,6 @@ double delta_sat_v_approx_h2o(double tau){
     - 44.7586581*pow(XX, 37.0/6.0)
     - 63.9201063*pow(XX, 71.0/6.0)
   );
-  return delta;
 }
 
 double delta_sat_l_approx_h2o(double tau){
@@ -38,7 +37,7 @@ double delta_sat_l_approx_h2o(double tau){
   This equation is from the original IAPWS-95 paper
 */
   double XX = 1 - 1.0/tau;
-  double delta =
+  return
     1.001
     + 1.99274064*pow(XX, 1.0/3.0)
     + 1.09965342*pow(XX, 2.0/3.0)
@@ -46,7 +45,6 @@ double delta_sat_l_approx_h2o(double tau){
     - 1.75493479*pow(XX, 16.0/3.0)
     - 45.5170352*pow(XX, 43.0/3.0)
     - 6.74694450e5*pow(XX, 110.0/3.0);
-  return delta;
 }
 
 void phi_h2o_ideal_tape(){
@@ -339,8 +337,8 @@ void phi_h2o_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::h2o] = PHI_REAL_TAPE_H2O;
-  trace_on(PHI_REAL_TAPE_H2O);
+  taped_resi[comp_enum::h2o] = PHI_RESI_TAPE_H2O;
+  trace_on(PHI_RESI_TAPE_H2O);
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

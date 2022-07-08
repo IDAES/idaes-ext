@@ -20,4 +20,6 @@
 typedef std::vector<double>* (*test_fptr1)(comp_enum comp, double x);
 typedef std::vector<double>* (*test_fptr2)(comp_enum comp, double x, double y);
 
+
+
 #endif

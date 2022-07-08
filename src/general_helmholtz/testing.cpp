@@ -14,6 +14,7 @@
 #include"phi.h"
 #include"props.h"
 #include"sat.h"
+#include"solver.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>
@@ -83,22 +84,130 @@ int fd2(test_fptr2 func, comp_enum comp, double x1, double x2, std::vector<doubl
   return 0;
 }
 
+double solver_test_function1(double x){
+  // simple test function with roots 3 and 10
+  return (x - 3) * (x - 10);
+}
+
+void solver_test_function1g(double x, std::vector<double> *out){
+  // simple test function with roots 3 and 10 with 1st derivative
+  out->resize(2);
+  out->at(0) = (x - 3) * (x - 10);
+  out->at(1) = (x - 3) + (x - 10);
+}
+
+void solver_test_function1gh(double x, std::vector<double> *out){
+  // simple test function with roots 3 and 10 with 1st and 2nd derivative
+  out->resize(3);
+  out->at(0) = (x - 3) * (x - 10);
+  out->at(1) = (x - 3) + (x - 10);
+  out->at(2) = 2;
+}
+
+
+int test_bracket1(bool dbg){
+  int err=0, n=0;
+  double sol;
+  n = bracket(solver_test_function1, 4, 20, &sol, 40, 1e-7, 1e-7);
+  if(!rel_same(10.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  n = bracket(solver_test_function1, -10, 5, &sol, 40, 1e-7, 1e-7);
+  if(!rel_same(3.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  return err;
+}
+
+int test_halley1(bool dbg){
+  int err=0, n=0;
+  double sol;
+  std::vector<double> fg;
+
+  n = halley(solver_test_function1gh, 15.0, &sol, &fg, 20, 1e-7);
+  if(!rel_same(10.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  n = halley(solver_test_function1gh, -3, &sol, &fg, 20, 1e-7);
+  if(!rel_same(3.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  return err;
+}
+
+int test_newton_ls1(bool dbg){
+  int err=0, n=0;
+  double sol;
+  std::vector<double> fg;
+
+  n = newton_ls(solver_test_function1g, solver_test_function1, 15.0, &sol, &fg, 20, 1e-7);
+  if(!rel_same(10.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  n = newton_ls(solver_test_function1g, solver_test_function1, -3, &sol, &fg, 20, 1e-7);
+  if(!rel_same(3.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  n = newton_ls(solver_test_function1g, NULL, 15.0, &sol, &fg, 20, 1e-7, 0);
+  if(!rel_same(10.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+  n = newton_ls(solver_test_function1g, NULL, -3, &sol, &fg, 20, 1e-7, 0);
+  if(!rel_same(3.0, sol, 1e-7)){
+    ++err;
+  }
+  if(dbg){
+    std::cout << "iterations : " << n << " solution: " << sol << std::endl;
+  }
+
+  return err;
+}
 
 int main(){
   std::vector<double> *p_vec_ptr;
   std::vector<double> p_vec_fd;
   int err = 0;
 
-  err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 1);
+  err = !test_bracket1(0);
+  std::cout << "test_bracket1 passed: " << err << std::endl;
+
+  err = !test_halley1(0);
+  std::cout << "test_halley1 passed: " << err << std::endl;
+
+  err = !test_newton_ls1(1);
+  std::cout << "test_newton_ls1 passed: " << err << std::endl;
+
+  err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_pressure passed: " << err << std::endl;
 
-  err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 1);
+  err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_internal_energy passed: " << err << std::endl;
 
-  err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 1);
+  err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_entropy passed: " << err << std::endl;
 
-  err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 1);
+  err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
 
 

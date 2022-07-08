@@ -11,27 +11,29 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------
  This file provides some configuration parameters.
 
  Author: John Eslick
  File: config.h
-------------------------------------------------------------------------------*/
+--------------------------------------------------------------------------------*/
 
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_
 
-#define MAX_MEMO_PHI 200000
-#define MAX_MEMO_PROP 700000
+#define MAX_MEMO_PHI 500000
+#define MAX_MEMO_PROP 1000000
 
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
+#define NCOMPS 4
+// if adding components update NCOMPS above should be 1 more than last index
 enum comp_enum{
   h2o = 1,
   co2 = 2,
   r134a = 3,
 };
-#define NCOMPS 4
 
 enum class deriv1_enum {
   f = 0,
@@ -67,7 +69,7 @@ enum class deriv4_enum {
 };
 
 #define PHI_IDEAL_TAPE_H2O 1
-#define PHI_REAL_TAPE_H2O 2
+#define PHI_RESI_TAPE_H2O 2
 
 extern unsigned int taped_ideal[NCOMPS];
 extern unsigned int taped_resi[NCOMPS];
