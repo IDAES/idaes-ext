@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------+
+| The Institute for the Design of Advanced Energy Systems Integrated Platform    |
+| Framework (IDAES IP) was produced under the DOE Institute for the              |
+| Design of Advanced Energy Systems (IDAES), and is copyright (c) 2018-2021      |
+| by the software owners: The Regents of the University of California, through   |
+| Lawrence Berkeley National Laboratory,  National Technology & Engineering      |
+| Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia University |
+| Research Corporation, et al.  All rights reserved.                             |
+|                                                                                |
+| Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
+| license information.                                                           |
++-------------------------------------------------------------------------------*/
+
+#include<unordered_map>
+#include<boost/functional/hash.hpp>
 #include "props.h"
 #include "solver.h"
 #include "param.h"
@@ -5,6 +20,18 @@
 #include "math.h"
 #include "sat.h"
 #include <iostream>
+
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_delta_liquid2;
+
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_delta_vapor2;
 
 
 double pwrap(double delta, void *dat){
@@ -104,4 +131,66 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   so I'll start from the sat density and hope to pick up the closest
   halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-10, &ps);
   return delta;
+}
+
+void delta_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
+  static const uint f_d = (uint)deriv2_enum::f_d;
+  static const uint f_t = (uint)deriv2_enum::f_t;
+  static const uint f_dd = (uint)deriv2_enum::f_dd;
+  static const uint f_dt = (uint)deriv2_enum::f_dt;
+  static const uint f_tt = (uint)deriv2_enum::f_tt;
+  double delta_l = delta_liquid(comp, pr, tau);
+  std::vector<double> *pr_vec = memo2_pressure(comp, delta_l, tau); // get derivatives
+  out->resize(6);
+  out->at(0) = delta_l;
+  out->at(f_d) = 1.0/pr_vec->at(f_d);
+  out->at(f_t) = -pr_vec->at(f_t)/pr_vec->at(f_d);
+  out->at(f_dd) = -pr_vec->at(f_dd)*out->at(f_d)*out->at(f_d)*out->at(f_d);
+  out->at(f_dt) = -(pr_vec->at(f_dt) + pr_vec->at(f_dd)*out->at(f_t))*out->at(f_d)*out->at(f_d);
+  //-(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);
+  out->at(f_tt) = -(out->at(f_d)*(pr_vec->at(f_tt) + out->at(f_t)*pr_vec->at(f_dt)) + pr_vec->at(f_t)*out->at(f_dt));
+}
+
+void delta_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
+  static const uint f_d = (uint)deriv2_enum::f_d;
+  static const uint f_t = (uint)deriv2_enum::f_t;
+  static const uint f_dd = (uint)deriv2_enum::f_dd;
+  static const uint f_dt = (uint)deriv2_enum::f_dt;
+  static const uint f_tt = (uint)deriv2_enum::f_tt;
+  double delta_v = delta_vapor(comp, pr, tau);
+  std::vector<double> *pr_vec = memo2_pressure(comp, delta_v, tau); // get derivatives
+  out->resize(6);
+  out->at(0) = delta_v;
+  out->at(f_d) = 1.0/pr_vec->at(f_d);
+  out->at(f_t) = -pr_vec->at(f_t)/pr_vec->at(f_d);
+  out->at(f_dd) = -pr_vec->at(f_dd)*out->at(f_d)*out->at(f_d)*out->at(f_d);
+  out->at(f_dt) = -(pr_vec->at(f_dt) + pr_vec->at(f_dd)*out->at(f_t))*out->at(f_d)*out->at(f_d);
+  out->at(f_tt) = -(out->at(f_d)*(pr_vec->at(f_tt) + out->at(f_t)*pr_vec->at(f_dt)) + pr_vec->at(f_t)*out->at(f_dt));
+}
+
+
+std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau){
+  try{
+    return &memo_table_delta_liquid2.at(std::make_tuple(comp, pr, tau));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_delta_liquid2.size() > MAX_MEMO_PROP) memo_table_delta_liquid2.clear();
+  yvec_ptr = &memo_table_delta_liquid2[std::make_tuple(comp, pr, tau)];
+  delta_liquid2(comp, pr, tau, yvec_ptr);
+  return yvec_ptr;
+}
+
+std::vector<double> *memo2_delta_vapor(comp_enum comp, double pr, double tau){
+  try{
+    return &memo_table_delta_vapor2.at(std::make_tuple(comp, pr, tau));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_delta_vapor2.size() > MAX_MEMO_PROP) memo_table_delta_vapor2.clear();
+  yvec_ptr = &memo_table_delta_vapor2[std::make_tuple(comp, pr, tau)];
+  delta_vapor2(comp, pr, tau, yvec_ptr);
+  return yvec_ptr;
 }

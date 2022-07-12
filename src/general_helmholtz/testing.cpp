@@ -16,6 +16,7 @@
 #include"sat.h"
 #include"solver.h"
 #include"delta.h"
+#include"state.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>
@@ -77,11 +78,11 @@ int fd2(test_fptr2 func, comp_enum comp, double x1, double x2, std::vector<doubl
     std::cout << "f_tt = " << yvec_ptr0->at((uint)deriv2_enum::f_tt) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_tt) << std::endl;
   }
 
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_d), yvec_ptr->at((uint)deriv2_enum::f_d), 1e-4)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_t), yvec_ptr->at((uint)deriv2_enum::f_t), 1e-4)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dd), yvec_ptr->at((uint)deriv2_enum::f_dd), 1e-4)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dt), yvec_ptr->at((uint)deriv2_enum::f_dt), 1e-4)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_tt), yvec_ptr->at((uint)deriv2_enum::f_tt), 1e-4)) return 1;
+  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_d), yvec_ptr->at((uint)deriv2_enum::f_d), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_t), yvec_ptr->at((uint)deriv2_enum::f_t), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dd), yvec_ptr->at((uint)deriv2_enum::f_dd), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dt), yvec_ptr->at((uint)deriv2_enum::f_dt), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_tt), yvec_ptr->at((uint)deriv2_enum::f_tt), 1e-2)) return 1;
   return 0;
 }
 
@@ -205,29 +206,54 @@ int main(){
   std::cout << std::endl;
   std::cout << "Check derivatives against F.D." << std::endl << "----------------------------------" << std::endl;
 
-  err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
+  err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_pressure f.d. passed: " << err << std::endl;
 
-  err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
+  err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_internal_energy f.d. passed: " << err << std::endl;
 
-  err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
+  err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_entropy f.d. passed: " << err << std::endl;
 
-  err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
+  err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
 
-  err = !fd1(sat_p, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  err = !fd2(memo2_delta_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_delta_liquid passed: " << err << std::endl;
+
+  err = !fd2(memo2_enthalpy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_enthalpy_liquid passed: " << err << std::endl;
+
+  err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_entropy_liquid passed: " << err << std::endl;
+
+  err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_internal_energy_liquid passed: " << err << std::endl;
+
+  err = !fd2(memo2_delta_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_delta_vapor passed: " << err << std::endl;
+
+  err = !fd2(memo2_enthalpy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_enthalpy_vapor passed: " << err << std::endl;
+
+  err = !fd2(memo2_entropy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_entropy_vapor passed: " << err << std::endl;
+
+  err = !fd2(memo2_internal_energy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_internal_energy_vapor passed: " << err << std::endl;
+
+  err = !fd1(sat_p, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_p passed: " << err << std::endl;
 
-  err = !fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  err = !fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_delta_l passed: " << err << std::endl;
 
-  err = !fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  err = !fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_delta_v passed: " << err << std::endl;
 
-  err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-9, 0);
+  err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_tau passed: " << err << std::endl;
+
 
   //  fd1(sat_tau, comp_enum::h2o, 647.096/450, &tau_fd_ptr, 1e-8, 0);
   std::cout << std::endl;

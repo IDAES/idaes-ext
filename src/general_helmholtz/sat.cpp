@@ -123,10 +123,13 @@ int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
   return n;
 }
 
-int cache_sat_delta_with_derivs(
-    comp_enum comp,
-    double tau)
-{
+int sat_delta_with_derivs(
+  comp_enum comp,
+  double tau,
+  std::vector<double> *delta_l_vec_ptr,
+  std::vector<double> *delta_v_vec_ptr,
+  std::vector<double> *p_vec_ptr
+){
 /*
 Calculate grad and hes for and memoize
 
@@ -290,32 +293,55 @@ Calculate grad and hes for and memoize
     p_vec.at((unsigned int)deriv2_enum::f_d) * delta_v_tt +
     p_vec.at((unsigned int)deriv2_enum::f_dd) * delta_v_t * delta_v_t;
 
-  // Now memoize the result.  The memo is where the results are stored as well
-  std::vector<double> *delta_l_vec_ptr;
+  delta_l_vec_ptr->resize(3);
+  delta_l_vec_ptr->at(0) = delta_l;
+  delta_l_vec_ptr->at(1) = delta_l_t;
+  delta_l_vec_ptr->at(2) = delta_l_tt;
+  delta_v_vec_ptr->resize(3);
+  delta_v_vec_ptr->at(0) = delta_v;
+  delta_v_vec_ptr->at(1) = delta_v_t;
+  delta_v_vec_ptr->at(2) = delta_v_tt;
+  p_vec_ptr->resize(3);
+  p_vec_ptr->at(0) = psat;
+  p_vec_ptr->at(1) = psat_t;
+  p_vec_ptr->at(2) = psat_tt;
+  return n;
+}
+
+int cache_sat_delta_with_derivs(
+    comp_enum comp,
+    double tau)
+{
+  int n=0;
+  std::vector<double> delta_l_vec; //answer
+  std::vector<double> delta_v_vec;
+  std::vector<double> p_vec;
+  std::vector<double> *delta_l_vec_ptr; //cache
   std::vector<double> *delta_v_vec_ptr;
   std::vector<double> *p_vec_ptr;
-
 
   if(memo_table_sat_delta_l.size() > MAX_MEMO_PROP){
      memo_table_sat_delta_l.clear();
      memo_table_sat_delta_v.clear();
      memo_table_sat_p.clear();
   }
+  n = sat_delta_with_derivs(comp, tau, &delta_l_vec, &delta_v_vec, &p_vec);
   delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
   delta_l_vec_ptr->resize(3);
-  delta_l_vec_ptr->at(0) = delta_l;
-  delta_l_vec_ptr->at(1) = delta_l_t;
-  delta_l_vec_ptr->at(2) = delta_l_tt;
+  delta_l_vec_ptr->at(0) = delta_l_vec[0];
+  delta_l_vec_ptr->at(1) = delta_l_vec[1];
+  delta_l_vec_ptr->at(2) = delta_l_vec[2];
   delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
   delta_v_vec_ptr->resize(3);
-  delta_v_vec_ptr->at(0) = delta_v;
-  delta_v_vec_ptr->at(1) = delta_v_t;
-  delta_v_vec_ptr->at(2) = delta_v_tt;
+  delta_v_vec_ptr->at(0) = delta_v_vec[0];
+  delta_v_vec_ptr->at(1) = delta_v_vec[1];
+  delta_v_vec_ptr->at(2) = delta_v_vec[2];
   p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];
   p_vec_ptr->resize(3);
-  p_vec_ptr->at(0) = psat;
-  p_vec_ptr->at(1) = psat_t;
-  p_vec_ptr->at(2) = psat_tt;
+  p_vec_ptr->at(0) = p_vec[0];
+  p_vec_ptr->at(1) = p_vec[1];
+  p_vec_ptr->at(2) = p_vec[2];
+
   return n;
 }
 
@@ -371,12 +397,12 @@ inline double f_deltav(double tau, void* dat){
 // Function wrapper to solve the P_sat(delta_v_sat, tau_sat) - P = 0 for halley
 // method, calculates second order derivatives.
 void f_deltav2(double tau, std::vector<double> *out, void *dat){
-  std::vector<double> *pvec;
-  pvec = sat_p(((sat_wrap_struct*)dat)->comp, tau);
+  std::vector<double> pvec, dlvec, dvvec;
+  sat_delta_with_derivs(((sat_wrap_struct*)dat)->comp, tau, &dlvec, &dvvec, &pvec);
   out->resize(6);
-  out->at(0) = pvec->at(0) - ((sat_wrap_struct*)dat)->pr;
-  out->at(1) = pvec->at(1);
-  out->at(2) = pvec->at(2);
+  out->at(0) = pvec[0] - ((sat_wrap_struct*)dat)->pr;
+  out->at(1) = pvec[1];
+  out->at(2) = pvec[2];
 }
 
 // Solve for tau sat, calculate derivatives and cache results.
