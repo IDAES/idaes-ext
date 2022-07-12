@@ -29,7 +29,10 @@ File sat.cpp
 #include<boost/functional/hash.hpp>
 #include"phi.h"
 #include"props.h"
+#include"param.h"
 #include"config.h"
+#include"solver.h"
+#include"sat.h"
 #include"function_pointers.h"
 
 static std::unordered_map<
@@ -49,6 +52,12 @@ static std::unordered_map<
   std::vector<double>,
   boost::hash<std::tuple<comp_enum, double>>
 > memo_table_sat_p;
+
+static std::unordered_map<
+  std::tuple<comp_enum, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double>>
+> memo_table_sat_tau;
 
 inline double J(double delta, std::vector<double> *phi){
   // Term from Akasaka method for saturation state
@@ -70,7 +79,7 @@ inline double K_delta(double delta, std::vector<double> *phi){
   return 2.0*phi->at(1) + delta*phi->at(2) + 1.0/delta;
 }
 
-unsigned int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
+int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
   double Kdiff=1, Jdiff=1, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
   unsigned int n=0;
   std::vector<double> phir_v, phir_l;
@@ -290,6 +299,7 @@ Calculate grad and hes for and memoize
   if(memo_table_sat_delta_l.size() > MAX_MEMO_PROP){
      memo_table_sat_delta_l.clear();
      memo_table_sat_delta_v.clear();
+     memo_table_sat_p.clear();
   }
   delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
   delta_l_vec_ptr->resize(3);
@@ -337,4 +347,72 @@ std::vector<double> *sat_p(comp_enum comp, double tau){
   }
   cache_sat_delta_with_derivs(comp, tau);
   return &memo_table_sat_p.at(std::make_tuple(comp, tau));
+}
+
+
+/*------------------------------------------------------------------------------
+ Solve for tau_sat as a function of pressure.
+------------------------------------------------------------------------------*/
+
+// Structure for const args to functions to solve.
+struct sat_wrap_struct {
+  comp_enum comp;
+  double pr;
+};
+
+// Function wrapper to solve the P_sat(delta_v_sat, tau_sat) - P = 0 for bracket
+// method, doesn't calculate derivatives.
+inline double f_deltav(double tau, void* dat){
+  double delta_l, delta_v;
+  sat(((sat_wrap_struct*)dat)->comp, tau, &delta_l, &delta_v);
+  return ((sat_wrap_struct*)dat)->pr - pressure(((sat_wrap_struct*)dat)->comp, delta_v, tau);
+}
+
+// Function wrapper to solve the P_sat(delta_v_sat, tau_sat) - P = 0 for halley
+// method, calculates second order derivatives.
+void f_deltav2(double tau, std::vector<double> *out, void *dat){
+  std::vector<double> *pvec;
+  pvec = sat_p(((sat_wrap_struct*)dat)->comp, tau);
+  out->resize(6);
+  out->at(0) = pvec->at(0) - ((sat_wrap_struct*)dat)->pr;
+  out->at(1) = pvec->at(1);
+  out->at(2) = pvec->at(2);
+}
+
+// Solve for tau sat, calculate derivatives and cache results.
+std::vector<double> *sat_tau(comp_enum comp, double pr){
+  try{
+    return &memo_table_sat_tau.at(std::make_tuple(comp, pr));
+  }
+  catch(std::out_of_range){
+  }
+
+  int n = 0;
+  std::vector<double> out;
+  out.resize(3);
+  double tau;
+  sat_wrap_struct dat;
+  dat.comp = comp;
+  dat.pr = pr;
+  if(pr > Pc[comp] - 1e-9){
+    tau = 1;
+    out.at(0) = tau;
+    out.at(1) = 0;
+    out.at(2) = 0;
+  }
+  else{
+    n = bracket(f_deltav, 1, Tc[comp]/T_min[comp], &tau, 5, 1e-4, 1e-4, &dat);
+    n = halley(f_deltav2, tau, &tau, &out, 50, 1e-9, &dat);
+    //std::cout << n << " ";
+  }
+  if(memo_table_sat_tau.size() > MAX_MEMO_PROP){
+     memo_table_sat_tau.clear();
+  }
+  std::vector<double> *tau_vec_ptr;
+  tau_vec_ptr = &memo_table_sat_tau[std::make_tuple(comp, pr)];
+  tau_vec_ptr->resize(3);
+  tau_vec_ptr->at(0) = tau;
+  tau_vec_ptr->at(1) = 1.0/out.at(1);
+  tau_vec_ptr->at(2) = -tau_vec_ptr->at(1)*tau_vec_ptr->at(1)*tau_vec_ptr->at(1)*out.at(2);
+  return &memo_table_sat_tau.at(std::make_tuple(comp, pr));
 }

@@ -39,11 +39,11 @@ int fd1(test_fptr1 func, comp_enum comp, double x, std::vector<double> *yvec_ptr
   if(dbg){
     std::cout << "f = " << yvec_ptr0->at(0) << std::endl;
     std::cout << "f_d = " << yvec_ptr0->at(1) << " f.d. approx = " << yvec_ptr->at(1) << std::endl;
-    std::cout << "f_t = " << yvec_ptr0->at(2) << " f.d. approx = " << yvec_ptr->at(2) << std::endl;
+    std::cout << "f_dd = " << yvec_ptr0->at(2) << " f.d. approx = " << yvec_ptr->at(2) << std::endl;
   }
 
-  if(!rel_same(yvec_ptr->at(1), yvec_ptr0->at(1), 1e-6)) return 1;
-  if(!rel_same(yvec_ptr->at(2), yvec_ptr0->at(2), 1e-6)) return 1;
+  if(!rel_same(yvec_ptr->at(1), yvec_ptr0->at(1), 1e-1)) return 1;
+  if(!rel_same(yvec_ptr->at(2), yvec_ptr0->at(2), 1e-1)) return 1;
 
   return 0;
 }
@@ -190,6 +190,9 @@ int main(){
   std::vector<double> p_vec_fd;
   int err = 0;
 
+  std::cout << std::endl;
+  std::cout << "Basic solver tests" << std::endl << "----------------------------------" << std::endl;
+
   err = !test_bracket1(0);
   std::cout << "test_bracket1 passed: " << err << std::endl;
 
@@ -199,19 +202,52 @@ int main(){
   err = !test_newton_ls1(0);
   std::cout << "test_newton_ls1 passed: " << err << std::endl;
 
+  std::cout << std::endl;
+  std::cout << "Check derivatives against F.D." << std::endl << "----------------------------------" << std::endl;
+
   err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
-  std::cout << "memo2_pressure passed: " << err << std::endl;
+  std::cout << "memo2_pressure f.d. passed: " << err << std::endl;
 
   err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
-  std::cout << "memo2_internal_energy passed: " << err << std::endl;
+  std::cout << "memo2_internal_energy f.d. passed: " << err << std::endl;
 
   err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
-  std::cout << "memo2_entropy passed: " << err << std::endl;
+  std::cout << "memo2_entropy f.d. passed: " << err << std::endl;
 
   err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-9, 0);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
 
-  double p = 99.2, t = 300;
+  err = !fd1(sat_p, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  std::cout << "sat_p passed: " << err << std::endl;
+
+  err = !fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  std::cout << "sat_delta_l passed: " << err << std::endl;
+
+  err = !fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-9, 0);
+  std::cout << "sat_delta_v passed: " << err << std::endl;
+
+  err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-9, 0);
+  std::cout << "sat_tau passed: " << err << std::endl;
+
+  //  fd1(sat_tau, comp_enum::h2o, 647.096/450, &tau_fd_ptr, 1e-8, 0);
+  std::cout << std::endl;
+  std::cout << "Check some values" << std::endl << "----------------------------------" << std::endl;
+
+  double p = 932.203564;
+  double tau = 0;
+  tau = sat_tau(comp_enum::h2o, p)->at(0);
+  std::cout << "T_sat(" << p << ") = " << 647.096/tau << std::endl;
+
+  p = 22000;
+  tau = sat_tau(comp_enum::h2o, p)->at(0);
+  std::cout << "T_sat(" << p << ") = " << 647.096/tau << std::endl;
+
+  p = 0.698451;
+  tau = sat_tau(comp_enum::h2o, p)->at(0);
+  std::cout << "T_sat(" << p << ") = " << 647.096/tau << std::endl;
+
+  p = 99.2;
+  double t = 300;
   std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
   std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
   p = 0.200022515e5, t = 300;
@@ -241,29 +277,9 @@ int main(){
   p = 0.700000006e6, t = 900;
   std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
   std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
-  
 
-  std::cout << "sat" << std::endl;
-  std::vector<double> *delta_l_vec_ptr, *delta_v_vec_ptr;
-  std::vector<double> delta_l_fd_ptr, delta_v_fd_ptr, p_fd_ptr;
-  p_vec_ptr = sat_p(comp_enum::h2o, 647.096/450);
-  delta_l_vec_ptr = sat_delta_l(comp_enum::h2o, 647.096/450);
-  delta_v_vec_ptr = sat_delta_v(comp_enum::h2o, 647.096/450);
-  fd1(sat_p, comp_enum::h2o, 647.096/450, &p_fd_ptr, 1e-9, 0);
-  fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &delta_l_fd_ptr, 1e-8, 0);
-  fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &delta_v_fd_ptr, 1e-8, 0);
 
-  std::cout << "p = " << p_vec_ptr->at(0) << std::endl;
-  std::cout << "p_t = " << p_vec_ptr->at(1) << " fd: " << p_fd_ptr.at(1) << std::endl;
-  std::cout << "p_tt = " << p_vec_ptr->at(2) << " fd: " << p_fd_ptr.at(2) << std::endl;
 
-  std::cout << "rho_v " << 322*delta_v_vec_ptr->at(0) << std::endl;
-  std::cout << "delta_v_t = " << delta_v_vec_ptr->at(1) << " fd: " << delta_v_fd_ptr.at(1) << std::endl;
-  std::cout << "delta_v_tt = " << delta_v_vec_ptr->at(2) << " fd: " << delta_v_fd_ptr.at(2) << std::endl;
-
-  std::cout << "rho_l " << 322*delta_l_vec_ptr->at(0) << std::endl;
-  std::cout << "delta_l_t = " << delta_l_vec_ptr->at(1) << " fd: " << delta_l_fd_ptr.at(1) << std::endl;
-  std::cout << "delta_l_tt = " << delta_l_vec_ptr->at(2) << " fd: " << delta_l_fd_ptr.at(2) << std::endl;
 
   /*
   double temperature;

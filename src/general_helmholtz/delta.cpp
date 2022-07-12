@@ -4,6 +4,8 @@
 #include "delta.h"
 #include "math.h"
 #include "sat.h"
+#include <iostream>
+
 
 double pwrap(double delta, void *dat){
   pressure_wrap_state *d = (pressure_wrap_state*)dat;
@@ -28,7 +30,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-8 and fabs(pr/Pc[comp] - 1) < 1e-8){
+  if(fabs(tau - 1) < 1e-9 and fabs(pr/Pc[comp] - 1) < 1e-9){
     return 1.0;
   }
   // case 1 P > Pc (don't really need to worry about phase change)
@@ -61,8 +63,6 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   return delta;
 }
 
-
-
 double delta_liquid(comp_enum comp, double pr, double tau){
   double delta;
   double delta_sat;
@@ -73,7 +73,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-8 and fabs(pr/Pc[comp] - 1) < 1e-8){
+  if(fabs(tau - 1) < 1e-9 and fabs(pr/Pc[comp] - 1) < 1e-9){
     return 1.0;
   }
   // case 1 P > Pc (don't really need to worry about phase change)

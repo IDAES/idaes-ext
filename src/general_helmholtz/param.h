@@ -74,4 +74,10 @@ const double rho_max[] = {
   1200.0,  // h2o
 };
 
+// upper pressue bound (kPa)
+const double T_min[] = {
+  0,       // not used
+  235,     // h2o
+};
+
 #endif
