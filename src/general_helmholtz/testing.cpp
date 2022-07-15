@@ -221,10 +221,10 @@ int main(){
   err = !fd2(memo2_delta_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_delta_liquid passed: " << err << std::endl;
 
-  err = !fd2(memo2_enthalpy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 1);
+  err = !fd2(memo2_enthalpy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_enthalpy_liquid passed: " << err << std::endl;
 
-  err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 1);
+  err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_entropy_liquid passed: " << err << std::endl;
 
   err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
@@ -254,13 +254,17 @@ int main(){
   err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_tau passed: " << err << std::endl;
 
+  err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_tau_hp passed: " << err << std::endl;
 
-  //  fd1(sat_tau, comp_enum::h2o, 647.096/450, &tau_fd_ptr, 1e-8, 0);
+  err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_tau_sp passed: " << err << std::endl;
+
   std::cout << std::endl;
   std::cout << "Check some values" << std::endl << "----------------------------------" << std::endl;
+  double p, h, s, u, tau;
 
-  double p = 932.203564;
-  double tau = 0;
+  p = 932.203564;
   tau = sat_tau(comp_enum::h2o, p)->at(0);
   std::cout << "T_sat(" << p << ") = " << 647.096/tau << std::endl;
 

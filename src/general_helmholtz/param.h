@@ -71,13 +71,18 @@ const double P_max[] = {
 // upper density bound (kg/m3)
 const double rho_max[] = {
   0,       // not used
-  1200.0,  // h2o
+  1000.0,  // h2o
 };
 
 // upper pressue bound (kPa)
 const double T_min[] = {
   0,       // not used
   235,     // h2o
+};
+
+const double T_max[] = {
+  0,       // not used
+  1300,     // h2o
 };
 
 #endif

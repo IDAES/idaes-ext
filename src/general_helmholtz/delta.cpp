@@ -73,8 +73,8 @@ double delta_vapor(comp_enum comp, double pr, double tau){
 
   // case 2 P < Psat, this is vapor or ice, if ice, I'll pretend its
   //   vapor and try to return a reasonable number anyway for math reasons
-  delta_sat = sat_delta_v(comp_enum::h2o, tau)->at(0);
-  p_sat = sat_p(comp_enum::h2o, tau)->at(0);
+  delta_sat = sat_delta_v(comp, tau)->at(0);
+  p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr <= p_sat){
     bracket(pwrap, 0, delta_sat, &delta, 3, 1e-4, 1e-4, &ps);
@@ -116,8 +116,8 @@ double delta_liquid(comp_enum comp, double pr, double tau){
 
   // case 2 Psat < P < Pc, this is liquid or ice, if ice, I'll pretend its
   //   liquid and try to return a reasonable number anyway for math reasons
-  delta_sat = sat_delta_l(comp_enum::h2o, tau)->at(0);
-  p_sat = sat_p(comp_enum::h2o, tau)->at(0);
+  delta_sat = sat_delta_l(comp, tau)->at(0);
+  p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr >= p_sat){
     bracket(pwrap, delta_sat, rho_max[comp], &delta, 3, 1e-4, 1e-4, &ps);

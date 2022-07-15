@@ -10,9 +10,67 @@
 | Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
-
+#include <math.h>
 #include <adolc/adolc.h>
-#include"config.h"
+#include "config.h"
+#include "param.h"
+
+
+double melting_temperature_h2o(double pr){
+  /*
+    Estimate the melting temperature at a given pressure.  This doesn't need
+    to be highly accurate, it is just used to partly define the valid tange of
+    temperatures at a given pressure (kPa).
+  */
+  double Tn, Pn;
+  // Ice I Sublimation, Max error 0.15 to 251 K, 1.4 K to 235 K
+  //   fit from 273.16 to 251
+  if(pr < Pt[h2o]){
+    Tn = 273.16;
+    Pn = 0.611657;
+    return Tn * 0.9995047*pow(pr/Pn, 0.04264942);
+  }
+  // Ice I Melting, Max error 0.05 K
+  if(pr <= 206207.0){
+    Tn = 273.16;
+    Pn = 0.611657;
+    return Tn * (
+      -0.0000000000002087276*(pr/Pn)*(pr/Pn) -
+      0.0000001637791*pr/Pn +
+      1.000026
+    );
+  }
+  // Ice III Melting, Max error 0.065 K
+  if(pr <= 350110.0){
+    Tn = 251.165;
+    Pn = 209900;
+    return Tn * (
+      -0.02487839*(pr/Pn)*(pr/Pn) -
+      0.09535237*pr/Pn +
+      0.9298592
+    );
+  }
+  // Ice V Melting, Max error 0.055 K
+  if(pr <= 632400.0){
+    Tn = 273.31;
+    Pn = 209900;
+    return Tn * (
+      -0.02304521*(pr/Pn)*(pr/Pn) -
+      0.1472252*pr/Pn +
+      0.8760317
+    );
+  }
+  // Ice VI Melting, Max error 0.9 K
+  //   shouldn't get anywhere near the max pressure on this, so we'll let this
+  //   pick up the rest (goes to about 2,000 MPa)
+  Tn = 273.15;
+  Pn = 632400;
+  return Tn * (
+    -0.02197019*(pr/Pn)*(pr/Pn) -
+    0.2161217*pr/Pn +
+    0.8086136
+  );
+}
 
 
 double delta_sat_v_approx_h2o(double tau){

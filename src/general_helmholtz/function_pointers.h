@@ -26,6 +26,11 @@ typedef void (*zero_void_function_type)();
 In the function pointer arrays the indexing needs to match the comp_enum
 defined in config.h
 */
+const uni_double_function_type melting_temperature_func[] = {
+  (uni_double_function_type)NULL,  // 0 - not used
+  melting_temperature_h2o,         // 1 - h2o
+};
+
 const uni_double_function_type delta_l_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_l_approx_h2o,          // 1 - h2o

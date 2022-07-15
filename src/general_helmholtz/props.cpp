@@ -166,6 +166,18 @@ void internal_energy2(comp_enum comp, double delta, double tau, std::vector<doub
   out->assign(res, res+6);
 }
 
+double entropy(comp_enum comp, double delta, double tau){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+  double c = R[comp];
+  double phii = yi->at((unsigned int)deriv4_enum::f);
+  double phir = yr->at((unsigned int)deriv4_enum::f);
+  double phii_t = yi->at((unsigned int)deriv4_enum::f_t);
+  double phir_t = yr->at((unsigned int)deriv4_enum::f_t);
+  double z = phii_t + phir_t;
+  return c*(tau*z - phii - phir);
+}
+
 void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
@@ -204,6 +216,18 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
   res[(unsigned int)deriv2_enum::f_dt] = c*(z_d + tau*z_dt - phii_dt - phir_dt);
   res[(unsigned int)deriv2_enum::f_tt] = c*(2*z_t + tau*z_tt - phii_tt - phir_tt);
   out->assign(res, res+6);
+}
+
+double enthalpy(comp_enum comp, double delta, double tau){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+  double c = R[comp]*Tc[comp];
+  double phii_t = yi->at((unsigned int)deriv4_enum::f_t);
+  double phir_t = yr->at((unsigned int)deriv4_enum::f_t);
+  double phir_d = yr->at((unsigned int)deriv4_enum::f_d);
+  double z = phii_t + phir_t;
+  double x = delta/tau;
+  return c*(1.0/tau + z + x * phir_d);
 }
 
 void enthalpy2(comp_enum comp, double delta, double tau, std::vector<double> *out){

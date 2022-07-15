@@ -29,4 +29,13 @@ std::vector<double> *memo2_enthalpy_liquid(comp_enum comp, double pr, double tau
 std::vector<double> *memo2_entropy_liquid(comp_enum comp, double pr, double tau);
 std::vector<double> *memo2_internal_energy_liquid(comp_enum comp, double pr, double tau);
 
+void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out);
+void tau_sp2(comp_enum comp, double st, double pr, std::vector<double> *out);
+void tau_up2(comp_enum comp, double ut, double pr, std::vector<double> *out);
+
+std::vector<double> *memo2_tau_hp(comp_enum comp, double ht, double pr);
+std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr);
+std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr);
+
+
 #endif

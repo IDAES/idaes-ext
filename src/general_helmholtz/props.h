@@ -18,7 +18,11 @@
 #define _INCLUDE_PROPS_H_
 
 double pressure(comp_enum comp, double delta, double tau);
+double entropy(comp_enum comp, double delta, double tau);
+double enthalpy(comp_enum comp, double delta, double tau);
+
 void pressure1(comp_enum comp, double delta, double tau, std::vector<double> *out);
+
 void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void internal_energy2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out);
