@@ -71,7 +71,7 @@ const double P_max[] = {
 // upper density bound (kg/m3)
 const double rho_max[] = {
   0,       // not used
-  1000.0,  // h2o
+  1250.0,  // h2o
 };
 
 // upper pressue bound (kPa)

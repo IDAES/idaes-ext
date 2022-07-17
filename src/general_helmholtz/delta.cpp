@@ -13,6 +13,7 @@
 
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
+#include "function_pointers.h"
 #include "props.h"
 #include "solver.h"
 #include "param.h"
@@ -66,7 +67,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   //   give a reasonable number anyway for math reasons
   if(pr > Pc[comp]){
     std::vector<double> out;
-    bracket(pwrap, 0, rho_max[comp], &delta, 20, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
     return delta;
   }
@@ -77,7 +78,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr <= p_sat){
-    bracket(pwrap, 0, delta_sat, &delta, 3, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 1e-8, delta_sat, &delta, 3, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
     return delta;
   }
@@ -109,7 +110,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   give a reasonable number anyway for math reasons
   if(pr > Pc[comp]){
     std::vector<double> out;
-    bracket(pwrap, 0, rho_max[comp], &delta, 20, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
     return delta;
   }
@@ -120,7 +121,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr >= p_sat){
-    bracket(pwrap, delta_sat, rho_max[comp], &delta, 3, 1e-4, 1e-4, &ps);
+    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 3, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
     return delta;
   }
@@ -167,7 +168,6 @@ void delta_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *ou
   out->at(f_dt) = -(pr_vec->at(f_dt) + pr_vec->at(f_dd)*out->at(f_t))*out->at(f_d)*out->at(f_d);
   out->at(f_tt) = -(out->at(f_d)*(pr_vec->at(f_tt) + out->at(f_t)*pr_vec->at(f_dt)) + pr_vec->at(f_t)*out->at(f_dt));
 }
-
 
 std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau){
   try{

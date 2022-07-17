@@ -26,26 +26,42 @@ typedef void (*zero_void_function_type)();
 In the function pointer arrays the indexing needs to match the comp_enum
 defined in config.h
 */
+
+// This provides melting point temperature as a function of pressure
+// these functions are only to asssit the solver and do not need to be
+// highly accurate
 const uni_double_function_type melting_temperature_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   melting_temperature_h2o,         // 1 - h2o
 };
 
+// This provides melting liquid density as a function of pressure
+// these functions are only to asssit the solver and do not need to be
+// highly accurate
+const uni_double_function_type melting_liquid_density_func[] = {
+  (uni_double_function_type)NULL,  // 0 - not used
+  melting_liquid_density_h2o,      // 1 - h2o
+};
+
+// This provides a guess for saturated liquid density as a function of tau
 const uni_double_function_type delta_l_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_l_approx_h2o,          // 1 - h2o
 };
 
+// This provides a guess for saturated liquid density as a function of tau
 const uni_double_function_type delta_v_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_v_approx_h2o,          // 1 - h2o
 };
 
+// Make AD/calculation tape for residual dimensionless Helmholtz free energy
 const zero_void_function_type phi_resi_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_resi_tape,               // 1 - h2o
 };
 
+// Make AD/calculation tape for ideal dimensionless Helmholtz free energy
 const zero_void_function_type phi_ideal_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_ideal_tape,              // 1 - h2o

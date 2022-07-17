@@ -72,6 +72,25 @@ double melting_temperature_h2o(double pr){
   );
 }
 
+double melting_liquid_density_h2o(double pr){
+  /*
+    Estimate the melting liquid density at a given pressure.  This doesn't need
+    to be highly accurate, it is just used to partly define the valid range of
+    temperatures at a given pressure (kPa).
+  */
+  if(pr >= 400000){
+    return -9.025000E-11*pr*pr + 2.802900E-0*pr + 1.047067E+03;
+  }
+  if(pr >= 22500){
+    return -3.908565E-10*pr*pr + 5.195933E-04*pr + 9.992365E+02;
+  }
+  if(pr >= 7000){
+    return 4.954471E-04*pr + 9.998203E+02;
+  }
+  if(pr >= Pt[h2o]){
+    return 4.974967E-04*pr + 9.997973E+02;
+  }
+}
 
 double delta_sat_v_approx_h2o(double tau){
 /*
