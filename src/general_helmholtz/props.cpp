@@ -132,6 +132,16 @@ void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   out->assign(res, res+6);
 }
 
+double internal_energy(comp_enum comp, double delta, double tau){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+  double c = Tc[comp]*R[comp];
+  double phii_t = yi->at((unsigned int)deriv4_enum::f_t);
+  double phir_t = yr->at((unsigned int)deriv4_enum::f_t);
+  double z = phii_t + phir_t;
+  return c*z;
+}
+
 void internal_energy2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);

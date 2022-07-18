@@ -20,6 +20,7 @@
 double pressure(comp_enum comp, double delta, double tau);
 double entropy(comp_enum comp, double delta, double tau);
 double enthalpy(comp_enum comp, double delta, double tau);
+double internal_energy(comp_enum comp, double delta, double tau);
 
 void pressure1(comp_enum comp, double delta, double tau, std::vector<double> *out);
 

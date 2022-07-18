@@ -210,7 +210,10 @@ int main(){
   std::cout << "memo2_pressure f.d. passed: " << err << std::endl;
 
   err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
-  std::cout << "memo2_internal_energy f.d. passed: " << err << std::endl;
+  std::cout << "memo2_internal_energy #1 f.d. passed: " << err << std::endl;
+
+  err = !fd2(memo2_internal_energy, comp_enum::h2o, 993.361/322.0, 647.096/310.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_internal_energy #2 f.d. passed: " << err << std::endl;
 
   err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_entropy f.d. passed: " << err << std::endl;
@@ -227,7 +230,7 @@ int main(){
   err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_entropy_liquid passed: " << err << std::endl;
 
-  err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
+  err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 50, 647.096/310.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_internal_energy_liquid passed: " << err << std::endl;
 
   err = !fd2(memo2_delta_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
@@ -254,11 +257,23 @@ int main(){
   err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-6, 0);
   std::cout << "sat_tau passed: " << err << std::endl;
 
-  err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 1);
-  std::cout << "memo2_tau_hp passed: " << err << std::endl;
+  err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_tau_hp (liquid) passed: " << err << std::endl;
+
+  err = !fd2(memo2_tau_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_tau_hp passed (two-phase): " << err << std::endl;
 
   err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 1);
-  std::cout << "memo2_tau_sp passed: " << err << std::endl;
+  std::cout << "memo2_tau_sp passed (liquid): " << err << std::endl;
+
+  err = !fd2(memo2_tau_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_tau_sp passed (two-phase): " << err << std::endl;
+
+  err = !fd2(memo2_tau_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_tau_up passed (liquid): " << err << std::endl;
+
+  err = !fd2(memo2_tau_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 1);
+  std::cout << "memo2_tau_up passed (two-phase): " << err << std::endl;
 
   std::cout << std::endl;
   std::cout << "Check some values" << std::endl << "----------------------------------" << std::endl;

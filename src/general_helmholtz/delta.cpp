@@ -68,7 +68,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   if(pr > Pc[comp]){
     std::vector<double> out;
     bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
+    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
 
@@ -79,7 +79,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   std::vector<double> out;
   if(pr <= p_sat){
     bracket(pwrap, 1e-8, delta_sat, &delta, 3, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
+    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
 
@@ -87,7 +87,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   //   and see if I can give a good answer by looking between the saturated
   //   liquid density and the vapor density.  There may be multiple roots here,
   //   so I'll start from the sat density and hope to pick up the closest
-  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-10, &ps);
+  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
   return delta;
 }
 
@@ -111,7 +111,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   if(pr > Pc[comp]){
     std::vector<double> out;
     bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
+    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
 
@@ -122,7 +122,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   std::vector<double> out;
   if(pr >= p_sat){
     bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 3, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-10, &ps);
+    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
 
@@ -130,7 +130,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   and see if I can give a good answer by looking between the saturated
   //   liquid density and the vapor density.  There may be multiple roots here,
   //   so I'll start from the sat density and hope to pick up the closest
-  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-10, &ps);
+  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
   return delta;
 }
 

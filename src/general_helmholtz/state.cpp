@@ -80,6 +80,12 @@ std::unordered_map<
   boost::hash<std::tuple<comp_enum, double, double>>
 > memo_table_tau_sp2;
 
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_tau_up2;
+
 static const uint f_d = (uint)deriv2_enum::f_d;
 static const uint f_t = (uint)deriv2_enum::f_t;
 static const uint f_dd = (uint)deriv2_enum::f_dd;
@@ -391,11 +397,11 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     if(ht > hls && ht < hvs){ // two-phase
       out->resize(6);
       out->at(0) = taus;
-      out->at(f_p) = taus_vec_ptr->at(1);
-      out->at(f_t) = 0;
-      out->at(f_pp) = taus_vec_ptr->at(2);
-      out->at(f_pt) = 0;
-      out->at(f_tt) = 0;
+      out->at(f_d) = 0;
+      out->at(f_t) = taus_vec_ptr->at(1);
+      out->at(f_dd) = 0;
+      out->at(f_dt) = 0;
+      out->at(f_tt) = taus_vec_ptr->at(2);
       return;
     }
   }
@@ -535,11 +541,11 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     if(ht > hls && ht < hvs){ // two-phase
       out->resize(6);
       out->at(0) = taus;
-      out->at(f_p) = taus_vec_ptr->at(1);
-      out->at(f_t) = 0;
-      out->at(f_pp) = taus_vec_ptr->at(2);
-      out->at(f_pt) = 0;
-      out->at(f_tt) = 0;
+      out->at(f_d) = 0;
+      out->at(f_t) = taus_vec_ptr->at(1);
+      out->at(f_dd) = 0;
+      out->at(f_dt) = 0;
+      out->at(f_tt) = taus_vec_ptr->at(2);
       return;
     }
   }
@@ -570,15 +576,9 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   }
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
-    std::cout << "liquid" << std::endl;
     tau_lo = taus;
     tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
-
-    std::cout << "detla_liquid(" << Tc[comp]/tau_hi << ") = " << delta_liquid(comp, pr, tau_hi) << std::endl;
-    std::cout << "detla_liquid(" << Tc[comp]/tau_lo << ") = " << delta_liquid(comp, pr, tau_lo) << std::endl;
-
     int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    std::cout << tau << std::endl;
     int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
   }
@@ -614,5 +614,149 @@ std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr){
   if(memo_table_tau_sp2.size() > MAX_MEMO_PROP) memo_table_tau_sp2.clear();
   yvec_ptr = &memo_table_tau_sp2[std::make_tuple(comp, st, pr)];
   tau_sp2(comp, st, pr, yvec_ptr);
+  return yvec_ptr;
+}
+
+/*------------------------------------------------------------------------------
+  Internal energy solver function wrappers
+------------------------------------------------------------------------------*/
+
+double f_tuv(double tau, void* dat){
+  // This is for bracket solver, so may want to use an underlying function that
+  // doesn't bother calculating deriavtives, but I don't currently have such a
+  // version.
+  state_solve_dat *sd = (state_solve_dat*)dat;
+  std::vector<double> out;
+  internal_energy_vapor2(sd->comp, sd->p, tau, &out);
+  return out[0] - sd->h;
+}
+
+double f_tul(double tau, void* dat){
+  // This is for bracket solver, so may want to use an underlying function that
+  // doesn't bother calculating deriavtives, but I don't currently have such a
+  // version.
+  state_solve_dat *sd = (state_solve_dat*)dat;
+  std::vector<double> out;
+  internal_energy_liquid2(sd->comp, sd->p, tau, &out);
+  return out[0] - sd->h;
+}
+
+void f_tuv2(double tau, std::vector<double> *out, void* dat){
+  // This is for the halley method which needs second order derivatives
+  state_solve_dat *sd = (state_solve_dat*)dat;
+  std::vector<double> hvec;
+  internal_energy_vapor2(sd->comp, sd->p, tau, &hvec);
+  out->resize(3);
+  out->at(0) = hvec[0] - sd->h;
+  out->at(1) = hvec[f_t]; // here p is constant
+  out->at(2) = hvec[f_tt]; // here p is constant
+}
+
+void f_tul2(double tau, std::vector<double> *out, void* dat){
+  // This is for the halley method which needs second order derivatives
+  state_solve_dat *sd = (state_solve_dat*)dat;
+  std::vector<double> hvec;
+  internal_energy_liquid2(sd->comp, sd->p, tau, &hvec);
+  out->resize(3);
+  out->at(0) = hvec[0] - sd->h;
+  out->at(1) = hvec[f_t]; // here p is constant
+  out->at(2) = hvec[f_tt]; // here p is constant
+}
+
+/*------------------------------------------------------------------------------
+  tau(u, p) solver with derivatives
+
+  This function first checks that if at the given pressure, the enthalpy is
+  in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
+  classify the region in either liquid, vapor, vapor below the tripple point,
+  or supercritical. Once the region is itentified, a bracketing method is used
+  to narrow down the initial guess before solving with a Newton method.
+------------------------------------------------------------------------------*/
+
+void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
+  std::vector<double> *taus_vec_ptr;
+  double taus, hvs, hls, tau_hi, tau_lo, tau=0;
+
+  taus_vec_ptr = sat_tau(comp, pr);
+  taus = taus_vec_ptr->at(0);
+  if(pr > Pt[comp] && pr < Pc[comp]){ // Could be two phase
+    hvs = internal_energy(comp, sat_delta_v(comp, taus)->at(0), taus);
+    hls = internal_energy(comp, sat_delta_l(comp, taus)->at(0), taus);
+    if(ht > hls && ht < hvs){ // two-phase
+      out->resize(6);
+      out->at(0) = taus;
+      out->at(f_d) = 0;
+      out->at(f_t) = taus_vec_ptr->at(1);
+      out->at(f_dd) = 0;
+      out->at(f_dt) = 0;
+      out->at(f_tt) = taus_vec_ptr->at(2);
+      return;
+    }
+  }
+  std::vector<double> *hvec_ptr;
+  state_solve_dat sd;
+  std::vector<double> hout;
+  sd.p = pr;
+  sd.h = ht;
+  sd.comp = comp;
+  if(pr >= Pc[comp]){ // it's liquid or supercritical
+    // Assume between melting and Tmax
+    //   This is a pretty big temperature range bracketing for a good guess for
+    //   Newton method may be slow here.  May want some aux functions to break
+    //   it up a bit more
+    tau_lo = Tc[comp]/T_max[comp];
+    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
+    int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
+    hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
+  }
+  else if(pr < Pt[comp]){ // it's vapor (unless it's ice)
+    // Assume between sublimation temperature and Tmax
+    tau_lo = Tc[comp]/T_max[comp];
+    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
+    int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
+    hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
+  }
+  else if(ht <= hls){ // liquid (unless it's ice)
+    // Assume between melting temperature and sat temperature
+    tau_lo = taus;
+    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
+    int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
+    hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
+  }
+  else{ //if(ht >= hvs){ // vapor for sure
+    // Assume between saturation temperature and Tmax
+    tau_lo = Tc[comp]/T_max[comp];
+    tau_hi = taus;
+    int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
+    int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
+    hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
+  }
+  out->resize(6);
+  out->at(0) = tau;
+  // here, for indexing of **out only**:
+  //   d will be derivative with resepect to h and
+  //   t will be with respect to p
+  out->at(f_d) = 1.0/hvec_ptr->at(f_t);           // d/dh
+  out->at(f_t) = -out->at(f_d) * hvec_ptr->at(f_p); // d/dp, tripple product
+  out->at(f_dd) = -out->at(f_d) * out->at(f_d) * out->at(f_d) * hvec_ptr->at(f_tt);
+  out->at(f_dt) = -out->at(f_d) * out->at(f_d) *
+    (hvec_ptr->at(f_pt) + hvec_ptr->at(f_tt)*out->at(f_t));
+  out->at(f_tt) = -out->at(f_dt)*hvec_ptr->at(f_p) -
+    out->at(f_d)*(hvec_ptr->at(f_pp) + hvec_ptr->at(f_pt)*out->at(f_t));
+}
+
+std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
+  try{
+    return &memo_table_tau_up2.at(std::make_tuple(comp, ut, pr));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_tau_up2.size() > MAX_MEMO_PROP) memo_table_tau_up2.clear();
+  yvec_ptr = &memo_table_tau_up2[std::make_tuple(comp, ut, pr)];
+  tau_up2(comp, ut, pr, yvec_ptr);
   return yvec_ptr;
 }
