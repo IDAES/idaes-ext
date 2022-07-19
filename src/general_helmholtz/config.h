@@ -18,6 +18,9 @@
  File: config.h
 --------------------------------------------------------------------------------*/
 
+#include<unordered_map>
+#include<string>
+
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_
 
@@ -28,11 +31,18 @@ typedef unsigned int uint;
 typedef unsigned char uchar;
 
 #define NCOMPS 4
+
 // if adding components update NCOMPS above should be 1 more than last index
 enum comp_enum{
   h2o = 1,
   co2 = 2,
   r134a = 3,
+};
+
+static std::unordered_map<std::string, comp_enum> const comp_string_table = {
+  {"h2o", comp_enum::h2o},
+  {"co2", comp_enum::co2},
+  {"r134a", comp_enum::r134a},
 };
 
 enum class deriv1_enum {
