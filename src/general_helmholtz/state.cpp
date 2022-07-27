@@ -86,15 +86,32 @@ std::unordered_map<
   boost::hash<std::tuple<comp_enum, double, double>>
 > memo_table_tau_up2;
 
-static const uint f_d = (uint)deriv2_enum::f_d;
-static const uint f_t = (uint)deriv2_enum::f_t;
-static const uint f_dd = (uint)deriv2_enum::f_dd;
-static const uint f_dt = (uint)deriv2_enum::f_dt;
-static const uint f_tt = (uint)deriv2_enum::f_tt;
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_vf_hp2;
 
-static const uint f_p = (uint)deriv2_enum::f_d;
-static const uint f_pp = (uint)deriv2_enum::f_dd;
-static const uint f_pt = (uint)deriv2_enum::f_dt;
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_vf_sp2;
+
+std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> memo_table_vf_up2;
+
+static std::vector<double> nan_vec2 = {
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan("")
+};
 
 /*------------------------------------------------------------------------------
   Vapor enthalpy as a function of pressure and tau, used to solve T(h, p)
@@ -106,20 +123,20 @@ void enthalpy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> 
   h_vec = memo2_enthalpy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_enthalpy_vapor(comp_enum comp, double pr, double tau){
@@ -145,20 +162,20 @@ void entropy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *
   h_vec = memo2_entropy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_entropy_vapor(comp_enum comp, double pr, double tau){
@@ -184,20 +201,20 @@ void internal_energy_vapor2(comp_enum comp, double pr, double tau, std::vector<d
   h_vec = memo2_internal_energy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_internal_energy_vapor(comp_enum comp, double pr, double tau){
@@ -223,20 +240,20 @@ void enthalpy_liquid2(comp_enum comp, double pr, double tau, std::vector<double>
   h_vec = memo2_enthalpy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_enthalpy_liquid(comp_enum comp, double pr, double tau){
@@ -262,20 +279,20 @@ void entropy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> 
   h_vec = memo2_entropy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_entropy_liquid(comp_enum comp, double pr, double tau){
@@ -300,20 +317,20 @@ void internal_energy_liquid2(comp_enum comp, double pr, double tau, std::vector<
   h_vec = memo2_internal_energy(comp, delta_v_vec->at(0), tau);
   out->resize(6);
   out->at(0) = h_vec->at(0);
-  out->at(f_p) = h_vec->at(f_d)*delta_v_vec->at(f_p);
-  out->at(f_t) = h_vec->at(f_t) + delta_v_vec->at(f_t)*h_vec->at(f_d);
-  out->at(f_pp) =
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_p) +
-    h_vec->at(f_d)*delta_v_vec->at(f_pp);
-  out->at(f_pt) =
-    h_vec->at(f_dt)*delta_v_vec->at(f_p) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_p)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_dt);
-  out->at(f_tt) =
-    h_vec->at(f_tt) +
-    2*h_vec->at(f_dt)*delta_v_vec->at(f_t) +
-    h_vec->at(f_dd)*delta_v_vec->at(f_t)*delta_v_vec->at(f_t) +
-    h_vec->at(f_d)*delta_v_vec->at(f_tt);
+  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
+  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
+  out->at(f2_11) =
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
+  out->at(f2_12) =
+    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
+  out->at(f2_22) =
+    h_vec->at(f2_22) +
+    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
+    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
 std::vector<double> *memo2_internal_energy_liquid(comp_enum comp, double pr, double tau){
@@ -360,8 +377,8 @@ void f_thv2(double tau, std::vector<double> *out, void* dat){
   enthalpy_vapor2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 void f_thl2(double tau, std::vector<double> *out, void* dat){
@@ -371,8 +388,8 @@ void f_thl2(double tau, std::vector<double> *out, void* dat){
   enthalpy_liquid2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 /*------------------------------------------------------------------------------
@@ -397,11 +414,11 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     if(ht > hls && ht < hvs){ // two-phase
       out->resize(6);
       out->at(0) = taus;
-      out->at(f_d) = 0;
-      out->at(f_t) = taus_vec_ptr->at(1);
-      out->at(f_dd) = 0;
-      out->at(f_dt) = 0;
-      out->at(f_tt) = taus_vec_ptr->at(2);
+      out->at(f2_1) = 0;
+      out->at(f2_2) = taus_vec_ptr->at(1);
+      out->at(f2_11) = 0;
+      out->at(f2_12) = 0;
+      out->at(f2_22) = taus_vec_ptr->at(2);
       return;
     }
   }
@@ -451,13 +468,13 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   // here, for indexing of **out only**:
   //   d will be derivative with resepect to h and
   //   t will be with respect to p
-  out->at(f_d) = 1.0/hvec_ptr->at(f_t);           // d/dh
-  out->at(f_t) = -out->at(f_d) * hvec_ptr->at(f_p); // d/dp, tripple product
-  out->at(f_dd) = -out->at(f_d) * out->at(f_d) * out->at(f_d) * hvec_ptr->at(f_tt);
-  out->at(f_dt) = -out->at(f_d) * out->at(f_d) *
-    (hvec_ptr->at(f_pt) + hvec_ptr->at(f_tt)*out->at(f_t));
-  out->at(f_tt) = -out->at(f_dt)*hvec_ptr->at(f_p) -
-    out->at(f_d)*(hvec_ptr->at(f_pp) + hvec_ptr->at(f_pt)*out->at(f_t));
+  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
+  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
+  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
+  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
+    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
+  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
+    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
 }
 
 std::vector<double> *memo2_tau_hp(comp_enum comp, double ht, double pr){
@@ -504,8 +521,8 @@ void f_tsv2(double tau, std::vector<double> *out, void* dat){
   entropy_vapor2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 void f_tsl2(double tau, std::vector<double> *out, void* dat){
@@ -515,8 +532,8 @@ void f_tsl2(double tau, std::vector<double> *out, void* dat){
   entropy_liquid2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 /*------------------------------------------------------------------------------
@@ -541,11 +558,11 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     if(ht > hls && ht < hvs){ // two-phase
       out->resize(6);
       out->at(0) = taus;
-      out->at(f_d) = 0;
-      out->at(f_t) = taus_vec_ptr->at(1);
-      out->at(f_dd) = 0;
-      out->at(f_dt) = 0;
-      out->at(f_tt) = taus_vec_ptr->at(2);
+      out->at(f2_1) = 0;
+      out->at(f2_2) = taus_vec_ptr->at(1);
+      out->at(f2_11) = 0;
+      out->at(f2_12) = 0;
+      out->at(f2_22) = taus_vec_ptr->at(2);
       return;
     }
   }
@@ -595,13 +612,13 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   // here, for indexing of **out only**:
   //   d will be derivative with resepect to h and
   //   t will be with respect to p
-  out->at(f_d) = 1.0/hvec_ptr->at(f_t);           // d/dh
-  out->at(f_t) = -out->at(f_d) * hvec_ptr->at(f_p); // d/dp, tripple product
-  out->at(f_dd) = -out->at(f_d) * out->at(f_d) * out->at(f_d) * hvec_ptr->at(f_tt);
-  out->at(f_dt) = -out->at(f_d) * out->at(f_d) *
-    (hvec_ptr->at(f_pt) + hvec_ptr->at(f_tt)*out->at(f_t));
-  out->at(f_tt) = -out->at(f_dt)*hvec_ptr->at(f_p) -
-    out->at(f_d)*(hvec_ptr->at(f_pp) + hvec_ptr->at(f_pt)*out->at(f_t));
+  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
+  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
+  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
+  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
+    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
+  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
+    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
 }
 
 std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr){
@@ -648,8 +665,8 @@ void f_tuv2(double tau, std::vector<double> *out, void* dat){
   internal_energy_vapor2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 void f_tul2(double tau, std::vector<double> *out, void* dat){
@@ -659,8 +676,8 @@ void f_tul2(double tau, std::vector<double> *out, void* dat){
   internal_energy_liquid2(sd->comp, sd->p, tau, &hvec);
   out->resize(3);
   out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f_t]; // here p is constant
-  out->at(2) = hvec[f_tt]; // here p is constant
+  out->at(1) = hvec[f2_2]; // here p is constant
+  out->at(2) = hvec[f2_22]; // here p is constant
 }
 
 /*------------------------------------------------------------------------------
@@ -685,11 +702,11 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     if(ht > hls && ht < hvs){ // two-phase
       out->resize(6);
       out->at(0) = taus;
-      out->at(f_d) = 0;
-      out->at(f_t) = taus_vec_ptr->at(1);
-      out->at(f_dd) = 0;
-      out->at(f_dt) = 0;
-      out->at(f_tt) = taus_vec_ptr->at(2);
+      out->at(f2_1) = 0;
+      out->at(f2_2) = taus_vec_ptr->at(1);
+      out->at(f2_11) = 0;
+      out->at(f2_12) = 0;
+      out->at(f2_22) = taus_vec_ptr->at(2);
       return;
     }
   }
@@ -739,13 +756,13 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   // here, for indexing of **out only**:
   //   d will be derivative with resepect to h and
   //   t will be with respect to p
-  out->at(f_d) = 1.0/hvec_ptr->at(f_t);           // d/dh
-  out->at(f_t) = -out->at(f_d) * hvec_ptr->at(f_p); // d/dp, tripple product
-  out->at(f_dd) = -out->at(f_d) * out->at(f_d) * out->at(f_d) * hvec_ptr->at(f_tt);
-  out->at(f_dt) = -out->at(f_d) * out->at(f_d) *
-    (hvec_ptr->at(f_pt) + hvec_ptr->at(f_tt)*out->at(f_t));
-  out->at(f_tt) = -out->at(f_dt)*hvec_ptr->at(f_p) -
-    out->at(f_d)*(hvec_ptr->at(f_pp) + hvec_ptr->at(f_pt)*out->at(f_t));
+  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
+  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
+  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
+  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
+    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
+  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
+    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
 }
 
 std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
@@ -758,5 +775,269 @@ std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
   if(memo_table_tau_up2.size() > MAX_MEMO_PROP) memo_table_tau_up2.clear();
   yvec_ptr = &memo_table_tau_up2[std::make_tuple(comp, ut, pr)];
   tau_up2(comp, ut, pr, yvec_ptr);
+  return yvec_ptr;
+}
+
+void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
+  out->resize(6);
+  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
+
+  taus_vec_ptr = sat_tau(comp, pr);
+  hsat_l_vec_ptr = memo2_enthalpy_liquid(comp, pr, taus_vec_ptr->at(0));
+  hsat_v_vec_ptr = memo2_enthalpy_vapor(comp, pr, taus_vec_ptr->at(0));
+  double hv = hsat_v_vec_ptr->at(0);
+  double hl = hsat_l_vec_ptr->at(0);
+
+  if(ht < hl){
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  if(ht > hv){
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  // if you're here then your in the saturated area
+  double vf = (ht - hl)/(hv - hl);
+  out->at(0) = vf;
+
+  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+
+  out->at(f2_1) = 1.0/(hv - hl);
+  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+
+  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
+    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
+    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  out->at(f2_11) = 0;
+  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+            2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
+            (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
+}
+
+void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
+  out->resize(6);
+  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
+
+  taus_vec_ptr = sat_tau(comp, pr);
+  hsat_l_vec_ptr = memo2_entropy_liquid(comp, pr, taus_vec_ptr->at(0));
+  hsat_v_vec_ptr = memo2_entropy_vapor(comp, pr, taus_vec_ptr->at(0));
+  double hv = hsat_v_vec_ptr->at(0);
+  double hl = hsat_l_vec_ptr->at(0);
+
+  if(ht < hl){
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  if(ht > hv){
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  // if you're here then your in the saturated area
+  double vf = (ht - hl)/(hv - hl);
+  out->at(0) = vf;
+
+  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+
+  out->at(f2_1) = 1.0/(hv - hl);
+  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+
+  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
+    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
+    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  out->at(f2_11) = 0;
+  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+            2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
+            (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
+}
+
+void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
+  out->resize(6);
+  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
+
+  taus_vec_ptr = sat_tau(comp, pr);
+  hsat_l_vec_ptr = memo2_internal_energy_liquid(comp, pr, taus_vec_ptr->at(0));
+  hsat_v_vec_ptr = memo2_internal_energy_vapor(comp, pr, taus_vec_ptr->at(0));
+  double hv = hsat_v_vec_ptr->at(0);
+  double hl = hsat_l_vec_ptr->at(0);
+
+  if(ht < hl){
+    out->at(0) = 0;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  if(ht > hv){
+    out->at(0) = 1;
+    out->at(f2_1) = 0;
+    out->at(f2_2) = 0;
+    out->at(f2_11) = 0;
+    out->at(f2_12) = 0;
+    out->at(f2_22) = 0;
+    return;
+  }
+
+  // if you're here then your in the saturated area
+  double vf = (ht - hl)/(hv - hl);
+  out->at(0) = vf;
+
+  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+
+  out->at(f2_1) = 1.0/(hv - hl);
+  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+
+  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
+    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
+    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
+    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
+  out->at(f2_11) = 0;
+  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+            2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
+            (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
+}
+
+std::vector<double> *memo2_vf_hp(comp_enum comp, double ht, double pr){
+  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  try{
+    return &memo_table_vf_hp2.at(std::make_tuple(comp, ht, pr));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_vf_hp2.size() > MAX_MEMO_PROP) memo_table_vf_hp2.clear();
+  yvec_ptr = &memo_table_vf_hp2[std::make_tuple(comp, ht, pr)];
+  vf_hp2(comp, ht, pr, yvec_ptr);
+  return yvec_ptr;
+}
+
+std::vector<double> *memo2_vf_sp(comp_enum comp, double ht, double pr){
+  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  try{
+    return &memo_table_vf_sp2.at(std::make_tuple(comp, ht, pr));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_vf_sp2.size() > MAX_MEMO_PROP) memo_table_vf_sp2.clear();
+  yvec_ptr = &memo_table_vf_sp2[std::make_tuple(comp, ht, pr)];
+  vf_sp2(comp, ht, pr, yvec_ptr);
+  return yvec_ptr;
+}
+
+std::vector<double> *memo2_vf_up(comp_enum comp, double ht, double pr){
+  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  try{
+    return &memo_table_vf_up2.at(std::make_tuple(comp, ht, pr));
+  }
+  catch(std::out_of_range){
+  }
+  std::vector<double> *yvec_ptr;
+  if(memo_table_vf_up2.size() > MAX_MEMO_PROP) memo_table_vf_up2.clear();
+  yvec_ptr = &memo_table_vf_up2[std::make_tuple(comp, ht, pr)];
+  vf_up2(comp, ht, pr, yvec_ptr);
   return yvec_ptr;
 }

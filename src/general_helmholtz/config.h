@@ -45,37 +45,37 @@ static std::unordered_map<std::string, comp_enum> const comp_string_table = {
   {"r134a", comp_enum::r134a},
 };
 
-enum class deriv1_enum {
-  f = 0,
-  f_d = 1,
-  f_t = 2,
+enum deriv1_enum {
+  f1 = 0,
+  f1_1 = 1,
+  f1_2 = 2,
 };
 
-enum class deriv2_enum {
-  f = 0,
-  f_d = 1,
-  f_dd = 2,
-  f_t = 3,
-  f_dt = 4,
-  f_tt = 5,
+enum deriv2_enum {
+  f2 = 0,
+  f2_1 = 1,
+  f2_11 = 2,
+  f2_2 = 3,
+  f2_12 = 4,
+  f2_22 = 5,
 };
 
-enum class deriv4_enum {
-  f = 0,
-  f_d = 1,
-  f_dd = 2,
-  f_ddd = 3,
-  f_dddd = 4,
-  f_t = 5,
-  f_dt = 6,
-  f_ddt = 7,
-  f_dddt = 8,
-  f_tt = 9,
-  f_dtt = 10,
-  f_ddtt = 11,
-  f_ttt = 12,
-  f_dttt = 13,
-  f_tttt = 14,
+enum deriv4_enum {
+  f4 = 0,
+  f4_1 = 1,
+  f4_11 = 2,
+  f4_111 = 3,
+  f4_1111 = 4,
+  f4_2 = 5,
+  f4_12 = 6,
+  f4_112 = 7,
+  f4_1112 = 8,
+  f4_22 = 9,
+  f4_122 = 10,
+  f4_1122 = 11,
+  f4_222 = 12,
+  f4_1222 = 13,
+  f4_2222 = 14,
 };
 
 #define PHI_IDEAL_TAPE_H2O 1

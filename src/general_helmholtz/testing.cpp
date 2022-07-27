@@ -38,9 +38,9 @@ int fd1(test_fptr1 func, comp_enum comp, double x, std::vector<double> *yvec_ptr
   yvec_ptr->at(2) = (yvec_ptr1->at(1) - yvec_ptr0->at(1))/h;
 
   if(dbg){
-    std::cout << "f = " << yvec_ptr0->at(0) << std::endl;
-    std::cout << "f_d = " << yvec_ptr0->at(1) << " f.d. approx = " << yvec_ptr->at(1) << std::endl;
-    std::cout << "f_dd = " << yvec_ptr0->at(2) << " f.d. approx = " << yvec_ptr->at(2) << std::endl;
+    std::cout << "f1 = " << yvec_ptr0->at(0) << std::endl;
+    std::cout << "f1_1 = " << yvec_ptr0->at(1) << " f.d. approx = " << yvec_ptr->at(1) << std::endl;
+    std::cout << "f1_11 = " << yvec_ptr0->at(2) << " f.d. approx = " << yvec_ptr->at(2) << std::endl;
   }
 
   if(!rel_same(yvec_ptr->at(1), yvec_ptr0->at(1), 1e-1)) return 1;
@@ -57,32 +57,32 @@ int fd2(test_fptr2 func, comp_enum comp, double x1, double x2, std::vector<doubl
   yvec_ptr2 = func(comp, x1, x2 + h);
 
   yvec_ptr->resize(6);
-  yvec_ptr->at((uint)deriv2_enum::f) = yvec_ptr0->at((uint)deriv2_enum::f);
-  yvec_ptr->at((uint)deriv2_enum::f_d) =
-    (yvec_ptr1->at((uint)deriv2_enum::f) - yvec_ptr0->at((uint)deriv2_enum::f))/h;
-  yvec_ptr->at((uint)deriv2_enum::f_t) =
-    (yvec_ptr2->at((uint)deriv2_enum::f) - yvec_ptr0->at((uint)deriv2_enum::f))/h;
-  yvec_ptr->at((uint)deriv2_enum::f_dd) =
-    (yvec_ptr1->at((uint)deriv2_enum::f_d) - yvec_ptr0->at((uint)deriv2_enum::f_d))/h;
-  yvec_ptr->at((uint)deriv2_enum::f_dt) =
-    (yvec_ptr2->at((uint)deriv2_enum::f_d) - yvec_ptr0->at((uint)deriv2_enum::f_d))/h;
-  yvec_ptr->at((uint)deriv2_enum::f_tt) =
-    (yvec_ptr2->at((uint)deriv2_enum::f_t) - yvec_ptr0->at((uint)deriv2_enum::f_t))/h;
+  yvec_ptr->at(f2) = yvec_ptr0->at(f2);
+  yvec_ptr->at(f2_1) =
+    (yvec_ptr1->at(f2) - yvec_ptr0->at(f2))/h;
+  yvec_ptr->at(f2_2) =
+    (yvec_ptr2->at(f2) - yvec_ptr0->at(f2))/h;
+  yvec_ptr->at(f2_11) =
+    (yvec_ptr1->at(f2_1) - yvec_ptr0->at(f2_1))/h;
+  yvec_ptr->at(f2_12) =
+    (yvec_ptr2->at(f2_1) - yvec_ptr0->at(f2_1))/h;
+  yvec_ptr->at(f2_22) =
+    (yvec_ptr2->at(f2_2) - yvec_ptr0->at(f2_2))/h;
 
   if(dbg){
-    std::cout << "f = " << yvec_ptr0->at(0) << std::endl;
-    std::cout << "f_d = " << yvec_ptr0->at((uint)deriv2_enum::f_d) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_d) << std::endl;
-    std::cout << "f_t = " << yvec_ptr0->at((uint)deriv2_enum::f_t) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_t) << std::endl;
-    std::cout << "f_dd = " << yvec_ptr0->at((uint)deriv2_enum::f_dd) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_dd) << std::endl;
-    std::cout << "f_dt = " << yvec_ptr0->at((uint)deriv2_enum::f_dt) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_dt) << std::endl;
-    std::cout << "f_tt = " << yvec_ptr0->at((uint)deriv2_enum::f_tt) << " f.d. approx = " << yvec_ptr->at((uint)deriv2_enum::f_tt) << std::endl;
+    std::cout << "f2 = " << yvec_ptr0->at(0) << std::endl;
+    std::cout << "f2_1 = " << yvec_ptr0->at(f2_1) << " f.d. approx = " << yvec_ptr->at(f2_1) << std::endl;
+    std::cout << "f2_2 = " << yvec_ptr0->at(f2_2) << " f.d. approx = " << yvec_ptr->at(f2_2) << std::endl;
+    std::cout << "f2_11 = " << yvec_ptr0->at(f2_11) << " f.d. approx = " << yvec_ptr->at(f2_11) << std::endl;
+    std::cout << "f2_12 = " << yvec_ptr0->at(f2_12) << " f.d. approx = " << yvec_ptr->at(f2_12) << std::endl;
+    std::cout << "f2_22 = " << yvec_ptr0->at(f2_22) << " f.d. approx = " << yvec_ptr->at(f2_22) << std::endl;
   }
 
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_d), yvec_ptr->at((uint)deriv2_enum::f_d), 1e-2)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_t), yvec_ptr->at((uint)deriv2_enum::f_t), 1e-2)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dd), yvec_ptr->at((uint)deriv2_enum::f_dd), 1e-2)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_dt), yvec_ptr->at((uint)deriv2_enum::f_dt), 1e-2)) return 1;
-  if (!rel_same(yvec_ptr0->at((uint)deriv2_enum::f_tt), yvec_ptr->at((uint)deriv2_enum::f_tt), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at(f2_1), yvec_ptr->at(f2_1), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at(f2_2), yvec_ptr->at(f2_2), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at(f2_11), yvec_ptr->at(f2_11), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at(f2_12), yvec_ptr->at(f2_12), 1e-2)) return 1;
+  if (!rel_same(yvec_ptr0->at(f2_22), yvec_ptr->at(f2_22), 1e-2)) return 1;
   return 0;
 }
 
@@ -269,11 +269,29 @@ int main(){
   err = !fd2(memo2_tau_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_tau_sp passed (two-phase): " << err << std::endl;
 
-  err = !fd2(memo2_tau_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 1);
+  err = !fd2(memo2_tau_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_tau_up passed (liquid): " << err << std::endl;
 
-  err = !fd2(memo2_tau_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 1);
+  err = !fd2(memo2_tau_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_tau_up passed (two-phase): " << err << std::endl;
+
+  err = !fd2(memo2_vf_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_vf_hp (liquid) passed: " << err << std::endl;
+
+  err = !fd2(memo2_vf_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 0.01, 0);
+  std::cout << "memo2_vf_hp passed (two-phase): " << err << std::endl;
+
+  err = !fd2(memo2_vf_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_vf_sp passed (liquid): " << err << std::endl;
+
+  err = !fd2(memo2_vf_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_vf_sp passed (two-phase): " << err << std::endl;
+
+  err = !fd2(memo2_vf_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_vf_up passed (liquid): " << err << std::endl;
+
+  err = !fd2(memo2_vf_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
+  std::cout << "memo2_vf_up passed (two-phase): " << err << std::endl;
 
   std::cout << std::endl;
   std::cout << "Check some values" << std::endl << "----------------------------------" << std::endl;

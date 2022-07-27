@@ -34,6 +34,14 @@ std::unordered_map<
   boost::hash<std::tuple<comp_enum, double, double>>
 > memo_table_delta_vapor2;
 
+static std::vector<double> nan_vec2 = {
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan("")
+};
 
 double pwrap(double delta, void *dat){
   pressure_wrap_state *d = (pressure_wrap_state*)dat;
@@ -135,38 +143,28 @@ double delta_liquid(comp_enum comp, double pr, double tau){
 }
 
 void delta_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  static const uint f_d = (uint)deriv2_enum::f_d;
-  static const uint f_t = (uint)deriv2_enum::f_t;
-  static const uint f_dd = (uint)deriv2_enum::f_dd;
-  static const uint f_dt = (uint)deriv2_enum::f_dt;
-  static const uint f_tt = (uint)deriv2_enum::f_tt;
   double delta_l = delta_liquid(comp, pr, tau);
   std::vector<double> *pr_vec = memo2_pressure(comp, delta_l, tau); // get derivatives
   out->resize(6);
   out->at(0) = delta_l;
-  out->at(f_d) = 1.0/pr_vec->at(f_d);
-  out->at(f_t) = -pr_vec->at(f_t)/pr_vec->at(f_d);
-  out->at(f_dd) = -pr_vec->at(f_dd)*out->at(f_d)*out->at(f_d)*out->at(f_d);
-  out->at(f_dt) = -(pr_vec->at(f_dt) + pr_vec->at(f_dd)*out->at(f_t))*out->at(f_d)*out->at(f_d);
+  out->at(f2_1) = 1.0/pr_vec->at(f2_1);
+  out->at(f2_2) = -pr_vec->at(f2_2)/pr_vec->at(f2_1);
+  out->at(f2_11) = -pr_vec->at(f2_11)*out->at(f2_1)*out->at(f2_1)*out->at(f2_1);
+  out->at(f2_12) = -(pr_vec->at(f2_12) + pr_vec->at(f2_11)*out->at(f2_2))*out->at(f2_1)*out->at(f2_1);
   //-(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);
-  out->at(f_tt) = -(out->at(f_d)*(pr_vec->at(f_tt) + out->at(f_t)*pr_vec->at(f_dt)) + pr_vec->at(f_t)*out->at(f_dt));
+  out->at(f2_22) = -(out->at(f2_1)*(pr_vec->at(f2_22) + out->at(f2_2)*pr_vec->at(f2_12)) + pr_vec->at(f2_2)*out->at(f2_12));
 }
 
 void delta_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  static const uint f_d = (uint)deriv2_enum::f_d;
-  static const uint f_t = (uint)deriv2_enum::f_t;
-  static const uint f_dd = (uint)deriv2_enum::f_dd;
-  static const uint f_dt = (uint)deriv2_enum::f_dt;
-  static const uint f_tt = (uint)deriv2_enum::f_tt;
   double delta_v = delta_vapor(comp, pr, tau);
   std::vector<double> *pr_vec = memo2_pressure(comp, delta_v, tau); // get derivatives
   out->resize(6);
   out->at(0) = delta_v;
-  out->at(f_d) = 1.0/pr_vec->at(f_d);
-  out->at(f_t) = -pr_vec->at(f_t)/pr_vec->at(f_d);
-  out->at(f_dd) = -pr_vec->at(f_dd)*out->at(f_d)*out->at(f_d)*out->at(f_d);
-  out->at(f_dt) = -(pr_vec->at(f_dt) + pr_vec->at(f_dd)*out->at(f_t))*out->at(f_d)*out->at(f_d);
-  out->at(f_tt) = -(out->at(f_d)*(pr_vec->at(f_tt) + out->at(f_t)*pr_vec->at(f_dt)) + pr_vec->at(f_t)*out->at(f_dt));
+  out->at(f2_1) = 1.0/pr_vec->at(f2_1);
+  out->at(f2_2) = -pr_vec->at(f2_2)/pr_vec->at(f2_1);
+  out->at(f2_11) = -pr_vec->at(f2_11)*out->at(f2_1)*out->at(f2_1)*out->at(f2_1);
+  out->at(f2_12) = -(pr_vec->at(f2_12) + pr_vec->at(f2_11)*out->at(f2_2))*out->at(f2_1)*out->at(f2_1);
+  out->at(f2_22) = -(out->at(f2_1)*(pr_vec->at(f2_22) + out->at(f2_2)*pr_vec->at(f2_12)) + pr_vec->at(f2_2)*out->at(f2_12));
 }
 
 std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau){

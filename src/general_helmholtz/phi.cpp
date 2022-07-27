@@ -35,6 +35,24 @@ std::unordered_map<
   boost::hash<std::tuple<comp_enum, double, double>>
 > memo_table_phi_ideal;
 
+static std::vector<double> nan_vec2 = {
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+};
+
 std::vector<double> *phi_resi(comp_enum comp, double delta, double tau){
   /*
     Calculate the dimensionless resi part of Helmholtz free energy (phi^r), and

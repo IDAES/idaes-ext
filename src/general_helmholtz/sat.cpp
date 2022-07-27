@@ -59,6 +59,12 @@ static std::unordered_map<
   boost::hash<std::tuple<comp_enum, double>>
 > memo_table_sat_tau;
 
+static std::vector<double> nan_vec1 = {
+  nan(""),
+  nan(""),
+  nan("")
+};
+
 inline double J(double delta, std::vector<double> *phi){
   // Term from Akasaka method for saturation state
   return delta*(1 + delta*phi->at(1));
@@ -153,24 +159,24 @@ Calculate grad and hes for and memoize
 
   // Get what I need of phi and it's derivatives.  This just makes the
   // expressions easier to read and write.
-  double phir_l = phir_l_vec->at((unsigned int)deriv4_enum::f);
-  double phir_l_d = phir_l_vec->at((unsigned int)deriv4_enum::f_d);
-  double phir_l_dd = phir_l_vec->at((unsigned int)deriv4_enum::f_dd);
-  double phir_l_ddd = phir_l_vec->at((unsigned int)deriv4_enum::f_ddd);
-  double phir_l_t = phir_l_vec->at((unsigned int)deriv4_enum::f_t);
-  double phir_l_dt = phir_l_vec->at((unsigned int)deriv4_enum::f_dt);
-  double phir_l_ddt = phir_l_vec->at((unsigned int)deriv4_enum::f_ddt);
-  double phir_l_tt = phir_l_vec->at((unsigned int)deriv4_enum::f_tt);
-  double phir_l_dtt = phir_l_vec->at((unsigned int)deriv4_enum::f_dtt);
-  double phir_v = phir_v_vec->at((unsigned int)deriv4_enum::f);
-  double phir_v_d = phir_v_vec->at((unsigned int)deriv4_enum::f_d);
-  double phir_v_dd = phir_v_vec->at((unsigned int)deriv4_enum::f_dd);
-  double phir_v_ddd = phir_v_vec->at((unsigned int)deriv4_enum::f_ddd);
-  double phir_v_t = phir_v_vec->at((unsigned int)deriv4_enum::f_t);
-  double phir_v_dt = phir_v_vec->at((unsigned int)deriv4_enum::f_dt);
-  double phir_v_ddt = phir_v_vec->at((unsigned int)deriv4_enum::f_ddt);
-  double phir_v_tt = phir_v_vec->at((unsigned int)deriv4_enum::f_tt);
-  double phir_v_dtt = phir_v_vec->at((unsigned int)deriv4_enum::f_dtt);
+  double phir_l = phir_l_vec->at(f4);
+  double phir_l_d = phir_l_vec->at(f4_1);
+  double phir_l_dd = phir_l_vec->at(f4_11);
+  double phir_l_ddd = phir_l_vec->at(f4_111);
+  double phir_l_t = phir_l_vec->at(f4_2);
+  double phir_l_dt = phir_l_vec->at(f4_12);
+  double phir_l_ddt = phir_l_vec->at(f4_112);
+  double phir_l_tt = phir_l_vec->at(f4_22);
+  double phir_l_dtt = phir_l_vec->at(f4_122);
+  double phir_v = phir_v_vec->at(f4);
+  double phir_v_d = phir_v_vec->at(f4_1);
+  double phir_v_dd = phir_v_vec->at(f4_11);
+  double phir_v_ddd = phir_v_vec->at(f4_111);
+  double phir_v_t = phir_v_vec->at(f4_2);
+  double phir_v_dt = phir_v_vec->at(f4_12);
+  double phir_v_ddt = phir_v_vec->at(f4_112);
+  double phir_v_tt = phir_v_vec->at(f4_22);
+  double phir_v_dtt = phir_v_vec->at(f4_122);
 
   // A is the expression for p/(R*T*rho).  We'll use it to simplify writing
   // some expressions.
@@ -283,15 +289,15 @@ Calculate grad and hes for and memoize
   std::vector<double> p_vec;
   pressure2(comp, delta_v, tau, &p_vec);
 
-  double psat = p_vec.at((unsigned int)deriv2_enum::f);
+  double psat = p_vec.at(f2);
   double psat_t =
-    p_vec.at((unsigned int)deriv2_enum::f_t) +
-    p_vec.at((unsigned int)deriv2_enum::f_d) * delta_v_t;
+    p_vec.at(f2_2) +
+    p_vec.at(f2_1) * delta_v_t;
   double psat_tt =
-    p_vec.at((unsigned int)deriv2_enum::f_tt) +
-    2*p_vec.at((unsigned int)deriv2_enum::f_dt) * delta_v_t +
-    p_vec.at((unsigned int)deriv2_enum::f_d) * delta_v_tt +
-    p_vec.at((unsigned int)deriv2_enum::f_dd) * delta_v_t * delta_v_t;
+    p_vec.at(f2_22) +
+    2*p_vec.at(f2_12) * delta_v_t +
+    p_vec.at(f2_1) * delta_v_tt +
+    p_vec.at(f2_11) * delta_v_t * delta_v_t;
 
   delta_l_vec_ptr->resize(3);
   delta_l_vec_ptr->at(0) = delta_l;
@@ -328,19 +334,19 @@ int cache_sat_delta_with_derivs(
   n = sat_delta_with_derivs(comp, tau, &delta_l_vec, &delta_v_vec, &p_vec);
   delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
   delta_l_vec_ptr->resize(3);
-  delta_l_vec_ptr->at(0) = delta_l_vec[0];
-  delta_l_vec_ptr->at(1) = delta_l_vec[1];
-  delta_l_vec_ptr->at(2) = delta_l_vec[2];
+  delta_l_vec_ptr->at(f1) = delta_l_vec[0];
+  delta_l_vec_ptr->at(f1_1) = delta_l_vec[1];
+  delta_l_vec_ptr->at(f1_2) = delta_l_vec[2];
   delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
   delta_v_vec_ptr->resize(3);
-  delta_v_vec_ptr->at(0) = delta_v_vec[0];
-  delta_v_vec_ptr->at(1) = delta_v_vec[1];
-  delta_v_vec_ptr->at(2) = delta_v_vec[2];
+  delta_v_vec_ptr->at(f1) = delta_v_vec[0];
+  delta_v_vec_ptr->at(f1_1) = delta_v_vec[1];
+  delta_v_vec_ptr->at(f1_2) = delta_v_vec[2];
   p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];
   p_vec_ptr->resize(3);
-  p_vec_ptr->at(0) = p_vec[0];
-  p_vec_ptr->at(1) = p_vec[1];
-  p_vec_ptr->at(2) = p_vec[2];
+  p_vec_ptr->at(f1) = p_vec[0];
+  p_vec_ptr->at(f1_1) = p_vec[1];
+  p_vec_ptr->at(f1_2) = p_vec[2];
 
   return n;
 }
