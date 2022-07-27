@@ -41,6 +41,22 @@ def main():
     m.delta_sat_v_func = pyo.ExternalFunction(library=flib, function="delta_sat_v")
     m.delta_sat_l_func = pyo.ExternalFunction(library=flib, function="delta_sat_l")
 
+    # ideal part of Helmholtz free energy
+    m.phi0_func = pyo.ExternalFunction(library=flib, function="phi0")
+    m.phi0_d_func = pyo.ExternalFunction(library=flib, function="phi0_d")
+    m.phi0_dd_func = pyo.ExternalFunction(library=flib, function="phi0_dd")
+    m.phi0_t_func = pyo.ExternalFunction(library=flib, function="phi0_t")
+    m.phi0_dt_func = pyo.ExternalFunction(library=flib, function="phi0_dt")
+    m.phi0_tt_func = pyo.ExternalFunction(library=flib, function="phi0_tt")
+
+    # residual part of Helmholtz free energy
+    m.phir_func = pyo.ExternalFunction(library=flib, function="phir")
+    m.phir_d_func = pyo.ExternalFunction(library=flib, function="phir_d")
+    m.phir_dd_func = pyo.ExternalFunction(library=flib, function="phir_dd")
+    m.phir_t_func = pyo.ExternalFunction(library=flib, function="phir_t")
+    m.phir_dt_func = pyo.ExternalFunction(library=flib, function="phir_dt")
+    m.phir_tt_func = pyo.ExternalFunction(library=flib, function="phir_tt")
+
     pc = pyo.value(m.pc_func("h2o"))
     tc = pyo.value(m.tc_func("h2o"))
     rhoc = pyo.value(m.rhoc_func("h2o"))
@@ -78,6 +94,20 @@ def main():
     p_sat = pyo.value(m.p_sat_func("h2o", tc/m.temperature))
     delta_sat_l = pyo.value(m.delta_sat_l_func("h2o", tc/m.temperature))
     delta_sat_v = pyo.value(m.delta_sat_v_func("h2o", tc/m.temperature))
+
+    phi0 = pyo.value(m.phi0_func("h2o", m.density/rhoc, tc/m.temperature))
+    phi0_d = pyo.value(m.phi0_d_func("h2o", m.density/rhoc, tc/m.temperature))
+    phi0_dd = pyo.value(m.phi0_dd_func("h2o", m.density/rhoc, tc/m.temperature))
+    phi0_t = pyo.value(m.phi0_t_func("h2o", m.density/rhoc, tc/m.temperature))
+    phi0_dt = pyo.value(m.phi0_dt_func("h2o", m.density/rhoc, tc/m.temperature))
+    phi0_tt = pyo.value(m.phi0_tt_func("h2o", m.density/rhoc, tc/m.temperature))
+
+    phir = pyo.value(m.phir_func("h2o", m.density/rhoc, tc/m.temperature))
+    phir_d = pyo.value(m.phir_d_func("h2o", m.density/rhoc, tc/m.temperature))
+    phir_dd = pyo.value(m.phir_dd_func("h2o", m.density/rhoc, tc/m.temperature))
+    phir_t = pyo.value(m.phir_t_func("h2o", m.density/rhoc, tc/m.temperature))
+    phir_dt = pyo.value(m.phir_dt_func("h2o", m.density/rhoc, tc/m.temperature))
+    phir_tt = pyo.value(m.phir_tt_func("h2o", m.density/rhoc, tc/m.temperature))
 
 
     print("")
@@ -156,6 +186,26 @@ def main():
     print("-------------------------------------------------------------------")
     print(f"T_sat = {tc/tau_sat} K")
     print("-------------------------------------------------------------------")
+    print("")
+    print(f"Dimensionless Helmholtz Free Energy {'h2o'}")
+    print(f"  density = {pyo.value(m.density)} kg/m^3")
+    print(f"  temperature = {pyo.value(m.temperature)} K")
+    print("Can be used to calculate more thermo properties (e.g. cv, cp, ...)")
+    print("-------------------------------------------------------------------")
+    print(f"phi0 = {phi0} [none]")
+    print(f"phi0_d = {phi0_d} [none]")
+    print(f"phi0_t = {phi0_t} [none]")
+    print(f"phi0_dd = {phi0_dd} [none]")
+    print(f"phi0_dt = {phi0_dt} [none]")
+    print(f"phi0_tt = {phi0_tt} [none]")
+    print(f"phir = {phir} [none]")
+    print(f"phir_d = {phir_d} [none]")
+    print(f"phir_t = {phir_t} [none]")
+    print(f"phir_dd = {phir_dd} [none]")
+    print(f"phir_dt = {phir_dt} [none]")
+    print(f"phir_tt = {phir_tt} [none]")
+    print("-------------------------------------------------------------------")
+
 
 if __name__ == "__main__":
     main()
