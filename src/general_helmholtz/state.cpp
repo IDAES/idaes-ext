@@ -408,7 +408,7 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > Pt[comp] && pr < Pc[comp]){ // Could be two phase
+  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
     hvs = enthalpy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = enthalpy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
@@ -428,21 +428,21 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   sd.p = pr;
   sd.h = ht;
   sd.comp = comp;
-  if(pr >= Pc[comp]){ // it's liquid or supercritical
+  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
     // Assume between melting and Tmax
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
   }
-  else if(pr < Pt[comp]){ // it's vapor (unless it's ice)
+  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_vapor(comp, pr, tau);
@@ -450,14 +450,14 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
+    tau_lo = param::Tc[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
@@ -552,7 +552,7 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > Pt[comp] && pr < Pc[comp]){ // Could be two phase
+  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
     hvs = entropy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = entropy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
@@ -572,21 +572,21 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   sd.p = pr;
   sd.h = ht;
   sd.comp = comp;
-  if(pr >= Pc[comp]){ // it's liquid or supercritical
+  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
     // Assume between melting and Tmax
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
   }
-  else if(pr < Pt[comp]){ // it's vapor (unless it's ice)
+  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_vapor(comp, pr, tau);
@@ -594,14 +594,14 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
+    tau_lo = param::Tc[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
@@ -696,7 +696,7 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > Pt[comp] && pr < Pc[comp]){ // Could be two phase
+  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
     hvs = internal_energy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = internal_energy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
@@ -716,21 +716,21 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   sd.p = pr;
   sd.h = ht;
   sd.comp = comp;
-  if(pr >= Pc[comp]){ // it's liquid or supercritical
+  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
     // Assume between melting and Tmax
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
   }
-  else if(pr < Pt[comp]){ // it's vapor (unless it's ice)
+  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
@@ -738,14 +738,14 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
     int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = Tc[comp]/T_max[comp];
+    tau_lo = param::Tc[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
@@ -780,7 +780,7 @@ std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
 
 void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   out->resize(6);
-  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
     out->at(0) = 0;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;
@@ -789,7 +789,7 @@ void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     out->at(f2_22) = 0;
     return;
   }
-  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
     out->at(0) = 1;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;
@@ -854,7 +854,7 @@ void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
 void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   out->resize(6);
-  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
     out->at(0) = 0;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;
@@ -863,7 +863,7 @@ void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     out->at(f2_22) = 0;
     return;
   }
-  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
     out->at(0) = 1;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;
@@ -928,7 +928,7 @@ void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
 void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   out->resize(6);
-  if(pr >= Pc[comp]){ // consider supercritical fluid liquid
+  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
     out->at(0) = 0;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;
@@ -937,7 +937,7 @@ void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     out->at(f2_22) = 0;
     return;
   }
-  if(pr < Pt[comp]){  // either vapor or ice, ignoring ice
+  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
     out->at(0) = 1;
     out->at(f2_1) = 0;
     out->at(f2_2) = 0;

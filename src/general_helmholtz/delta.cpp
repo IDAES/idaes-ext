@@ -45,15 +45,15 @@ static std::vector<double> nan_vec2 = {
 
 double pwrap(double delta, void *dat){
   pressure_wrap_state *d = (pressure_wrap_state*)dat;
-  return (pressure(d->comp, delta, d->tau) - d->p)/Pc[d->comp];
+  return (pressure(d->comp, delta, d->tau) - d->p)/param::Pc[d->comp];
 }
 
 void pwrap_gh(double delta, std::vector<double> *out, void *dat){
   pressure_wrap_state *d = (pressure_wrap_state*)dat;
   pressure2(d->comp, delta, d->tau, out);
-  out->at(0) = ((*out)[0] - d->p)/Pc[d->comp];
-  out->at(1) = (*out)[1]/Pc[d->comp];
-  out->at(2) = (*out)[2]/Pc[d->comp];
+  out->at(0) = ((*out)[0] - d->p)/param::Pc[d->comp];
+  out->at(1) = (*out)[1]/param::Pc[d->comp];
+  out->at(2) = (*out)[2]/param::Pc[d->comp];
 }
 
 double delta_vapor(comp_enum comp, double pr, double tau){
@@ -66,16 +66,16 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-9 and fabs(pr/Pc[comp] - 1) < 1e-9){
+  if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
     return 1.0;
   }
   // case 1 P > Pc (don't really need to worry about phase change)
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
-  if(pr > Pc[comp]){
+  if(pr > param::Pc[comp]){
     std::vector<double> out;
-    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/param::Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
@@ -109,16 +109,16 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-9 and fabs(pr/Pc[comp] - 1) < 1e-9){
+  if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
     return 1.0;
   }
   // case 1 P > Pc (don't really need to worry about phase change)
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
-  if(pr > Pc[comp]){
+  if(pr > param::Pc[comp]){
     std::vector<double> out;
-    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 0, melting_liquid_density_func[comp](pr)/param::Pc[comp], &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
@@ -129,7 +129,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr >= p_sat){
-    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/Pc[comp], &delta, 3, 1e-4, 1e-4, &ps);
+    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::Pc[comp], &delta, 3, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }

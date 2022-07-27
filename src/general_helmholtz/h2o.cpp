@@ -25,7 +25,7 @@ double melting_temperature_h2o(double pr){
   double Tn, Pn;
   // Ice I Sublimation, Max error 0.15 to 251 K, 1.4 K to 235 K
   //   fit from 273.16 to 251
-  if(pr < Pt[h2o]){
+  if(pr < param::Pt[h2o]){
     Tn = 273.16;
     Pn = 0.611657;
     return Tn * 0.9995047*pow(pr/Pn, 0.04264942);
@@ -87,7 +87,7 @@ double melting_liquid_density_h2o(double pr){
   if(pr >= 7000){
     return 4.954471E-04*pr + 9.998203E+02;
   }
-  if(pr >= Pt[h2o]){
+  if(pr >= param::Pt[h2o]){
     return 4.974967E-04*pr + 9.997973E+02;
   }
 }

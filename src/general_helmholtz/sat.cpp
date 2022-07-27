@@ -426,14 +426,14 @@ std::vector<double> *sat_tau(comp_enum comp, double pr){
   sat_wrap_struct dat;
   dat.comp = comp;
   dat.pr = pr;
-  if(pr > Pc[comp] - 1e-9){
+  if(pr > param::Pc[comp] - 1e-9){
     tau = 1;
     out.at(0) = tau;
     out.at(1) = 0;
     out.at(2) = 0;
   }
   else{
-    n = bracket(f_deltav, 1, Tc[comp]/T_min[comp], &tau, 5, 1e-4, 1e-4, &dat);
+    n = bracket(f_deltav, 1, param::Tc[comp]/param::T_min[comp], &tau, 5, 1e-4, 1e-4, &dat);
     n = halley(f_deltav2, tau, &tau, &out, 50, 1e-9, &dat);
     //std::cout << n << " ";
   }

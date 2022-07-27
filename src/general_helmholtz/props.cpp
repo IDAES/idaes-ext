@@ -95,13 +95,13 @@ double pressure(comp_enum comp, double delta, double tau){
   std::vector<double> *y = phi_resi(comp, delta, tau);
   double phir_d = y->at(f4_1);
   double u = 1 + delta*phir_d;
-  return rhoc[comp]*Tc[comp]*R[comp]*delta/tau*u;
+  return param::rhoc[comp]*param::Tc[comp]*param::R[comp]*delta/tau*u;
 }
 
 void pressure1(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *y = phi_resi(comp, delta, tau);
   double res[3];
-  double c = rhoc[comp]*Tc[comp]*R[comp];
+  double c = param::rhoc[comp]*param::Tc[comp]*param::R[comp];
   double phir_d = y->at(f4_1);
   double phir_dd = y->at(f4_11);
   double phir_dt = y->at(f4_12);
@@ -119,7 +119,7 @@ void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   double res[6];
   // while the intermediate varaibles look inefficent the copiler optimization
   // should fix it, and hopfully .
-  double c = rhoc[comp]*Tc[comp]*R[comp];
+  double c = param::rhoc[comp]*param::Tc[comp]*param::R[comp];
   double phir_d = y->at(f4_1);
   double phir_dd = y->at(f4_11);
   double phir_ddd = y->at(f4_111);
@@ -144,7 +144,7 @@ void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *ou
 double internal_energy(comp_enum comp, double delta, double tau){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
-  double c = Tc[comp]*R[comp];
+  double c = param::Tc[comp]*param::R[comp];
   double phii_t = yi->at(f4_2);
   double phir_t = yr->at(f4_2);
   double z = phii_t + phir_t;
@@ -156,7 +156,7 @@ void internal_energy2(comp_enum comp, double delta, double tau, std::vector<doub
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = Tc[comp]*R[comp];
+  double c = param::Tc[comp]*param::R[comp];
   double phii_t = yi->at(f4_2);
   double phii_dt = yi->at(f4_12);
   double phii_tt = yi->at(f4_22);
@@ -188,7 +188,7 @@ void internal_energy2(comp_enum comp, double delta, double tau, std::vector<doub
 double entropy(comp_enum comp, double delta, double tau){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
-  double c = R[comp];
+  double c = param::R[comp];
   double phii = yi->at(f4);
   double phir = yr->at(f4);
   double phii_t = yi->at(f4_2);
@@ -202,7 +202,7 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = R[comp];
+  double c = param::R[comp];
   double phii = yi->at(f4);
   double phii_d = yi->at(f4_1);
   double phii_dd = yi->at(f4_11);
@@ -240,7 +240,7 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
 double enthalpy(comp_enum comp, double delta, double tau){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
-  double c = R[comp]*Tc[comp];
+  double c = param::R[comp]*param::Tc[comp];
   double phii_t = yi->at(f4_2);
   double phir_t = yr->at(f4_2);
   double phir_d = yr->at(f4_1);
@@ -254,7 +254,7 @@ void enthalpy2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = R[comp]*Tc[comp];
+  double c = param::R[comp]*param::Tc[comp];
   double phii_t = yi->at(f4_2);
   double phii_dt = yi->at(f4_12);
   double phii_tt = yi->at(f4_22);
