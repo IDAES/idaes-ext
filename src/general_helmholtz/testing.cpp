@@ -207,19 +207,61 @@ int main(){
   std::cout << "Check derivatives against F.D." << std::endl << "----------------------------------" << std::endl;
 
   err = !fd2(memo2_pressure, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
-  std::cout << "memo2_pressure f.d. passed: " << err << std::endl;
+  std::cout << "memo2_pressure passed: " << err << std::endl;
 
   err = !fd2(memo2_internal_energy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
-  std::cout << "memo2_internal_energy #1 f.d. passed: " << err << std::endl;
+  std::cout << "memo2_internal_energy #1 passed: " << err << std::endl;
 
   err = !fd2(memo2_internal_energy, comp_enum::h2o, 993.361/322.0, 647.096/310.0, &p_vec_fd, 1e-4, 0);
-  std::cout << "memo2_internal_energy #2 f.d. passed: " << err << std::endl;
+  std::cout << "memo2_internal_energy #2 passed: " << err << std::endl;
 
   err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
-  std::cout << "memo2_entropy f.d. passed: " << err << std::endl;
+  std::cout << "memo2_entropy passed: " << err << std::endl;
 
   err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
+
+  err = !fd2(memo2_gibbs, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_gibbs passed: " << err << std::endl;
+
+  err = !fd2(memo2_helmholtz, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_helmholtz passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal_d, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal_d passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi_d, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi_d passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal_t, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal_t passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi_t, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi_t passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal_dd, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal_dd passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi_dd, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi_dd passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal_dt, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal_dt passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi_dt, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi_dt passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_ideal_tt, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_ideal_tt passed: " << err << std::endl;
+
+  err = !fd2(memo2_phi_resi_tt, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_phi_resi_tt passed: " << err << std::endl;
 
   err = !fd2(memo2_delta_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_delta_liquid passed: " << err << std::endl;
@@ -263,7 +305,7 @@ int main(){
   err = !fd2(memo2_tau_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_tau_hp passed (two-phase): " << err << std::endl;
 
-  err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 1);
+  err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
   std::cout << "memo2_tau_sp passed (liquid): " << err << std::endl;
 
   err = !fd2(memo2_tau_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);

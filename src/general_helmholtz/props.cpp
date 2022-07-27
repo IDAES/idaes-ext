@@ -11,8 +11,6 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-#include<unordered_map>
-#include<boost/functional/hash.hpp>
 #include"param.h"
 #include"props.h"
 #include"phi.h"
@@ -28,59 +26,27 @@ File props.cpp
 
 // Memoization tables for property calculations
 
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_pressure2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_internal_energy2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_entropy2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_enthalpy2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_gibbs2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_helmholtz2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_isochoric_heat_capacity2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_isobaric_heat_capacity2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_speed_of_sound2;
+prop_memo_table2 memo_table_pressure2;
+prop_memo_table2 memo_table_internal_energy2;
+prop_memo_table2 memo_table_entropy2;
+prop_memo_table2 memo_table_enthalpy2;
+prop_memo_table2 memo_table_gibbs2;
+prop_memo_table2 memo_table_helmholtz2;
+prop_memo_table2 memo_table_isochoric_heat_capacity2;
+prop_memo_table2 memo_table_isobaric_heat_capacity2;
+prop_memo_table2 memo_table_speed_of_sound2;
+prop_memo_table2 memo_table_phi_ideal2;
+prop_memo_table2 memo_table_phi_resi2;
+prop_memo_table2 memo_table_phi_ideal_d2;
+prop_memo_table2 memo_table_phi_resi_d2;
+prop_memo_table2 memo_table_phi_ideal_t2;
+prop_memo_table2 memo_table_phi_resi_t2;
+prop_memo_table2 memo_table_phi_ideal_dd2;
+prop_memo_table2 memo_table_phi_resi_dd2;
+prop_memo_table2 memo_table_phi_ideal_dt2;
+prop_memo_table2 memo_table_phi_resi_dt2;
+prop_memo_table2 memo_table_phi_ideal_tt2;
+prop_memo_table2 memo_table_phi_resi_tt2;
 
 static std::vector<double> nan_vec2 = {
   nan(""),
@@ -295,54 +261,216 @@ void enthalpy2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   out->assign(res, res+6);
 }
 
-std::vector<double> *memo2_pressure(comp_enum comp, double delta, double tau){
-  try{
-    return &memo_table_pressure2.at(std::make_tuple(comp, delta, tau));
-  }
-  catch(std::out_of_range){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_pressure2.size() > MAX_MEMO_PROP) memo_table_pressure2.clear();
-  yvec_ptr = &memo_table_pressure2[std::make_tuple(comp, delta, tau)];
-  pressure2(comp, delta, tau, yvec_ptr);
-  return yvec_ptr;
+void gibbs2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+
+  double res[6];
+  double c = param::R[comp]*param::Tc[comp];
+  double phii = yi->at(f4);
+  double phii_d = yi->at(f4_1);
+  double phii_dd = yi->at(f4_11);
+  double phii_t = yi->at(f4_2);
+  double phii_dt = yi->at(f4_12);
+  double phii_tt = yi->at(f4_22);
+  double phii_dtt = yi->at(f4_122);
+  double phir = yr->at(f4);
+  double phir_t = yr->at(f4_2);
+  double phir_d = yr->at(f4_1);
+  double phir_dd = yr->at(f4_11);
+  double phir_ddd = yr->at(f4_111);
+  double phir_dt = yr->at(f4_12);
+  double phir_tt = yr->at(f4_22);
+  double phir_ddt = yr->at(f4_112);
+  double phir_dtt = yr->at(f4_122);
+
+  res[f2] = c/tau*(1 + delta*phir_d + phii + phir);
+  res[f2_1] = c/tau*(phir_d + delta*phir_dd + phii_d + phir_d);
+  res[f2_11] = c/tau*(2*phir_dd + delta*phir_ddd + phii_dd + phir_dd);
+  res[f2_2] = -1/tau*res[f2] + c/tau*(delta*phir_dt + phii_t + phir_t);
+  res[f2_12] = -1/tau*res[f2_1] + c/tau*(phir_dt + delta*phir_ddt + phii_dt + phir_dt);
+  res[f2_22] = 2*res[f2]/tau/tau - 2*c/tau/tau*(delta*phir_dt + phii_t + phir_t) +
+    c/tau*(delta*phir_dtt + phii_tt + phir_tt);
+  out->assign(res, res+6);
 }
 
-std::vector<double> *memo2_internal_energy(comp_enum comp, double delta, double tau){
-  try{
-    return &memo_table_internal_energy2.at(std::make_tuple(comp, delta, tau));
-  }
-  catch(std::out_of_range){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_internal_energy2.size() > MAX_MEMO_PROP) memo_table_internal_energy2.clear();
-  yvec_ptr = &memo_table_internal_energy2[std::make_tuple(comp, delta, tau)];
-  internal_energy2(comp, delta, tau, yvec_ptr);
-  return yvec_ptr;
+void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+
+  double res[6];
+  double c = param::R[comp]*param::Tc[comp];
+  double phii = yi->at(f4);
+  double phii_d = yi->at(f4_1);
+  double phii_dd = yi->at(f4_11);
+  double phii_t = yi->at(f4_2);
+  double phii_dt = yi->at(f4_12);
+  double phii_tt = yi->at(f4_22);
+  double phir = yr->at(f4);
+  double phir_t = yr->at(f4_2);
+  double phir_d = yr->at(f4_1);
+  double phir_dd = yr->at(f4_11);
+  double phir_dt = yr->at(f4_12);
+  double phir_tt = yr->at(f4_22);
+
+  res[f2] = c/tau*(phii + phir);
+  res[f2_1] = c/tau*(phii_d + phir_d);
+  res[f2_11] = c/tau*(phii_dd + phir_dd);
+  res[f2_2] = -1/tau*res[f2] + c/tau*(phii_t + phir_t);
+  res[f2_12] = -1/tau*res[f2_1] + c/tau*(phii_dt + phir_dt);
+  res[f2_22] = 1/tau/tau*res[f2] - 1/tau*res[f2_2] - c/tau/tau*(phii_t + phir_t) + c/tau*(phii_tt + phir_tt);
+  out->assign(res, res+6);
 }
 
-std::vector<double> *memo2_entropy(comp_enum comp, double delta, double tau){
-  try{
-    return &memo_table_entropy2.at(std::make_tuple(comp, delta, tau));
-  }
-  catch(std::out_of_range){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_entropy2.size() > MAX_MEMO_PROP) memo_table_entropy2.clear();
-  yvec_ptr = &memo_table_entropy2[std::make_tuple(comp, delta, tau)];
-  entropy2(comp, delta, tau, yvec_ptr);
-  return yvec_ptr;
+void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4);
+  out->at(f2_1) = y->at(f4_1);
+  out->at(f2_2) = y->at(f4_2);
+  out->at(f2_11) = y->at(f4_11);
+  out->at(f2_12) = y->at(f4_12);
+  out->at(f2_22) = y->at(f4_22);
 }
 
-std::vector<double> *memo2_enthalpy(comp_enum comp, double delta, double tau){
-  try{
-    return &memo_table_enthalpy2.at(std::make_tuple(comp, delta, tau));
-  }
-  catch(std::out_of_range){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_enthalpy2.size() > MAX_MEMO_PROP) memo_table_enthalpy2.clear();
-  yvec_ptr = &memo_table_enthalpy2[std::make_tuple(comp, delta, tau)];
-  enthalpy2(comp, delta, tau, yvec_ptr);
-  return yvec_ptr;
+void phi_ideal_d2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_1);
+  out->at(f2_1) = y->at(f4_11);
+  out->at(f2_2) = y->at(f4_12);
+  out->at(f2_11) = y->at(f4_111);
+  out->at(f2_12) = y->at(f4_112);
+  out->at(f2_22) = y->at(f4_122);
 }
+
+void phi_ideal_t2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_2);
+  out->at(f2_1) = y->at(f4_12);
+  out->at(f2_2) = y->at(f4_22);
+  out->at(f2_11) = y->at(f4_112);
+  out->at(f2_12) = y->at(f4_122);
+  out->at(f2_22) = y->at(f4_222);
+}
+
+void phi_ideal_dd2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_11);
+  out->at(f2_1) = y->at(f4_111);
+  out->at(f2_2) = y->at(f4_112);
+  out->at(f2_11) = y->at(f4_1111);
+  out->at(f2_12) = y->at(f4_1112);
+  out->at(f2_22) = y->at(f4_1122);
+}
+
+void phi_ideal_dt2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_12);
+  out->at(f2_1) = y->at(f4_112);
+  out->at(f2_2) = y->at(f4_122);
+  out->at(f2_11) = y->at(f4_1112);
+  out->at(f2_12) = y->at(f4_1122);
+  out->at(f2_22) = y->at(f4_1222);
+}
+
+void phi_ideal_tt2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_ideal(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_22);
+  out->at(f2_1) = y->at(f4_122);
+  out->at(f2_2) = y->at(f4_222);
+  out->at(f2_11) = y->at(f4_1122);
+  out->at(f2_12) = y->at(f4_1222);
+  out->at(f2_22) = y->at(f4_2222);
+}
+
+void phi_resi2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4);
+  out->at(f2_1) = y->at(f4_1);
+  out->at(f2_2) = y->at(f4_2);
+  out->at(f2_11) = y->at(f4_11);
+  out->at(f2_12) = y->at(f4_12);
+  out->at(f2_22) = y->at(f4_22);
+}
+
+void phi_resi_d2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_1);
+  out->at(f2_1) = y->at(f4_11);
+  out->at(f2_2) = y->at(f4_12);
+  out->at(f2_11) = y->at(f4_111);
+  out->at(f2_12) = y->at(f4_112);
+  out->at(f2_22) = y->at(f4_122);
+}
+
+void phi_resi_t2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_2);
+  out->at(f2_1) = y->at(f4_12);
+  out->at(f2_2) = y->at(f4_22);
+  out->at(f2_11) = y->at(f4_112);
+  out->at(f2_12) = y->at(f4_122);
+  out->at(f2_22) = y->at(f4_222);
+}
+
+void phi_resi_dd2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_11);
+  out->at(f2_1) = y->at(f4_111);
+  out->at(f2_2) = y->at(f4_112);
+  out->at(f2_11) = y->at(f4_1111);
+  out->at(f2_12) = y->at(f4_1112);
+  out->at(f2_22) = y->at(f4_1122);
+}
+
+void phi_resi_dt2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_12);
+  out->at(f2_1) = y->at(f4_112);
+  out->at(f2_2) = y->at(f4_122);
+  out->at(f2_11) = y->at(f4_1112);
+  out->at(f2_12) = y->at(f4_1122);
+  out->at(f2_22) = y->at(f4_1222);
+}
+
+void phi_resi_tt2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *y = phi_resi(comp, delta, tau);
+  out->resize(6);
+  out->at(f2) = y->at(f4_22);
+  out->at(f2_1) = y->at(f4_122);
+  out->at(f2_2) = y->at(f4_222);
+  out->at(f2_11) = y->at(f4_1122);
+  out->at(f2_12) = y->at(f4_1222);
+  out->at(f2_22) = y->at(f4_2222);
+}
+
+MEMO2_FUNCTION(memo2_pressure, pressure2, memo_table_pressure2)
+MEMO2_FUNCTION(memo2_internal_energy, internal_energy2, memo_table_internal_energy2)
+MEMO2_FUNCTION(memo2_entropy, entropy2, memo_table_entropy2)
+MEMO2_FUNCTION(memo2_enthalpy, enthalpy2, memo_table_enthalpy2)
+MEMO2_FUNCTION(memo2_gibbs, gibbs2, memo_table_gibbs2)
+MEMO2_FUNCTION(memo2_helmholtz, helmholtz2, memo_table_helmholtz2)
+
+MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
+MEMO2_FUNCTION(memo2_phi_ideal_d, phi_ideal_d2, memo_table_phi_ideal_d2)
+MEMO2_FUNCTION(memo2_phi_ideal_dd, phi_ideal_dd2, memo_table_phi_ideal_dd2)
+MEMO2_FUNCTION(memo2_phi_ideal_t, phi_ideal_t2, memo_table_phi_ideal_t2)
+MEMO2_FUNCTION(memo2_phi_ideal_dt, phi_ideal_dt2, memo_table_phi_ideal_dt2)
+MEMO2_FUNCTION(memo2_phi_ideal_tt, phi_ideal_tt2, memo_table_phi_ideal_tt2)
+
+MEMO2_FUNCTION(memo2_phi_resi, phi_resi2, memo_table_phi_resi2)
+MEMO2_FUNCTION(memo2_phi_resi_d, phi_resi_d2, memo_table_phi_resi_d2)
+MEMO2_FUNCTION(memo2_phi_resi_dd, phi_resi_dd2, memo_table_phi_resi_dd2)
+MEMO2_FUNCTION(memo2_phi_resi_t, phi_resi_t2, memo_table_phi_resi_t2)
+MEMO2_FUNCTION(memo2_phi_resi_dt, phi_resi_dt2, memo_table_phi_resi_dt2)
+MEMO2_FUNCTION(memo2_phi_resi_tt, phi_resi_tt2, memo_table_phi_resi_tt2)

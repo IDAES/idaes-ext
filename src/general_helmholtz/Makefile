@@ -11,9 +11,16 @@ endif
 ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
 ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 
-OBJECTS = phi.o props.o h2o.o sat.o testing.o solver.o delta.o state.o
+OBJECTS = phi.o props.o h2o.o sat.o testing.o solver.o delta.o state.o ampl_wrap.o
 
 .PHONY: clean
+
+ALL: general_helmholtz_external.so
+
+run_test:
+	./testing
+
+test: testing run_test
 
 phi.o: phi.cpp
 	  $(CXX) $(CXXFLAGS) phi.cpp -o phi.o -I$(ADOLC_INC)
@@ -36,11 +43,17 @@ sat.o: sat.cpp
 h2o.o: h2o.cpp
 	  $(CXX) $(CXXFLAGS) h2o.cpp -o h2o.o -I$(ADOLC_INC)
 
+ampl_wrap.o: ampl_wrap.cpp
+	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)
+
 testing.o: testing.cpp
 	  $(CXX) $(CXXFLAGS) testing.cpp -o testing.o
 
 testing: $(OBJECTS)
 	  $(LINK) $(OBJECTS) -o testing -ladolc -L$(ADOLC_LIB)
+
+general_helmholtz_external.so: $(OBJECTS)
+	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -ladolc -L$(ADOLC_LIB)
 
 clean:
 	rm -f *.o

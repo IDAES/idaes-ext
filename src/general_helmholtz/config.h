@@ -39,7 +39,7 @@ enum comp_enum{
   r134a = 3,
 };
 
-static std::unordered_map<std::string, comp_enum> const comp_string_table = {
+static std::unordered_map<std::string, comp_enum> comp_string_table = {
   {"h2o", comp_enum::h2o},
   {"co2", comp_enum::co2},
   {"r134a", comp_enum::r134a},
