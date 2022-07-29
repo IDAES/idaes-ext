@@ -25,7 +25,7 @@ ASL_WRAP_FUNC_2ARG(vf, memo2_vf_hp)                      // vf(comp, enthalpy, p
 ASL_WRAP_FUNC_2ARG(vfs, memo2_vf_sp)                     // vf(comp, entropy, pressure) [none]
 ASL_WRAP_FUNC_2ARG(vfu, memo2_vf_up)                     // vf(comp, internal energy, pressure) [none]
 ASL_WRAP_FUNC_2ARG(delta_liq, memo2_delta_liquid)        // delta_liq(comp, pressure, tau) [none]
-ASL_WRAP_FUNC_2ARG(delta_vap, memo2_delta_vapor)               // delta_vap(comp, pressure, tau) [none]
+ASL_WRAP_FUNC_2ARG(delta_vap, memo2_delta_vapor)         // delta_vap(comp, pressure, tau) [none]
 
 ASL_WRAP_FUNC_2ARG(phi0, memo2_phi_ideal)                // phi0(comp, delta, tau) [none]
 ASL_WRAP_FUNC_2ARG(phir, memo2_phi_resi)                 // phir(comp, delta, tau) [none]
@@ -47,6 +47,7 @@ ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, pr
 ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, pressure) [none]
 
 // Some parameters to make it easier to sync Pyomo parameters with external functions
+ASL_WRAP_FUNC_0ARG(mw, param::mw)          // Critical Pressure     [g/mol]
 ASL_WRAP_FUNC_0ARG(pc, param::Pc)          // Critical Pressure     [kPa]
 ASL_WRAP_FUNC_0ARG(tc, param::Tc)          // Critical Temperature  [K]
 ASL_WRAP_FUNC_0ARG(rhoc, param::rhoc)      // Critical Density      [kg/m^3]
@@ -54,7 +55,11 @@ ASL_WRAP_FUNC_0ARG(pt, param::Pt)          // Critical Pressure     [kPa]
 ASL_WRAP_FUNC_0ARG(tt, param::Tt)          // Critical Temperature  [K]
 ASL_WRAP_FUNC_0ARG(rhot_v, param::rhot_v)  // Critical Density      [kg/m^3]
 ASL_WRAP_FUNC_0ARG(rhot_l, param::rhot_l)  // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(sgc, param::R)       // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
+ASL_WRAP_FUNC_0ARG(sgc, param::R)          // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
+ASL_WRAP_FUNC_0ARG(pmin, param::P_min)     // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmin, param::T_min)     // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(pmax, param::P_max)     // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmax, param::T_max)     // Minumum Temperature  [K]
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -89,6 +94,7 @@ void funcadd(AmplExports *ae){
     addfunc("vfu", (rfunc)vfu, typ, 2, NULL);
     addfunc("delta_liq", (rfunc)delta_liq, typ, 2, NULL);
     addfunc("delta_vap", (rfunc)delta_vap, typ, 2, NULL);
+    // phi and derivatives for calculating more thermo properties.
     addfunc("phi0", (rfunc)phi0, typ, 2, NULL);
     addfunc("phir", (rfunc)phir, typ, 2, NULL);
     addfunc("phi0_d", (rfunc)phi0_d, typ, 2, NULL);
@@ -101,12 +107,13 @@ void funcadd(AmplExports *ae){
     addfunc("phir_dt", (rfunc)phir_dt, typ, 2, NULL);
     addfunc("phi0_tt", (rfunc)phi0_tt, typ, 2, NULL);
     addfunc("phir_tt", (rfunc)phir_tt, typ, 2, NULL);
-
+    // Unary functions for sat curve
     addfunc("delta_sat_l", (rfunc)delta_sat_l, typ, 1, NULL);
     addfunc("delta_sat_v", (rfunc)delta_sat_v, typ, 1, NULL);
     addfunc("p_sat", (rfunc)p_sat, typ, 1, NULL);
     addfunc("tau_sat", (rfunc)tau_sat, typ, 1, NULL);
-
+    // Parameters
+    addfunc("mw", (rfunc)mw, typ, 0, NULL);
     addfunc("pc", (rfunc)pc, typ, 0, NULL);
     addfunc("tc", (rfunc)tc, typ, 0, NULL);
     addfunc("rhoc", (rfunc)rhoc, typ, 0, NULL);
@@ -115,6 +122,8 @@ void funcadd(AmplExports *ae){
     addfunc("rhot_v", (rfunc)rhot_l, typ, 0, NULL);
     addfunc("rhot_l", (rfunc)rhot_v, typ, 0, NULL);
     addfunc("sgc", (rfunc)sgc, typ, 0, NULL);
-
-
+    addfunc("pmin", (rfunc)pmin, typ, 0, NULL);
+    addfunc("tmin", (rfunc)tmin, typ, 0, NULL);
+    addfunc("pmax", (rfunc)pmax, typ, 0, NULL);
+    addfunc("tmax", (rfunc)tmax, typ, 0, NULL);
 }

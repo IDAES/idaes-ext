@@ -15,7 +15,13 @@
 #define _INCLUDE_PARAM_H_
 
 namespace param {
-  
+  // MW
+  const double mw[] = {
+    0,           // not used
+    18.015268,   // H2O
+  };
+
+
   // Specific gas constant (kJ/kg/K)
   const double R[] = {
     0,          // not used
@@ -62,6 +68,12 @@ namespace param {
   const double rhot_v[] = {
     0,          // not used
     0.00485458  // H2O
+  };
+
+  // upper pressue bound (kPa)
+  const double P_min[] = {
+    0,       // not used
+    1e-9,    // h2o
   };
 
   // upper pressue bound (kPa)
