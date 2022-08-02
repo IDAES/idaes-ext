@@ -273,7 +273,6 @@ void gibbs2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   double phii_t = yi->at(f4_2);
   double phii_dt = yi->at(f4_12);
   double phii_tt = yi->at(f4_22);
-  double phii_dtt = yi->at(f4_122);
   double phir = yr->at(f4);
   double phir_t = yr->at(f4_2);
   double phir_d = yr->at(f4_1);
@@ -350,8 +349,61 @@ void isochoric_heat_capacity2(comp_enum comp, double delta, double tau, std::vec
   out->assign(res, res+6);
 }
 
+void isobaric_heat_capacity2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
+  double res[6];
+  double c = param::R[comp];
+  double phii_tt = yi->at(f4_22);
+  double phii_dtt = yi->at(f4_122);
+  double phii_ddtt = yi->at(f4_1122);
+  double phii_dttt = yi->at(f4_1222);
+  double phii_ttt = yi->at(f4_222);
+  double phii_tttt = yi->at(f4_2222);
+  double phir_d = yr->at(f4_1);
+  double phir_dd = yr->at(f4_11);
+  double phir_ddd = yr->at(f4_111);
+  double phir_dddd = yr->at(f4_1111);
+  double phir_dddt = yr->at(f4_1112);
+  double phir_ddt = yr->at(f4_112);
+  double phir_dt = yr->at(f4_12);
+  double phir_tt = yr->at(f4_22);
+  double phir_dtt = yr->at(f4_122);
+  double phir_ddtt = yr->at(f4_1122);
+  double phir_dttt = yr->at(f4_1222);
+  double phir_ttt = yr->at(f4_222);
+  double phir_tttt = yr->at(f4_2222);
 
+  double y = -tau*tau*(phii_tt + phir_tt);
+  double y_d = -tau*tau*(phii_dtt + phir_dtt);
+  double y_dd = -tau*tau*(phii_ddtt + phir_ddtt);
+  double y_t = -1*(2*tau*(phii_tt + phir_tt) + tau*tau*(phii_ttt + phir_ttt));
+  double y_dt = -1*(2*tau*(phii_dtt + phir_dtt) + tau*tau*(phii_dttt + phir_dttt));
+  double y_tt = -1*(2*(phii_tt + phir_tt) + 4*tau*(phii_ttt + phir_ttt) + tau*tau*(phii_tttt + phir_tttt));
+
+  double x = 1 + delta*phir_d - delta*tau*phir_dt;
+  double x_d = phir_d + delta*phir_dd - tau*phir_dt - delta*tau*phir_ddt;
+  double x_t = -delta*tau*phir_dtt;
+  double x_dd = 2*phir_dd + delta*phir_ddd - 2*tau*phir_ddt - delta*tau*phir_dddt;
+  double x_dt = -tau*phir_dtt - delta*tau*phir_ddtt;
+  double x_tt = -delta*phir_dtt - delta*tau*phir_dttt;
+
+  double z = 1 + 2*delta*phir_d + delta*delta*phir_dd;
+  double z_d = 2*phir_d + 4*delta*phir_dd + delta*delta*phir_ddd;
+  double z_t = 2*delta*phir_dt + delta*delta*phir_ddt;
+  double z_dd = 6*phir_dd + 6*delta*phir_ddd + delta*delta*phir_dddd;
+  double z_dt = 2*phir_dt + 4*delta*phir_ddt + delta*delta*phir_dddt;
+  double z_tt = 2*delta*phir_dtt + delta*delta*phir_ddtt;
+
+  res[f2] = c*(y + x*x/z);
+  res[f2_1] = c*(y_d + 2*x/z*x_d - x*x/z/z*z_d);
+  res[f2_11] = c*(y_dd + (2/z*x_d - 2*x/z/z*z_d)*x_d + 2*x/z*x_dd + (-2*x/z/z*x_d + 2*x*x/z/z/z*z_d)*z_d - x*x/z/z*z_dd);
+  res[f2_2] = c*(y_t + 2*x/z*x_t - x*x/z/z*z_t);
+  res[f2_12] = c*(y_dt + (2/z*x_t - 2*x/z/z*z_t)*x_d + 2*x/z*x_dt + (-2*x/z/z*x_t + 2*x*x/z/z/z*z_t)*z_d - x*x/z/z*z_dt);
+  res[f2_22] = c*(y_tt + (2/z*x_t - 2*x/z/z*z_t)*x_t + 2*x/z*x_tt + (-2*x/z/z*x_t + 2*x*x/z/z/z*z_t)*z_t - x*x/z/z*z_tt);
+  out->assign(res, res+6);
+}
 
 void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *y = phi_ideal(comp, delta, tau);
@@ -492,6 +544,7 @@ MEMO2_FUNCTION(memo2_enthalpy, enthalpy2, memo_table_enthalpy2)
 MEMO2_FUNCTION(memo2_gibbs, gibbs2, memo_table_gibbs2)
 MEMO2_FUNCTION(memo2_helmholtz, helmholtz2, memo_table_helmholtz2)
 MEMO2_FUNCTION(memo2_isochoric_heat_capacity, isochoric_heat_capacity2, memo_table_isochoric_heat_capacity2)
+MEMO2_FUNCTION(memo2_isobaric_heat_capacity, isobaric_heat_capacity2, memo_table_isobaric_heat_capacity2)
 
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
