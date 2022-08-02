@@ -1,10 +1,24 @@
 import pyomo.environ as pyo
-from helmholtz_functions import add_helmholtz_external_functions
+from helmholtz_functions import (
+    add_helmholtz_external_functions,
+    HelmholtzStateBlock,
+    HelmholtzThermoExpressions,
+)
 
 
 def main():
     m = pyo.ConcreteModel()
+    m.param_block = HelmholtzStateBlock(pure_component="h2o")
+
     add_helmholtz_external_functions(m)
+
+    te = HelmholtzThermoExpressions(m, m.param_block)
+    m.enthalpy = pyo.Var(initialize=2689.73 * pyo.value(m.param_block.mw) * 1000, units=pyo.units.J / pyo.units.mol)
+    m.pressure = pyo.Var(initialize=101325, units=pyo.units.Pa)
+
+    m.entropy = pyo.Expression(expr=te.s(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kgK_to_J_per_molK)
+
+    m.entropy.display()
 
     pc = pyo.value(m.pc_func("h2o"))
     tc = pyo.value(m.tc_func("h2o"))
@@ -154,6 +168,7 @@ def main():
     print(f"phir_tt = {phir_tt} [none]")
     print("-------------------------------------------------------------------")
 
-
+    m.param_block.ph_diagram()
+    
 if __name__ == "__main__":
     main()

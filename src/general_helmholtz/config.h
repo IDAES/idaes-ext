@@ -41,8 +41,11 @@ enum comp_enum{
 
 static std::unordered_map<std::string, comp_enum> comp_string_table = {
   {"h2o", comp_enum::h2o},
+  {"H2O", comp_enum::h2o},
   {"co2", comp_enum::co2},
+  {"CO2", comp_enum::co2},
   {"r134a", comp_enum::r134a},
+  {"R134A", comp_enum::r134a},
 };
 
 enum deriv1_enum {

@@ -322,6 +322,9 @@ void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *o
   out->assign(res, res+6);
 }
 
+
+
+
 void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *y = phi_ideal(comp, delta, tau);
   out->resize(6);
