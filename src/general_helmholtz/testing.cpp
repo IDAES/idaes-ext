@@ -17,6 +17,7 @@
 #include"solver.h"
 #include"delta.h"
 #include"state.h"
+#include"h2o.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>
@@ -383,7 +384,10 @@ int main(){
   std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
   std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
 
-
+  double press;
+  for(press=1; press<1e6; press+=1000.0){
+    std::cout << melting_liquid_density_h2o(press) << std::endl;
+  }
 
 
   /*

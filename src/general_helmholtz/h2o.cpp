@@ -79,7 +79,7 @@ double melting_liquid_density_h2o(double pr){
     temperatures at a given pressure (kPa).
   */
   if(pr >= 400000){
-    return -9.025000E-11*pr*pr + 2.802900E-0*pr + 1.047067E+03;
+    return -9.025000E-11*pr*pr + 2.802900E-04*pr + 1.047067E+03;
   }
   if(pr >= 22500){
     return -3.908565E-10*pr*pr + 5.195933E-04*pr + 9.992365E+02;

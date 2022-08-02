@@ -776,7 +776,7 @@ class HelmholtzStateBlockData(StateBlockData):
 
         for t in t_vec:
             tau = pyo.value(self.temperature_crit)/t
-            p_vec = np.linspace(p[t], 3e5, 40)
+            p_vec = np.linspace(p[t], 1e6, 100)
             h_vec = [None]*len(p_vec)
             for i, pv in enumerate(p_vec):
                 h_vec[i] = pyo.value(self.hlpt_func(self.pure_component, pv, tau))
