@@ -322,6 +322,34 @@ void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *o
   out->assign(res, res+6);
 }
 
+void isochoric_heat_capacity2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+
+  double res[6];
+  double c = param::R[comp];
+  double phii_tt = yi->at(f4_22);
+  double phii_dtt = yi->at(f4_122);
+  double phii_ddtt = yi->at(f4_1122);
+  double phii_dttt = yi->at(f4_1222);
+  double phii_ttt = yi->at(f4_222);
+  double phii_tttt = yi->at(f4_2222);
+  double phir_tt = yr->at(f4_22);
+  double phir_dtt = yr->at(f4_122);
+  double phir_ddtt = yr->at(f4_1122);
+  double phir_dttt = yr->at(f4_1222);
+  double phir_ttt = yr->at(f4_222);
+  double phir_tttt = yr->at(f4_2222);
+
+  res[f2] = -c*tau*tau*(phii_tt + phir_tt);
+  res[f2_1] = -c*tau*tau*(phii_dtt + phir_dtt);
+  res[f2_11] = -c*tau*tau*(phii_ddtt + phir_ddtt);
+  res[f2_2] = -c*(2*tau*(phii_tt + phir_tt) + tau*tau*(phii_ttt + phir_ttt));
+  res[f2_12] = -c*(2*tau*(phii_dtt + phir_dtt) + tau*tau*(phii_dttt + phir_dttt));
+  res[f2_22] = -c*(2*(phii_tt + phir_tt) + 4*tau*(phii_ttt + phir_ttt) + tau*tau*(phii_tttt + phir_tttt));
+  out->assign(res, res+6);
+}
+
 
 
 
@@ -463,6 +491,8 @@ MEMO2_FUNCTION(memo2_entropy, entropy2, memo_table_entropy2)
 MEMO2_FUNCTION(memo2_enthalpy, enthalpy2, memo_table_enthalpy2)
 MEMO2_FUNCTION(memo2_gibbs, gibbs2, memo_table_gibbs2)
 MEMO2_FUNCTION(memo2_helmholtz, helmholtz2, memo_table_helmholtz2)
+MEMO2_FUNCTION(memo2_isochoric_heat_capacity, isochoric_heat_capacity2, memo_table_isochoric_heat_capacity2)
+
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
 MEMO2_FUNCTION(memo2_phi_ideal_d, phi_ideal_d2, memo_table_phi_ideal_d2)

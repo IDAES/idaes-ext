@@ -38,6 +38,8 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
 void enthalpy2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void gibbs2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *out);
+void isochoric_heat_capacity2(comp_enum comp, double delta, double tau, std::vector<double> *out);
+
 // Rather than calculate all the properties here, provide the terms needed to caluclate
 void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void phi_ideal_d2(comp_enum comp, double delta, double tau, std::vector<double> *out);
@@ -59,6 +61,8 @@ std::vector<double> *memo2_entropy(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_enthalpy(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_gibbs(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_helmholtz(comp_enum comp, double delta, double tau);
+std::vector<double> *memo2_isochoric_heat_capacity(comp_enum comp, double delta, double tau);
+
 // Rather than calculate all the properties here, provide the terms needed to caluclate
 std::vector<double> *memo2_phi_ideal(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_phi_ideal_d(comp_enum comp, double delta, double tau);

@@ -228,6 +228,9 @@ int main(){
   err = !fd2(memo2_helmholtz, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_helmholtz passed: " << err << std::endl;
 
+  err = !fd2(memo2_isochoric_heat_capacity, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_isochoric_heat_capacity passed: " << err << std::endl;
+
   err = !fd2(memo2_phi_ideal, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_phi_ideal passed: " << err << std::endl;
 
@@ -384,11 +387,12 @@ int main(){
   std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
   std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
 
+  /*
   double press;
   for(press=1; press<1e6; press+=1000.0){
     std::cout << melting_liquid_density_h2o(press) << std::endl;
   }
-
+  */
 
   /*
   double temperature;
