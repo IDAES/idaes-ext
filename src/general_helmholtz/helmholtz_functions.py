@@ -52,6 +52,16 @@ _external_function_map = {
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [pyo.units.dimensionless, pyo.units.dimensionless],
     },
+    "cv_func": {  # entropy
+        "fname": "cv",
+        "units": pyo.units.kJ / pyo.units.kg / pyo.units.K,
+        "arg_units": [pyo.units.dimensionless, pyo.units.dimensionless],
+    },
+    "cp_func": {  # entropy
+        "fname": "cp",
+        "units": pyo.units.kJ / pyo.units.kg / pyo.units.K,
+        "arg_units": [pyo.units.dimensionless, pyo.units.dimensionless],
+    },
     # Dimensionless Helmholtz energy to calculate other thermo properties
     "phi0_func": {  # ideal part
         "fname": "phi0",
@@ -464,56 +474,56 @@ class HelmholtzThermoExpressions(object):
 
     def u_vap(self, **kwargs):
         """Vapor phase internal energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["u_func"])
         u = blk.u_func(c, delta_vap, tau)
         return u * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def g(self, **kwargs):
         """Mixed phase Gibb's free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_liq, tau) * (1 - x) + blk.g_func(c, delta_vap, tau) * x
         return g * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def g_liq(self, **kwargs):
         """Liquid phase Gibb's free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_liq, tau)
         return g * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def g_vap(self, **kwargs):
         """Vapor phase Gibb's free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_vap, tau)
         return g * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def f(self, **kwargs):
         """Mixed phase Helmholtz free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_liq, tau) * (1 - x) + blk.f_func(c, delta_vap, tau) * x
         return f * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def f_liq(self, **kwargs):
         """Liquid phase Helmholtz free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_liq, tau)
         return f * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def f_vap(self, **kwargs):
         """Vapor phase Helmholtz free energy"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_vap, tau)
         return f * self.param.uc_kJ_per_kg_to_J_per_mol
 
     def p(self, **kwargs):
         """Pressure"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["p_func"])
         # The following line looks a bit weird, but it is okay.  When in the
         # two-phase region the pressure for both phases is the same
@@ -522,7 +532,7 @@ class HelmholtzThermoExpressions(object):
 
     def v(self, **kwargs):
         """Mixed phase molar volume"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = (
             ((1 - x) / delta_liq + x / delta_vap)
             / self.param.dens_mass_crit
@@ -532,82 +542,82 @@ class HelmholtzThermoExpressions(object):
 
     def v_liq(self, **kwargs):
         """Liquid phase molar volume"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = 1.0 / delta_liq / self.param.dens_mass_crit * self.param.mw
         return v
 
     def v_vap(self, **kwargs):
         """Vapor phase molar volume"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = 1.0 / delta_vap / self.param.dens_mass_crit * self.param.mw
         return v
 
     def x(self, **kwargs):
         """Vapor faction"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return x
 
     def T(self, **kwargs):
         """Temperature"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return self.param.temperature_crit / tau
 
     def tau(self, **kwargs):
         """Critical Temperature (K)/Temperature (K)"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return tau
 
     def delta_liq(self, **kwargs):
         """Return liquid phase reduced density (dens/critical dens) expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_liq
 
     def rho_liq(self, **kwargs):
         """Return liquid phase mass density expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_liq * self.param.dens_mass_crit
 
     def rho_mol_liq(self, **kwargs):
         """Return liquid phase molar density expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_liq * self.param.dens_mass_crit / self.param.mw
 
     def delta_vap(self, **kwargs):
         """Return vapor phase reduced density (dens/critical dens) expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_vap
 
     def rho_vap(self, **kwargs):
         """Return vapor phase mass density expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_vap * self.param.dens_mass_crit
 
     def rho_mol_vap(self, **kwargs):
         """Return vapor phase molar density expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_vap * self.param.dens_mass_crit / self.param.mw
 
     def cv_mol_liq(self, **kwargs):
         """Return liquid phase constant volume heat capacity expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["cv_func"])
         return blk.func_cv(delta_liq, tau) * self.param.uc_kJ_per_kgK_to_J_per_molK
 
     def cv_mol_vap(self, **kwargs):
         """Return vapor phase constant volume heat capacity expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["func_cv"])
         return blk.func_cv(delta_vap, tau) * self.param.uc_kJ_per_kgK_to_J_per_molK
 
     def w_liq(self, **kwargs):
         """Return liquid phase speed of sound expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["func_w"])
         return blk.func_w(delta_liq, tau)
 
     def w_vap(self, **kwargs):
         """Return vapor phase speed of sound expression"""
-        pyo.unblk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["func_w"])
         return blk.func_w(delta_vap, tau)
 
@@ -739,7 +749,7 @@ class HelmholtzStateBlockData(StateBlockData):
             ]
         )
 
-        tau_sat_vec = np.linspace(1, pyo.value(self.temperature_crit)/pyo.value(self.temperature_trip), 200)
+        tau_sat_vec = np.linspace(1, pyo.value(self.temperature_crit)/(pyo.value(self.temperature_trip)), 200)
         p_sat_vec = [None]*len(tau_sat_vec)
         delta_sat_v_vec = [None]*len(tau_sat_vec)
         delta_sat_l_vec = [None]*len(tau_sat_vec)
@@ -757,8 +767,8 @@ class HelmholtzStateBlockData(StateBlockData):
         plt.plot(h_sat_l_vec, p_sat_vec, c="b", label="sat liquid")
         plt.plot(h_sat_v_vec, p_sat_vec, c="r", label="sat vapor")
 
-        t_vec = [pyo.value(self.temperature_trip), 300, 400, 500, 600, pyo.value(self.temperature_crit)]
-        #t_vec = [pyo.value(self.temperature_trip), 300, 400, 500, 600]
+        t_vec = np.linspace(pyo.value(self.temperature_trip), pyo.value(self.temperature_crit), 6)
+        #t_vec = [340]
         p = {}
         h_l = {}
         h_v = {}
@@ -776,7 +786,7 @@ class HelmholtzStateBlockData(StateBlockData):
 
         for t in t_vec:
             tau = pyo.value(self.temperature_crit)/t
-            p_vec = np.linspace(p[t], 1e6, 100)
+            p_vec = np.logspace(np.log10(p[t]), np.log10(5e5), 50)
             h_vec = [None]*len(p_vec)
             for i, pv in enumerate(p_vec):
                 h_vec[i] = pyo.value(self.hlpt_func(self.pure_component, pv, tau))
@@ -784,18 +794,26 @@ class HelmholtzStateBlockData(StateBlockData):
 
         for t in t_vec:
             tau = pyo.value(self.temperature_crit)/t
-            p_vec = np.linspace(0.1, p[t], 50)
+            p_vec = np.logspace(np.log10(0.1), np.log10(p[t]), 50)
+
             h_vec = [None]*len(p_vec)
             for i, pv in enumerate(p_vec):
                 h_vec[i] = pyo.value(self.hvpt_func(self.pure_component, pv, tau))
             plt.plot(h_vec, p_vec, c="g")
 
+
+        pc = pyo.value(self.pressure_crit)
+        pt = pyo.value(self.pressure_trip)
+        tc = pyo.value(self.temperature_crit)
+        tt = pyo.value(self.temperature_trip)
+        deltat_l = pyo.value(self.delta_liq_func(self.pure_component, pt, tc/tt))
+        hc = pyo.value(self.h_func(self.pure_component, 1, 1))
+        ht = pyo.value(self.h_func(self.pure_component, deltat_l, tc/tt))
+        plt.scatter([hc], [pc/1000])
+        plt.scatter([ht], [pt/1000])
+
+        plt.title(f"P-H Diagram for {self.pure_component}")
         plt.xlabel("Enthalpy (kJ/kg)")
         plt.ylabel("Pressure (kPa)")
-
-
-
-
-
 
         plt.show()

@@ -14,7 +14,6 @@
 #include <adolc/adolc.h>
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
-#include"h2o.h"
 #include"config.h"
 #include"param.h"
 #include"phi.h"

@@ -12,6 +12,8 @@ ASL_WRAP_FUNC_2ARG(s, memo2_entropy)                     // s(comp, delta, tau) 
 ASL_WRAP_FUNC_2ARG(h, memo2_enthalpy)                    // h(comp, delta, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(g, memo2_gibbs)                       // g(comp, delta, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(f, memo2_helmholtz)                   // f(comp, delta, tau) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv, memo2_isochoric_heat_capacity)    // cv(comp, delta, tau) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp, memo2_isobaric_heat_capacity)     // cp(comp, delta, tau) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(hvpt, memo2_enthalpy_vapor)           // hv(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(hlpt, memo2_enthalpy_liquid)          // hl(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(svpt, memo2_entropy_vapor)            // sv(comp, pressure, tau) [kJ/kg/K]
@@ -75,10 +77,10 @@ void funcadd(AmplExports *ae){
     addfunc("h", (rfunc)h, typ, 2, NULL);
     addfunc("g", (rfunc)g, typ, 2, NULL);
     addfunc("f", (rfunc)f, typ, 2, NULL);
+    addfunc("cv", (rfunc)cv, typ, 2, NULL);
+    addfunc("cp", (rfunc)cp, typ, 2, NULL);
     /*
-    addfunc("cv", (rfunc)cv_EOS_TAG, typ, 2, NULL);
-    addfunc("cp", (rfunc)cp_EOS_TAG, typ, 2, NULL);
-    addfunc("w", (rfunc)w_EOS_TAG, typ, 2, NULL);
+    addfunc("w", (rfunc)w, typ, 2, NULL);
     */
     addfunc("hvpt", (rfunc)hvpt, typ, 2, NULL);
     addfunc("hlpt", (rfunc)hlpt, typ, 2, NULL);

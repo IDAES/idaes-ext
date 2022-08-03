@@ -11,7 +11,7 @@ endif
 ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
 ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 
-OBJECTS = phi.o props.o h2o.o sat.o testing.o solver.o delta.o state.o ampl_wrap.o
+OBJECTS = phi.o props.o h2o.o r1234ze.o sat.o testing.o solver.o delta.o state.o ampl_wrap.o
 
 .PHONY: clean
 
@@ -42,6 +42,9 @@ sat.o: sat.cpp
 
 h2o.o: h2o.cpp
 	  $(CXX) $(CXXFLAGS) h2o.cpp -o h2o.o -I$(ADOLC_INC)
+
+r1234ze.o: r1234ze.cpp
+	  $(CXX) $(CXXFLAGS) r1234ze.cpp -o r1234ze.o -I$(ADOLC_INC)
 
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)

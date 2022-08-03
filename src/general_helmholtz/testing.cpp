@@ -18,6 +18,7 @@
 #include"delta.h"
 #include"state.h"
 #include"h2o.h"
+#include"param.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>
@@ -390,6 +391,9 @@ int main(){
   std::cout << "rho_l(" << p << ", " << t << ") = " << 322*delta_liquid(comp_enum::h2o, p, 647.096/t) << std::endl;
   std::cout << "rho_v(" << p << ", " << t << ") = " << 322*delta_vapor(comp_enum::h2o, p, 647.096/t) << std::endl;
 
+
+  err = !fd2(memo2_isochoric_heat_capacity, comp_enum::r1234ze, 1, 1, &p_vec_fd, 1e-6, 1);
+  std::cout << "memo2_isochoric_heat_capacity passed: " << err << std::endl;
   /*
   double press;
   for(press=1; press<1e6; press+=1000.0){
@@ -411,15 +415,15 @@ int main(){
     std::cout << pressure(comp_enum::h2o, 400.0/322.0, 647.096/temperature) << "\t";
     std::cout << pressure(comp_enum::h2o, 300.0/322.0, 647.096/temperature) << std::endl;
   }
-
-  double tau;
-  for(tau=2.7536; tau > 0.99; tau -= 0.01){
-    std::cout << 647.096/tau << "\t";
-    std::cout << sat_delta_l(comp_enum::h2o, tau)->at(0) << "\t";
-    std::cout << sat_delta_v(comp_enum::h2o, tau)->at(0) << "\t";
-    std::cout << sat_p(comp_enum::h2o, tau)->at(0) << std::endl;
-  }
   */
 
+  /*
+  for(tau=param::Tc[r1234ze]/param::Tt[r1234ze]; tau >= 1.0; tau -= 0.01){
+    std::cout << param::Tc[r1234ze]/tau << "\t";
+    std::cout << sat_delta_l(comp_enum::r1234ze, tau)->at(0)*param::rhoc[r1234ze] << "\t";
+    std::cout << sat_delta_v(comp_enum::r1234ze, tau)->at(0)*param::rhoc[r1234ze] << "\t";
+    std::cout << sat_p(comp_enum::r1234ze, tau)->at(0) << std::endl;
+  }
+ */
   return 0;
 }

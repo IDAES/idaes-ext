@@ -13,7 +13,7 @@
 
 #include"config.h"
 #include"h2o.h"
-
+#include"r1234ze.h"
 
 #ifndef _INCLUDE_FUNCTION_POINTERS_H_
 #define _INCLUDE_FUNCTION_POINTERS_H_
@@ -33,6 +33,9 @@ defined in config.h
 const uni_double_function_type melting_temperature_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   melting_temperature_h2o,         // 1 - h2o
+  (uni_double_function_type)NULL,  // 2 - co2
+  melting_temperature_r1234ze,     // 3 - r1234ze
+
 };
 
 // This provides melting liquid density as a function of pressure
@@ -41,30 +44,40 @@ const uni_double_function_type melting_temperature_func[] = {
 const uni_double_function_type melting_liquid_density_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   melting_liquid_density_h2o,      // 1 - h2o
+  (uni_double_function_type)NULL,  // 2 - co2
+  melting_liquid_density_r1234ze,  // 3 - r1234ze
 };
 
 // This provides a guess for saturated liquid density as a function of tau
 const uni_double_function_type delta_l_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_l_approx_h2o,          // 1 - h2o
+  (uni_double_function_type)NULL,  // 2 - co2
+  delta_sat_l_approx_r1234ze,      // 3 - r1234ze
 };
 
 // This provides a guess for saturated liquid density as a function of tau
 const uni_double_function_type delta_v_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_v_approx_h2o,          // 1 - h2o
+  (uni_double_function_type)NULL,  // 2 - co2
+  delta_sat_v_approx_r1234ze,      // 3 - r1234ze
 };
 
 // Make AD/calculation tape for residual dimensionless Helmholtz free energy
 const zero_void_function_type phi_resi_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_resi_tape,               // 1 - h2o
+  (zero_void_function_type)NULL,  // 2 - co2
+  phi_r1234ze_resi_tape,           // 3 - r1234ze
 };
 
 // Make AD/calculation tape for ideal dimensionless Helmholtz free energy
 const zero_void_function_type phi_ideal_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_ideal_tape,              // 1 - h2o
+  (zero_void_function_type)NULL,  // 2 - co2
+  phi_r1234ze_ideal_tape,          // 3 - r1234ze
 };
 
 #endif

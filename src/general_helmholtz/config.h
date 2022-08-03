@@ -36,7 +36,7 @@ typedef unsigned char uchar;
 enum comp_enum{
   h2o = 1,
   co2 = 2,
-  r134a = 3,
+  r1234ze = 3,
 };
 
 static std::unordered_map<std::string, comp_enum> comp_string_table = {
@@ -44,8 +44,8 @@ static std::unordered_map<std::string, comp_enum> comp_string_table = {
   {"H2O", comp_enum::h2o},
   {"co2", comp_enum::co2},
   {"CO2", comp_enum::co2},
-  {"r134a", comp_enum::r134a},
-  {"R134A", comp_enum::r134a},
+  {"r1234ze", comp_enum::r1234ze},
+  {"R1234ZE", comp_enum::r1234ze},
 };
 
 enum deriv1_enum {
@@ -81,8 +81,8 @@ enum deriv4_enum {
   f4_2222 = 14,
 };
 
-#define PHI_IDEAL_TAPE_H2O 1
-#define PHI_RESI_TAPE_H2O 2
+#define PHI_IDEAL_TAPE(c) c
+#define PHI_RESI_TAPE(c) NCOMPS + c
 
 extern unsigned int taped_ideal[NCOMPS];
 extern unsigned int taped_resi[NCOMPS];

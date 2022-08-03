@@ -128,8 +128,8 @@ void phi_h2o_ideal_tape(){
 // Create a ADOL-C tape for the ideal part of phi for H2O
   double out;
 
-  taped_ideal[comp_enum::h2o] = PHI_IDEAL_TAPE_H2O;
-  trace_on(PHI_IDEAL_TAPE_H2O);
+  taped_ideal[comp_enum::h2o] = PHI_IDEAL_TAPE(comp_enum::h2o);
+  trace_on(PHI_IDEAL_TAPE(comp_enum::h2o));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];
@@ -414,8 +414,8 @@ void phi_h2o_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::h2o] = PHI_RESI_TAPE_H2O;
-  trace_on(PHI_RESI_TAPE_H2O);
+  taped_resi[comp_enum::h2o] = PHI_RESI_TAPE(comp_enum::h2o);
+  trace_on(PHI_RESI_TAPE(comp_enum::h2o));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

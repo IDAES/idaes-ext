@@ -76,8 +76,8 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   if(pr > param::Pc[comp]){
     std::vector<double> out;
     if(tau > 1.0){
-      bracket(pwrap, 0.99, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 80, 1e-4, 1e-4, &ps);
-      halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
+      // This is liquid just use the liquid density
+      return delta_liquid(comp, pr, tau);
     }
     else{
       bracket(pwrap, 0.0001, 1.001, &delta, 90, 1e-4, 1e-4, &ps);
@@ -125,16 +125,10 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
-  if(pr > param::Pc[comp]){
+  if(pr > param::Pc[comp] && tau < 1.0){
     std::vector<double> out;
-    if(tau > 1.0){
-      bracket(pwrap, 0.99, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 80, 1e-4, 1e-4, &ps);
-      halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
-    }
-    else{
-      bracket(pwrap, 0.0001, 1.001, &delta, 90, 1e-4, 1e-4, &ps);
-      halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
-    }
+    bracket(pwrap, 0.0001, 1.001, &delta, 90, 1e-4, 1e-4, &ps);
+    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
   // case 2 Psat < P < Pc, this is liquid or ice, if ice, I'll pretend its
@@ -143,7 +137,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
   if(pr >= p_sat){
-    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 3, 1e-4, 1e-4, &ps);
+    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 6, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
@@ -168,7 +162,6 @@ void delta_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *o
   out->at(f2_2) = -pr_vec->at(f2_2)/pr_vec->at(f2_1);
   out->at(f2_11) = -pr_vec->at(f2_11)*out->at(f2_1)*out->at(f2_1)*out->at(f2_1);
   out->at(f2_12) = -(pr_vec->at(f2_12) + pr_vec->at(f2_11)*out->at(f2_2))*out->at(f2_1)*out->at(f2_1);
-  //-(grad[0]*(hesp[2] + grad[1]*hesp[1]) + gradp[1]*hes[1]);
   out->at(f2_22) = -(out->at(f2_1)*(pr_vec->at(f2_22) + out->at(f2_2)*pr_vec->at(f2_12)) + pr_vec->at(f2_2)*out->at(f2_12));
 }
 
