@@ -408,7 +408,7 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
+  if(pr < param::Pc[comp]){ // Could be two phase
     hvs = enthalpy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = enthalpy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
@@ -552,7 +552,7 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
+  if(pr < param::Pc[comp]){ // Could be two phase
     hvs = entropy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = entropy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
@@ -696,7 +696,7 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 
   taus_vec_ptr = sat_tau(comp, pr);
   taus = taus_vec_ptr->at(0);
-  if(pr > param::Pt[comp] && pr < param::Pc[comp]){ // Could be two phase
+  if(pr < param::Pc[comp]){ // Could be two phase
     hvs = internal_energy(comp, sat_delta_v(comp, taus)->at(0), taus);
     hls = internal_energy(comp, sat_delta_l(comp, taus)->at(0), taus);
     if(ht > hls && ht < hvs){ // two-phase
