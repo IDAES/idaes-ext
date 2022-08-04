@@ -3,6 +3,7 @@ from helmholtz_functions import (
     add_helmholtz_external_functions,
     HelmholtzParameterBlock,
     HelmholtzThermoExpressions,
+    AmountBasis,
 )
 
 
@@ -163,7 +164,7 @@ def main():
     m.param_block.ph_diagram()
 
     m.param_block2 = HelmholtzParameterBlock(pure_component="r1234ze")
-    print(m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa))
+    print(m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa, amount_basis=AmountBasis.MOLE))
 
     m.param_block2.temperature_crit.display()
     m.param_block2.ph_diagram()

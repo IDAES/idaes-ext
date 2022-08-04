@@ -52,7 +52,6 @@ class AmountBasis(enum.Enum):
     """
     Mass or mole basis
     """
-
     MOLE = 1
     MASS = 2
 
@@ -367,7 +366,7 @@ class HelmholtzThermoExpressions(object):
     thermodynaic property function.
     """
 
-    def __init__(self, blk, parameters):
+    def __init__(self, blk, parameters, amount_basis=AmountBasis.MOLE):
         """Create a new thermodynamic property expression writer class.
 
         Args:
@@ -379,6 +378,7 @@ class HelmholtzThermoExpressions(object):
         """
         self.param = parameters
         self.blk = blk
+        self.amount_basis = amount_basis
 
     @staticmethod
     def _sv_str(**kwargs):
@@ -399,13 +399,22 @@ class HelmholtzThermoExpressions(object):
         """
         mw = self.param.mw
         c = self.param.pure_component
+
         # 1.) convert units to those expected by external functions
-        if h is not None:
-            h *= self.param.uc["J/mol to kJ/kg"]
-        if u is not None:
-            u *= self.param.uc["J/mol to kJ/kg"]
-        if s is not None:
-            s *= self.param.uc["J/mol/K to kJ/kg/K"]
+        if self.amount_basis==AmountBasis.MOLE:
+            if h is not None:
+                h *= self.param.uc["J/mol to kJ/kg"]
+            if u is not None:
+                u *= self.param.uc["J/mol to kJ/kg"]
+            if s is not None:
+                s *= self.param.uc["J/mol/K to kJ/kg/K"]
+        else:
+            if h is not None:
+                h *= self.param.uc["J/kg to kJ/kg"]
+            if u is not None:
+                u *= self.param.uc["J/kg to kJ/kg"]
+            if s is not None:
+                s *= self.param.uc["J/kg/K to kJ/kg/K"]
         if p is not None:
             p *= self.param.uc["Pa to kPa"]
         if T is not None:
@@ -464,105 +473,135 @@ class HelmholtzThermoExpressions(object):
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["s_func"])
         s = blk.s_func(c, delta_liq, tau) * (1 - x) + blk.s_func(c, delta_vap, tau) * x
-        return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        return s * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def s_liq(self, **kwargs):
         """Liquid phase entropy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["s_func"])
         s = blk.s_func(c, delta_liq, tau)
-        return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        return s * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def s_vap(self, **kwargs):
         """Vapor phase entropy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["s_func"])
         s = blk.s_func(c, delta_vap, tau)
-        return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return s * self.param.uc["kJ/kg/K to J/mol/K"]
+        return s * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def h(self, **kwargs):
         """Mixed phase enthalpy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["h_func"])
         h = blk.h_func(c, delta_liq, tau) * (1 - x) + blk.h_func(c, delta_vap, tau) * x
-        return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        return h * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def h_liq(self, **kwargs):
         """Liquid phase enthalpy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["h_func"])
         h = blk.h_func(c, delta_liq, tau)
-        return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        return h * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def h_vap(self, **kwargs):
         """Vapor phase enthalpy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["h_func"])
         h = blk.h_func(c, delta_vap, tau)
-        return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return h * self.param.uc["kJ/kg/K to J/mol/K"]
+        return h * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def u(self, **kwargs):
         """Mixed phase internal energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["u_func"])
         u = blk.u_func(c, delta_liq, tau) * (1 - x) + blk.u_func(c, delta_vap, tau) * x
-        return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        return u * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def u_liq(self, **kwargs):
         """Liquid phase internal energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["u_func"])
         u = blk.u_func(c, delta_liq, tau)
-        return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        return u * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def u_vap(self, **kwargs):
         """Vapor phase internal energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["u_func"])
         u = blk.u_func(c, delta_vap, tau)
-        return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return u * self.param.uc["kJ/kg/K to J/mol/K"]
+        return u * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def g(self, **kwargs):
         """Mixed phase Gibb's free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_liq, tau) * (1 - x) + blk.g_func(c, delta_vap, tau) * x
-        return g * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return g * self.param.uc["kJ/kg/K to J/mol/K"]
+        return g * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def g_liq(self, **kwargs):
         """Liquid phase Gibb's free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_liq, tau)
-        return g * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return g * self.param.uc["kJ/kg/K to J/mol/K"]
+        return g * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def g_vap(self, **kwargs):
         """Vapor phase Gibb's free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["g_func"])
         g = blk.g_func(c, delta_vap, tau)
-        return g * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return g * self.param.uc["kJ/kg/K to J/mol/K"]
+        return g * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def f(self, **kwargs):
         """Mixed phase Helmholtz free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_liq, tau) * (1 - x) + blk.f_func(c, delta_vap, tau) * x
-        return f * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return f * self.param.uc["kJ/kg/K to J/mol/K"]
+        return f * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def f_liq(self, **kwargs):
         """Liquid phase Helmholtz free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_liq, tau)
-        return f * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return f * self.param.uc["kJ/kg/K to J/mol/K"]
+        return f * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def f_vap(self, **kwargs):
         """Vapor phase Helmholtz free energy"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["f_func"])
         f = blk.f_func(c, delta_vap, tau)
-        return f * self.param.uc["kJ/kg to J/mol"]
+        if self.amount_basis == AmountBasis.MOLE:
+            return f * self.param.uc["kJ/kg/K to J/mol/K"]
+        return f * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def p(self, **kwargs):
         """Pressure"""
@@ -573,7 +612,7 @@ class HelmholtzThermoExpressions(object):
         p = blk.p_func(c, delta_liq, tau) * (1 - x) + blk.p_func(c, delta_vap, tau) * x
         return p * self.param.uc_kPa_to_Pa
 
-    def v(self, **kwargs):
+    def v_mol(self, **kwargs):
         """Mixed phase molar volume"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = (
@@ -583,13 +622,13 @@ class HelmholtzThermoExpressions(object):
         )
         return v
 
-    def v_liq(self, **kwargs):
+    def v_mol_liq(self, **kwargs):
         """Liquid phase molar volume"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = self.param.mw / delta_liq / self.param.dens_mass_crit
         return v
 
-    def v_vap(self, **kwargs):
+    def v_mol_vap(self, **kwargs):
         """Vapor phase molar volume"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         v = self.param.mw / delta_vap / self.param.dens_mass_crit
@@ -640,17 +679,41 @@ class HelmholtzThermoExpressions(object):
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         return delta_vap * self.param.dens_mass_crit / self.param.mw
 
-    def cv_mol_liq(self, **kwargs):
+    def cv_liq(self, **kwargs):
         """Return liquid phase constant volume heat capacity expression"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["cv_func"])
-        return blk.func_cv(c, delta_liq, tau) * self.param.uc["kJ/kg/K to J/mol/K"]
+        cv = blk.func_cv(c, delta_liq, tau)
+        if self.amount_basis == AmountBasis.MOLE:
+            return cv * self.param.uc["kJ/kg/K to J/mol/K"]
+        return cv * self.param.uc["kJ/kg/K to J/kg/K"]
 
-    def cv_mol_vap(self, **kwargs):
+    def cv_vap(self, **kwargs):
         """Return vapor phase constant volume heat capacity expression"""
         blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
         self.add_funcs(names=["cv_func"])
-        return blk.cv_func(c, delta_vap, tau) * self.param.uc["kJ/kg/K to J/mol/K"]
+        cv = blk.cv_func(c, delta_vap, tau)
+        if self.amount_basis == AmountBasis.MOLE:
+            return cv * self.param.uc["kJ/kg/K to J/mol/K"]
+        return cv * self.param.uc["kJ/kg/K to J/kg/K"]
+
+    def cp_liq(self, **kwargs):
+        """Return liquid phase constant volume heat capacity expression"""
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        self.add_funcs(names=["cv_func"])
+        cp = blk.func_cp(c, delta_liq, tau)
+        if self.amount_basis == AmountBasis.MOLE:
+            return cp * self.param.uc["kJ/kg/K to J/mol/K"]
+        return cp * self.param.uc["kJ/kg/K to J/kg/K"]
+
+    def cp_vap(self, **kwargs):
+        """Return vapor phase constant volume heat capacity expression"""
+        blk, delta_liq, delta_vap, tau, x, c = self.basic_calculations(**kwargs)
+        self.add_funcs(names=["cv_func"])
+        cp = blk.cp_func(c, delta_vap, tau)
+        if self.amount_basis == AmountBasis.MOLE:
+            return cp * self.param.uc["kJ/kg/K to J/mol/K"]
+        return cp * self.param.uc["kJ/kg/K to J/kg/K"]
 
     def w_liq(self, **kwargs):
         """Return liquid phase speed of sound expression"""
@@ -785,7 +848,7 @@ change.
         ),
     )
 
-    def htpx(self, T=None, p=None, x=None, prop="h", units=pyo.units.J/pyo.units.kg):
+    def htpx(self, T=None, p=None, x=None, units=None, amount_basis=AmountBasis.MOLE):
         """
         Convenience function to calculate enthalpy from temperature and either
         pressure or vapor fraction. This function can be used for inlet streams and
@@ -800,7 +863,12 @@ change.
         Returns:
             Total molar enthalpy [J/mol].
         """
-        te = HelmholtzThermoExpressions(self, self)
+        if units is None:
+            if amount_basis==AmountBasis.MOLE:
+                units=pyo.units.J/pyo.units.mol
+            else:
+                units=pyo.units.J/pyo.units.kg
+        te = HelmholtzThermoExpressions(self, self, amount_basis=amount_basis)
         tmin = pyo.value(self.temperature_min)
         tmax = pyo.value(self.temperature_max)
         pmin = pyo.value(self.pressure_min)
@@ -833,10 +901,7 @@ change.
                     x = 1
                 else:
                     x = 0
-        #try:
         return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))
-        #except InconsistentUnitsError:
-        #    try
 
 
     def _set_default_scaling(self):
