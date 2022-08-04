@@ -1125,6 +1125,7 @@ change.
         pass
 
     def ph_diagram(self):
+        # Add external functions needed to plot PH-diagram
         add_helmholtz_external_functions(
             self,
             [
@@ -1140,17 +1141,21 @@ change.
             ],
         )
 
-        pc = pyo.value(self.pressure_crit)
-        pt = pyo.value(self.pressure_trip)
+        # Get some parameters for plot limits
+        pc = pyo.value(pyo.units.convert(self.pressure_crit, pyo.units.kPa))
+        pt = pyo.value(pyo.units.convert(self.pressure_trip, pyo.units.kPa))
         tc = pyo.value(self.temperature_crit)
         tt = pyo.value(self.temperature_trip)
-        pmax = pyo.value(self.pressure_max)
+        pmax = pyo.value(pyo.units.convert(self.pressure_max, pyo.units.kPa))
 
+        # Temperatures to plot the saturation from triple point to critical
+        # in the form of tau (Tc/T)
         tau_sat_vec = np.linspace(
             1,
             pyo.value(self.temperature_crit) / (pyo.value(self.temperature_trip)),
             200,
         )
+        #
         p_sat_vec = [None] * len(tau_sat_vec)
         delta_sat_v_vec = [None] * len(tau_sat_vec)
         delta_sat_l_vec = [None] * len(tau_sat_vec)
@@ -1172,14 +1177,15 @@ change.
                 self.h_func(self.pure_component, delta_sat_l_vec[i], tau)
             )
 
+        # plot saturaion curves use log scale for pressure
         plt.yscale("log")
         plt.plot(h_sat_l_vec, p_sat_vec, c="b", label="sat liquid")
         plt.plot(h_sat_v_vec, p_sat_vec, c="r", label="sat vapor")
 
+        # Temperatures for isotherms
         t_vec = np.linspace(
             pyo.value(self.temperature_trip), pyo.value(self.temperature_crit), 6
         )
-        # t_vec = [340]
         p = {}
         h_l = {}
         h_v = {}
@@ -1195,34 +1201,40 @@ change.
             plt.plot([h_l[t], h_v[t]], [p[t], p[t]], c="g")
             plt.text(h_l[t] / 2 + h_v[t] / 2, p[t], f"T = {t} K", ha="center")
 
+        # Isotherms from the liquid side
         for t in t_vec:
             tau = pyo.value(self.temperature_crit) / t
-            p_vec = np.logspace(np.log10(p[t]), np.log10(pmax / 1000), 50)
+            p_vec = np.logspace(np.log10(p[t]), np.log10(pmax), 50)
             h_vec = [None] * len(p_vec)
             for i, pv in enumerate(p_vec):
                 h_vec[i] = pyo.value(self.hlpt_func(self.pure_component, pv, tau))
             plt.plot(h_vec, p_vec, c="g")
 
+        # Isotherms from vapor side
         for t in t_vec:
             tau = pyo.value(self.temperature_crit) / t
-            p_vec = np.logspace(np.log10(pt / 1000 / 10), np.log10(p[t]), 50)
+            p_vec = np.logspace(np.log10(pt / 10), np.log10(p[t]), 50)
 
             h_vec = [None] * len(p_vec)
             for i, pv in enumerate(p_vec):
                 h_vec[i] = pyo.value(self.hvpt_func(self.pure_component, pv, tau))
             plt.plot(h_vec, p_vec, c="g")
 
+        # Points for critical point and triple point
         deltat_l = pyo.value(self.delta_liq_func(self.pure_component, pt, tc / tt))
         hc = pyo.value(self.h_func(self.pure_component, 1, 1))
         ht = pyo.value(self.h_func(self.pure_component, deltat_l, tc / tt))
-        plt.scatter([hc], [pc / 1000])
-        plt.scatter([ht], [pt / 1000])
+        plt.scatter([hc], [pc])
+        plt.scatter([ht], [pt])
 
+        # Titles
         plt.title(f"P-H Diagram for {self.pure_component}")
         plt.xlabel("Enthalpy (kJ/kg)")
         plt.ylabel("Pressure (kPa)")
 
         plt.show()
+
+
 
     @classmethod
     def define_metadata(cls, obj):
@@ -1248,6 +1260,11 @@ change.
                 "entr_mol_phase": {"method": None, "units": "J/mol.K"},
                 "cp_mol_phase": {"method": None, "units": "J/mol.K"},
                 "cv_mol_phase": {"method": None, "units": "J/mol.K"},
+                "energy_internal_mass_phase": {"method": None, "units": "J/kg"},
+                "enth_mass_phase": {"method": None, "units": "J/kg"},
+                "entr_mass_phase": {"method": None, "units": "J/kg.K"},
+                "cp_mass_phase": {"method": None, "units": "J/kg.K"},
+                "cv_mass_phase": {"method": None, "units": "J/kg.K"},
                 "speed_sound_phase": {"method": None, "units": "m/s"},
                 "dens_mol_phase": {"method": None, "units": "mol/m^3"},
                 "therm_cond_phase": {"method": None, "units": "W/m.K"},
@@ -1255,15 +1272,22 @@ change.
                 "visc_k_phase": {"method": None, "units": "m^2/s"},
                 "phase_frac": {"method": None, "units": None},
                 "flow_mol_comp": {"method": None, "units": "mol/s"},
+                "flow_mass_comp": {"method": None, "units": "kg/s"},
                 "energy_internal_mol": {"method": None, "units": "J/mol"},
                 "enth_mol": {"method": None, "units": "J/mol"},
                 "entr_mol": {"method": None, "units": "J/mol.K"},
                 "cp_mol": {"method": None, "units": "J/mol.K"},
                 "cv_mol": {"method": None, "units": "J/mol.K"},
+                "energy_internal_mass": {"method": None, "units": "J/kg"},
+                "enth_mass": {"method": None, "units": "J/kg"},
+                "entr_mass": {"method": None, "units": "J/kg.K"},
+                "cp_mass": {"method": None, "units": "J/kg.K"},
+                "cv_mass": {"method": None, "units": "J/kg.K"},
                 "heat_capacity_ratio": {"method": None, "units": None},
                 "dens_mass": {"method": None, "units": "kg/m^3"},
                 "dens_mol": {"method": None, "units": "mol/m^3"},
                 "dh_vap_mol": {"method": None, "units": "J/mol"},
+                "dh_vap_mass": {"method": None, "units": "J/mass"},
             }
         )
 
