@@ -101,7 +101,7 @@ namespace param {
     0,       // not used
     1e6,     // h2o
     1e6,     // co2
-    1e6,     // r1234ze
+    5e5,     // r1234ze
   };
 
   // upper density bound (kg/m3)
@@ -118,9 +118,10 @@ namespace param {
     0,       // not used
     235,     // h2o
     200,     // CO2
-    180,     // r1234ze
+    150,     // r1234ze
   };
 
+  // upper bound on T (K)
   const double T_max[] = {
     0,       // not used
     1300,    // h2o

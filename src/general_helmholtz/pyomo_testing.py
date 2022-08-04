@@ -1,35 +1,16 @@
 import pyomo.environ as pyo
 from helmholtz_functions import (
     add_helmholtz_external_functions,
-    HelmholtzStateBlock,
+    HelmholtzParameterBlock,
     HelmholtzThermoExpressions,
 )
 
 
 def main():
     m = pyo.ConcreteModel()
-    m.param_block = HelmholtzStateBlock(pure_component="h2o")
+    m.param_block = HelmholtzParameterBlock(pure_component="h2o")
 
     add_helmholtz_external_functions(m)
-
-    te = HelmholtzThermoExpressions(m, m.param_block)
-    m.enthalpy = pyo.Var(initialize=2000 * pyo.value(m.param_block.mw) * 1000, units=pyo.units.J / pyo.units.mol)
-    m.pressure = pyo.Var(initialize=10e6, units=pyo.units.Pa)
-
-    m.entropy = pyo.Expression(expr=te.s(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kgK_to_J_per_molK)
-    m.entropy_liq = pyo.Expression(expr=te.s_liq(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kgK_to_J_per_molK)
-    m.entropy_vap = pyo.Expression(expr=te.s_vap(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kgK_to_J_per_molK)
-
-    m.enthalpy_liq = pyo.Expression(expr=te.h_liq(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kg_to_J_per_mol)
-    m.enthalpy_vap = pyo.Expression(expr=te.h_vap(h=m.enthalpy, p=m.pressure)/m.param_block.uc_kJ_per_kg_to_J_per_mol)
-
-    m.vapor_frac = pyo.Expression(expr=te.x(h=m.enthalpy, p=m.pressure))
-    m.entropy.display()
-    m.entropy_liq.display()
-    m.entropy_vap.display()
-    m.enthalpy_liq.display()
-    m.enthalpy_vap.display()
-    m.vapor_frac.display()
 
     pc = pyo.value(m.pc_func("h2o"))
     tc = pyo.value(m.tc_func("h2o"))
@@ -181,9 +162,12 @@ def main():
 
     m.param_block.ph_diagram()
 
-    m.param_block2 = HelmholtzStateBlock(pure_component="r1234ze")
+    m.param_block2 = HelmholtzParameterBlock(pure_component="r1234ze")
+    print(m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa))
+
     m.param_block2.temperature_crit.display()
     m.param_block2.ph_diagram()
+
 
 if __name__ == "__main__":
     main()
