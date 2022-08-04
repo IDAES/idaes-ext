@@ -1,6 +1,8 @@
 include ../Makefile.in
 
-BOOST=/opt/homebrew/include
+#BOOST=/opt/homebrew/include
+BOOST=/home/johne/local/include
+ASL=/home/johne/local/include/asl
 
 ifeq ($(BOOST),)
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC
@@ -8,8 +10,10 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
-ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
+#ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
+#ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
+ADOLC_INC = /home/johne/local/include
+ADOLC_LIB = /home/johne/local/lib64
 
 OBJECTS = phi.o props.o h2o.o r1234ze.o sat.o testing.o solver.o delta.o state.o ampl_wrap.o
 

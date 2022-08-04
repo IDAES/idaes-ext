@@ -102,7 +102,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   //   liquid density and the vapor density.  There may be multiple roots here,
   //   so I'll start from the sat density and hope to pick up the closest
   halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
-  if(delta < 0 || isnan(delta)){
+  if(delta < 0 || std::isnan(delta)){
       return 0.1;
   }
   return delta;
@@ -147,7 +147,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   liquid density and the vapor density.  There may be multiple roots here,
   //   so I'll start from the sat density and hope to pick up the closest
   halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
-  if(delta < 0 || isnan(delta)){
+  if(delta < 0 || std::isnan(delta)){
       return 2.0;
   }
   return delta;
@@ -181,7 +181,7 @@ std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau){
   try{
     return &memo_table_delta_liquid2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_delta_liquid2.size() > MAX_MEMO_PROP) memo_table_delta_liquid2.clear();
@@ -194,7 +194,7 @@ std::vector<double> *memo2_delta_vapor(comp_enum comp, double pr, double tau){
   try{
     return &memo_table_delta_vapor2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_delta_vapor2.size() > MAX_MEMO_PROP) memo_table_delta_vapor2.clear();

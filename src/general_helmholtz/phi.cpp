@@ -67,7 +67,7 @@ std::vector<double> *phi_resi(comp_enum comp, double delta, double tau){
   try{
     return &memo_table_phi_resi.at(std::make_tuple(comp, delta, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   double x[2] = {delta, tau};
   double *y[1];
@@ -105,7 +105,7 @@ std::vector<double> *phi_ideal(comp_enum comp, double delta, double tau){
   try{
     return &memo_table_phi_ideal.at(std::make_tuple(comp, delta, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   double x[2] = {delta, tau};
   double *y[1];

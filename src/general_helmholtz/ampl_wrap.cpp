@@ -1,10 +1,10 @@
-#import "ampl_wrap.h"
-#import "config.h"
-#import "props.h"
-#import "state.h"
-#import "delta.h"
-#import "sat.h"
-#import "param.h"
+#include "ampl_wrap.h"
+#include "config.h"
+#include "props.h"
+#include "state.h"
+#include "delta.h"
+#include "sat.h"
+#include "param.h"
 
 ASL_WRAP_FUNC_2ARG(p, memo2_pressure)                    // p(comp, delta, tau) [kPa]
 ASL_WRAP_FUNC_2ARG(u, memo2_internal_energy)             // u(comp, delta, tau) [kJ/kg]

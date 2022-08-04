@@ -20,8 +20,7 @@ from idaes.core import (
     Component,
 )
 
-_flib = find_library("general_helmholtz_external")
-
+_flib = find_library("general_helmholtz_external.so")
 
 def available():
     """Return whether the shared library is available. If it is not this cannot
@@ -834,10 +833,10 @@ change.
                     x = 1
                 else:
                     x = 0
-        try:
-            return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))
-        except InconsistentUnitsError:
-            try
+        #try:
+        return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))
+        #except InconsistentUnitsError:
+        #    try
 
 
     def _set_default_scaling(self):

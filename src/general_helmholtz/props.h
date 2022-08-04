@@ -82,11 +82,11 @@ std::vector<double> *memo2_phi_resi_tt(comp_enum comp, double delta, double tau)
 
 #define MEMO2_FUNCTION(new_func, calc_func, table) \
 std::vector<double> *new_func(comp_enum comp, double delta, double tau){ \
-  if(isnan(delta) || isnan(tau)) return &nan_vec2; \
+  if(std::isnan(delta) || std::isnan(tau)) return &nan_vec2; \
   try{ \
     return &table.at(std::make_tuple(comp, delta, tau)); \
   } \
-  catch(std::out_of_range){ \
+  catch(std::out_of_range const&){ \
   } \
   std::vector<double> *yvec_ptr; \
   if(table.size() > MAX_MEMO_PROP) table.clear(); \

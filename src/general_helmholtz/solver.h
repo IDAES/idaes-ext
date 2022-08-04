@@ -12,6 +12,8 @@
 +-------------------------------------------------------------------------------*/
 
 #include<vector>
+#include <cstddef>
+
 
 #ifndef _INCLUDE_SOLVER_H_
 #define _INCLUDE_SOLVER_H_

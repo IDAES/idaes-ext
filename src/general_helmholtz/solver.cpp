@@ -146,7 +146,7 @@ int newton_ls(
       //  The c parameter determines what is considered enough improvment to
       //  accept the step and t determines how much to cut the step.
       while(
-        (fabs(funx) - fabs(fun) < c*p*(*fg)[1] || isnan(fun) || isinf(fun)) &&
+        (fabs(funx) - fabs(fun) < c*p*(*fg)[1] || std::isnan(fun) || std::isinf(fun)) &&
         it2 < max_ls_it
       ){
         alpha *= t;

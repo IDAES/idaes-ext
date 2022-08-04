@@ -355,7 +355,7 @@ std::vector<double> *sat_delta_l(comp_enum comp, double tau){
   try{
     return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
   return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
@@ -365,7 +365,7 @@ std::vector<double> *sat_delta_v(comp_enum comp, double tau){
   try{
     return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
   return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
@@ -375,7 +375,7 @@ std::vector<double> *sat_p(comp_enum comp, double tau){
   try{
     return &memo_table_sat_p.at(std::make_tuple(comp, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
   return &memo_table_sat_p.at(std::make_tuple(comp, tau));
@@ -416,7 +416,7 @@ std::vector<double> *sat_tau(comp_enum comp, double pr){
   try{
     return &memo_table_sat_tau.at(std::make_tuple(comp, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
 
   int n = 0;

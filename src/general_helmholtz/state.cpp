@@ -143,7 +143,7 @@ std::vector<double> *memo2_enthalpy_vapor(comp_enum comp, double pr, double tau)
   try{
     return &memo_table_enthalpy_vapor2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_enthalpy_vapor2.size() > MAX_MEMO_PROP) memo_table_enthalpy_vapor2.clear();
@@ -182,7 +182,7 @@ std::vector<double> *memo2_entropy_vapor(comp_enum comp, double pr, double tau){
   try{
     return &memo_table_entropy_vapor2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_entropy_vapor2.size() > MAX_MEMO_PROP) memo_table_entropy_vapor2.clear();
@@ -221,7 +221,7 @@ std::vector<double> *memo2_internal_energy_vapor(comp_enum comp, double pr, doub
   try{
     return &memo_table_internal_energy_vapor2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_internal_energy_vapor2.size() > MAX_MEMO_PROP) memo_table_internal_energy_vapor2.clear();
@@ -260,7 +260,7 @@ std::vector<double> *memo2_enthalpy_liquid(comp_enum comp, double pr, double tau
   try{
     return &memo_table_enthalpy_liquid2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_enthalpy_liquid2.size() > MAX_MEMO_PROP) memo_table_enthalpy_liquid2.clear();
@@ -299,7 +299,7 @@ std::vector<double> *memo2_entropy_liquid(comp_enum comp, double pr, double tau)
   try{
     return &memo_table_entropy_liquid2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_entropy_liquid2.size() > MAX_MEMO_PROP) memo_table_entropy_liquid2.clear();
@@ -337,7 +337,7 @@ std::vector<double> *memo2_internal_energy_liquid(comp_enum comp, double pr, dou
   try{
     return &memo_table_internal_energy_liquid2.at(std::make_tuple(comp, pr, tau));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_internal_energy_liquid2.size() > MAX_MEMO_PROP) memo_table_internal_energy_liquid2.clear();
@@ -481,7 +481,7 @@ std::vector<double> *memo2_tau_hp(comp_enum comp, double ht, double pr){
   try{
     return &memo_table_tau_hp2.at(std::make_tuple(comp, ht, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_tau_hp2.size() > MAX_MEMO_PROP) memo_table_tau_hp2.clear();
@@ -625,7 +625,7 @@ std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr){
   try{
     return &memo_table_tau_sp2.at(std::make_tuple(comp, st, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_tau_sp2.size() > MAX_MEMO_PROP) memo_table_tau_sp2.clear();
@@ -769,7 +769,7 @@ std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
   try{
     return &memo_table_tau_up2.at(std::make_tuple(comp, ut, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_tau_up2.size() > MAX_MEMO_PROP) memo_table_tau_up2.clear();
@@ -1001,11 +1001,11 @@ void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
 }
 
 std::vector<double> *memo2_vf_hp(comp_enum comp, double ht, double pr){
-  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
   try{
     return &memo_table_vf_hp2.at(std::make_tuple(comp, ht, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_vf_hp2.size() > MAX_MEMO_PROP) memo_table_vf_hp2.clear();
@@ -1015,11 +1015,11 @@ std::vector<double> *memo2_vf_hp(comp_enum comp, double ht, double pr){
 }
 
 std::vector<double> *memo2_vf_sp(comp_enum comp, double ht, double pr){
-  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
   try{
     return &memo_table_vf_sp2.at(std::make_tuple(comp, ht, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_vf_sp2.size() > MAX_MEMO_PROP) memo_table_vf_sp2.clear();
@@ -1029,11 +1029,11 @@ std::vector<double> *memo2_vf_sp(comp_enum comp, double ht, double pr){
 }
 
 std::vector<double> *memo2_vf_up(comp_enum comp, double ht, double pr){
-  if(isnan(ht) || isnan(pr)) return &nan_vec2;
+  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
   try{
     return &memo_table_vf_up2.at(std::make_tuple(comp, ht, pr));
   }
-  catch(std::out_of_range){
+  catch(std::out_of_range const&){
   }
   std::vector<double> *yvec_ptr;
   if(memo_table_vf_up2.size() > MAX_MEMO_PROP) memo_table_vf_up2.clear();
