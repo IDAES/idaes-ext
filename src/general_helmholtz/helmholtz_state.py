@@ -196,6 +196,7 @@ class HelmholtzStateBlockData(StateBlockData):
     def _state_vars(self):
         """Create the state variables"""
         params = self.config.parameters
+        cmp = params.pure_component
         # Add flow variable
         if self.amount_basis == AmountBasis.MOLE:
             self.flow_mol = Var(
@@ -240,11 +241,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             h_mass = self.enth_mol * params.uc["J/mol to kJ/kg"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_tau(h_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_tau(cmp, h_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vf(h_mass, P),
+                    expr=self.func_vf(cmp, h_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -263,11 +264,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             h_mass = self.enth_mass * params.uc["J/kg to kJ/kg"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_tau(h_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_tau(cmp, h_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vf(h_mass, P),
+                    expr=self.func_vf(cmp, h_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -286,11 +287,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             s_mass = self.entr_mol * params.uc["J/mol/K to kJ/kg/K"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_taus(s_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_taus(cmp, s_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vfs(s_mass, P),
+                    expr=self.func_vfs(cmp, s_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -309,11 +310,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             s_mass = self.entr_mass * params.uc["J/kg/K to kJ/kg/K"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_taus(s_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_taus(cmp, s_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vfs(s_mass, P),
+                    expr=self.func_vfs(cmp, s_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -332,11 +333,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             u_mass = self.energy_internal_mol *  params.uc["J/mol to kJ/kg"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_tauu(u_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_tauu(cmp, u_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vfu(s_mass, P),
+                    expr=self.func_vfu(cmp, s_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -355,11 +356,11 @@ class HelmholtzStateBlockData(StateBlockData):
             )
             u_mass = self.energy_internal_mass * params.uc["J/kg to kJ/kg"]
             self.temperature = Expression(
-                expr=self.temperature_crit / self.func_tauu(u_mass, P), doc="Temperature"
+                expr=self.temperature_crit / self.func_tauu(cmp, u_mass, P), doc="Temperature"
             )
             if phase_set == PhaseType.MIX or phase_set == PhaseType.LG:
                 self.vapor_frac = Expression(
-                    expr=self.func_vfu(s_mass, P),
+                    expr=self.func_vfu(cmp, s_mass, P),
                     doc="Vapor mole fraction (mol vapor/mol total)",
                 )
             self._state_vars_dict = {
@@ -410,6 +411,7 @@ class HelmholtzStateBlockData(StateBlockData):
     def _tpx_phase_eq(self):
         # Saturation pressure
         params = self.config.parameters
+        cmp = params.pure_component
         eps_pu = params.smoothing_pressure_under
         eps_po = params.smoothing_pressure_over
         priv_plist = params.private_phase_list
@@ -434,9 +436,9 @@ class HelmholtzStateBlockData(StateBlockData):
         # density will be calculated at the saturation or critical pressure
         def rule_dens_mass(b, p):
             if p == "Liq":
-                return rhoc * self.func_delta_liq(P + self.P_under_sat, tau)
+                return rhoc * self.func_delta_liq(cmp, P + self.P_under_sat, tau)
             else:
-                return rhoc * self.func_delta_vap(P - self.P_over_sat, tau)
+                return rhoc * self.func_delta_vap(cmp, P - self.P_over_sat, tau)
 
         self.dens_mass_phase = Expression(priv_plist, rule=rule_dens_mass)
         # Reduced Density (no _mass_ identifier because mass or mol is same)
@@ -512,10 +514,10 @@ class HelmholtzStateBlockData(StateBlockData):
         vf = self.vapor_frac
         # Saturation temperature expression
         self.temperature_sat = Expression(
-            expr=Tc / self.func_tau_sat(P), doc="Stauration temperature"
+            expr=Tc / self.func_tau_sat(cmp, P), doc="Stauration temperature"
         )
         # Saturation tau (tau = Tc/T)
-        self.tau_sat = Expression(expr=self.func_tau_sat(P))
+        self.tau_sat = Expression(expr=self.func_tau_sat(cmp, P))
         # Reduced temperature
         self.temperature_red = Expression(
             expr=T / Tc, doc="reduced temperature T/Tc"
@@ -524,7 +526,7 @@ class HelmholtzStateBlockData(StateBlockData):
         tau = self.tau
         # Saturation pressure
         self.pressure_sat = Expression(
-            expr=self.func_p_sat(tau) * params.uc["kPa to Pa"],
+            expr=self.func_p_sat(cmp, tau) * params.uc["kPa to Pa"],
             doc="Saturation pressure",
         )
 
@@ -534,9 +536,9 @@ class HelmholtzStateBlockData(StateBlockData):
             # phase TPX
             def rule_dens_mass(b, p):
                 if p == "Liq":
-                    return rhoc * self.func_delta_liq(P, tau)
+                    return rhoc * self.func_delta_liq(cmp, P, tau)
                 else:
-                    return rhoc * self.func_delta_vap(P, tau)
+                    return rhoc * self.func_delta_vap(cmp, P, tau)
             self.dens_mass_phase = Expression(
                 phlist, rule=rule_dens_mass, doc="Mass density by phase"
             )
@@ -556,11 +558,11 @@ class HelmholtzStateBlockData(StateBlockData):
         def rule_enth_mol_sat_phase(b, p):
             if p == "Liq":
                 return (
-                    self.func_hlpt(P, self.tau_sat) * params.uc["kJ/kg to J/mol"]
+                    self.func_hlpt(cmp, P, self.tau_sat) * params.uc["kJ/kg to J/mol"]
                 )
             else:
                 return (
-                    self.func_hvpt(P, self.tau_sat) * params.uc["kJ/kg to J/mol"]
+                    self.func_hvpt(cmp, P, self.tau_sat) * params.uc["kJ/kg to J/mol"]
                 )
         self.enth_mol_sat_phase = Expression(
             phlist,
@@ -571,11 +573,11 @@ class HelmholtzStateBlockData(StateBlockData):
         def rule_enth_mass_sat_phase(b, p):
             if p == "Liq":
                 return (
-                    self.func_hlpt(P, self.tau_sat) * params.uc["kJ/kg to J/kg"]
+                    self.func_hlpt(cmp, P, self.tau_sat) * params.uc["kJ/kg to J/kg"]
                 )
             else:
                 return (
-                    self.func_hvpt(P, self.tau_sat) * params.uc["kJ/kg to J/kg"]
+                    self.func_hvpt(cmp, P, self.tau_sat) * params.uc["kJ/kg to J/kg"]
                 )
         self.enth_mass_sat_phase = Expression(
             phlist,
@@ -586,11 +588,11 @@ class HelmholtzStateBlockData(StateBlockData):
         def rule_entr_mol_sat_phase(b, p):
             if p == "Liq":
                 return (
-                    self.func_slpt(P, self.tau_sat) * params.uc["kJ/kg/K to J/mol/K"]
+                    self.func_slpt(cmp, P, self.tau_sat) * params.uc["kJ/kg/K to J/mol/K"]
                 )
             else:
                 return (
-                    self.func_svpt(P, self.tau_sat) * params.uc["kJ/kg/K to J/mol/K"]
+                    self.func_svpt(cmp, P, self.tau_sat) * params.uc["kJ/kg/K to J/mol/K"]
                 )
         self.entr_mol_sat_phase = Expression(
             phlist,
@@ -601,11 +603,11 @@ class HelmholtzStateBlockData(StateBlockData):
         def rule_entr_mass_sat_phase(b, p):
             if p == "Liq":
                 return (
-                    self.func_slpt(P, self.tau_sat) * params.uc["kJ/kg/K to J/kg/K"]
+                    self.func_slpt(cmp, P, self.tau_sat) * params.uc["kJ/kg/K to J/kg/K"]
                 )
             else:
                 return (
-                    self.func_svpt(P, self.tau_sat) * params.uc["kJ/kg/K to J/kg/K"]
+                    self.func_svpt(cmp, P, self.tau_sat) * params.uc["kJ/kg/K to J/kg/K"]
                 )
         self.entr_mass_sat_phase = Expression(
             phlist,
@@ -647,14 +649,14 @@ class HelmholtzStateBlockData(StateBlockData):
         )
         # Phase Internal Energy
         def rule_energy_internal_mol_phase(b, p):
-            return self.func_u(delta[p], tau) * params.uc["kJ/kg to J/mol"]
+            return self.func_u(cmp, delta[p], tau) * params.uc["kJ/kg to J/mol"]
         self.energy_internal_mol_phase = Expression(
             phlist,
             rule=rule_energy_internal_mol_phase,
             doc="Phase internal energy",
         )
         def rule_energy_internal_mass_phase(b, p):
-            return self.func_u(delta[p], tau) * params.uc["kJ/kg to J/kg"]
+            return self.func_u(cmp, delta[p], tau) * params.uc["kJ/kg to J/kg"]
         self.energy_internal_mass_phase = Expression(
             phlist,
             rule=rule_energy_internal_mass_phase,
@@ -662,14 +664,14 @@ class HelmholtzStateBlockData(StateBlockData):
         )
         # Phase Enthalpy
         def rule_enth_mol_phase(b, p):
-            return self.func_h(delta[p], tau) * params.uc["kJ/kg to J/mol"]
+            return self.func_h(cmp, delta[p], tau) * params.uc["kJ/kg to J/mol"]
         self.enth_mol_phase = Expression(
             phlist,
             rule=rule_enth_mol_phase,
             doc="Phase enthalpy",
         )
         def rule_enth_mass_phase(b, p):
-            return self.func_h(delta[p], tau) * params.uc["kJ/kg to J/kg"]
+            return self.func_h(cmp, delta[p], tau) * params.uc["kJ/kg to J/kg"]
         self.enth_mass_phase = Expression(
             phlist,
             rule=rule_enth_mass_phase,
@@ -677,14 +679,14 @@ class HelmholtzStateBlockData(StateBlockData):
         )
         # Phase Entropy
         def rule_entr_mol_phase(b, p):
-            return self.func_s(delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
+            return self.func_s(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
         self.entr_mol_phase = Expression(
             phlist,
             rule=rule_entr_mol_phase,
             doc="Phase entropy",
         )
         def rule_entr_mass_phase(b, p):
-            return self.func_s(delta[p], tau) * params.uc["kJ/kg/K to J/kg/K"]
+            return self.func_s(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/kg/K"]
         self.entr_mol_phase = Expression(
             phlist,
             rule=rule_entr_mass_phase,
@@ -692,14 +694,14 @@ class HelmholtzStateBlockData(StateBlockData):
         )
         # Phase constant pressure heat capacity, cp
         def rule_cp_mol_phase(b, p):
-            return self.func_cp(delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
+            return self.func_cp(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
         self.cp_mol_phase = Expression(
             phlist,
             rule=rule_cp_mol_phase,
             doc="Phase isobaric heat capacity",
         )
         def rule_cp_mass_phase(b, p):
-            return self.func_cp(delta[p], tau) * params.uc["kJ/kg/K to J/kg/K"]
+            return self.func_cp(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/kg/K"]
         self.cp_mass_phase = Expression(
             phlist,
             rule=rule_cp_mass_phase,
@@ -707,14 +709,14 @@ class HelmholtzStateBlockData(StateBlockData):
         )
         # Phase constant volume heat capacity, cv
         def rule_cv_mol_phase(b, p):
-            return self.func_cv(delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
+            return self.func_cv(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/mol/K"]
         self.cv_mol_phase = Expression(
             phlist,
             rule=rule_cv_mol_phase,
             doc="Phase isochoric heat capacity",
         )
         def rule_cv_mass_phase(b, p):
-            return self.func_cv(delta[p], tau) * params.uc["kJ/kg/K to J/mass/K"]
+            return self.func_cv(cmp, delta[p], tau) * params.uc["kJ/kg/K to J/mass/K"]
         self.cv_mass_phase = Expression(
             phlist,
             rule=rule_cv_mass_phase,
@@ -723,7 +725,7 @@ class HelmholtzStateBlockData(StateBlockData):
         # Phase speed of sound
         """
         def rule_speed_sound_phase(b, p):
-            return self.func_w(delta[p], tau)
+            return self.func_w(cmp, delta[p], tau)
 
         self.speed_sound_phase = Expression(
             phlist,
