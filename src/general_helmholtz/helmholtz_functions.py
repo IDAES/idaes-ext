@@ -38,19 +38,16 @@ from idaes.core import (
 
 _flib = find_library("general_helmholtz_external.so")
 
-def available():
-    """Return whether the shared library is available. If it is not this cannot
-    be used."""
-    return _flib is not None
-
 
 class StateVars(enum.Enum):
     """
     State variable set options
     """
 
-    PH = 1  # Pressure-Enthalpy
-    TPX = 2  # Temperature-Pressure-Quality
+    PH = 1   # Pressure, Enthalpy
+    PS = 2   # Pressure, Entropy
+    PU = 3   # Pressure, Internal Energy
+    TPX = 4  # Temperature, Pressure, Quality
 
 
 class PhaseType(enum.Enum):
@@ -864,7 +861,13 @@ change.
         ),
     )
 
-    def htpx(self, T=None, p=None, x=None, units=None, amount_basis=AmountBasis.MOLE):
+    def available():
+        """Return whether the shared library is available. If it is not this cannot
+        be used."""
+        return _flib is not None
+
+
+    def htpx(self, T=None, p=None, x=None, units=None, amount_basis=AmountBasis.MOLE, with_units=False):
         """
         Convenience function to calculate enthalpy from temperature and either
         pressure or vapor fraction. This function can be used for inlet streams and
@@ -917,6 +920,8 @@ change.
                     x = 1
                 else:
                     x = 0
+        if with_units:
+            return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))*units
         return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))
 
 
@@ -975,27 +980,23 @@ change.
 
     def _create_component_and_phase_objects(self):
         # Create chemical component objects
+        pp = self.config.phase_presentation
         for c in self.component_list:
             setattr(self, str(c), Component(_component_list_exists=True))
         # Create phase objects
-        self.private_phase_list = pyo.Set(initialize=["Vap", "Liq"])
-        # Make mixed phase object for mixed phase option
-        if self.config.phase_presentation == PhaseType.MIX:
+        if pp == PhaseType.MIX:
+            self.private_phase_list = pyo.Set(initialize=["Vap", "Liq"])
             self.Mix = Phase()
-        # Make liquid phase object for L and LG options
-        if (
-            self.config.phase_presentation == PhaseType.LG
-            or self.config.phase_presentation == PhaseType.L
-        ):
+        elif pp == PhaseType.LG:
+            self.private_phase_list = pyo.Set(initialize=["Vap", "Liq"])
             self.Liq = LiquidPhase()
-        # Make vapor phase object for G and LG options
-        if (
-            self.config.phase_presentation == PhaseType.LG
-            or self.config.phase_presentation == PhaseType.G
-        ):
             self.Vap = VaporPhase()
-        # State var set
-        self.state_vars = self.config.state_vars
+        elif pp == PhaseType.L:
+            self.private_phase_list = pyo.Set(initialize=["Liq"])
+            self.Liq = LiquidPhase()
+        elif pp == PhaseType.G:
+            self.private_phase_list = pyo.Set(initialize=["Vap"])
+            self.Vap = VaporPhase()
 
     def build(self):
         super().build()
@@ -1004,6 +1005,8 @@ change.
         # sinice this a only a pure component package, have a specific
         # pure_component attirbute
         self.pure_component = self.config.pure_component
+        # State var set
+        self.state_vars = self.config.state_vars
         # Add default scaling factors for property expressions or variables
         self._set_default_scaling()
         # Add idaes component and phase objects
@@ -1109,24 +1112,21 @@ change.
             "Pa to kPa": (pyo.units.kPa / 1000 / pyo.units.Pa),
         }
 
+        # Smoothing arameters for TPX complimentarity form
         if self.config.state_vars == StateVars.TPX:
-            self._tpx_complimentarity_form_smoothing()
+            self.smoothing_pressure_over = Param(
+                mutable=True,
+                initialize=1e-4,
+                doc="Smooth max parameter (pressure over)",
+                units=pyo.units.kPa,
+            )
 
-    def _tpx_complimentarity_form_smoothing(self):
-        # Smoothing arameters for
-        self.smoothing_pressure_over = Param(
-            mutable=True,
-            initialize=1e-4,
-            doc="Smooth max parameter (pressure over)",
-            units=pyo.units.kPa,
-        )
-
-        self.smoothing_pressure_under = Param(
-            mutable=True,
-            initialize=1e-4,
-            doc="Smooth max parameter (pressure under)",
-            units=pyo.units.kPa,
-        )
+            self.smoothing_pressure_under = Param(
+                mutable=True,
+                initialize=1e-4,
+                doc="Smooth max parameter (pressure under)",
+                units=pyo.units.kPa,
+            )
 
     def add_param(self, name, expr):
         self.add_component(

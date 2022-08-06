@@ -164,7 +164,8 @@ def main():
     m.param_block.ph_diagram()
 
     m.param_block2 = HelmholtzParameterBlock(pure_component="r1234ze")
-    print(m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa, amount_basis=AmountBasis.MOLE))
+    h = m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa, amount_basis=AmountBasis.MASS, with_units=True)
+    print(pyo.value(pyo.units.convert(h, pyo.units.kJ/pyo.units.kg)))
 
     m.param_block2.temperature_crit.display()
     m.param_block2.ph_diagram()
