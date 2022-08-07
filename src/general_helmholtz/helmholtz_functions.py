@@ -45,9 +45,9 @@ class StateVars(enum.Enum):
     State variable set options
     """
 
-    PH = 1   # Pressure, Enthalpy
-    PS = 2   # Pressure, Entropy
-    PU = 3   # Pressure, Internal Energy
+    PH = 1  # Pressure, Enthalpy
+    PS = 2  # Pressure, Entropy
+    PU = 3  # Pressure, Internal Energy
     TPX = 4  # Temperature, Pressure, Quality
 
 
@@ -66,6 +66,7 @@ class AmountBasis(enum.Enum):
     """
     Mass or mole basis
     """
+
     MOLE = 1
     MASS = 2
 
@@ -231,22 +232,38 @@ _external_function_map = {
     "taus_func": {  # tau as a function of s, p
         "fname": "taus",
         "units": dimensionless,
-        "arg_units": [dimensionless, pyo.units.kJ / pyo.units.kg / pyo.units.K, pyo.units.kPa],
+        "arg_units": [
+            dimensionless,
+            pyo.units.kJ / pyo.units.kg / pyo.units.K,
+            pyo.units.kPa,
+        ],
     },
     "vfs_func": {  # vapor fraction as a function of s, p
         "fname": "vfs",
         "units": dimensionless,
-        "arg_units": [dimensionless, pyo.units.kJ / pyo.units.kg / pyo.units.K, pyo.units.kPa],
+        "arg_units": [
+            dimensionless,
+            pyo.units.kJ / pyo.units.kg / pyo.units.K,
+            pyo.units.kPa,
+        ],
     },
     "tauu_func": {  # tau as a function of u, p
         "fname": "tauu",
         "units": dimensionless,
-        "arg_units": [dimensionless, pyo.units.kJ / pyo.units.kg / pyo.units.K, pyo.units.kPa],
+        "arg_units": [
+            dimensionless,
+            pyo.units.kJ / pyo.units.kg / pyo.units.K,
+            pyo.units.kPa,
+        ],
     },
     "vfu_func": {  # vapor fraction as a function of u, p
         "fname": "vfu",
         "units": dimensionless,
-        "arg_units": [dimensionless, pyo.units.kJ / pyo.units.kg / pyo.units.K, pyo.units.kPa],
+        "arg_units": [
+            dimensionless,
+            pyo.units.kJ / pyo.units.kg / pyo.units.K,
+            pyo.units.kPa,
+        ],
     },
     # saturation curve as a function of tau
     "p_sat_func": {
@@ -415,7 +432,7 @@ class HelmholtzThermoExpressions(object):
         c = self.param.pure_component
 
         # 1.) convert units to those expected by external functions
-        if self.amount_basis==AmountBasis.MOLE:
+        if self.amount_basis == AmountBasis.MOLE:
             if h is not None:
                 h *= self.param.uc["J/mol to kJ/kg"]
             if u is not None:
@@ -867,8 +884,15 @@ change.
         be used."""
         return _flib is not None
 
-
-    def htpx(self, T=None, p=None, x=None, units=None, amount_basis=AmountBasis.MOLE, with_units=False):
+    def htpx(
+        self,
+        T=None,
+        p=None,
+        x=None,
+        units=None,
+        amount_basis=AmountBasis.MOLE,
+        with_units=False,
+    ):
         """
         Convenience function to calculate enthalpy from temperature and either
         pressure or vapor fraction. This function can be used for inlet streams and
@@ -884,10 +908,10 @@ change.
             Total molar enthalpy [J/mol].
         """
         if units is None:
-            if amount_basis==AmountBasis.MOLE:
-                units=pyo.units.J/pyo.units.mol
+            if amount_basis == AmountBasis.MOLE:
+                units = pyo.units.J / pyo.units.mol
             else:
-                units=pyo.units.J/pyo.units.kg
+                units = pyo.units.J / pyo.units.kg
         te = HelmholtzThermoExpressions(self, self, amount_basis=amount_basis)
         tmin = pyo.value(self.temperature_min)
         tmax = pyo.value(self.temperature_max)
@@ -901,9 +925,7 @@ change.
         if T is not None:
             T = pyo.units.convert(T, to_units=pyo.units.K)
             if not tmin <= pyo.value(T) <= tmax:
-                raise RuntimeError(
-                    f"T = {pyo.value(T)}, ({tmin} K <= T <= {tmax} K)"
-                )
+                raise RuntimeError(f"T = {pyo.value(T)}, ({tmin} K <= T <= {tmax} K)")
         if x is not None:
             if not 0 <= pyo.value(x) <= 1:
                 raise RuntimeError(f"x = {pyo.value(x)}, (0 K <= x <= 1)")
@@ -922,9 +944,8 @@ change.
                 else:
                     x = 0
         if with_units:
-            return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))*units
+            return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units)) * units
         return pyo.value(pyo.units.convert(te.h(T=T, p=p, x=x), units))
-
 
     def _set_default_scaling(self):
         """Set default scaling parameters to be used if not otherwise set"""
@@ -1002,6 +1023,7 @@ change.
     def build(self):
         super().build()
         from helmholtz_state import HelmholtzStateBlock
+
         self._state_block_class = HelmholtzStateBlock
         # set the component_list as required for the generic IDAES properties
         self.component_list = pyo.Set(initialize=[self.config.pure_component])
@@ -1011,8 +1033,8 @@ change.
         # State var set
         self.state_vars = self.config.state_vars
         # Phase equilibrium description
-        self.phase_equilibrium_idx=pyo.Set(initialize=[1]),
-        self.phase_equilibrium_list={1: ["H2O", ("Vap", "Liq")]},
+        self.phase_equilibrium_idx = (pyo.Set(initialize=[1]),)
+        self.phase_equilibrium_list = ({1: ["H2O", ("Vap", "Liq")]},)
         # Add default scaling factors for property expressions or variables
         self._set_default_scaling()
         # Add idaes component and phase objects
@@ -1087,9 +1109,9 @@ change.
         )
         self.add_param(
             "default_pressure_value",
-            pu.convert((self.pressure_crit + self.pressure_trip)/2.0, pu.Pa),
+            pu.convert((self.pressure_crit + self.pressure_trip) / 2.0, pu.Pa),
         )
-        self.default_pressure_bounds = (self.pressure_min, self.pressure_max);
+        self.default_pressure_bounds = (self.pressure_min, self.pressure_max)
         self.add_param(
             "temperature_crit",
             pu.convert(self.tc_func(cmp), pu.K),
@@ -1108,9 +1130,9 @@ change.
         )
         self.add_param(
             "default_temperature_value",
-            pu.convert((self.temperature_crit + self.temperature_trip)/2.0, pu.K),
+            pu.convert((self.temperature_crit + self.temperature_trip) / 2.0, pu.K),
         )
-        self.default_temperature_bounds = (self.temperature_min, self.temperature_max);
+        self.default_temperature_bounds = (self.temperature_min, self.temperature_max)
         self.add_param(
             "dens_mass_crit",
             pu.convert(self.rhoc_func(cmp), pu.kg / pu.m**3),
@@ -1136,24 +1158,50 @@ change.
         }
         self.add_param(
             "enthalpy_mol_min",
-            self.hlpt_func(cmp, self.pressure_trip * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_trip) * self.uc["kJ/kg to J/mol"],
+            self.hlpt_func(
+                cmp,
+                self.pressure_trip * self.uc["Pa to kPa"],
+                self.temperature_crit / self.temperature_trip,
+            )
+            * self.uc["kJ/kg to J/mol"],
         )
         self.add_param(
             "enthalpy_mass_min",
-            self.hlpt_func(cmp, self.pressure_trip * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_trip) * self.uc["kJ/kg to J/kg"],
+            self.hlpt_func(
+                cmp,
+                self.pressure_trip * self.uc["Pa to kPa"],
+                self.temperature_crit / self.temperature_trip,
+            )
+            * self.uc["kJ/kg to J/kg"],
         )
         self.add_param(
             "enthalpy_mol_max",
-            self.hlpt_func(cmp, self.pressure_max * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_max) * self.uc["kJ/kg to J/mol"],
+            self.hlpt_func(
+                cmp,
+                self.pressure_max * self.uc["Pa to kPa"],
+                self.temperature_crit / self.temperature_max,
+            )
+            * self.uc["kJ/kg to J/mol"],
         )
         self.add_param(
             "enthalpy_mass_max",
-            self.hlpt_func(cmp, self.pressure_max * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_max) * self.uc["kJ/kg to J/kg"],
+            self.hlpt_func(
+                cmp,
+                self.pressure_max * self.uc["Pa to kPa"],
+                self.temperature_crit / self.temperature_max,
+            )
+            * self.uc["kJ/kg to J/kg"],
         )
         self.add_param("default_enthalpy_mass_value", self.enthalpy_mass_min)
         self.add_param("default_enthalpy_mol_value", self.enthalpy_mol_min)
-        self.default_enthalpy_mass_bounds = (self.enthalpy_mass_min, self.enthalpy_mass_max)
-        self.default_enthalpy_mol_bounds = (self.enthalpy_mol_min, self.enthalpy_mol_max)
+        self.default_enthalpy_mass_bounds = (
+            self.enthalpy_mass_min,
+            self.enthalpy_mass_max,
+        )
+        self.default_enthalpy_mol_bounds = (
+            self.enthalpy_mol_min,
+            self.enthalpy_mol_max,
+        )
 
         # Smoothing arameters for TPX complimentarity form
         if self.config.state_vars == StateVars.TPX:
@@ -1292,8 +1340,6 @@ change.
         plt.ylabel("Pressure (kPa)")
 
         plt.show()
-
-
 
     @classmethod
     def define_metadata(cls, obj):

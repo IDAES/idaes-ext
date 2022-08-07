@@ -26,6 +26,8 @@ from idaes.models.properties import iapws95
 from idaes.core.util.model_statistics import degrees_of_freedom
 from idaes.core import MaterialBalanceType
 from idaes.core.solvers import get_solver
+import idaes.core.util.scaling as iscale
+
 from helmholtz_functions import (
     HelmholtzParameterBlock,
     PhaseType,
@@ -42,8 +44,8 @@ def test_heater_ph_mixed_byphase():
     """Test mixed phase form with P-H state vars and phase mass balances"""
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
-    m.fs.properties = HelmholtzParameterBlock(pure_component='h2o')
-    m.fs.heater = Heater(default={"property_package": m.fs.properties})
+    m.fs.properties = HelmholtzParameterBlock(pure_component="h2o")
+    m.fs.heater = Heater(property_package=m.fs.properties)
     m.fs.heater.inlet.enth_mol.fix(4000)
     m.fs.heater.inlet.flow_mol.fix(100)
     m.fs.heater.inlet.pressure.fix(101325)
@@ -66,12 +68,10 @@ def test_heater_phmixed_mixed_total():
     """Test mixed phase form with P-H state vars and total mass balances"""
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
-    m.fs.properties = HelmholtzParameterBlock(pure_component='h2o')
+    m.fs.properties = HelmholtzParameterBlock(pure_component="h2o")
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentTotal,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentTotal,
     )
     m.fs.heater.inlet.enth_mol.fix(4000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -95,12 +95,12 @@ def test_heater_ph_lg_total():
     """Test liquid/vapor form with P-H state vars and total mass balances"""
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
-    m.fs.properties = HelmholtzParameterBlock(pure_component="h2o", phase_presentation=PhaseType.LG)
+    m.fs.properties = HelmholtzParameterBlock(
+        pure_component="h2o", phase_presentation=PhaseType.LG
+    )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentTotal,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentTotal,
     )
     m.fs.heater.inlet.enth_mol.fix(4000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -131,12 +131,12 @@ def test_heater_ph_lg_phase():
     """
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
-    m.fs.properties = HelmholtzParameterBlock(pure_component="h2o", phase_presentation=PhaseType.LG)
+    m.fs.properties = HelmholtzParameterBlock(
+        pure_component="h2o", phase_presentation=PhaseType.LG
+    )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.enth_mol.fix(4000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -154,16 +154,13 @@ def test_heater_ph_l_phase_two():
     if you are sure you do not have a vapor phase.
     """
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
+    m.fs = FlowsheetBlock(dynamic=False)
     m.fs.properties = HelmholtzParameterBlock(
-        pure_component="h2o",
-        phase_presentation=PhaseType.L
+        pure_component="h2o", phase_presentation=PhaseType.L
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.enth_mol.fix(3000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -178,24 +175,22 @@ def test_heater_ph_l_phase_two():
     assert abs(value(prop_out.temperature) - 326.166707507874) <= 1e-4
     assert abs(value(prop_in.phase_frac["Liq"]) - 1) <= 1e-6
     assert abs(value(prop_out.phase_frac["Liq"]) - 1) <= 1e-6
-    #assert abs(value(prop_in.phase_frac["Vap"]) - 0) <= 1e-6
-    #assert abs(value(prop_out.phase_frac["Vap"]) - 0) <= 1e-6
+    # assert abs(value(prop_in.phase_frac["Vap"]) - 0) <= 1e-6
+    # assert abs(value(prop_out.phase_frac["Vap"]) - 0) <= 1e-6
 
 
 @pytest.mark.unit
 def test_heater_ph_l_phase():
     """Test liquid phase only form with P-H state vars and phase mass balances"""
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
+    m.fs = FlowsheetBlock(dynamic=False)
     m.fs.properties = HelmholtzParameterBlock(
         pure_component="h2o",
         phase_presentation=PhaseType.L,
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.enth_mol.fix(3000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -210,24 +205,21 @@ def test_heater_ph_l_phase():
     assert abs(value(prop_out.temperature) - 326.166707507874) <= 1e-4
     assert abs(value(prop_in.phase_frac["Liq"]) - 1) <= 1e-6
     assert abs(value(prop_out.phase_frac["Liq"]) - 1) <= 1e-6
-    #assert abs(value(prop_in.phase_frac["Vap"]) - 0) <= 1e-6
-    #assert abs(value(prop_out.phase_frac["Vap"]) - 0) <= 1e-6
+    # assert abs(value(prop_in.phase_frac["Vap"]) - 0) <= 1e-6
+    # assert abs(value(prop_out.phase_frac["Vap"]) - 0) <= 1e-6
 
 
 @pytest.mark.unit
 def test_heater_ph_g_phase():
     """Test vapor phase only form with P-H state vars and phase mass balances"""
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
+    m.fs = FlowsheetBlock(dynamic=False)
     m.fs.properties = HelmholtzParameterBlock(
-        pure_component="h2o",
-        phase_presentation=PhaseType.G
+        pure_component="h2o", phase_presentation=PhaseType.G
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.enth_mol.fix(50000)
     m.fs.heater.inlet.flow_mol.fix(100)
@@ -238,10 +230,10 @@ def test_heater_ph_g_phase():
     solver.solve(m)
     prop_in = m.fs.heater.control_volume.properties_in[0]
     prop_out = m.fs.heater.control_volume.properties_out[0]
-    assert abs(value(prop_in.temperature) - 422.60419933276177) <= 1e-4
-    assert abs(value(prop_out.temperature) - 698.1604861702295) <= 1e-4
-    #assert abs(value(prop_in.phase_frac["Liq"]) - 0) <= 1e-6
-    #assert abs(value(prop_out.phase_frac["Liq"]) - 0) <= 1e-6
+    assert abs(value(prop_in.temperature) - 422.60419933276177) <= 1e-2
+    assert abs(value(prop_out.temperature) - 698.1604861702295) <= 1e-2
+    # assert abs(value(prop_in.phase_frac["Liq"]) - 0) <= 1e-6
+    # assert abs(value(prop_out.phase_frac["Liq"]) - 0) <= 1e-6
     assert abs(value(prop_in.phase_frac["Vap"]) - 1) <= 1e-6
     assert abs(value(prop_out.phase_frac["Vap"]) - 1) <= 1e-6
 
@@ -250,17 +242,15 @@ def test_heater_ph_g_phase():
 def test_heater_tpx_g_phase():
     """Test vapor phase only form with T-P-x state vars and phase mass balances"""
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
+    m.fs = FlowsheetBlock(dynamic=False)
     m.fs.properties = HelmholtzParameterBlock(
         pure_component="h2o",
         phase_presentation=PhaseType.G,
         state_vars=StateVars.TPX,
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.flow_mol.fix(100)
     m.fs.heater.inlet.temperature.fix(422.60419933276177)
@@ -274,9 +264,9 @@ def test_heater_tpx_g_phase():
     m.fs.heater.initialize(outlvl=5)
     assert degrees_of_freedom(m) == 0
     solver.solve(m)
-    assert abs(value(prop_out.temperature) - 698.1604861702295) <= 1e-4
-    #assert abs(value(prop_in.phase_frac["Liq"]) - 0) <= 1e-6
-    #assert abs(value(prop_out.phase_frac["Liq"]) - 0) <= 1e-6
+    assert abs(value(prop_out.temperature) - 698.1604861702295) <= 1e-3
+    # assert abs(value(prop_in.phase_frac["Liq"]) - 0) <= 1e-6
+    # assert abs(value(prop_out.phase_frac["Liq"]) - 0) <= 1e-6
     assert abs(value(prop_in.phase_frac["Vap"]) - 1) <= 1e-6
     assert abs(value(prop_out.phase_frac["Vap"]) - 1) <= 1e-6
 
@@ -287,18 +277,15 @@ def test_heater_tpx_lg_total():
     this case you end up with two-phases at the end.
     """
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
-    m.fs.properties = iapws95.Iapws95ParameterBlock(
-        default={
-            "phase_presentation": iapws95.PhaseType.LG,
-            "state_vars": iapws95.StateVars.TPX,
-        }
+    m.fs = FlowsheetBlock(dynamic=False)
+    m.fs.properties = HelmholtzParameterBlock(
+        pure_component='h2o',
+        phase_presentation=PhaseType.LG,
+        state_vars=StateVars.TPX,
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentTotal,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentTotal,
     )
     m.fs.heater.inlet.temperature.fix(326.1667075078748)
     m.fs.heater.inlet.vapor_frac.fix(0.0)
@@ -312,8 +299,8 @@ def test_heater_tpx_lg_total():
     m.fs.heater.initialize(outlvl=5)
     assert degrees_of_freedom(m) == 0
     solver.solve(m, tee=True)
-    assert value(prop_in.temperature) == pytest.approx(326.166707, rel=1e-5)
-    assert value(prop_out.temperature) == pytest.approx(373.12429, rel=1e-5)
+    assert value(prop_in.temperature) == pytest.approx(326.166707, rel=1e-4)
+    assert value(prop_out.temperature) == pytest.approx(373.12429, rel=1e-4)
     assert value(prop_in.phase_frac["Liq"]) == pytest.approx(1, rel=1e-5)
     assert value(prop_out.phase_frac["Liq"]) == pytest.approx(0.5953219, rel=1e-5)
     assert value(prop_in.phase_frac["Vap"]) == pytest.approx(0, abs=1e-5)
@@ -326,18 +313,15 @@ def test_heater_tpx_lg_total_2():
     this case you end up with all vapor at the end.
     """
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
-    m.fs.properties = iapws95.Iapws95ParameterBlock(
-        default={
-            "phase_presentation": iapws95.PhaseType.LG,
-            "state_vars": iapws95.StateVars.TPX,
-        }
+    m.fs = FlowsheetBlock(dynamic=False)
+    m.fs.properties = HelmholtzParameterBlock(
+        pure_component='h2o',
+        phase_presentation=PhaseType.LG,
+        state_vars=StateVars.TPX,
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentTotal,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentTotal,
     )
     m.fs.heater.inlet.temperature.fix(326.1667075078748)
     m.fs.heater.inlet.vapor_frac.fix(0.0)
@@ -346,12 +330,12 @@ def test_heater_tpx_lg_total_2():
     m.fs.heater.heat_duty[0].fix(100 * 50000)
     prop_in = m.fs.heater.control_volume.properties_in[0]
     prop_out = m.fs.heater.control_volume.properties_out[0]
-    prop_out.temperature = 400
+    prop_out.temperature = 600
     prop_out.vapor_frac = 0.9
     m.fs.heater.initialize(outlvl=5)
     assert degrees_of_freedom(m) == 0
     solver.solve(m, tee=True)
-    assert abs(value(prop_out.temperature) - 534.6889772922356) <= 2e-4
+    assert abs(value(prop_out.temperature) - 534.6889772922356) <= 1e-3
     assert abs(value(prop_in.phase_frac["Liq"]) - 1) <= 1e-2
     assert abs(value(prop_out.phase_frac["Liq"]) - 0) <= 1e-2
     assert abs(value(prop_in.phase_frac["Vap"]) - 0) <= 1e-2
@@ -366,18 +350,15 @@ def test_heater_tpx_lg_phase():
     fraction, but you have a mass balance for each phase.
     """
     m = ConcreteModel()
-    m.fs = FlowsheetBlock(default={"dynamic": False})
-    m.fs.properties = iapws95.Iapws95ParameterBlock(
-        default={
-            "phase_presentation": iapws95.PhaseType.LG,
-            "state_vars": iapws95.StateVars.TPX,
-        }
+    m.fs = FlowsheetBlock(dynamic=False)
+    m.fs.properties = HelmholtzParameterBlock(
+        pure_component='h2o',
+        phase_presentation=PhaseType.LG,
+        state_vars=StateVars.TPX,
     )
     m.fs.heater = Heater(
-        default={
-            "property_package": m.fs.properties,
-            "material_balance_type": MaterialBalanceType.componentPhase,
-        }
+        property_package=m.fs.properties,
+        material_balance_type=MaterialBalanceType.componentPhase,
     )
     m.fs.heater.inlet.temperature.fix(326.1667075078748)
     m.fs.heater.inlet.vapor_frac.fix(0.0)

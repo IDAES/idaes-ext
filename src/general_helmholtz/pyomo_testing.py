@@ -15,23 +15,22 @@ def main():
     m.param_block = HelmholtzParameterBlock(pure_component="h2o")
 
     m.r1234ze_ph_mass_param_block = HelmholtzParameterBlock(
-        pure_component="r1234ze",
-        amount_basis=AmountBasis.MASS
+        pure_component="r1234ze", amount_basis=AmountBasis.MASS
     )
     m.r1234ze_ph_mass_state_block = HelmholtzStateBlock(
         parameters=m.r1234ze_ph_mass_param_block
     )
 
     m.r1234ze_ph_mole_param_block = HelmholtzParameterBlock(
-        pure_component="r1234ze",
-        amount_basis=AmountBasis.MOLE
+        pure_component="r1234ze", amount_basis=AmountBasis.MOLE
     )
     m.r1234ze_ph_mole_state_block = HelmholtzStateBlock(
         parameters=m.r1234ze_ph_mole_param_block
     )
 
-
-    m.r1234ze_ph_mole_state_block.enth_mol = pyo.value(m.r1234ze_ph_mole_param_block.htpx(T=300*pyo.units.K, p=101*pyo.units.kPa))
+    m.r1234ze_ph_mole_state_block.enth_mol = pyo.value(
+        m.r1234ze_ph_mole_param_block.htpx(T=300 * pyo.units.K, p=101 * pyo.units.kPa)
+    )
     m.r1234ze_ph_mole_state_block.pressure = 101
     m.r1234ze_ph_mole_state_block.entr_mass.display()
 
@@ -188,8 +187,13 @@ def main():
     m.param_block.ph_diagram()
 
     m.param_block2 = HelmholtzParameterBlock(pure_component="r1234ze")
-    h = m.param_block2.htpx(T=200*pyo.units.K, p=101.325*pyo.units.kPa, amount_basis=AmountBasis.MASS, with_units=True)
-    print(pyo.value(pyo.units.convert(h, pyo.units.kJ/pyo.units.kg)))
+    h = m.param_block2.htpx(
+        T=200 * pyo.units.K,
+        p=101.325 * pyo.units.kPa,
+        amount_basis=AmountBasis.MASS,
+        with_units=True,
+    )
+    print(pyo.value(pyo.units.convert(h, pyo.units.kJ / pyo.units.kg)))
 
     m.param_block2.temperature_crit.display()
     m.param_block2.ph_diagram()
