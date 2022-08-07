@@ -1157,14 +1157,14 @@ change.
 
         # Smoothing arameters for TPX complimentarity form
         if self.config.state_vars == StateVars.TPX:
-            self.smoothing_pressure_over = Param(
+            self.smoothing_pressure_over = pyo.Param(
                 mutable=True,
                 initialize=1e-4,
                 doc="Smooth max parameter (pressure over)",
                 units=pyo.units.kPa,
             )
 
-            self.smoothing_pressure_under = Param(
+            self.smoothing_pressure_under = pyo.Param(
                 mutable=True,
                 initialize=1e-4,
                 doc="Smooth max parameter (pressure under)",
