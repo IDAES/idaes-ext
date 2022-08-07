@@ -1231,7 +1231,7 @@ change.
     def initialize(self, *args, **kwargs):
         pass
 
-    def ph_diagram(self):
+    def ph_diagram(self, points={}):
         # Add external functions needed to plot PH-diagram
         add_helmholtz_external_functions(
             self,
@@ -1333,6 +1333,10 @@ change.
         ht = pyo.value(self.h_func(self.pure_component, deltat_l, tc / tt))
         plt.scatter([hc], [pc])
         plt.scatter([ht], [pt])
+
+        for p, v in points.items():
+            plt.scatter([v[0]], [v[1]])
+            plt.text(v[0], v[1], p, ha="center", fontsize="xx-large")
 
         # Titles
         plt.title(f"P-H Diagram for {self.pure_component}")
