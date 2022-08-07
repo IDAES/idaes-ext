@@ -5,11 +5,35 @@ from helmholtz_functions import (
     HelmholtzThermoExpressions,
     AmountBasis,
 )
+from helmholtz_state import (
+    HelmholtzStateBlock,
+)
 
 
 def main():
     m = pyo.ConcreteModel()
     m.param_block = HelmholtzParameterBlock(pure_component="h2o")
+
+    m.r1234ze_ph_mass_param_block = HelmholtzParameterBlock(
+        pure_component="r1234ze",
+        amount_basis=AmountBasis.MASS
+    )
+    m.r1234ze_ph_mass_state_block = HelmholtzStateBlock(
+        parameters=m.r1234ze_ph_mass_param_block
+    )
+
+    m.r1234ze_ph_mole_param_block = HelmholtzParameterBlock(
+        pure_component="r1234ze",
+        amount_basis=AmountBasis.MOLE
+    )
+    m.r1234ze_ph_mole_state_block = HelmholtzStateBlock(
+        parameters=m.r1234ze_ph_mole_param_block
+    )
+
+
+    m.r1234ze_ph_mole_state_block.enth_mol = pyo.value(m.r1234ze_ph_mole_param_block.htpx(T=300*pyo.units.K, p=101*pyo.units.kPa))
+    m.r1234ze_ph_mole_state_block.pressure = 101
+    m.r1234ze_ph_mole_state_block.entr_mass.display()
 
     add_helmholtz_external_functions(m)
 

@@ -36,6 +36,7 @@ from idaes.core import (
     Component,
 )
 
+
 _flib = find_library("general_helmholtz_external.so")
 
 
@@ -845,7 +846,7 @@ change.
     )
 
     CONFIG.declare(
-        "ammount_basis",
+        "amount_basis",
         ConfigValue(
             default=AmountBasis.MOLE,
             domain=In(AmountBasis),
@@ -1000,6 +1001,8 @@ change.
 
     def build(self):
         super().build()
+        from helmholtz_state import HelmholtzStateBlock
+        self._state_block_class = HelmholtzStateBlock
         # set the component_list as required for the generic IDAES properties
         self.component_list = pyo.Set(initialize=[self.config.pure_component])
         # sinice this a only a pure component package, have a specific
@@ -1007,6 +1010,9 @@ change.
         self.pure_component = self.config.pure_component
         # State var set
         self.state_vars = self.config.state_vars
+        # Phase equilibrium description
+        self.phase_equilibrium_idx=pyo.Set(initialize=[1]),
+        self.phase_equilibrium_list={1: ["H2O", ("Vap", "Liq")]},
         # Add default scaling factors for property expressions or variables
         self._set_default_scaling()
         # Add idaes component and phase objects
@@ -1037,6 +1043,13 @@ change.
                 "tmin_func",  # tmin
                 "pmax_func",  # pmax
                 "tmax_func",  # tmax
+                #
+                "hlpt_func",
+                "slpt_func",
+                "ulpt_func",
+                "hvpt_func",
+                "svpt_func",
+                "uvpt_func",
             ],
         )
         # The parameters are constants and we don't want to call the external
@@ -1073,6 +1086,11 @@ change.
             pu.convert(self.pmax_func(cmp), pu.Pa),
         )
         self.add_param(
+            "default_pressure_value",
+            pu.convert((self.pressure_crit + self.pressure_trip)/2.0, pu.Pa),
+        )
+        self.default_pressure_bounds = (self.pressure_min, self.pressure_max);
+        self.add_param(
             "temperature_crit",
             pu.convert(self.tc_func(cmp), pu.K),
         )
@@ -1089,12 +1107,17 @@ change.
             pu.convert(self.tmax_func(cmp), pu.K),
         )
         self.add_param(
-            "dense_mass_crit",
+            "default_temperature_value",
+            pu.convert((self.temperature_crit + self.temperature_trip)/2.0, pu.K),
+        )
+        self.default_temperature_bounds = (self.temperature_min, self.temperature_max);
+        self.add_param(
+            "dens_mass_crit",
             pu.convert(self.rhoc_func(cmp), pu.kg / pu.m**3),
         )
         self.add_param(
-            "dense_mol_crit",
-            pu.convert(self.dense_mass_crit / self.mw, pu.mol / pu.m**3),
+            "dens_mol_crit",
+            pu.convert(self.dens_mass_crit / self.mw, pu.mol / pu.m**3),
         )
 
         self.uc = {
@@ -1111,6 +1134,26 @@ change.
             "kPa to Pa": (pyo.units.Pa * 1000 / pyo.units.kPa),
             "Pa to kPa": (pyo.units.kPa / 1000 / pyo.units.Pa),
         }
+        self.add_param(
+            "enthalpy_mol_min",
+            self.hlpt_func(cmp, self.pressure_trip * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_trip) * self.uc["kJ/kg to J/mol"],
+        )
+        self.add_param(
+            "enthalpy_mass_min",
+            self.hlpt_func(cmp, self.pressure_trip * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_trip) * self.uc["kJ/kg to J/kg"],
+        )
+        self.add_param(
+            "enthalpy_mol_max",
+            self.hlpt_func(cmp, self.pressure_max * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_max) * self.uc["kJ/kg to J/mol"],
+        )
+        self.add_param(
+            "enthalpy_mass_max",
+            self.hlpt_func(cmp, self.pressure_max * self.uc["Pa to kPa"], self.temperature_crit/self.temperature_max) * self.uc["kJ/kg to J/kg"],
+        )
+        self.add_param("default_enthalpy_mass_value", self.enthalpy_mass_min)
+        self.add_param("default_enthalpy_mol_value", self.enthalpy_mol_min)
+        self.default_enthalpy_mass_bounds = (self.enthalpy_mass_min, self.enthalpy_mass_max)
+        self.default_enthalpy_mol_bounds = (self.enthalpy_mol_min, self.enthalpy_mol_max)
 
         # Smoothing arameters for TPX complimentarity form
         if self.config.state_vars == StateVars.TPX:
