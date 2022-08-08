@@ -77,7 +77,7 @@ def main():
 
     pyo.TransformationFactory("network.expand_arcs").apply_to(m.fs)
     m.fs.compressor.inlet.flow_mol.unfix()
-    m.fs.cond_eq = pyo.Constraint(expr=m.fs.condenser.hot_side.properties_out[0].enth_mol == m.fs.condenser.hot_side.properties_out[0].enth_mol_sat_phase["Liq"]-100)
+    m.fs.cond_eq = pyo.Constraint(expr=m.fs.condenser.hot_side.properties_out[0].enth_mol == m.fs.condenser.hot_side.properties_out[0].enth_mol_sat_phase["Liq"])
     solver.solve(m, tee=True)
 
     m.fs.sA = Arc(
@@ -111,7 +111,6 @@ if __name__ == "__main__":
     pD = m.fs.condenser.hot_side.properties_out[0]
     pE = m.fs.valve.control_volume.properties_out[0]
     pA2 = m.fs.evaporator.cold_side.properties_out[0]
-
     pCW = m.fs.evaporator.hot_side.properties_out[0]
 
 

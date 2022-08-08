@@ -80,47 +80,56 @@ _external_function_map = {
         "fname": "p",
         "units": pyo.units.kPa,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "p(comp, delta, tau)",
     },
     "u_func": {  # internal energy
         "fname": "u",
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "u(comp, delta, tau)",
     },
     "s_func": {  # entropy
         "fname": "s",
         "units": pyo.units.kJ / pyo.units.kg / pyo.units.K,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "s(comp, delta, tau)",
     },
     "h_func": {  # enthaply
         "fname": "h",
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "h(comp, delta, tau)",
     },
     "g_func": {  # Gibbs free energy
         "fname": "g",
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "g(comp, delta, tau)",
     },
     "f_func": {  # Helmholtz free energy
         "fname": "f",
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "f(comp, delta, tau)",
     },
     "cv_func": {  # entropy
         "fname": "cv",
         "units": pyo.units.kJ / pyo.units.kg / pyo.units.K,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "cv(comp, delta, tau)",
     },
     "cp_func": {  # entropy
         "fname": "cp",
         "units": pyo.units.kJ / pyo.units.kg / pyo.units.K,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "cp(comp, delta, tau)",
     },
     # Dimensionless Helmholtz energy to calculate other thermo properties
     "phi0_func": {  # ideal part
         "fname": "phi0",
         "units": dimensionless,
         "arg_units": [dimensionless, dimensionless, dimensionless],
+        "doc": "phi0(comp, delta, tau)",
     },
     "phi0_d_func": {  # ideal part derivative wrt delta
         "fname": "phi0_d",
@@ -182,6 +191,8 @@ _external_function_map = {
         "fname": "hvpt",
         "units": pyo.units.kJ / pyo.units.kg,
         "arg_units": [dimensionless, pyo.units.kPa, dimensionless],
+        "doc": "h_v(p, tau)",
+        "latex_symbol": "\h_v"
     },
     "hlpt_func": {  # liquid enthalpy
         "fname": "hlpt",
@@ -228,6 +239,7 @@ _external_function_map = {
         "fname": "vf",
         "units": dimensionless,
         "arg_units": [dimensionless, pyo.units.kJ / pyo.units.kg, pyo.units.kPa],
+        "doc": "x(comp, h, p)",
     },
     "taus_func": {  # tau as a function of s, p
         "fname": "taus",
@@ -246,6 +258,7 @@ _external_function_map = {
             pyo.units.kJ / pyo.units.kg / pyo.units.K,
             pyo.units.kPa,
         ],
+        "doc": "x(comp, s, p)",
     },
     "tauu_func": {  # tau as a function of u, p
         "fname": "tauu",
@@ -383,6 +396,7 @@ def add_helmholtz_external_functions(blk, names=None):
                 function=fdict["fname"],
                 units=fdict["units"],
                 arg_units=fdict["arg_units"],
+                doc=fdict.get("doc", None)
             ),
         )
 
@@ -1231,7 +1245,7 @@ change.
     def initialize(self, *args, **kwargs):
         pass
 
-    def ph_diagram(self, points={}):
+    def ph_diagram(self, ylim=None, xlim=None, points={}, figsize=None, dpi=None):
         # Add external functions needed to plot PH-diagram
         add_helmholtz_external_functions(
             self,
@@ -1247,6 +1261,12 @@ change.
                 "delta_vap_func",
             ],
         )
+        plt.figure(figsize=figsize, dpi=dpi)
+
+        if ylim is not None:
+            plt.ylim(ylim)
+        if xlim is not None:
+            plt.xlim(xlim)
 
         # Get some parameters for plot limits
         pc = pyo.value(pyo.units.convert(self.pressure_crit, pyo.units.kPa))
@@ -1306,7 +1326,16 @@ change.
             h_v[t] = pyo.value(self.h_func(self.pure_component, delta_v, tau))
             h_l[t] = pyo.value(self.h_func(self.pure_component, delta_l, tau))
             plt.plot([h_l[t], h_v[t]], [p[t], p[t]], c="g")
-            plt.text(h_l[t] / 2 + h_v[t] / 2, p[t], f"T = {t} K", ha="center")
+            y = p[t]
+            x = h_l[t] / 2 + h_v[t] / 2
+            if xlim is None and ylim is None:
+                plt.text(x, y, f"T = {t} K", ha="center")
+            elif xlim is not None and ylim is not None and (xlim[1] < x < xlim[1]) and (ylim[0] < y < ylim[1]):
+                plt.text(x, y, f"T = {t} K", ha="center")
+            elif xlim is not None and (xlim[1] < x < xlim[1]):
+                plt.text(x, y, f"T = {t} K", ha="center")
+            elif ylim is not None and (ylim[0] < y < ylim[1]):
+                plt.text(x, y, f"T = {t} K", ha="center")
 
         # Isotherms from the liquid side
         for t in t_vec:
@@ -1334,9 +1363,18 @@ change.
         plt.scatter([hc], [pc])
         plt.scatter([ht], [pt])
 
+        x = []
+        y = []
         for p, v in points.items():
             plt.scatter([v[0]], [v[1]])
             plt.text(v[0], v[1], p, ha="center", fontsize="xx-large")
+            x.append(v[0])
+            y.append(v[1])
+        if len(x) > 1:
+            x.append(x[0])
+            y.append(y[0])
+        plt.plot(x, y, c='black')
+
 
         # Titles
         plt.title(f"P-H Diagram for {self.pure_component}")
@@ -1344,6 +1382,7 @@ change.
         plt.ylabel("Pressure (kPa)")
 
         plt.show()
+        return plt
 
     @classmethod
     def define_metadata(cls, obj):

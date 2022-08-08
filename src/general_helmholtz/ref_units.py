@@ -153,6 +153,7 @@ class CompressorData(UnitModelBlockData):
 
         eff = self.efficiency = pyo.Var(initialize=0.9)
         self.efficiency.fix()
+        self.efficiency.latex_symbol = "\eta"
 
         # The locations of properies can be a little cumbersome for writing
         # clear readale constraints, so make some short pointers to help,
@@ -161,11 +162,17 @@ class CompressorData(UnitModelBlockData):
         prop_0 = self.control_volume.properties_in[0]
         prop_1 = self.control_volume.properties_out[0]
         s_0 = prop_0.entr_mol
+        s_0.latex_symbol = "s_0"
         p_1 = prop_1.pressure
+        p_1.latex_symbol = "p_1"
         h_0 = prop_0.enth_mol
+        h_0.latex_symbol = "h_0"
         h_1 = prop_1.enth_mol
+        h_1.latex_symbol = "h_1"
         F_0 = prop_0.flow_mol
+        F_0.latex_symbol = "F_0"
         F_1 = prop_1.flow_mol
+        F_1.latex_symbol = "F_1"
 
         # Thermo expression writer, this will create thermo expression that look
         # like thermodynaic function calls when writing the constraints.
@@ -176,9 +183,13 @@ class CompressorData(UnitModelBlockData):
 
         # Expression for isentropic enthalpy
         h_s = self.h_s = pyo.Expression(expr=te.h(s=s_0, p=p_1))
+        h_s.latex_nice_expr = f"h(c={self.config.property_package.pure_component}, s=s_0, p=p_1)"
+        h_s.latex_symbol = "h_s"
         # Calculate work
         self.specific_work =  pyo.Expression(expr=(h_s - h_0)/eff)
-        self.work = pyo.Expression(expr=self.specific_work*F_0)
+        self.specific_work.latex_symbol = "\overline{w}"
+        self.work = pyo.Expression(expr=self.specific_work*F_0, doc="Work per mole")
+        self.work.latex_symbol = "w"
         # Energy balance
         self.eq_enth_out = pyo.Constraint(expr=h_1 == self.specific_work + h_0)
         # Mass balance
@@ -460,7 +471,7 @@ class HeatExchangerData(UnitModelBlockData):
 
         prop_1h.flow_mol.value = pyo.value(prop_0h.flow_mol)
         prop_1c.flow_mol.value = pyo.value(prop_0c.flow_mol)
-        prop_1h.enth_mol.value = pyo.value(prop_0h.enth_mol - 10)
-        prop_1c.enth_mol.value = pyo.value(prop_0c.enth_mol + 10)
+        prop_1h.enth_mol.value = pyo.value(prop_0h.enth_mol)
+        prop_1c.enth_mol.value = pyo.value(prop_0c.enth_mol)
         prop_1h.pressure.value = pyo.value(prop_0h.pressure)
         prop_1c.pressure.value = pyo.value(prop_0c.pressure)
