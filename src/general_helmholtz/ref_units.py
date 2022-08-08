@@ -161,17 +161,17 @@ class CompressorData(UnitModelBlockData):
         # isentropic
         prop_0 = self.control_volume.properties_in[0]
         prop_1 = self.control_volume.properties_out[0]
-        s_0 = prop_0.entr_mol
+        s_0 = prop_0.entr_mass
         s_0.latex_symbol = "s_0"
         p_1 = prop_1.pressure
         p_1.latex_symbol = "p_1"
-        h_0 = prop_0.enth_mol
+        h_0 = prop_0.enth_mass
         h_0.latex_symbol = "h_0"
-        h_1 = prop_1.enth_mol
+        h_1 = prop_1.enth_mass
         h_1.latex_symbol = "h_1"
-        F_0 = prop_0.flow_mol
+        F_0 = prop_0.flow_mass
         F_0.latex_symbol = "F_0"
-        F_1 = prop_1.flow_mol
+        F_1 = prop_1.flow_mass
         F_1.latex_symbol = "F_1"
 
         # Thermo expression writer, this will create thermo expression that look
@@ -186,9 +186,9 @@ class CompressorData(UnitModelBlockData):
         h_s.latex_nice_expr = f"h(c={self.config.property_package.pure_component}, s=s_0, p=p_1)"
         h_s.latex_symbol = "h_s"
         # Calculate work
-        self.specific_work =  pyo.Expression(expr=(h_s - h_0)/eff)
+        self.specific_work =  pyo.Expression(expr=(h_s - h_0)/eff, doc="Work per mass")
         self.specific_work.latex_symbol = "\overline{w}"
-        self.work = pyo.Expression(expr=self.specific_work*F_0, doc="Work per mole")
+        self.work = pyo.Expression(expr=self.specific_work*F_0)
         self.work.latex_symbol = "w"
         # Energy balance
         self.eq_enth_out = pyo.Constraint(expr=h_1 == self.specific_work + h_0)
@@ -216,20 +216,20 @@ class CompressorData(UnitModelBlockData):
         prop_1 = self.control_volume.properties_out[0]
 
         # Set flows
-        if prop_0.flow_mol.fixed and prop_1.flow_mol.fixed:
+        if prop_0.flow_mass.fixed and prop_1.flow_mass.fixed:
             raise RuntimeError("Compressor inlet and outlet flow are fixed")
-        elif prop_1.flow_mol.fixed:
-            prop_0.flow_mol.value = pyo.value(prop_1.flow_mol)
+        elif prop_1.flow_mass.fixed:
+            prop_0.flow_mass.value = pyo.value(prop_1.flow_mass)
         else:
-            prop_1.flow_mol.value = pyo.value(prop_0.flow_mol)
+            prop_1.flow_mass.value = pyo.value(prop_0.flow_mass)
 
         # Set enthalpy
-        if prop_0.enth_mol.fixed and prop_1.enth_mol.fixed:
+        if prop_0.enth_mass.fixed and prop_1.enth_mass.fixed:
             raise RuntimeError("Compressor inlet and outlet flow are fixed")
-        elif prop_1.enth_mol.fixed:
-            prop_0.enth_mol.value = pyo.value(prop_1.enth_mol)
+        elif prop_1.enth_mass.fixed:
+            prop_0.enth_mass.value = pyo.value(prop_1.enth_mass)
         else:
-            prop_1.enth_mol.value = pyo.value(prop_0.enth_mol)
+            prop_1.enth_mass.value = pyo.value(prop_0.enth_mass)
 
         # Save model state, so fixed/free, active/inative, and fixed values
         # can be restored, ensuring the propblem specs don't change due to
@@ -289,10 +289,10 @@ class ValveData(UnitModelBlockData):
         prop_0 = self.control_volume.properties_in[0]
         prop_1 = self.control_volume.properties_out[0]
         p_1 = prop_1.pressure
-        h_0 = prop_0.enth_mol
-        h_1 = prop_1.enth_mol
-        F_0 = prop_0.flow_mol
-        F_1 = prop_1.flow_mol
+        h_0 = prop_0.enth_mass
+        h_1 = prop_1.enth_mass
+        F_0 = prop_0.flow_mass
+        F_1 = prop_1.flow_mass
 
         # Thermo expression writer, this will create thermo expression that look
         # like thermodynaic function calls when writing the constraints.
@@ -326,20 +326,20 @@ class ValveData(UnitModelBlockData):
         prop_1 = self.control_volume.properties_out[0]
 
         # Set flows
-        if prop_0.flow_mol.fixed and prop_1.flow_mol.fixed:
+        if prop_0.flow_mass.fixed and prop_1.flow_mass.fixed:
             raise RuntimeError("Compressor inlet and outlet flow are fixed")
-        elif prop_1.flow_mol.fixed:
-            prop_0.flow_mol.value = pyo.value(prop_1.flow_mol)
+        elif prop_1.flow_mass.fixed:
+            prop_0.flow_mass.value = pyo.value(prop_1.flow_mass)
         else:
-            prop_1.flow_mol.value = pyo.value(prop_0.flow_mol)
+            prop_1.flow_mass.value = pyo.value(prop_0.flow_mass)
 
         # Set enthalpy
-        if prop_0.enth_mol.fixed and prop_1.enth_mol.fixed:
+        if prop_0.enth_mass.fixed and prop_1.enth_mass.fixed:
             raise RuntimeError("Compressor inlet and outlet flow are fixed")
-        elif prop_1.enth_mol.fixed:
-            prop_0.enth_mol.value = pyo.value(prop_1.enth_mol)
+        elif prop_1.enth_mass.fixed:
+            prop_0.enth_mass.value = pyo.value(prop_1.enth_mass)
         else:
-            prop_1.enth_mol.value = pyo.value(prop_0.enth_mol)
+            prop_1.enth_mass.value = pyo.value(prop_0.enth_mass)
 
         # Save model state, so fixed/free, active/inative, and fixed values
         # can be restored, ensuring the propblem specs don't change due to
@@ -402,10 +402,10 @@ class HeatExchangerData(UnitModelBlockData):
 
         prop_0h = self.hot_side.properties_in[0]
         prop_1h = self.hot_side.properties_out[0]
-        h_0h = prop_0h.enth_mol
-        h_1h = prop_1h.enth_mol
-        F_0h = prop_0h.flow_mol
-        F_1h = prop_1h.flow_mol
+        h_0h = prop_0h.enth_mass
+        h_1h = prop_1h.enth_mass
+        F_0h = prop_0h.flow_mass
+        F_1h = prop_1h.flow_mass
         T_0h = prop_0h.temperature
         T_1h = prop_1h.temperature
         P_0h = prop_0h.pressure
@@ -413,10 +413,10 @@ class HeatExchangerData(UnitModelBlockData):
 
         prop_0c = self.cold_side.properties_in[0]
         prop_1c = self.cold_side.properties_out[0]
-        h_0c = prop_0c.enth_mol
-        h_1c = prop_1c.enth_mol
-        F_0c = prop_0c.flow_mol
-        F_1c = prop_1c.flow_mol
+        h_0c = prop_0c.enth_mass
+        h_1c = prop_1c.enth_mass
+        F_0c = prop_0c.flow_mass
+        F_1c = prop_1c.flow_mass
         T_0c = prop_0c.temperature
         T_1c = prop_1c.temperature
         P_0c = prop_0c.pressure
@@ -469,9 +469,24 @@ class HeatExchangerData(UnitModelBlockData):
         prop_0c = self.cold_side.properties_in[0]
         prop_1c = self.cold_side.properties_out[0]
 
-        prop_1h.flow_mol.value = pyo.value(prop_0h.flow_mol)
-        prop_1c.flow_mol.value = pyo.value(prop_0c.flow_mol)
-        prop_1h.enth_mol.value = pyo.value(prop_0h.enth_mol)
-        prop_1c.enth_mol.value = pyo.value(prop_0c.enth_mol)
+        sp = StoreSpec.value_isfixed_isactive(only_fixed=True)
+        istate = to_json(self, return_dict=True, wts=sp)
+
+        prop_1h.flow_mass.value = pyo.value(prop_0h.flow_mass)
+        prop_1c.flow_mass.value = pyo.value(prop_0c.flow_mass)
+        prop_1h.enth_mass.value = pyo.value(prop_0h.enth_mass - 1)
+        prop_1c.enth_mass.value = pyo.value(prop_0c.enth_mass + 1)
         prop_1h.pressure.value = pyo.value(prop_0h.pressure)
         prop_1c.pressure.value = pyo.value(prop_0c.pressure)
+
+        self.cold_inlet.fix()
+        self.hot_inlet.fix()
+        self.cold_outlet.unfix()
+        self.hot_outlet.unfix()
+        self.U.fix()
+        self.A.fix()
+        with idaeslog.solver_log(solve_log, idaeslog.DEBUG) as slc:
+            res = solver.solve(self, tee=slc.tee)
+
+        from_json(self, sd=istate, wts=sp)
+        init_log.info_high(f"HeatExchanger '{self.name}' Initialization Complete")

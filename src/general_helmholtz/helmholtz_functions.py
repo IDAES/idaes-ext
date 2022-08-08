@@ -411,7 +411,7 @@ class HelmholtzThermoExpressions(object):
     thermodynaic property function.
     """
 
-    def __init__(self, blk, parameters, amount_basis=AmountBasis.MOLE):
+    def __init__(self, blk, parameters, amount_basis=None):
         """Create a new thermodynamic property expression writer class.
 
         Args:
@@ -421,6 +421,8 @@ class HelmholtzThermoExpressions(object):
         Returns:
             HelmholtzThermoExpressions
         """
+        if amount_basis is None:
+            amount_basis = parameters.config.amount_basis
         self.param = parameters
         self.blk = blk
         self.amount_basis = amount_basis
@@ -904,7 +906,7 @@ change.
         p=None,
         x=None,
         units=None,
-        amount_basis=AmountBasis.MOLE,
+        amount_basis=None,
         with_units=False,
     ):
         """
@@ -921,6 +923,8 @@ change.
         Returns:
             Total molar enthalpy [J/mol].
         """
+        if amount_basis is None:
+            amount_basis=self.config.amount_basis
         if units is None:
             if amount_basis == AmountBasis.MOLE:
                 units = pyo.units.J / pyo.units.mol

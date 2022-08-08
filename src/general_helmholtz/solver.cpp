@@ -12,7 +12,8 @@
 +-------------------------------------------------------------------------------*/
 
 #include "solver.h"
-#include<math.h>
+//#include<math.h>
+#include<cmath>
 /*------------------------------------------------------------------------------
  False-position type bracketing solver.  This is mostly used to confine the
  search for a good starting point to a specific area, where a newton method
