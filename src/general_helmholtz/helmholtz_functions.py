@@ -1450,13 +1450,31 @@ change.
         plt.plot(s_sat_l_vec, tc/tau_sat_vec, c="b", label="sat liquid")
         plt.plot(s_sat_v_vec, tc/tau_sat_vec, c="r", label="sat vapor")
 
+        # Points for critical point and triple point
+        deltat_l = pyo.value(self.delta_liq_func(self.pure_component, pt, tc / tt))
+        sc = pyo.value(self.s_func(self.pure_component, 1, 1))
+        st = pyo.value(self.s_func(self.pure_component, deltat_l, tc / tt))
+        plt.scatter([sc], [pc])
+        plt.scatter([st], [pt])
 
+        x = []
+        y = []
+        for p, v in points.items():
+            plt.scatter([v[0]], [v[1]])
+            plt.text(v[0], v[1], p, ha="center", fontsize="xx-large")
+            x.append(v[0])
+            y.append(v[1])
+        if len(x) > 1:
+            x.append(x[0])
+            y.append(y[0])
+        plt.plot(x, y, c='black')
 
 
         plt.title(f"T-S Diagram for {self.pure_component}")
         plt.xlabel("Entropy (kJ/kg/K)")
         plt.ylabel("Temperature (K)")
         plt.show()
+        return plt
 
 
     def pt_diagram(self, ylim=None, xlim=None, points={}, figsize=None, dpi=None):
@@ -1526,6 +1544,7 @@ change.
         plt.ylabel("Pressure (kPa)")
         plt.xlabel("Temperature (K)")
         plt.show()
+        return plt
 
     @classmethod
     def define_metadata(cls, obj):
