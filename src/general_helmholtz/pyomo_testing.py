@@ -197,7 +197,8 @@ def main():
 
     m.param_block2.temperature_crit.display()
     m.param_block2.ph_diagram()
-
+    m.param_block2.st_diagram()
+    m.param_block2.pt_diagram()
 
 if __name__ == "__main__":
     main()

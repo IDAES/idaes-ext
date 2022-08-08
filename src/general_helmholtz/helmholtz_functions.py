@@ -1384,6 +1384,145 @@ change.
         plt.show()
         return plt
 
+    def st_diagram(self, ylim=None, xlim=None, points={}, figsize=None, dpi=None):
+        # Add external functions needed to plot PH-diagram
+        add_helmholtz_external_functions(
+            self,
+            [
+                "p_sat_func",
+                "tau_sat_func",
+                "delta_sat_l_func",
+                "delta_sat_v_func",
+                "s_func",
+                "slpt_func",
+                "svpt_func",
+                "delta_liq_func",
+                "delta_vap_func",
+            ],
+        )
+        plt.figure(figsize=figsize, dpi=dpi)
+
+        if ylim is not None:
+            plt.ylim(ylim)
+        if xlim is not None:
+            plt.xlim(xlim)
+
+        # Get some parameters for plot limits
+        pc = pyo.value(pyo.units.convert(self.pressure_crit, pyo.units.kPa))
+        pt = pyo.value(pyo.units.convert(self.pressure_trip, pyo.units.kPa))
+        tc = pyo.value(self.temperature_crit)
+        tt = pyo.value(self.temperature_trip)
+        pmax = pyo.value(pyo.units.convert(self.pressure_max, pyo.units.kPa))
+
+        # Temperatures to plot the saturation from triple point to critical
+        # in the form of tau (Tc/T)
+        tau_sat_vec = np.linspace(
+            1,
+            pyo.value(self.temperature_crit) / (pyo.value(self.temperature_trip)),
+            200,
+        )
+        #
+        delta_sat_v_vec = [None] * len(tau_sat_vec)
+        delta_sat_l_vec = [None] * len(tau_sat_vec)
+        s_sat_v_vec = [None] * len(tau_sat_vec)
+        s_sat_l_vec = [None] * len(tau_sat_vec)
+
+        for i, tau in enumerate(tau_sat_vec):
+            delta_sat_l_vec[i] = pyo.value(
+                self.delta_sat_l_func(self.pure_component, tau)
+            )
+            delta_sat_v_vec[i] = pyo.value(
+                self.delta_sat_v_func(self.pure_component, tau)
+            )
+            s_sat_v_vec[i] = pyo.value(
+                self.s_func(self.pure_component, delta_sat_v_vec[i], tau)
+            )
+            s_sat_l_vec[i] = pyo.value(
+                self.s_func(self.pure_component, delta_sat_l_vec[i], tau)
+            )
+
+        # plot saturaion curves use log scale for pressure
+        #plt.yscale("log")
+        plt.plot(s_sat_l_vec, tc/tau_sat_vec, c="b", label="sat liquid")
+        plt.plot(s_sat_v_vec, tc/tau_sat_vec, c="r", label="sat vapor")
+
+
+
+
+        plt.title(f"T-S Diagram for {self.pure_component}")
+        plt.xlabel("Entropy (kJ/kg/K)")
+        plt.ylabel("Temperature (K)")
+        plt.show()
+
+
+    def pt_diagram(self, ylim=None, xlim=None, points={}, figsize=None, dpi=None):
+        # Add external functions needed to plot PH-diagram
+        add_helmholtz_external_functions(
+            self,
+            [
+                "p_sat_func",
+                "tau_sat_func",
+                "delta_sat_l_func",
+                "delta_sat_v_func",
+                "s_func",
+                "slpt_func",
+                "svpt_func",
+                "delta_liq_func",
+                "delta_vap_func",
+            ],
+        )
+        plt.figure(figsize=figsize, dpi=dpi)
+
+        if ylim is not None:
+            plt.ylim(ylim)
+        if xlim is not None:
+            plt.xlim(xlim)
+
+        # Get some parameters for plot limits
+        pc = pyo.value(pyo.units.convert(self.pressure_crit, pyo.units.kPa))
+        pt = pyo.value(pyo.units.convert(self.pressure_trip, pyo.units.kPa))
+        tc = pyo.value(self.temperature_crit)
+        tt = pyo.value(self.temperature_trip)
+        pmax = pyo.value(pyo.units.convert(self.pressure_max, pyo.units.kPa))
+
+        # Temperatures to plot the saturation from triple point to critical
+        # in the form of tau (Tc/T)
+        tau_sat_vec = np.linspace(
+            1,
+            pyo.value(self.temperature_crit) / (pyo.value(self.temperature_trip)),
+            200,
+        )
+        p_sat_vec = [None] * len(tau_sat_vec)
+        delta_sat_v_vec = [None] * len(tau_sat_vec)
+        delta_sat_l_vec = [None] * len(tau_sat_vec)
+        h_sat_v_vec = [None] * len(tau_sat_vec)
+        h_sat_l_vec = [None] * len(tau_sat_vec)
+
+        for i, tau in enumerate(tau_sat_vec):
+            p_sat_vec[i] = pyo.value(self.p_sat_func(self.pure_component, tau))
+            delta_sat_l_vec[i] = pyo.value(
+                self.delta_sat_l_func(self.pure_component, tau)
+            )
+            delta_sat_v_vec[i] = pyo.value(
+                self.delta_sat_v_func(self.pure_component, tau)
+            )
+
+        # plot saturaion curves use log scale for pressure
+        plt.yscale("log")
+        plt.plot(tc/tau_sat_vec, p_sat_vec, c="m", label="sat")
+        plt.plot([tc, tc], [pc, pc*10], c="m", label="sat")
+        plt.plot([tc, tc*1.1], [pc, pc], c="m", label="sat")
+
+        # Points for critical point and triple point
+        plt.scatter([tc], [pc])
+        plt.scatter([tt], [pt])
+
+
+        plt.title(f"P-T Diagram for {self.pure_component}")
+        plt.ylabel("Pressure (kPa)")
+        plt.xlabel("Temperature (K)")
+        plt.show()
+
     @classmethod
     def define_metadata(cls, obj):
         obj.add_properties(
