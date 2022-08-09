@@ -234,6 +234,9 @@ int main(){
   err = !fd2(memo2_isobaric_heat_capacity, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-6, 0);
   std::cout << "memo2_isobaric_heat_capacity passed: " << err << std::endl;
 
+  err = !fd2(memo2_speed_of_sound, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-6, 1);
+  std::cout << "memo2_speed_of_sound passed: " << err << std::endl;
+
   err = !fd2(memo2_phi_ideal, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_phi_ideal passed: " << err << std::endl;
 

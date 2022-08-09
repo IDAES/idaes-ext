@@ -34,6 +34,7 @@ prop_memo_table2 memo_table_helmholtz2;
 prop_memo_table2 memo_table_isochoric_heat_capacity2;
 prop_memo_table2 memo_table_isobaric_heat_capacity2;
 prop_memo_table2 memo_table_speed_of_sound2;
+
 prop_memo_table2 memo_table_phi_ideal2;
 prop_memo_table2 memo_table_phi_resi2;
 prop_memo_table2 memo_table_phi_ideal_d2;
@@ -397,6 +398,69 @@ void isobaric_heat_capacity2(comp_enum comp, double delta, double tau, std::vect
   out->assign(res, res+6);
 }
 
+void speed_of_sound2(comp_enum comp, double delta, double tau, std::vector<double> *out){
+  std::vector<double> *yr = phi_resi(comp, delta, tau);
+  std::vector<double> *yi = phi_ideal(comp, delta, tau);
+
+  double res[6];
+  double c = param::R[comp]*param::Tc[comp]*1000; // the 100 is because when the units shae out you get w^2 [=] km*m/s^2 so convert to m^2/s^2
+  double phii_tt = yi->at(f4_22);
+  double phii_dtt = yi->at(f4_122);
+  double phii_ddtt = yi->at(f4_1122);
+  double phii_dttt = yi->at(f4_1222);
+  double phii_ttt = yi->at(f4_222);
+  double phii_tttt = yi->at(f4_2222);
+  double phir_d = yr->at(f4_1);
+  double phir_dd = yr->at(f4_11);
+  double phir_ddd = yr->at(f4_111);
+  double phir_dddd = yr->at(f4_1111);
+  double phir_dddt = yr->at(f4_1112);
+  double phir_ddt = yr->at(f4_112);
+  double phir_dt = yr->at(f4_12);
+  double phir_tt = yr->at(f4_22);
+  double phir_dtt = yr->at(f4_122);
+  double phir_ddtt = yr->at(f4_1122);
+  double phir_dttt = yr->at(f4_1222);
+  double phir_ttt = yr->at(f4_222);
+  double phir_tttt = yr->at(f4_2222);
+
+  double y = -tau*tau*(phii_tt + phir_tt);
+  double y_d = -tau*tau*(phii_dtt + phir_dtt);
+  double y_dd = -tau*tau*(phii_ddtt + phir_ddtt);
+  double y_t = -1*(2*tau*(phii_tt + phir_tt) + tau*tau*(phii_ttt + phir_ttt));
+  double y_dt = -1*(2*tau*(phii_dtt + phir_dtt) + tau*tau*(phii_dttt + phir_dttt));
+  double y_tt = -1*(2*(phii_tt + phir_tt) + 4*tau*(phii_ttt + phir_ttt) + tau*tau*(phii_tttt + phir_tttt));
+
+  double x = 1 + delta*phir_d - delta*tau*phir_dt;
+  double x_d = phir_d + delta*phir_dd - tau*phir_dt - delta*tau*phir_ddt;
+  double x_t = -delta*tau*phir_dtt;
+  double x_dd = 2*phir_dd + delta*phir_ddd - 2*tau*phir_ddt - delta*tau*phir_dddt;
+  double x_dt = -tau*phir_dtt - delta*tau*phir_ddtt;
+  double x_tt = -delta*phir_dtt - delta*tau*phir_dttt;
+
+  double z = 1 + 2*delta*phir_d + delta*delta*phir_dd;
+  double z_d = 2*phir_d + 4*delta*phir_dd + delta*delta*phir_ddd;
+  double z_t = 2*delta*phir_dt + delta*delta*phir_ddt;
+  double z_dd = 6*phir_dd + 6*delta*phir_ddd + delta*delta*phir_dddd;
+  double z_dt = 2*phir_dt + 4*delta*phir_ddt + delta*delta*phir_dddt;
+  double z_tt = 2*delta*phir_dtt + delta*delta*phir_ddtt;
+
+  double w2 = c/tau*(z + x*x/y);
+  double w2_d = c/tau*(z_d + 2*x/y*x_d - x*x/y/y*y_d);
+  double w2_t = -w2/tau + c/tau*(z_t + 2*x/y*x_t - x*x/y/y*y_t);
+  double w2_dd = c/tau*(z_dd + 2/y*x_d*x_d - 4*x/y/y*x_d*y_d + 2*x/y*x_dd + 2*x*x/y/y/y*y_d*y_d - x*x/y/y*y_dd);
+  double w2_dt = -w2_d/tau   + c/tau*(z_dt + 2/y*x_d*x_t - 2*x/y/y*x_t*y_d - 2*x/y/y*x_d*y_t + 2*x/y*x_dt + 2*x*x/y/y/y*y_d*y_t - x*x/y/y*y_dt);
+  double w2_tt = -2*w2_t/tau + c/tau*(z_tt + 2/y*x_t*x_t - 4*x/y/y*x_t*y_t + 2*x/y*x_tt + 2*x*x/y/y/y*y_t*y_t - x*x/y/y*y_tt);
+
+  res[f2] = sqrt(w2);
+  res[f2_1] = 0.5*pow(w2, -0.5) * w2_d;
+  res[f2_11] = 0.5*pow(w2, -0.5) * w2_dd - 0.25*pow(w2, -1.5) * w2_d*w2_d;
+  res[f2_2] = 0.5*pow(w2, -0.5) * w2_t;
+  res[f2_12] = 0.5*pow(w2, -0.5) * w2_dt - 0.25*pow(w2, -1.5) * w2_d*w2_t;
+  res[f2_22] = 0.5*pow(w2, -0.5) * w2_tt - 0.25*pow(w2, -1.5) * w2_t*w2_t;
+  out->assign(res, res+6);
+}
+
 void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *y = phi_ideal(comp, delta, tau);
   out->resize(6);
@@ -537,6 +601,7 @@ MEMO2_FUNCTION(memo2_gibbs, gibbs2, memo_table_gibbs2)
 MEMO2_FUNCTION(memo2_helmholtz, helmholtz2, memo_table_helmholtz2)
 MEMO2_FUNCTION(memo2_isochoric_heat_capacity, isochoric_heat_capacity2, memo_table_isochoric_heat_capacity2)
 MEMO2_FUNCTION(memo2_isobaric_heat_capacity, isobaric_heat_capacity2, memo_table_isobaric_heat_capacity2)
+MEMO2_FUNCTION(memo2_speed_of_sound, speed_of_sound2, memo_table_speed_of_sound2)
 
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
