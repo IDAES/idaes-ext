@@ -46,8 +46,8 @@ namespace param {
   // MW g/mol
   const double mw[] = {
     0,           // not used
-    18.015268,   // H2O
-    44.0098,     // CO2
+    18.015268,   // h2o
+    44.0098,     // co2
     114.0416     // r1234ze
   };
 
@@ -55,40 +55,40 @@ namespace param {
   // Specific gas constant (kJ/kg/K)
   const double R[] = {
     0,           // not used
-    0.46151805,  // H2O
-    0.1889241,   // CO2
+    0.46151805,  // h2o
+    0.1889241,   // co2
     0.07290727,  //r1234ze
   };
 
   // Critical temperature (K)
   const double Tc[] = {
     0,        // not used
-    647.096,  // H2O
-    304.1282, // CO2
+    647.096,  // h2o
+    304.1282, // co2
     382.513,  // r1234ze
   };
 
   // Critical density (kg/m3)
   const double rhoc[] = {
     0,        // not used
-    322.0,    // H2O
-    467.6,    // CO2
+    322.0,    // h2o
+    467.6,    // co2
     489.238,  // r1234ze
   };
 
   // Critical Pressure (kPa)
   const double Pc[] = {
     0,          // not used
-    22064.0,    // H2O
-    7377.3,     // CO2
+    22064.0,    // h2o
+    7377.3,     // co2
     3634.9,     // r1234ze
   };
 
   // Triple point temperature (K)
   const double Tt[] = {
     0,        // not used
-    273.16,   // H2O
-    216.592,  // CO2
+    273.16,   // h2o
+    216.592,  // co2
     169.0,    // r1234ze
   };
 
@@ -103,16 +103,16 @@ namespace param {
   // Triple point liquid density (kPa)
   const double rhot_l[] = {
     0,          // not used
-    999.793,    // H2O
-    1178.46,    // CO2
+    999.793,    // h2o
+    1178.46,    // co2
     1510.76,    // r1234ze
   };
 
   // Triple point vapor density (kPa)
   const double rhot_v[] = {
     0,          // not used
-    0.00485458, // H2O
-    13.761,     // CO2
+    0.00485458, // h2o
+    13.761,     // co2
     0.0185566,  // r1234ze
   };
 
@@ -120,7 +120,7 @@ namespace param {
   const double P_min[] = {
     0,       // not used
     1e-9,    // h2o
-    1e-9,    // CO2
+    1e-9,    // co2
     1e-9,    // r1234ze
   };
 
@@ -128,7 +128,7 @@ namespace param {
   const double P_max[] = {
     0,       // not used
     1e6,     // h2o
-    1e6,     // co2
+    5e5,     // co2
     5e5,     // r1234ze
   };
 
@@ -136,7 +136,7 @@ namespace param {
   const double rho_max[] = {
     0,       // not used
     1250.0,  // h2o
-    1500.0,  // CO2
+    1500.0,  // co2
     2500.0,  //r1234ze
 
   };
@@ -145,7 +145,7 @@ namespace param {
   const double T_min[] = {
     0,       // not used
     235,     // h2o
-    200,     // CO2
+    200,     // co2
     150,     // r1234ze
   };
 
@@ -153,7 +153,7 @@ namespace param {
   const double T_max[] = {
     0,       // not used
     1300,    // h2o
-    1300,    // CO2
+    1300,    // co2
     1300,    // r1234ze
   };
 

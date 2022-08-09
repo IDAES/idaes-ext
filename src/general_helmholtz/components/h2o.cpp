@@ -32,14 +32,13 @@
 #include <math.h>
 #include <adolc/adolc.h>
 #include "../config.h"
-#include "param.h"
-
 
 double melting_temperature_h2o(double pr){
   /*
     Estimate the melting temperature at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid tange of
-    temperatures at a given pressure (kPa).
+    temperatures at a given pressure (kPa). If there is no good metling curve,
+    data just supply a resonable upper limit on vapor temperature.
   */
   double Tn, Pn;
   // Ice I Sublimation, Max error 0.15 to 251 K, 1.4 K to 235 K
@@ -95,7 +94,8 @@ double melting_liquid_density_h2o(double pr){
   /*
     Estimate the melting liquid density at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid range of
-    temperatures at a given pressure (kPa).
+    temperatures at a given pressure (kPa). If there is no good metling curve,
+    data just supply a resonable upper limit on vapor density.
   */
   if(pr >= 400000){
     return -9.025000E-11*pr*pr + 2.802900E-04*pr + 1.047067E+03;

@@ -25,13 +25,13 @@ Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
 #include <math.h>
 #include <adolc/adolc.h>
 #include "../config.h"
-#include "param.h"
 
 double melting_temperature_r1234ze(double pr){
   /*
     Estimate the melting temperature at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid tange of
-    temperatures at a given pressure (kPa).
+    temperatures at a given pressure (kPa). If there is no good metling curve,
+    data just supply a resonable upper limit on vapor temperature.
   */
   return 200.0;
 }
@@ -40,15 +40,15 @@ double melting_liquid_density_r1234ze(double pr){
   /*
     Estimate the melting liquid density at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid range of
-    temperatures at a given pressure (kPa).
+    temperatures at a given pressure (kPa). If there is no good metling curve,
+    data just supply a resonable upper limit on vapor density.
   */
-  return 2000;
+  return 1450.0;
 }
 
 double delta_sat_v_approx_r1234ze(double tau){
 /*
   Approximate saturated vapor density
-  This equation is from the original IAPWS-95 paper
 */
   double XX = 1 - 1.0/tau;
   return exp(
@@ -63,7 +63,6 @@ double delta_sat_v_approx_r1234ze(double tau){
 double delta_sat_l_approx_r1234ze(double tau){
 /*
   Approximate saturated vapor liquid
-  This equation is from the original IAPWS-95 paper
 */
   double XX = 1 - 1.0/tau;
   return
@@ -102,7 +101,7 @@ void phi_r1234ze_ideal_tape(){
 
 
 void phi_r1234ze_resi_tape(){
-// Create a ADOL-C tape for the ideal part of phi for R1234ze
+// Create a ADOL-C tape for the residual part of phi for R1234ze
 
   // parameters are only need once locally to create the tape
   double N[] = {

@@ -18,9 +18,11 @@
  File: function_pointers.h
 --------------------------------------------------------------------------------*/
 
+#include<cstdlib>
+
 #include"h2o.h"
 #include"r1234ze.h"
-#include<cstdlib>
+#include"co2.h"
 
 #ifndef _INCLUDE_FUNCTION_POINTERS_H_
 #define _INCLUDE_FUNCTION_POINTERS_H_
@@ -40,7 +42,7 @@ defined in config.h
 const uni_double_function_type melting_temperature_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   melting_temperature_h2o,         // 1 - h2o
-  (uni_double_function_type)NULL,  // 2 - co2
+  melting_temperature_co2,         // 2 - co2
   melting_temperature_r1234ze,     // 3 - r1234ze
 };
 
@@ -50,7 +52,7 @@ const uni_double_function_type melting_temperature_func[] = {
 const uni_double_function_type melting_liquid_density_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   melting_liquid_density_h2o,      // 1 - h2o
-  (uni_double_function_type)NULL,  // 2 - co2
+  melting_liquid_density_co2,      // 2 - co2
   melting_liquid_density_r1234ze,  // 3 - r1234ze
 };
 
@@ -58,7 +60,7 @@ const uni_double_function_type melting_liquid_density_func[] = {
 const uni_double_function_type delta_l_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_l_approx_h2o,          // 1 - h2o
-  (uni_double_function_type)NULL,  // 2 - co2
+  delta_sat_l_approx_co2,          // 2 - co2
   delta_sat_l_approx_r1234ze,      // 3 - r1234ze
 };
 
@@ -66,7 +68,7 @@ const uni_double_function_type delta_l_sat_guess_func[] = {
 const uni_double_function_type delta_v_sat_guess_func[] = {
   (uni_double_function_type)NULL,  // 0 - not used
   delta_sat_v_approx_h2o,          // 1 - h2o
-  (uni_double_function_type)NULL,  // 2 - co2
+  delta_sat_v_approx_co2,          // 2 - co2
   delta_sat_v_approx_r1234ze,      // 3 - r1234ze
 };
 
@@ -74,7 +76,7 @@ const uni_double_function_type delta_v_sat_guess_func[] = {
 const zero_void_function_type phi_resi_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_resi_tape,               // 1 - h2o
-  (zero_void_function_type)NULL,  // 2 - co2
+  phi_co2_resi_tape,               // 2 - co2
   phi_r1234ze_resi_tape,           // 3 - r1234ze
 };
 
@@ -82,7 +84,7 @@ const zero_void_function_type phi_resi_tape_func[] = {
 const zero_void_function_type phi_ideal_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
   phi_h2o_ideal_tape,              // 1 - h2o
-  (zero_void_function_type)NULL,  // 2 - co2
+  phi_co2_ideal_tape,              // 2 - co2
   phi_r1234ze_ideal_tape,          // 3 - r1234ze
 };
 
