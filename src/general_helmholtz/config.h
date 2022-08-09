@@ -18,8 +18,10 @@
  File: config.h
 --------------------------------------------------------------------------------*/
 
-#include<unordered_map>
-#include<string>
+#include<vector>
+#include<boost/functional/hash.hpp>
+#include"components/param.h"
+#include"components/function_pointers.h"
 
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_
@@ -29,24 +31,6 @@
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
-
-#define NCOMPS 4
-
-// if adding components update NCOMPS above should be 1 more than last index
-enum comp_enum{
-  h2o = 1,
-  co2 = 2,
-  r1234ze = 3,
-};
-
-static std::unordered_map<std::string, comp_enum> comp_string_table = {
-  {"h2o", comp_enum::h2o},
-  {"H2O", comp_enum::h2o},
-  {"co2", comp_enum::co2},
-  {"CO2", comp_enum::co2},
-  {"r1234ze", comp_enum::r1234ze},
-  {"R1234ZE", comp_enum::r1234ze},
-};
 
 enum deriv1_enum {
   f1 = 0,
@@ -86,5 +70,77 @@ enum deriv4_enum {
 
 extern unsigned int taped_ideal[NCOMPS];
 extern unsigned int taped_resi[NCOMPS];
+
+static std::vector<double> nan_vec3 = {
+  nan(""),
+  nan(""),
+  nan("")
+};
+
+static std::vector<double> zero_vec3 = {
+  0.0,
+  0.0,
+  0.0
+};
+
+static std::vector<double> one_vec3 = {
+  1.0,
+  1.0,
+  1.0
+};
+
+static std::vector<double> nan_vec6 = {
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan(""),
+  nan("")
+};
+
+static std::vector<double> zero_vec6 = {
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+};
+
+static std::vector<double> one_vec6 = {
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+};
+
+typedef std::unordered_map<
+  std::tuple<comp_enum, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double>>
+> prop_memo_table1;
+
+typedef std::unordered_map<
+  std::tuple<comp_enum, double, double>,
+  std::vector<double>,
+  boost::hash<std::tuple<comp_enum, double, double>>
+> prop_memo_table2;
+
+#define MEMO2_FUNCTION(new_func, calc_func, table) \
+std::vector<double> *new_func(comp_enum comp, double delta, double tau){ \
+  if(std::isnan(delta) || std::isnan(tau)) return &nan_vec6; \
+  try{ \
+    return &table.at(std::make_tuple(comp, delta, tau)); \
+  } \
+  catch(std::out_of_range const&){ \
+  } \
+  std::vector<double> *yvec_ptr; \
+  if(table.size() > MAX_MEMO_PROP) table.clear(); \
+  yvec_ptr = &table[std::make_tuple(comp, delta, tau)]; \
+  calc_func(comp, delta, tau, yvec_ptr); \
+  return yvec_ptr; \
+}
 
 #endif

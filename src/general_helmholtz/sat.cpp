@@ -22,48 +22,18 @@ File sat.cpp
      State from Helmholtz Energy Equations of State." Journal of Thermal
      Science and Technology, 3(3), 442-451.
 ------------------------------------------------------------------------------*/
-#include<unordered_map>
-#include<vector>
+
 #include<math.h>
-#include<iostream>
-#include<boost/functional/hash.hpp>
 #include"phi.h"
 #include"props.h"
-#include"param.h"
 #include"config.h"
 #include"solver.h"
 #include"sat.h"
-#include"function_pointers.h"
 
-static std::unordered_map<
-  std::tuple<comp_enum, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double>>
-> memo_table_sat_delta_l;
-
-static std::unordered_map<
-  std::tuple<comp_enum, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double>>
-> memo_table_sat_delta_v;
-
-static std::unordered_map<
-  std::tuple<comp_enum, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double>>
-> memo_table_sat_p;
-
-static std::unordered_map<
-  std::tuple<comp_enum, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double>>
-> memo_table_sat_tau;
-
-static std::vector<double> nan_vec1 = {
-  nan(""),
-  nan(""),
-  nan("")
-};
+prop_memo_table1 memo_table_sat_delta_l;
+prop_memo_table1 memo_table_sat_delta_v;
+prop_memo_table1 memo_table_sat_p;
+prop_memo_table1 memo_table_sat_tau;
 
 inline double J(double delta, std::vector<double> *phi){
   // Term from Akasaka method for saturation state

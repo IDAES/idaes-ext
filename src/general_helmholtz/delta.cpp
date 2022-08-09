@@ -11,12 +11,18 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Provide functions to solve for liquid and vapor density from T and P
+
+ Author: John Eslick
+ File: delta.cpp
+--------------------------------------------------------------------------------*/
+
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
-#include "function_pointers.h"
+#include "components/function_pointers.h"
 #include "props.h"
 #include "solver.h"
-#include "param.h"
 #include "delta.h"
 #include "math.h"
 #include "sat.h"

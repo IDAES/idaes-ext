@@ -46,11 +46,11 @@ props.o: props.cpp
 sat.o: sat.cpp
 	  $(CXX) $(CXXFLAGS) sat.cpp -o sat.o
 
-h2o.o: h2o.cpp
-	  $(CXX) $(CXXFLAGS) h2o.cpp -o h2o.o -I$(ADOLC_INC)
+h2o.o: components/h2o.cpp
+	  $(CXX) $(CXXFLAGS) components/h2o.cpp -o h2o.o -I$(ADOLC_INC)
 
-r1234ze.o: r1234ze.cpp
-	  $(CXX) $(CXXFLAGS) r1234ze.cpp -o r1234ze.o -I$(ADOLC_INC)
+r1234ze.o: components/r1234ze.cpp
+	  $(CXX) $(CXXFLAGS) components/r1234ze.cpp -o r1234ze.o -I$(ADOLC_INC)
 
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)

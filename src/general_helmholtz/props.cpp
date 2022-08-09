@@ -11,7 +11,6 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-#include"param.h"
 #include"props.h"
 #include"phi.h"
 
@@ -48,14 +47,7 @@ prop_memo_table2 memo_table_phi_resi_dt2;
 prop_memo_table2 memo_table_phi_ideal_tt2;
 prop_memo_table2 memo_table_phi_resi_tt2;
 
-static std::vector<double> nan_vec2 = {
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan("")
-};
+
 
 double pressure(comp_enum comp, double delta, double tau){
   std::vector<double> *y = phi_resi(comp, delta, tau);

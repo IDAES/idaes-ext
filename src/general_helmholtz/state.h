@@ -10,6 +10,24 @@
 | Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+Author: John Eslick
+File state.cpp
+
+Functions to enable change of state variables. The end goal of this section is
+given a set of state varible, calculate T, P, and vapor fraction.  From there
+you can calculate delta for each phase and then all the rest of the properties
+can be calculated.
+
+The general method for changing state varaibles is (first step is here):
+  1) tau = tau(v1, v2), vf=vf(v1, v2), p(v1, v2); so far p is always a state
+     variable but it doesn't need to be that case we can add on to support more
+  2) delta_v = delta_v(p, tau), delta_l = delta_l(p, tau)
+  3) property_v = f(delta_v, tau), property_l = f(delta_l, tau)
+  4) calculate mixed phase properies
+------------------------------------------------------------------------------*/
+
+
 #include "config.h"
 
 #ifndef _INCLUDE_STATE_H_

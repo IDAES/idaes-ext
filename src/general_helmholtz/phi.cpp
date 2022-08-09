@@ -11,13 +11,20 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Calaculate components of dimensionless ideal and residual Helmholtz free energy
+ and derivatives to fourth order (2 for thermo + 2 for optimization solver).
+
+ Author: John Eslick
+ File: phi.cpp
+--------------------------------------------------------------------------------*/
+
 #include <adolc/adolc.h>
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
 #include"config.h"
-#include"param.h"
 #include"phi.h"
-#include"function_pointers.h"
+#include"components/function_pointers.h"
 
 unsigned int taped_ideal[NCOMPS] = {0};
 unsigned int taped_resi[NCOMPS] = {0};

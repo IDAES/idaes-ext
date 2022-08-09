@@ -187,9 +187,9 @@ class CompressorData(UnitModelBlockData):
         h_s.latex_symbol = "h_s"
         # Calculate work
         self.specific_work =  pyo.Expression(expr=(h_s - h_0)/eff, doc="Work per mass")
-        self.specific_work.latex_symbol = "\overline{w}"
+        self.specific_work.latex_symbol = "w"
         self.work = pyo.Expression(expr=self.specific_work*F_0)
-        self.work.latex_symbol = "w"
+        self.work.latex_symbol = "\dot{w}"
         # Energy balance
         self.eq_enth_out = pyo.Constraint(expr=h_1 == self.specific_work + h_0)
         # Mass balance
@@ -403,27 +403,45 @@ class HeatExchangerData(UnitModelBlockData):
         prop_0h = self.hot_side.properties_in[0]
         prop_1h = self.hot_side.properties_out[0]
         h_0h = prop_0h.enth_mass
+        h_0h.latex_symbol = "h_{\\textrm{hot},0}"
         h_1h = prop_1h.enth_mass
+        h_1h.latex_symbol = "h_{\\textrm{hot},1}"
         F_0h = prop_0h.flow_mass
+        F_0h.latex_symbol = "F_{\\textrm{hot},0}"
         F_1h = prop_1h.flow_mass
+        F_1h.latex_symbol = "F_{\\textrm{hot},1}"
         T_0h = prop_0h.temperature
+        T_0h.latex_symbol = "T_{\\textrm{hot},0}"
         T_1h = prop_1h.temperature
+        T_1h.latex_symbol = "T_{\\textrm{hot},1}"
         P_0h = prop_0h.pressure
+        P_0h.latex_symbol = "P_{\\textrm{hot},0}"
         P_1h = prop_1h.pressure
+        P_1h.latex_symbol = "P_{\\textrm{hot},1}"
 
         prop_0c = self.cold_side.properties_in[0]
         prop_1c = self.cold_side.properties_out[0]
         h_0c = prop_0c.enth_mass
+        h_0c.latex_symbol = "h_{\\textrm{cold},0}"
         h_1c = prop_1c.enth_mass
+        h_1c.latex_symbol = "h_{\\textrm{cold},1}"
         F_0c = prop_0c.flow_mass
+        F_0c.latex_symbol = "F_{\\textrm{cold},0}"
         F_1c = prop_1c.flow_mass
+        F_1c.latex_symbol = "F_{\\textrm{cold},1}"
         T_0c = prop_0c.temperature
+        T_0c.latex_symbol = "T_{\\textrm{cold},0}"
         T_1c = prop_1c.temperature
+        T_1c.latex_symbol = "T_{\\textrm{cold},1}"
         P_0c = prop_0c.pressure
+        P_0c.latex_symbol = "P_{\\textrm{cold},0}"
         P_1c = prop_1c.pressure
+        P_1c.latex_symbol = "P_{\\textrm{cold},1}"
 
         self.U = pyo.Var(initialize=100, units=pyo.units.W/pyo.units.m**2/pyo.units.K)
+        self.U.latex_symbol = "U"
         self.A = pyo.Var(initialize=600, units=pyo.units.m**2)
+        self.A.latex_symbol = "A"
 
         self.U.fix()
         self.A.fix()
@@ -433,9 +451,11 @@ class HeatExchangerData(UnitModelBlockData):
         dTA = T_1h - T_0c
         dTB = T_0h - T_1c
         self.lmtd = pyo.Expression(expr=(dTB - dTA)/(pyo.log(dTB/dTA)))
+        self.lmtd.latex_symbol = "\Delta T"
 
         # Energy Balances
         self.Q = pyo.Expression(expr=self.lmtd*self.U*self.A)
+        self.Q.latex_symbol = "Q"
         self.hot_energy_eq = pyo.Constraint(expr=h_1h == h_0h - self.Q/F_0h)
         self.cold_energy_eq = pyo.Constraint(expr=h_1c == h_0c + self.Q/F_0c)
 

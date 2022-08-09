@@ -17,8 +17,7 @@
 #include"solver.h"
 #include"delta.h"
 #include"state.h"
-#include"h2o.h"
-#include"param.h"
+#include"components/h2o.h"
 #include"testing.h"
 #include <iostream>
 #include <math.h>

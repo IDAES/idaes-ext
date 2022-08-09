@@ -11,9 +11,16 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-#include"config.h"
+/*--------------------------------------------------------------------------------
+ Pointers to component specific functions
+
+ Author: John Eslick
+ File: function_pointers.h
+--------------------------------------------------------------------------------*/
+
 #include"h2o.h"
 #include"r1234ze.h"
+#include<cstdlib>
 
 #ifndef _INCLUDE_FUNCTION_POINTERS_H_
 #define _INCLUDE_FUNCTION_POINTERS_H_
@@ -35,7 +42,6 @@ const uni_double_function_type melting_temperature_func[] = {
   melting_temperature_h2o,         // 1 - h2o
   (uni_double_function_type)NULL,  // 2 - co2
   melting_temperature_r1234ze,     // 3 - r1234ze
-
 };
 
 // This provides melting liquid density as a function of pressure

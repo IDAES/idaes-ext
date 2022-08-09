@@ -11,13 +11,26 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-#include<unordered_map>
-#include<boost/functional/hash.hpp>
-#include<iostream>
-#include "function_pointers.h"
+/*------------------------------------------------------------------------------
+Author: John Eslick
+File state.cpp
+
+Functions to enable change of state variables. The end goal of this section is
+given a set of state varible, calculate T, P, and vapor fraction.  From there
+you can calculate delta for each phase and then all the rest of the properties
+can be calculated.
+
+The general method for changing state varaibles is (first step is here):
+  1) tau = tau(v1, v2), vf=vf(v1, v2), p(v1, v2); so far p is always a state
+     variable but it doesn't need to be that case we can add on to support more
+  2) delta_v = delta_v(p, tau), delta_l = delta_l(p, tau)
+  3) property_v = f(delta_v, tau), property_l = f(delta_l, tau)
+  4) calculate mixed phase properies
+------------------------------------------------------------------------------*/
+
+#include "components/function_pointers.h"
 #include "state.h"
 #include "props.h"
-#include "param.h"
 #include "solver.h"
 #include "delta.h"
 #include "sat.h"
@@ -32,86 +45,18 @@ struct state_solve_dat{ // Solver wrapper data structure for const args
   Memoization tables
 ------------------------------------------------------------------------------*/
 
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_enthalpy_vapor2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_entropy_vapor2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_internal_energy_vapor2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_enthalpy_liquid2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_entropy_liquid2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_internal_energy_liquid2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_tau_hp2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_tau_sp2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_tau_up2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_vf_hp2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_vf_sp2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_vf_up2;
-
-static std::vector<double> nan_vec2 = {
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan("")
-};
+prop_memo_table2 memo_table_enthalpy_vapor2;
+prop_memo_table2 memo_table_entropy_vapor2;
+prop_memo_table2 memo_table_internal_energy_vapor2;
+prop_memo_table2 memo_table_enthalpy_liquid2;
+prop_memo_table2 memo_table_entropy_liquid2;
+prop_memo_table2 memo_table_internal_energy_liquid2;
+prop_memo_table2 memo_table_tau_hp2;
+prop_memo_table2 memo_table_tau_sp2;
+prop_memo_table2 memo_table_tau_up2;
+prop_memo_table2 memo_table_vf_hp2;
+prop_memo_table2 memo_table_vf_sp2;
+prop_memo_table2 memo_table_vf_up2;
 
 /*------------------------------------------------------------------------------
   Vapor enthalpy as a function of pressure and tau, used to solve T(h, p)
@@ -137,19 +82,6 @@ void enthalpy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> 
     2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
-}
-
-std::vector<double> *memo2_enthalpy_vapor(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_enthalpy_vapor2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_enthalpy_vapor2.size() > MAX_MEMO_PROP) memo_table_enthalpy_vapor2.clear();
-  yvec_ptr = &memo_table_enthalpy_vapor2[std::make_tuple(comp, pr, tau)];
-  enthalpy_vapor2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
 }
 
 /*------------------------------------------------------------------------------
@@ -178,19 +110,6 @@ void entropy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
-std::vector<double> *memo2_entropy_vapor(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_entropy_vapor2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_entropy_vapor2.size() > MAX_MEMO_PROP) memo_table_entropy_vapor2.clear();
-  yvec_ptr = &memo_table_entropy_vapor2[std::make_tuple(comp, pr, tau)];
-  entropy_vapor2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
-}
-
 /*------------------------------------------------------------------------------
   Vapor internal energy as a function of pressure and tau, used to solve T(u, p)
 ------------------------------------------------------------------------------*/
@@ -215,19 +134,6 @@ void internal_energy_vapor2(comp_enum comp, double pr, double tau, std::vector<d
     2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
-}
-
-std::vector<double> *memo2_internal_energy_vapor(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_internal_energy_vapor2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_internal_energy_vapor2.size() > MAX_MEMO_PROP) memo_table_internal_energy_vapor2.clear();
-  yvec_ptr = &memo_table_internal_energy_vapor2[std::make_tuple(comp, pr, tau)];
-  internal_energy_vapor2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
 }
 
 /*------------------------------------------------------------------------------
@@ -256,19 +162,6 @@ void enthalpy_liquid2(comp_enum comp, double pr, double tau, std::vector<double>
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
-std::vector<double> *memo2_enthalpy_liquid(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_enthalpy_liquid2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_enthalpy_liquid2.size() > MAX_MEMO_PROP) memo_table_enthalpy_liquid2.clear();
-  yvec_ptr = &memo_table_enthalpy_liquid2[std::make_tuple(comp, pr, tau)];
-  enthalpy_liquid2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
-}
-
 /*------------------------------------------------------------------------------
   Liquid entropy as a function of pressure and tau, used to solve T(s, p)
 ------------------------------------------------------------------------------*/
@@ -295,19 +188,6 @@ void entropy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> 
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
 }
 
-std::vector<double> *memo2_entropy_liquid(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_entropy_liquid2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_entropy_liquid2.size() > MAX_MEMO_PROP) memo_table_entropy_liquid2.clear();
-  yvec_ptr = &memo_table_entropy_liquid2[std::make_tuple(comp, pr, tau)];
-  entropy_liquid2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
-}
-
 /*------------------------------------------------------------------------------
   Liquid internal energy as a function of pressure and tau, used to solve T(u, p)
 ------------------------------------------------------------------------------*/
@@ -331,19 +211,6 @@ void internal_energy_liquid2(comp_enum comp, double pr, double tau, std::vector<
     2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
     h_vec->at(f2_1)*delta_v_vec->at(f2_22);
-}
-
-std::vector<double> *memo2_internal_energy_liquid(comp_enum comp, double pr, double tau){
-  try{
-    return &memo_table_internal_energy_liquid2.at(std::make_tuple(comp, pr, tau));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_internal_energy_liquid2.size() > MAX_MEMO_PROP) memo_table_internal_energy_liquid2.clear();
-  yvec_ptr = &memo_table_internal_energy_liquid2[std::make_tuple(comp, pr, tau)];
-  internal_energy_liquid2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
 }
 
 /*------------------------------------------------------------------------------
@@ -477,19 +344,6 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
 }
 
-std::vector<double> *memo2_tau_hp(comp_enum comp, double ht, double pr){
-  try{
-    return &memo_table_tau_hp2.at(std::make_tuple(comp, ht, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_tau_hp2.size() > MAX_MEMO_PROP) memo_table_tau_hp2.clear();
-  yvec_ptr = &memo_table_tau_hp2[std::make_tuple(comp, ht, pr)];
-  tau_hp2(comp, ht, pr, yvec_ptr);
-  return yvec_ptr;
-}
-
 /*------------------------------------------------------------------------------
   Entropy solver function wrappers
 ------------------------------------------------------------------------------*/
@@ -621,19 +475,6 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
 }
 
-std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr){
-  try{
-    return &memo_table_tau_sp2.at(std::make_tuple(comp, st, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_tau_sp2.size() > MAX_MEMO_PROP) memo_table_tau_sp2.clear();
-  yvec_ptr = &memo_table_tau_sp2[std::make_tuple(comp, st, pr)];
-  tau_sp2(comp, st, pr, yvec_ptr);
-  return yvec_ptr;
-}
-
 /*------------------------------------------------------------------------------
   Internal energy solver function wrappers
 ------------------------------------------------------------------------------*/
@@ -763,19 +604,6 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
   out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
     out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
-}
-
-std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr){
-  try{
-    return &memo_table_tau_up2.at(std::make_tuple(comp, ut, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_tau_up2.size() > MAX_MEMO_PROP) memo_table_tau_up2.clear();
-  yvec_ptr = &memo_table_tau_up2[std::make_tuple(comp, ut, pr)];
-  tau_up2(comp, ut, pr, yvec_ptr);
-  return yvec_ptr;
 }
 
 void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
@@ -1000,44 +828,22 @@ void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
             (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
 }
 
-std::vector<double> *memo2_vf_hp(comp_enum comp, double ht, double pr){
-  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
-  try{
-    return &memo_table_vf_hp2.at(std::make_tuple(comp, ht, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_vf_hp2.size() > MAX_MEMO_PROP) memo_table_vf_hp2.clear();
-  yvec_ptr = &memo_table_vf_hp2[std::make_tuple(comp, ht, pr)];
-  vf_hp2(comp, ht, pr, yvec_ptr);
-  return yvec_ptr;
-}
 
-std::vector<double> *memo2_vf_sp(comp_enum comp, double ht, double pr){
-  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
-  try{
-    return &memo_table_vf_sp2.at(std::make_tuple(comp, ht, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_vf_sp2.size() > MAX_MEMO_PROP) memo_table_vf_sp2.clear();
-  yvec_ptr = &memo_table_vf_sp2[std::make_tuple(comp, ht, pr)];
-  vf_sp2(comp, ht, pr, yvec_ptr);
-  return yvec_ptr;
-}
+/*------------------------------------------------------------------------------
+  Memo functions
+------------------------------------------------------------------------------*/
 
-std::vector<double> *memo2_vf_up(comp_enum comp, double ht, double pr){
-  if(std::isnan(ht) || std::isnan(pr)) return &nan_vec2;
-  try{
-    return &memo_table_vf_up2.at(std::make_tuple(comp, ht, pr));
-  }
-  catch(std::out_of_range const&){
-  }
-  std::vector<double> *yvec_ptr;
-  if(memo_table_vf_up2.size() > MAX_MEMO_PROP) memo_table_vf_up2.clear();
-  yvec_ptr = &memo_table_vf_up2[std::make_tuple(comp, ht, pr)];
-  vf_up2(comp, ht, pr, yvec_ptr);
-  return yvec_ptr;
-}
+MEMO2_FUNCTION(memo2_enthalpy_vapor, enthalpy_vapor2, memo_table_enthalpy_vapor2)
+MEMO2_FUNCTION(memo2_entropy_vapor, entropy_vapor2, memo_table_entropy_vapor2)
+MEMO2_FUNCTION(memo2_internal_energy_vapor, internal_energy_vapor2, memo_table_internal_energy_vapor2)
+MEMO2_FUNCTION(memo2_enthalpy_liquid, enthalpy_liquid2, memo_table_enthalpy_liquid2)
+MEMO2_FUNCTION(memo2_entropy_liquid, entropy_liquid2, memo_table_entropy_liquid2)
+MEMO2_FUNCTION(memo2_internal_energy_liquid, internal_energy_liquid2, memo_table_internal_energy_liquid2)
+
+MEMO2_FUNCTION(memo2_tau_hp, tau_hp2, memo_table_tau_hp2)
+MEMO2_FUNCTION(memo2_tau_sp, tau_sp2, memo_table_tau_sp2)
+MEMO2_FUNCTION(memo2_tau_up, tau_up2, memo_table_tau_up2)
+
+MEMO2_FUNCTION(memo2_vf_hp, vf_hp2, memo_table_vf_hp2)
+MEMO2_FUNCTION(memo2_vf_sp, vf_sp2, memo_table_vf_sp2)
+MEMO2_FUNCTION(memo2_vf_up, vf_up2, memo_table_vf_up2)

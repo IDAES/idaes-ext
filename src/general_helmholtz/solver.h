@@ -11,9 +11,27 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Specific water functions from:
+
+ Generic 1D solver implimentations:
+     1) False-Position,
+     2) Halley (2nd order Newton), and
+     3) Newton with line search
+
+ Flase-position can be used when you know the range where the solution is, but
+ need a closer starting point to get the Newton method to converge. At this
+ point, Halley's method is used for the Newton solver in most places since we
+ are already calcuating second derivatives.  The Newton lineseach could be
+ useful when starting from less good initial points, and may speed things up,
+ but more testing is required.
+
+ Author: John Eslick
+ File: solver.h
+--------------------------------------------------------------------------------*/
+
 #include<vector>
 #include <cstddef>
-
 
 #ifndef _INCLUDE_SOLVER_H_
 #define _INCLUDE_SOLVER_H_

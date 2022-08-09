@@ -11,8 +11,36 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Specific water functions from:
+
+ Component parameters, these arrays need to be in order so that the indexes line
+ up with the component enum
+
+ Author: John Eslick
+ File: param.h
+--------------------------------------------------------------------------------*/
+
+#include<unordered_map>
+#include<string>
+
 #ifndef _INCLUDE_PARAM_H_
 #define _INCLUDE_PARAM_H_
+
+#define NCOMPS 4  // make this one more than the last component index
+
+// if adding components update NCOMPS above should be 1 more than last index
+enum comp_enum{
+  h2o = 1,
+  co2 = 2,
+  r1234ze = 3,
+};
+
+static std::unordered_map<std::string, comp_enum> comp_string_table = {
+  {"h2o", comp_enum::h2o},
+  {"co2", comp_enum::co2},
+  {"r1234ze", comp_enum::r1234ze},
+};
 
 namespace param {
   // MW g/mol

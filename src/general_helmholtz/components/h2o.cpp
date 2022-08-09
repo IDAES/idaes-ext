@@ -10,9 +10,28 @@
 | Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------------------
+ Specific water functions from:
+
+ International Association for the Properties of Water and Steam (2016).
+     IAPWS R6-95 (2016), "Revised Release on the IAPWS Formulation 1995 for
+     the Properties of Ordinary Water Substance for General Scientific Use,"
+     URL: http://iapws.org/relguide/IAPWS95-2016.pdf
+ Wagner, W.,  A. Pruss (2002). "The IAPWS Formulation 1995 for the
+     Thermodynamic Properties of Ordinary Water Substance for General and
+     Scientific Use." J. Phys. Chem. Ref. Data, 31, 387-535.
+ Wagner, W. et al. (2000). "The IAPWS Industrial Formulation 1997 for the
+     Thermodynamic Properties of Water and Steam," ASME J. Eng. Gas Turbines
+     and Power, 122, 150-182.
+
+ Author: John Eslick
+ File: h2o.cpp
+--------------------------------------------------------------------------------*/
+
 #include <math.h>
 #include <adolc/adolc.h>
-#include "config.h"
+#include "../config.h"
 #include "param.h"
 
 

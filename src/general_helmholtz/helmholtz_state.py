@@ -647,6 +647,7 @@ class HelmholtzStateBlockData(StateBlockData):
             rule=rule_enth_mass_sat_phase,
             doc="Saturated enthalpy of the phases at pressure",
         )
+        self.enth_mass_sat_phase.latex_symbol = "h_{\\textrm{sat}}"
         # Saturated Entropy molar
         def rule_entr_mol_sat_phase(b, p):
             if p == "Liq":

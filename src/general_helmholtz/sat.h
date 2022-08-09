@@ -11,6 +11,18 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------------------
+Author: John Eslick
+File sat.h
+
+ This file contains the functions to solve the saturation curve.  The method
+ is described in the following paper:
+
+ Akasaka, R. (2008). "A Reliable and Useful Method to Determine the Saturation
+     State from Helmholtz Energy Equations of State." Journal of Thermal
+     Science and Technology, 3(3), 442-451.
+------------------------------------------------------------------------------*/
+
 #ifndef _INCLUDE_SAT_H_
 #define _INCLUDE_SAT_H_
 

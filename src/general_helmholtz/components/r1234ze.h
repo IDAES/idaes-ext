@@ -11,6 +11,17 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Specific r1234ze (r1234ze(e)) functions from:
+
+Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
+  Properties of trans-1,3,3,3-Tetrafluoropropene [R-1234ze(E)]." Int. J.
+  Thermophys, 37(3):1–16, 2016. doi:10.1007/s10765-016-2040-6.
+
+ Author: John Eslick
+ File: r1234ze.h
+--------------------------------------------------------------------------------*/
+
 #ifndef _INCLUDE_R1234ZE_H_
 #define _INCLUDE_R1234ZE_H_
 

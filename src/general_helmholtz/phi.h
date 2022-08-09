@@ -11,6 +11,14 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Calaculate components of dimensionless ideal and residual Helmholtz free energy
+ and derivatives to fourth order (2 for thermo + 2 for optimization solver).
+
+ Author: John Eslick
+ File: phi.h
+--------------------------------------------------------------------------------*/
+
 #include"config.h"
 #include<vector>
 

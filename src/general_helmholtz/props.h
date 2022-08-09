@@ -11,19 +11,21 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------------------
+Author: John Eslick
+File props.h
+
+ This file contains basic property calculations as a function of delta and tau
+ where delta = rho/rho_c and tau = T/T_c. The memo2_{prop} functions also
+ memoize the property calculations with first and second derivatives.
+------------------------------------------------------------------------------*/
+
 #include"config.h"
 #include<vector>
 #include<unordered_map>
-#include<boost/functional/hash.hpp>
 
 #ifndef _INCLUDE_PROPS_H_
 #define _INCLUDE_PROPS_H_
-
-typedef std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> prop_memo_table2;
 
 double pressure(comp_enum comp, double delta, double tau);
 double entropy(comp_enum comp, double delta, double tau);
@@ -40,6 +42,7 @@ void gibbs2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void isochoric_heat_capacity2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void isobaric_heat_capacity2(comp_enum comp, double delta, double tau, std::vector<double> *out);
+void speed_of_sound2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 
 // Rather than calculate all the properties here, provide the terms needed to caluclate
 void phi_ideal2(comp_enum comp, double delta, double tau, std::vector<double> *out);
@@ -55,7 +58,6 @@ void phi_resi_dd2(comp_enum comp, double delta, double tau, std::vector<double> 
 void phi_resi_dt2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 void phi_resi_tt2(comp_enum comp, double delta, double tau, std::vector<double> *out);
 
-
 std::vector<double> *memo2_pressure(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_internal_energy(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_entropy(comp_enum comp, double delta, double tau);
@@ -64,6 +66,7 @@ std::vector<double> *memo2_gibbs(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_helmholtz(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_isochoric_heat_capacity(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_isobaric_heat_capacity(comp_enum comp, double delta, double tau);
+std::vector<double> *memo2_speed_of_sound(comp_enum comp, double delta, double tau);
 
 // Rather than calculate all the properties here, provide the terms needed to caluclate
 std::vector<double> *memo2_phi_ideal(comp_enum comp, double delta, double tau);
@@ -78,22 +81,5 @@ std::vector<double> *memo2_phi_resi_t(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_phi_resi_dd(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_phi_resi_dt(comp_enum comp, double delta, double tau);
 std::vector<double> *memo2_phi_resi_tt(comp_enum comp, double delta, double tau);
-
-
-#define MEMO2_FUNCTION(new_func, calc_func, table) \
-std::vector<double> *new_func(comp_enum comp, double delta, double tau){ \
-  if(std::isnan(delta) || std::isnan(tau)) return &nan_vec2; \
-  try{ \
-    return &table.at(std::make_tuple(comp, delta, tau)); \
-  } \
-  catch(std::out_of_range const&){ \
-  } \
-  std::vector<double> *yvec_ptr; \
-  if(table.size() > MAX_MEMO_PROP) table.clear(); \
-  yvec_ptr = &table[std::make_tuple(comp, delta, tau)]; \
-  calc_func(comp, delta, tau, yvec_ptr); \
-  return yvec_ptr; \
-}
-
 
 #endif

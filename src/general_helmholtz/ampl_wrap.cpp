@@ -1,10 +1,29 @@
+/*-------------------------------------------------------------------------------+
+| The Institute for the Design of Advanced Energy Systems Integrated Platform    |
+| Framework (IDAES IP) was produced under the DOE Institute for the              |
+| Design of Advanced Energy Systems (IDAES), and is copyright (c) 2018-2021      |
+| by the software owners: The Regents of the University of California, through   |
+| Lawrence Berkeley National Laboratory,  National Technology & Engineering      |
+| Solutions of Sandia, LLC, Carnegie Mellon University, West Virginia University |
+| Research Corporation, et al.  All rights reserved.                             |
+|                                                                                |
+| Please see the files COPYRIGHT.md and LICENSE.md for full copyright and        |
+| license information.                                                           |
++-------------------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------------------
+ Provide the AMPL user-defined function wrapper for property functions
+
+ Author: John Eslick
+ File: ampl_wrap.cpp
+--------------------------------------------------------------------------------*/
+
 #include "ampl_wrap.h"
 #include "config.h"
 #include "props.h"
 #include "state.h"
 #include "delta.h"
 #include "sat.h"
-#include "param.h"
 
 ASL_WRAP_FUNC_2ARG(p, memo2_pressure)                    // p(comp, delta, tau) [kPa]
 ASL_WRAP_FUNC_2ARG(u, memo2_internal_energy)             // u(comp, delta, tau) [kJ/kg]
@@ -68,7 +87,7 @@ void funcadd(AmplExports *ae){
      * 1) Name of function in AMPL
      * 2) Function pointer to C function
      * 3) see FUNCADD_TYPE enum in funcadd.h
-     * 4) Number of real arguments (the -1 is variable arg list length)
+     * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info */
     int typ = FUNCADD_REAL_VALUED | FUNCADD_STRING_ARGS;
     addfunc("p", (rfunc)p, typ, 3, NULL);

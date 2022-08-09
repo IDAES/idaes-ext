@@ -11,6 +11,13 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+ Provide functions to solve for liquid and vapor density from T and P
+
+ Author: John Eslick
+ File: delta.h
+--------------------------------------------------------------------------------*/
+
 #ifndef _INCLUDE_DELTA_H_
 #define _INCLUDE_DELTA_H_
 
