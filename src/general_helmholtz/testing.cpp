@@ -219,7 +219,13 @@ int main(){
   err = !fd2(memo2_entropy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
   std::cout << "memo2_entropy passed: " << err << std::endl;
 
+  err = !fd2(memo2_entropy, comp_enum::co2, 17.878/467.6, 304.1282/310.0, &p_vec_fd, 1e-8, 1);
+  std::cout << "memo2_entropy passed: " << err << std::endl;
+
   err = !fd2(memo2_enthalpy, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);
+  std::cout << "memo2_enthalpy passed: " << err << std::endl;
+
+  err = !fd2(memo2_enthalpy, comp_enum::co2, 17.878/467.6, 304.1282/310.0, &p_vec_fd, 1e-8, 1);
   std::cout << "memo2_enthalpy passed: " << err << std::endl;
 
   err = !fd2(memo2_gibbs, comp_enum::h2o, 838.025/322.0, 647.096/500.0, &p_vec_fd, 1e-8, 0);

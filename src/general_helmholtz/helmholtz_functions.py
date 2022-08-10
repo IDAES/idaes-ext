@@ -1454,8 +1454,8 @@ change.
         deltat_l = pyo.value(self.delta_liq_func(self.pure_component, pt, tc / tt))
         sc = pyo.value(self.s_func(self.pure_component, 1, 1))
         st = pyo.value(self.s_func(self.pure_component, deltat_l, tc / tt))
-        plt.scatter([sc], [pc])
-        plt.scatter([st], [pt])
+        plt.scatter([sc], [tc])
+        plt.scatter([st], [tt])
 
         x = []
         y = []

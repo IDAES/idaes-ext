@@ -79,11 +79,11 @@ double delta_sat_l_approx_co2(double tau){
 }
 
 void phi_co2_ideal_tape(){
-// Create a ADOL-C tape for the ideal part of phi for H2O
+// Create a ADOL-C tape for the ideal part of phi for CO2
   double out;
 
-  taped_ideal[comp_enum::h2o] = PHI_IDEAL_TAPE(comp_enum::h2o);
-  trace_on(PHI_IDEAL_TAPE(comp_enum::h2o));
+  taped_ideal[comp_enum::co2] = PHI_IDEAL_TAPE(comp_enum::co2);
+  trace_on(PHI_IDEAL_TAPE(comp_enum::co2));
   adouble *x, *y;
 
   double a[] = {
@@ -116,11 +116,11 @@ void phi_co2_ideal_tape(){
 
   // ideal part
   y[0] = log(x[0]) + a[1] + a[2]*x[1] + a[3]*log(x[1]) +
-    a[4]*log(1 - exp(phi[4]*x[1])) +
-    a[5]*log(1 - exp(phi[5]*x[1])) +
-    a[6]*log(1 - exp(phi[6]*x[1])) +
-    a[7]*log(1 - exp(phi[7]*x[1])) +
-    a[8]*log(1 - exp(phi[8]*x[1]));
+    a[4]*log(1 - exp(-phi[4]*x[1])) +
+    a[5]*log(1 - exp(-phi[5]*x[1])) +
+    a[6]*log(1 - exp(-phi[6]*x[1])) +
+    a[7]*log(1 - exp(-phi[7]*x[1])) +
+    a[8]*log(1 - exp(-phi[8]*x[1]));
 
   y[0] >>= out;
   delete[] y;
@@ -129,7 +129,7 @@ void phi_co2_ideal_tape(){
 }
 
 void phi_co2_resi_tape(){
-// Create a ADOL-C tape for the ideal part of phi for H2O
+// Create a ADOL-C tape for the ideal part of phi for CO2
 
   // parameters are only need once locally to create the tape
   double c[] = {
@@ -337,8 +337,8 @@ void phi_co2_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::h2o] = PHI_RESI_TAPE(comp_enum::h2o);
-  trace_on(PHI_RESI_TAPE(comp_enum::h2o));
+  taped_resi[comp_enum::co2] = PHI_RESI_TAPE(comp_enum::co2);
+  trace_on(PHI_RESI_TAPE(comp_enum::co2));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

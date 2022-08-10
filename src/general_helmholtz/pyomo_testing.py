@@ -185,6 +185,8 @@ def main():
     print("-------------------------------------------------------------------")
 
     m.param_block.ph_diagram()
+    m.param_block.st_diagram()
+    m.param_block.pt_diagram()
 
     m.param_block2 = HelmholtzParameterBlock(pure_component="r1234ze")
     h = m.param_block2.htpx(
@@ -199,6 +201,12 @@ def main():
     m.param_block2.ph_diagram()
     m.param_block2.st_diagram()
     m.param_block2.pt_diagram()
+
+    m.param_block3 = HelmholtzParameterBlock(pure_component="co2")
+    m.param_block3.temperature_crit.display()
+    m.param_block3.ph_diagram()
+    m.param_block3.st_diagram()
+    m.param_block3.pt_diagram()
 
 if __name__ == "__main__":
     main()
