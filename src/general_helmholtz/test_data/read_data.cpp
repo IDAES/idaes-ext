@@ -18,6 +18,9 @@ std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set
   else if(data_set == test_data::liquid_set){
     data_set_str = "liquid";
   }
+  else if(data_set == test_data::supercritical_set){
+    data_set_str = "supercritical";
+  }
   else if(data_set == test_data::mixed_set){
     data_set_str = "mixed";
   }
