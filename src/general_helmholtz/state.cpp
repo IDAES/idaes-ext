@@ -34,6 +34,7 @@ The general method for changing state varaibles is (first step is here):
 #include "solver.h"
 #include "delta.h"
 #include "sat.h"
+#include <iostream>
 
 struct state_solve_dat{ // Solver wrapper data structure for const args
   comp_enum comp;
@@ -301,8 +302,8 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
     tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
-    int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
+    tau_hi = param::Tc[comp]/(melting_temperature_func[comp](pr));
+    int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 1, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
   }

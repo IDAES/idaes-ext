@@ -322,6 +322,9 @@ int cache_sat_delta_with_derivs(
 }
 
 std::vector<double> *sat_delta_l(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
   }
@@ -332,6 +335,9 @@ std::vector<double> *sat_delta_l(comp_enum comp, double tau){
 }
 
 std::vector<double> *sat_delta_v(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
   }
@@ -342,6 +348,9 @@ std::vector<double> *sat_delta_v(comp_enum comp, double tau){
 }
 
 std::vector<double> *sat_p(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_p.at(std::make_tuple(comp, tau));
   }

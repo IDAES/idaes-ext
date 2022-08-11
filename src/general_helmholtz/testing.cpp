@@ -24,7 +24,7 @@
 #include <math.h>
 
 inline bool rel_same(double x1, double x2, double tol){
-  if(fabs(x1) < 1e-8) return fabs(x1 - x2) < 1e-8;
+  if(fabs(x1) < tol) return fabs(x1 - x2) < tol;
   return fabs((x1 - x2)/x1) < tol;
 }
 
@@ -77,6 +77,10 @@ int fd2(
 
   std::vector<double> *yvec_ptr0, *yvec_ptr1, *yvec_ptr2, *yvec_ptr1b, *yvec_ptr2b;
   std::vector<double> yvecf(6), yvecb(6);
+
+  if (std::isnan(x1) || std::isnan(x2)){
+    return 0;
+  }
 
   yvec_ptr0 = func(comp, x1, x2);
   yvec_ptr1 = func(comp, x1 + h1, x2);
@@ -633,9 +637,432 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
     }
   }
   std::cout << "Passed" << std::endl;
-
+  return 0;
 }
 
+uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_set){
+  std::vector<double> p_vec_fd;
+  int err = 0;
+  unsigned long i;
+  double tau, pressure;
+  std::vector< std::vector<double> > dat = read_data(comp, data_set);
+  std::string comp_str = comp_enum_table[comp];
+
+  std::cout << "delta_v(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 0);
+    }
+    else{ // stay loose at the critical point
+      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "h_v(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_enthalpy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_enthalpy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::h_col], 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "s_v(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.01 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_entropy_vapor, comp, pressure, tau, &p_vec_fd, pressure*1e-3, 1e-4, dat[i][test_data::s_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_entropy_vapor, comp, pressure, tau, &p_vec_fd, pressure*1e-3, 1e-4, dat[i][test_data::s_col], 1e-1 , 0);
+    }
+    if(err){
+      std::cout << err;
+      //err = fd2(memo2_entropy_vapor, comp, pressure, tau, &p_vec_fd, pressure*1e-3, 1e-4, dat[i][test_data::s_col], 1e-2, 1);
+      // return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "u_v(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::u_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::u_col], 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", h, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", s, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-1, 1e-5, tau, 1e-1, 0);
+    }
+    else{
+      err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-1, 1e-5, tau, 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", u, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", h, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", s, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", u, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  return 0;
+}
+
+uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_set){
+  std::vector<double> p_vec_fd;
+  int err = 0;
+  unsigned long i;
+  double tau, pressure;
+  std::vector< std::vector<double> > dat = read_data(comp, data_set);
+  std::string comp_str = comp_enum_table[comp];
+
+  std::cout << "delta_l(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.01 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 0);
+    }
+    else{ // stay loose at the critical point
+      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 1);
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "h_l(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_enthalpy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_enthalpy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::h_col], 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "s_l(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_entropy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::s_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_entropy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::s_col], 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "u_l(" << comp_str << ", P, tau) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_internal_energy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::u_col], 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_internal_energy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::u_col], 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", h, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", s, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau(" << comp_str << ", u, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+      err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", h, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", s, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "vf(" << comp_str << ", u, P) ";
+  for(i=0; i<dat.size(); ++i){
+    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    pressure = dat[i][test_data::P_col]*1000;
+    if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
+      err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
+    }
+    else{
+      err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-1, 0);
+    }
+    if(err){
+      std::cout << err;
+      //return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  return 0;
+}
 
 
 int main(){
@@ -692,76 +1119,36 @@ int main(){
   }
 
   std::cout << std::endl;
+  std::cout << "Test h2o liquid state var change" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_liquid_state_var_change(h2o, test_data::liquid_set);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
+  std::cout << "Test h2o supercritical state var change" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_liquid_state_var_change(h2o, test_data::supercritical_set);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
+  std::cout << "Test h2o vapor state var change" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_vapor_state_var_change(h2o, test_data::vapor_set);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
   std::cout << "Test basic r1234ze properties" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
   err = test_basic_properties(r1234ze, test_data::mixed_set);
   if(err){
     exit(err);
   }
-
-/*
-
-    err = !fd2(memo2_delta_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_delta_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_enthalpy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_enthalpy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_entropy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 50, 647.096/310.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_internal_energy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_delta_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_delta_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_enthalpy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_enthalpy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_entropy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_entropy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_internal_energy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_internal_energy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_hp (liquid) passed: " << err << std::endl;
-
-    err = !fd2(memo2_tau_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_hp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_sp passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_tau_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_sp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_tau_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_up passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_tau_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_up passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_hp (liquid) passed: " << err << std::endl;
-
-    err = !fd2(memo2_vf_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 0.01, 0);
-    std::cout << "memo2_vf_hp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_sp passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_vf_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_sp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_up passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_vf_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_up passed (two-phase): " << err << std::endl;
- */
-
 
   return 0;
 }

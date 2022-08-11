@@ -70,10 +70,10 @@ double melting_temperature_h2o(double pr){
   }
   // Ice V Melting, Max error 0.055 K
   if(pr <= 632400.0){
-    Tn = 273.31;
-    Pn = 209900;
+    Tn = 256.164;
+    Pn = 350100.00;
     return Tn * (
-      -0.02304521*(pr/Pn)*(pr/Pn) -
+      -0.02304521*(pr/Pn)*(pr/Pn) +
       0.1472252*pr/Pn +
       0.8760317
     );
@@ -81,10 +81,10 @@ double melting_temperature_h2o(double pr){
   // Ice VI Melting, Max error 0.9 K
   //   shouldn't get anywhere near the max pressure on this, so we'll let this
   //   pick up the rest (goes to about 2,000 MPa)
-  Tn = 273.15;
-  Pn = 632400;
+  Tn = 273.31;
+  Pn = 632400.00;
   return Tn * (
-    -0.02197019*(pr/Pn)*(pr/Pn) -
+    -0.02197019*(pr/Pn)*(pr/Pn) +
     0.2161217*pr/Pn +
     0.8086136
   );
