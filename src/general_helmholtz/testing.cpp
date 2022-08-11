@@ -24,7 +24,7 @@
 #include <math.h>
 
 inline bool rel_same(double x1, double x2, double tol){
-  if(fabs(x1) < 1e-10) return fabs(x1 - x2) < 1e-6;
+  if(fabs(x1) < 1e-8) return fabs(x1 - x2) < 1e-8;
   return fabs((x1 - x2)/x1) < tol;
 }
 
@@ -249,7 +249,7 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
     err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-10, 1e-7, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -594,7 +594,7 @@ int main(){
   }
 
   std::cout << std::endl;
-  std::cout << "Test basic r1234ze vapor properties" << std::endl;
+  std::cout << "Test basic r1234ze properties" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
   err = test_basic_properties(r1234ze, test_data::mixed_set);
   if(err){
