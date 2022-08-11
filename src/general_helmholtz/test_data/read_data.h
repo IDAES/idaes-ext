@@ -30,7 +30,12 @@ namespace test_data {
 }
 
 std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set_enum data_set);
-
+void sort_sat( //read sat data, and assume the rows are: liq, vap, liq vap ... and even number of data
+    comp_enum comp,
+    test_data::data_set_enum data_set,
+    std::vector< std::vector<double> > *liq_ptr,
+    std::vector< std::vector<double> > *vap_ptr
+);
 
 
 #endif

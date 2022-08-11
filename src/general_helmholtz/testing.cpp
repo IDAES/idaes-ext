@@ -38,15 +38,16 @@ int fd1(
   double tol,
   bool dbg){
 
-  std::vector<double> *yvec_ptr0, *yvec_ptr1;
+  std::vector<double> *yvec_ptr0, *yvec_ptr1, *yvec_ptr1b;
 
   yvec_ptr0 = func(comp, x);
   yvec_ptr1 = func(comp, x + h);
+  yvec_ptr1b = func(comp, x - h);
 
   yvec_ptr->resize(3);
   yvec_ptr->at(0) = yvec_ptr0->at(0);
-  yvec_ptr->at(1) = (yvec_ptr1->at(0) - yvec_ptr0->at(0))/h;
-  yvec_ptr->at(2) = (yvec_ptr1->at(1) - yvec_ptr0->at(1))/h;
+  yvec_ptr->at(1) = (yvec_ptr1->at(0) - yvec_ptr1b->at(0))/2.0/h;
+  yvec_ptr->at(2) = (yvec_ptr1->at(1) - yvec_ptr1b->at(1))/2.0/h;
 
   if(dbg){
     std::cout << "test_value = " << tv << std::endl;
@@ -85,11 +86,11 @@ int fd2(
 
   yvec_ptr->resize(6);
   yvec_ptr->at(f2) = yvec_ptr0->at(f2);
-  yvec_ptr->at(f2_1) = (yvec_ptr1->at(f2) - yvec_ptr1b->at(f2))/h1/2;
-  yvec_ptr->at(f2_2) = (yvec_ptr2->at(f2) - yvec_ptr2b->at(f2))/h2/2;
-  yvec_ptr->at(f2_11) = (yvec_ptr1->at(f2_1) - yvec_ptr1b->at(f2_1))/h1/2;
-  yvec_ptr->at(f2_12) = (yvec_ptr2->at(f2_1) - yvec_ptr2b->at(f2_1))/h2/2;
-  yvec_ptr->at(f2_22) = (yvec_ptr2->at(f2_2) - yvec_ptr2b->at(f2_2))/h2/2;
+  yvec_ptr->at(f2_1) = (yvec_ptr1->at(f2) - yvec_ptr1b->at(f2))/h1/2.0;
+  yvec_ptr->at(f2_2) = (yvec_ptr2->at(f2) - yvec_ptr2b->at(f2))/h2/2.0;
+  yvec_ptr->at(f2_11) = (yvec_ptr1->at(f2_1) - yvec_ptr1b->at(f2_1))/h1/2.0;
+  yvec_ptr->at(f2_12) = (yvec_ptr2->at(f2_1) - yvec_ptr2b->at(f2_1))/h2/2.0;
+  yvec_ptr->at(f2_22) = (yvec_ptr2->at(f2_2) - yvec_ptr2b->at(f2_2))/h2/2.0;
 
   yvecf[f2_1] = (yvec_ptr1->at(f2) - yvec_ptr0->at(f2))/h1;
   yvecf[f2_2] = (yvec_ptr2->at(f2) - yvec_ptr0->at(f2))/h2;
@@ -552,7 +553,7 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
     err = fd2(memo2_phi_resi_tt, comp, delta, tau, &p_vec_fd, 1e-9, 1e-6, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -561,6 +562,78 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   std::cout << "Passed" << std::endl;
 
   return 0;
+}
+
+uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
+  std::vector<double> p_vec_fd;
+  std::string comp_str = comp_enum_table[comp];
+  std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
+  sort_sat(h2o, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
+  int err = 0;
+  unsigned long i;
+  double tau, pressure, delta;
+
+  std::cout << "P_sat(" << comp_str << ", tau) ";
+  for(i=0; i<sat_liq_data.size(); ++i){
+    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    pressure = sat_liq_data[i][test_data::P_col]*1000;
+    err = fd1(sat_p, comp, tau, &p_vec_fd, 1e-8, pressure, 1e-3, 0);
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "tau_sat(" << comp_str << ", P) ";
+  for(i=0; i<sat_liq_data.size(); ++i){
+    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    pressure = sat_liq_data[i][test_data::P_col]*1000;
+    err = fd1(sat_tau, comp, pressure, &p_vec_fd, 1e-5, tau, 1e-3, 0);
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+  std::cout << "rho_liq_sat(" << comp_str << ", tau) ";
+  for(i=0; i<sat_liq_data.size(); ++i){
+    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    delta = sat_liq_data[i][test_data::rho_col]/param::rhoc[comp];
+    err = fd1(sat_delta_l, comp, tau, &p_vec_fd, 1e-8, delta, 1, 0);
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
+
+  std::cout << "rho_vap_sat(" << comp_str << ", tau) ";
+  for(i=0; i<sat_liq_data.size(); ++i){
+    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    delta = sat_vap_data[i][test_data::rho_col]/param::rhoc[comp];
+    err = fd1(sat_delta_v, comp, tau, &p_vec_fd, 1e-8, delta, 1e-3, 0);
+    if(err){
+      std::cout << err;
+      return err;
+    }
+    else{
+      std::cout << ".";
+    }
+  }
+  std::cout << "Passed" << std::endl;
+
 }
 
 
@@ -610,6 +683,15 @@ int main(){
   }
 
   std::cout << std::endl;
+  std::cout << "Test h2o sat curve" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  std::vector< std::vector<double> > sat_liq_data_h2o, sat_vap_data_h2o;
+  err = test_sat_curve(h2o, test_data::saturated_set);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
   std::cout << "Test basic r1234ze properties" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
   err = test_basic_properties(r1234ze, test_data::mixed_set);
@@ -642,18 +724,6 @@ int main(){
 
     err = !fd2(memo2_internal_energy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
     std::cout << "memo2_internal_energy_vapor passed: " << err << std::endl;
-
-    err = !fd1(sat_p, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
-    std::cout << "sat_p passed: " << err << std::endl;
-
-    err = !fd1(sat_delta_l, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
-    std::cout << "sat_delta_l passed: " << err << std::endl;
-
-    err = !fd1(sat_delta_v, comp_enum::h2o, 647.096/450, &p_vec_fd, 1e-6, 0);
-    std::cout << "sat_delta_v passed: " << err << std::endl;
-
-    err = !fd1(sat_tau, comp_enum::h2o, 932.203564, &p_vec_fd, 1e-6, 0);
-    std::cout << "sat_tau passed: " << err << std::endl;
 
     err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
     std::cout << "memo2_tau_hp (liquid) passed: " << err << std::endl;
@@ -690,14 +760,6 @@ int main(){
 
     err = !fd2(memo2_vf_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
     std::cout << "memo2_vf_up passed (two-phase): " << err << std::endl;
-
-
-  for(tau=param::Tc[r1234ze]/param::Tt[r1234ze]; tau >= 1.0; tau -= 0.01){
-    std::cout << param::Tc[r1234ze]/tau << "\t";
-    std::cout << sat_delta_l(comp_enum::r1234ze, tau)->at(0)*param::rhoc[r1234ze] << "\t";
-    std::cout << sat_delta_v(comp_enum::r1234ze, tau)->at(0)*param::rhoc[r1234ze] << "\t";
-    std::cout << sat_p(comp_enum::r1234ze, tau)->at(0) << std::endl;
-  }
  */
 
 

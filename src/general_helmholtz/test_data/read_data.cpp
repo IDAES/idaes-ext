@@ -12,6 +12,8 @@ std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set
   char row_buf[1500];
   char col_buf[256];
 
+
+  // Really should have used a map, oh well
   if(data_set == test_data::vapor_set){
     data_set_str = "vapor";
   }
@@ -20,6 +22,9 @@ std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set
   }
   else if(data_set == test_data::supercritical_set){
     data_set_str = "supercritical";
+  }
+  else if(data_set == test_data::saturated_set){
+    data_set_str = "saturated";
   }
   else if(data_set == test_data::mixed_set){
     data_set_str = "mixed";
@@ -56,4 +61,21 @@ std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set
     ++r;
   }
   return rows;
+}
+
+
+void sort_sat( //read sat data, and assume the rows are: liq, vap, liq vap ... and even number of data
+    comp_enum comp,
+    test_data::data_set_enum data_set,
+    std::vector< std::vector<double> > *liq_ptr,
+    std::vector< std::vector<double> > *vap_ptr
+){
+  std::vector< std::vector<double> > all_data = read_data(comp, data_set);
+  unsigned long int i, n = all_data.size()/2;  // beter be even
+  liq_ptr->resize(n);
+  vap_ptr->resize(n);
+  for(i=0; i<n; ++i){
+    liq_ptr->at(i) = all_data[2*i];
+    vap_ptr->at(i) = all_data[2*i + 1];
+  }
 }
