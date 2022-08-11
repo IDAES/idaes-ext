@@ -42,6 +42,12 @@ static std::unordered_map<std::string, comp_enum> comp_string_table = {
   {"r1234ze", comp_enum::r1234ze},
 };
 
+static std::unordered_map<uint, std::string> comp_enum_table = {
+  {comp_enum::h2o, "h2o"},
+  {comp_enum::co2, "co2"},
+  {comp_enum::r1234ze, "r1234ze"},
+};
+
 namespace param {
   // MW g/mol
   const double mw[] = {

@@ -132,6 +132,14 @@ std::vector<double> *phi_ideal(comp_enum comp, double delta, double tau){
   if(memo_table_phi_ideal.size() > MAX_MEMO_PHI) memo_table_phi_ideal.clear();
   yvec_ptr = &memo_table_phi_ideal[std::make_tuple(comp, delta, tau)];
   yvec_ptr->assign(y[0], y[0] + 15);
+  yvec_ptr->at(f4_12) = 0.0;
+  yvec_ptr->at(f4_112) = 0.0;
+  yvec_ptr->at(f4_1112) = 0.0;
+  yvec_ptr->at(f4_122) = 0.0;
+  yvec_ptr->at(f4_112) = 0.0;
+  yvec_ptr->at(f4_1122) = 0.0;
+  yvec_ptr->at(f4_1222) = 0.0;
+
   return yvec_ptr;
 }
 

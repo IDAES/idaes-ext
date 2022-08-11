@@ -190,7 +190,7 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
   res[f2] = c*(tau*z - phii - phir);
   res[f2_1] = c*(tau*z_d - phii_d - phir_d);
   res[f2_11] = c*(tau*z_dd - phii_dd - phir_dd);
-  res[f2_2] = c*(z + tau*z_t - phii_t - phir_t);
+  res[f2_2] =  c*(z +   tau*z_t -  phii_t -  phir_t);
   res[f2_12] = c*(z_d + tau*z_dt - phii_dt - phir_dt);
   res[f2_22] = c*(2*z_t + tau*z_tt - phii_tt - phir_tt);
   out->assign(res, res+6);

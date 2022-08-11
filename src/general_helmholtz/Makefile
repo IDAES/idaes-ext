@@ -17,7 +17,7 @@ ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 #ADOLC_INC = /home/johne/local/include
 #ADOLC_LIB = /home/johne/local/lib64
 
-OBJECTS = phi.o props.o sat.o testing.o solver.o delta.o state.o ampl_wrap.o \
+OBJECTS = phi.o props.o sat.o solver.o delta.o state.o ampl_wrap.o \
 	h2o.o r1234ze.o co2.o
 .PHONY: clean
 
@@ -26,7 +26,7 @@ ALL: general_helmholtz_external.so
 run_test:
 	./testing
 
-test: testing run_test
+test: read_data.o testing.o testing run_test
 
 h2o.o: components/h2o.cpp
 	  $(CXX) $(CXXFLAGS) components/h2o.cpp -o h2o.o -I$(ADOLC_INC)
@@ -58,11 +58,14 @@ sat.o: sat.cpp
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)
 
+read_data.o: test_data/read_data.cpp
+	$(CXX) $(CXXFLAGS) test_data/read_data.cpp -o read_data.o
+
 testing.o: testing.cpp
 	  $(CXX) $(CXXFLAGS) testing.cpp -o testing.o
 
 testing: $(OBJECTS)
-	  $(LINK) $(OBJECTS) -o testing -ladolc -L$(ADOLC_LIB)
+	  $(LINK) $(OBJECTS) read_data.o testing.o -o testing -ladolc -L$(ADOLC_LIB)
 
 general_helmholtz_external.so: $(OBJECTS)
 	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -ladolc -L$(ADOLC_LIB)
