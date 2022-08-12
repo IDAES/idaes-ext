@@ -23,6 +23,9 @@ cd $IDAES_EXT/src
 if [ ${osname} = "darwin" ]; then
   export BOOST_HEADER=/opt/homebrew/include
 fi
+if [ ${osname} = "windows" ]; then
+  export PATH=$PATH:$IDAES_EXT/coinbrew/dist/lib64
+fi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_EXT/coinbrew/dist/lib64
 make
 cd $IDAES_EXT
