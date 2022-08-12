@@ -301,6 +301,26 @@ int cache_sat_delta_with_derivs(
      memo_table_sat_delta_v.clear();
      memo_table_sat_p.clear();
   }
+
+  if (tau <= 1){
+    delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
+    delta_l_vec_ptr->resize(3);
+    delta_l_vec_ptr->at(f1) = 1;
+    delta_l_vec_ptr->at(f1_1) = 0;
+    delta_l_vec_ptr->at(f1_2) = 0;
+    delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
+    delta_v_vec_ptr->resize(3);
+    delta_v_vec_ptr->at(f1) = 1;
+    delta_v_vec_ptr->at(f1_1) = 0;
+    delta_v_vec_ptr->at(f1_2) = 0;
+    p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];
+    p_vec_ptr->resize(3);
+    p_vec_ptr->at(f1) = param::Pc[comp];
+    p_vec_ptr->at(f1_1) = 0;
+    p_vec_ptr->at(f1_2) = 0;
+    return 0;
+  }
+
   n = sat_delta_with_derivs(comp, tau, &delta_l_vec, &delta_v_vec, &p_vec);
   delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
   delta_l_vec_ptr->resize(3);
@@ -322,6 +342,9 @@ int cache_sat_delta_with_derivs(
 }
 
 std::vector<double> *sat_delta_l(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
   }
@@ -332,6 +355,9 @@ std::vector<double> *sat_delta_l(comp_enum comp, double tau){
 }
 
 std::vector<double> *sat_delta_v(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
   }
@@ -342,6 +368,9 @@ std::vector<double> *sat_delta_v(comp_enum comp, double tau){
 }
 
 std::vector<double> *sat_p(comp_enum comp, double tau){
+  if (isnan(tau)){
+    return &nan_vec3;
+  }
   try{
     return &memo_table_sat_p.at(std::make_tuple(comp, tau));
   }

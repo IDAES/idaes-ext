@@ -133,7 +133,7 @@ namespace param {
   // upper pressue bound (kPa)
   const double P_max[] = {
     0,       // not used
-    1e6,     // h2o
+    1.1e6,     // h2o
     5e5,     // co2
     5e5,     // r1234ze
   };

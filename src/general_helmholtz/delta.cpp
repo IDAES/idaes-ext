@@ -86,7 +86,7 @@ double delta_vapor(comp_enum comp, double pr, double tau){
       return delta_liquid(comp, pr, tau);
     }
     else{
-      bracket(pwrap, 0.0001, 1.001, &delta, 90, 1e-4, 1e-4, &ps);
+      bracket(pwrap, 0.0001, 1.001, &delta, 20, 1e-4, 1e-4, &ps);
       halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     }
     return delta;
@@ -131,9 +131,9 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
-  if(pr > param::Pc[comp] && tau < 1.0){
+  if(pr >= param::Pc[comp] && tau < 1.0){
     std::vector<double> out;
-    bracket(pwrap, 0.0001, 1.001, &delta, 90, 1e-4, 1e-4, &ps);
+    bracket(pwrap, 0.0001, 1.001, &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
@@ -142,8 +142,9 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   delta_sat = sat_delta_l(comp, tau)->at(0);
   p_sat = sat_p(comp, tau)->at(0);
   std::vector<double> out;
+
   if(pr >= p_sat){
-    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 6, 1e-4, 1e-4, &ps);
+    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 3, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }
@@ -153,6 +154,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   //   liquid density and the vapor density.  There may be multiple roots here,
   //   so I'll start from the sat density and hope to pick up the closest
   halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
+
   if(delta < 0 || std::isnan(delta)){
       return 2.0;
   }
