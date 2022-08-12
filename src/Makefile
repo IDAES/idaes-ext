@@ -3,9 +3,17 @@
 #   variable to point to the ASL build and this should be good to go.
 include Makefile.in
 
-ALL: iapws95 swco2 cubic functions dist
+ALL: general_hemlholtz iapws95 swco2 cubic functions dist
 
 .PHONY: iapws95 iapws95_clean
+
+general_hemlholtz:
+	$(MAKE) -C ./general_helmholtz
+	$(MAKE) -C ./general_helmholtz test
+
+general_hemlholtz_clean:
+	$(MAKE) -C ./general_helmholtz clean
+
 iapws95:
 	$(MAKE) -C ./helmholtz/iapws95
 
@@ -37,6 +45,7 @@ functions_clean:
 dist:
 	$(RM) -rf dist
 	$(MKDIR) dist/
+	$(CP) general_helmholtz/*.so dist/
 	$(CP) helmholtz/iapws95/*.so dist/
 	$(CP) helmholtz/swco2/*.so dist/
 	$(CP) cubic/*.so dist/
