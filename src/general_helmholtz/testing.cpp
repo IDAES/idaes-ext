@@ -569,7 +569,7 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
   std::string comp_str = comp_enum_table[comp];
   std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
   sort_sat(h2o, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
-  int err = 0;
+  uint err = 0;
   unsigned long i;
   double tau, pressure, delta;
 
@@ -633,7 +633,7 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
     }
   }
   std::cout << "Passed" << std::endl;
-
+  return 0;
 }
 
 
@@ -682,6 +682,7 @@ int main(){
     exit(err);
   }
 
+
   std::cout << std::endl;
   std::cout << "Test h2o sat curve" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
@@ -699,69 +700,11 @@ int main(){
     exit(err);
   }
 
-/*
-
-    err = !fd2(memo2_delta_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_delta_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_enthalpy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_enthalpy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_entropy_liquid, comp_enum::h2o, 99.2418352, 647.096/300.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_entropy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_internal_energy_liquid, comp_enum::h2o, 50, 647.096/310.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_internal_energy_liquid passed: " << err << std::endl;
-
-    err = !fd2(memo2_delta_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_delta_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_enthalpy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_enthalpy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_entropy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_entropy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_internal_energy_vapor, comp_enum::h2o, 99.9679423, 647.096/500.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_internal_energy_vapor passed: " << err << std::endl;
-
-    err = !fd2(memo2_tau_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_hp (liquid) passed: " << err << std::endl;
-
-    err = !fd2(memo2_tau_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_hp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_tau_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_sp passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_tau_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_sp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_tau_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_up passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_tau_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_tau_up passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_hp, comp_enum::h2o, 154.406, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_hp (liquid) passed: " << err << std::endl;
-
-    err = !fd2(memo2_vf_hp, comp_enum::h2o, 1000, 932.203564, &p_vec_fd, 0.01, 0);
-    std::cout << "memo2_vf_hp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_sp, comp_enum::h2o, 0.5301, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_sp passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_vf_sp, comp_enum::h2o, 5.0, 932.203564, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_sp passed (two-phase): " << err << std::endl;
-
-    err = !fd2(memo2_vf_up, comp_enum::h2o, 154.355, 50.0, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_up passed (liquid): " << err << std::endl;
-
-    err = !fd2(memo2_vf_up, comp_enum::h2o, 1200.0, 932.22, &p_vec_fd, 1e-4, 0);
-    std::cout << "memo2_vf_up passed (two-phase): " << err << std::endl;
- */
-
+  double T;
+  for (i=0; i<100; ++i){
+    T = (645 + 0.1*i);
+    std::cout << T << ", " << sat_p(h2o, param::Tc[h2o]/T)->at(0) << std::endl;
+  }
 
   return 0;
 }
