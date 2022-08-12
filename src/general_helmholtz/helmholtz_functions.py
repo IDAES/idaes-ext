@@ -1374,9 +1374,6 @@ change.
         stv = pyo.value(self.u_func(self.pure_component, deltat_v, tc / tt))
         plt.scatter([hc], [pc])
         plt.scatter([ht], [pt])
-        print(f"triple point: {ht} {htv}")
-        print(f"triple point: {st} {stv}")
-        print(f"triple point: {ut} {utv}")
 
         x = []
         y = []
