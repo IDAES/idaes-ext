@@ -417,10 +417,7 @@ make
 make check
 make install
 
-<<<<<<< HEAD
 cd $IDAES_EXT/dist-solvers/
-=======
->>>>>>> d5b1bfaa6f447437058992e2efee071cd0ec534c
 cp $IDAES_EXT/coinbrew/dist/lib64/libadolc* ./
 
 
