@@ -23,12 +23,6 @@ ASL=$(ASL_BUILD)
 
 BOOST=$(BOOST_HEADER)
 
-# ADOL-C locations
-
-ADOLC_INC = $(ADOLC_INC)
-ADOLC_LIB = $(ADOLC_LIB)
-
-
 # The last part is pretty standard, and specifies the C and C++ compilers as
 # well as the file remove and copy commands.
 

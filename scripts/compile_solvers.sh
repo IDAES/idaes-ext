@@ -354,6 +354,13 @@ cp ../coinbrew/dist/bin/couenne ./
 #  aren't exe or libraries)
 strip --strip-unneeded *
 
+cd ../
+cp -r ./coinbrew/dist-share ./dist-share
+cd $IDAES_EXT/dist-share
+tar -czvf idaes-local-${osname}-${MNAME}.tar.gz *
+
+cd $IDAES_EXT/dist-solvers/
+cp ../dist-share/idaes-local-${osname}-${MNAME}.tar.gz ./
 
 echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
@@ -396,6 +403,21 @@ if [ ${osname} = "darwin" ]; then
     cp /opt/homebrew/opt/gcc/lib/gcc/11/libstdc++.6.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/11/libgomp.1.dylib ./
 fi
+
+echo "#########################################################################"
+echo "# ADOL-C                                                                #"
+echo "#########################################################################"
+# Compile ADOL-C
+cd $IDAES_EXT/coinbrew
+rm -rf adolc
+git clone https://github.com/coin-or/ADOL-C adolc
+cd $IDAES_EXT/coinbrew/adolc
+./configure --prefix=$IDAES_EXT/coinbrew/dist
+make
+make check
+make install
+
+cp $IDAES_EXT/coinbrew/dist/lib64/libadolc* ./
 
 
 echo "#########################################################################"

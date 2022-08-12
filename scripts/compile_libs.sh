@@ -15,18 +15,8 @@ export IDAES_EXT=`pwd`
 
 # Run this after solvers are compiled, uses the ASL header from solver build
 export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
-
-# Compile ADOL-C
-cd $IDAES_EXT/coinbrew
-git clone https://github.com/coin-or/ADOL-C adolc
-cd $IDAES_EXT/coinbrew/adolc
-./configure --prefix=$IDAES_EXT/coinbrew/dist --enable_static=yes
-make
-make check
-make install
-
-export ADOLC_INC = $IDAES_EXT/coinbrew/dist/include
-export ADOLC_LIB = $IDAES_EXT/coinbrew/dist/lib64
+export ADOLC_INC=$IDAES_EXT/coinbrew/dist/include
+export ADOLC_LIB=$IDAES_EXT/coinbrew/dist/lib64
 
 # Compile IDAES function libraries
 cd $IDAES_EXT/src
