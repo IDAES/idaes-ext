@@ -412,7 +412,12 @@ cd $IDAES_EXT/coinbrew
 rm -rf adolc
 git clone https://github.com/coin-or/ADOL-C adolc
 cd $IDAES_EXT/coinbrew/adolc
-./configure --prefix=$IDAES_EXT/coinbrew/dist
+if [ ${osname} = "windows" ]
+then
+  ./configure --prefix=$IDAES_EXT/coinbrew/dist --with-boost-libdir=/mingw64/lib/
+else
+  ./configure --prefix=$IDAES_EXT/coinbrew/dist
+fi
 make
 make check
 make install
