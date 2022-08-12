@@ -9,7 +9,7 @@ ALL: general_hemlholtz iapws95 swco2 cubic functions dist
 
 general_hemlholtz:
 	$(MAKE) -C ./general_helmholtz
-	$(MAKE) -C ./general_helmholtz test
+	#$(MAKE) -C ./general_helmholtz test
 
 general_hemlholtz_clean:
 	$(MAKE) -C ./general_helmholtz clean

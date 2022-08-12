@@ -26,7 +26,7 @@ fi
 if [ ${osname} = "windows" ]; then
   export PATH=$PATH:$IDAES_EXT/coinbrew/dist/lib64
 fi
-export LD_LIBRARY_PATH=$IDAES_EXT/coinbrew/dist/lib64
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_EXT/coinbrew/dist/lib64
 make
 cd $IDAES_EXT
 
