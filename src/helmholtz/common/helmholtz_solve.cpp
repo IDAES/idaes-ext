@@ -579,10 +579,10 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
     bool free_grad = 0, free_hes = 0;
     if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
     if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-    s_real tau_sat, hv=1.0, hl=1.0, tau, gradh[2], hesh[3], a, b;
+    s_real tau_sat, hv=1.0, hl=1.0, tau, gradh[2], hesh[3], a, b, gradts[1], hests[1];
     s_real (*fun_ptr)(s_real, s_real, s_real*, s_real*);
 
-    tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
+    tau_sat = sat_tau_with_derivs(pr, gradts, hests);
     if(pr >= P_t){
       hv = hvpt_with_derivs(pr, tau_sat, NULL, NULL);
       hl = hlpt_with_derivs(pr, tau_sat, NULL, NULL);
@@ -590,6 +590,8 @@ s_real tau_with_derivs(s_real ht, s_real pr, s_real *grad, s_real *hes){
 
     if (ht >= hl && ht <= hv){
       zero_derivs2(grad, hes);
+      grad[1] = gradts[0];
+      hes[2] = hests[0];
       memoize::add_bin(memoize::TAU_FUNC, ht, pr, tau_sat, grad, hes);
       // If we alocated grad and hes here, free them
       if(free_grad) delete[] grad;
@@ -657,10 +659,10 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
   bool free_grad = 0, free_hes = 0;
   if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
   if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
-  s_real tau_sat, sv=1.0, sl=1.0, tau, gradh[2], hesh[3], a, b;
+  s_real tau_sat, sv=1.0, sl=1.0, tau, gradh[2], hesh[3], a, b, gradts[1], hests[1];
   f_ptr2 fun_ptr;
 
-  tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
+  tau_sat = sat_tau_with_derivs(pr, gradts, hests);
   if(pr >= P_t){
     sv = svpt_with_derivs(pr, tau_sat, NULL, NULL);
     sl = slpt_with_derivs(pr, tau_sat, NULL, NULL);
@@ -668,6 +670,8 @@ s_real tau_from_sp_with_derivs(s_real st, s_real pr, s_real *grad, s_real *hes){
 
   if (st >= sl && st <= sv){
     zero_derivs2(grad, hes);
+    grad[1] = gradts[0];
+    hes[2] = hests[0];
     memoize::add_bin(memoize::TAU_ENTR_FUNC, st, pr, tau_sat, grad, hes);
     if(free_grad) delete[] grad;
     if(free_hes) delete[] hes;
@@ -735,10 +739,10 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
     if(grad==NULL){grad = new s_real[2]; free_grad = 1;}
     if(hes==NULL){hes = new s_real[3]; free_hes = 1;}
 
-    s_real tau_sat, uv=1.0, ul=1.0, tau, gradh[2], hesh[3], a, b;
+    s_real tau_sat, uv=1.0, ul=1.0, tau, gradh[2], hesh[3], a, b, gradts[1], hests[1];
     f_ptr2 fun_ptr;
 
-    tau_sat = sat_tau_with_derivs(pr, NULL, NULL);
+    tau_sat = sat_tau_with_derivs(pr, gradts, hests);
     if(pr >= P_t){
       uv = uvpt_with_derivs(pr, tau_sat, NULL, NULL);
       ul = ulpt_with_derivs(pr, tau_sat, NULL, NULL);
@@ -746,6 +750,8 @@ s_real tau_from_up_with_derivs(s_real ut, s_real pr, s_real *grad, s_real *hes){
 
     if (ut >= ul && ut <= uv){
       zero_derivs2(grad, hes);
+      grad[1] = gradts[0];
+      hes[2] = hests[0];
       memoize::add_bin(memoize::TAU_INTEN_FUNC, ut, pr, tau_sat, grad, hes);
       if(free_grad) delete[] grad;
       if(free_hes) delete[] hes;
