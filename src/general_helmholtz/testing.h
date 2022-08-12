@@ -20,6 +20,6 @@
 typedef std::vector<double>* (*test_fptr1)(comp_enum comp, double x);
 typedef std::vector<double>* (*test_fptr2)(comp_enum comp, double x, double y);
 
-
+uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
 
 #endif

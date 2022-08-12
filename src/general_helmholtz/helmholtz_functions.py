@@ -1259,6 +1259,8 @@ change.
                 "delta_sat_l_func",
                 "delta_sat_v_func",
                 "h_func",
+                "s_func",
+                "u_func",
                 "hlpt_func",
                 "hvpt_func",
                 "delta_liq_func",
@@ -1362,10 +1364,19 @@ change.
 
         # Points for critical point and triple point
         deltat_l = pyo.value(self.delta_liq_func(self.pure_component, pt, tc / tt))
+        deltat_v = pyo.value(self.delta_vap_func(self.pure_component, pt, tc / tt))
         hc = pyo.value(self.h_func(self.pure_component, 1, 1))
         ht = pyo.value(self.h_func(self.pure_component, deltat_l, tc / tt))
+        htv = pyo.value(self.h_func(self.pure_component, deltat_v, tc / tt))
+        ut = pyo.value(self.s_func(self.pure_component, deltat_l, tc / tt))
+        utv = pyo.value(self.s_func(self.pure_component, deltat_v, tc / tt))
+        st = pyo.value(self.u_func(self.pure_component, deltat_l, tc / tt))
+        stv = pyo.value(self.u_func(self.pure_component, deltat_v, tc / tt))
         plt.scatter([hc], [pc])
         plt.scatter([ht], [pt])
+        print(f"triple point: {ht} {htv}")
+        print(f"triple point: {st} {stv}")
+        print(f"triple point: {ut} {utv}")
 
         x = []
         y = []

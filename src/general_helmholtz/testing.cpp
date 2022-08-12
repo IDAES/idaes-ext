@@ -239,12 +239,12 @@ int test_newton_ls1(bool dbg){
   return err;
 }
 
-uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
+uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
   std::vector<double> p_vec_fd;
   int err = 0;
   unsigned long i;
-  double tau, delta;
-  std::vector< std::vector<double> > dat = read_data(comp, data_set);
+  double tau, delta, pressure;
+  std::vector< std::vector<double> > dat = read_data(comp, data_set, u_off, h_off, s_off);
   std::string comp_str = comp_enum_table[comp];
 
   std::cout << "P(" << comp_str << ", delta, tau) ";
@@ -266,10 +266,10 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
-    err = fd2(memo2_entropy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-2, 0);
+    err = fd2(memo2_entropy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -284,6 +284,7 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
     err = fd2(memo2_enthalpy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
     if(err){
       std::cout << err;
+
       return err;
     }
     else{
@@ -311,10 +312,10 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
-    err = fd2(memo2_isochoric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-2, 0);
+    err = fd2(memo2_isochoric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -326,10 +327,10 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
-    err = fd2(memo2_isobaric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cp_col], 1e-2, 0);
+    err = fd2(memo2_isobaric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cp_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -341,10 +342,10 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
-    err = fd2(memo2_speed_of_sound, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::w_col], 1e-2, 0);
+    err = fd2(memo2_speed_of_sound, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::w_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -356,6 +357,9 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    if(tau < 0.35){
+      continue;
+    }
     err = fd2(memo2_gibbs, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::h_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 0);
     if(err){
       std::cout << err;
@@ -371,10 +375,14 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    pressure = dat[i][test_data::P_col]*1000;
+    if(tau < 0.35){
+      continue;
+    }
     err = fd2(memo2_helmholtz, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::u_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      return err;
+      //return err;
     }
     else{
       std::cout << ".";
@@ -527,7 +535,7 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set){
     err = fd2(memo2_phi_resi_dd, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -692,7 +700,10 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
-    if (fabs(tau - 1.0) > 0.01 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
+    if (pressure < 0.02){
+      continue;
+    }
+    else if (fabs(tau - 1.0) > 0.01 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
       err = fd2(memo2_entropy_vapor, comp, pressure, tau, &p_vec_fd, pressure*1e-3, 1e-4, dat[i][test_data::s_col], 1e-2, 0);
     }
     else{
@@ -700,8 +711,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //err = fd2(memo2_entropy_vapor, comp, pressure, tau, &p_vec_fd, pressure*1e-3, 1e-4, dat[i][test_data::s_col], 1e-2, 1);
-      // return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -714,14 +724,14 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
-      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::u_col], 1e-2, 0);
+      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-4, dat[i][test_data::u_col], 1e-2, 0);
     }
     else{
-      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::u_col], 1e-1, 0);
+      err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-4, dat[i][test_data::u_col], 1e-1, 0);
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -741,7 +751,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -761,7 +771,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -781,7 +791,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -801,7 +811,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -821,7 +831,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -841,7 +851,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -872,7 +882,6 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 1);
       return err;
     }
     else{
@@ -953,7 +962,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -973,7 +982,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -993,7 +1002,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -1013,7 +1022,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -1033,7 +1042,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -1053,7 +1062,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
     }
     if(err){
       std::cout << err;
-      //return err;
+      return err;
     }
     else{
       std::cout << ".";
@@ -1143,6 +1152,35 @@ int main(){
     exit(err);
   }
 
+  double u_off = 506.778;
+  double h_off = 506.778;
+  double s_off = 2.738255753;
+
+  std::cout << std::endl;
+  std::cout << "Test basic co2 liquid properties" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_basic_properties(co2, test_data::liquid_set, u_off, h_off, s_off);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
+  std::cout << "Test basic co2 supercritical properties" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_basic_properties(co2, test_data::supercritical_set, u_off, h_off, s_off);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
+  std::cout << "Test basic co2 vapor properties" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_basic_properties(co2, test_data::vapor_set, u_off, h_off, s_off);
+  if(err){
+    exit(err);
+  }
+
+
   std::cout << std::endl;
   std::cout << "Test basic r1234ze properties" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
@@ -1151,6 +1189,8 @@ int main(){
     exit(err);
   }
 
+  /*
+  std::cout << std::endl << "look at area close to critical point" << std::endl;
   double T, P = 22063.7;
   for (i=0; i<100; ++i){
     T = (647.09 + 0.0001*i);
@@ -1160,8 +1200,19 @@ int main(){
       << sat_delta_l(h2o, param::Tc[h2o]/T)->at(0) << ", "
       << sat_delta_v(h2o, param::Tc[h2o]/T)->at(0) << ", "
       << sat_tau(h2o, P)->at(0) << ", "
-      <<  delta_liquid(h2o, P, param::Tc[h2o]/T) << ", " 
+      <<  delta_liquid(h2o, P, param::Tc[h2o]/T) << ", "
       <<  delta_vapor(h2o, P, param::Tc[h2o]/T) << std::endl;
   }
+  */
   return 0;
 }
+
+/*
+triple point: -426.7444990894301 -76.36343138543006
+triple point: -427.18401239754604 -114.00387654186956
+triple point: -2.2176857214942047 -0.5999800533277664
+
+451.12 - 114.00387654186956
+507.17 - 76.36343138543006
+2.4368 -0.5999800533277664
+*/
