@@ -251,7 +251,7 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
   for(i=0; i<dat.size(); ++i){
     tau = param::Tc[comp]/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/param::rhoc[comp];
-    err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-10, 1e-7, dat[i][test_data::P_col]*1000, 1e-2, 0);
+    err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
       return err;
