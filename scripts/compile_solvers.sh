@@ -423,7 +423,7 @@ make check
 make install
 
 if [ ${osname} = "windows" ]; then
-  cp ./ADOL-C/.libs/libadol*.dll $IDAES_EXT/dist-solvers/lib64/
+  cp ./ADOL-C/.libs/libadol*.dll $IDAES_EXT/coinbrew/dist/lib64/
 fi
 
 cd $IDAES_EXT/dist-solvers/
