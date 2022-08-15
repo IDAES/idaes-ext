@@ -5,9 +5,9 @@ docker run --name test -d -i ${image} /bin/bash
 
 docker exec test /bin/bash -c 'cd repo
     eval "$(/root/miniconda/bin/conda shell.bash hook)"
-    git clone https://github.com/eslickj/idaes-pse.git
+    git clone https://github.com/idaes/idaes-pse.git
     cd idaes-pse
-    git checkout newbin
+    git checkout main
     conda create -n idaes python=3.9 pip psutil
     conda activate idaes
     rm /root/miniconda/envs/idaes/bin/../lib/libstdc++.so.6 # work around for ubuntu 22.04
