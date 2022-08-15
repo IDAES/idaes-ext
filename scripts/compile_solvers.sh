@@ -79,6 +79,11 @@ rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
 bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
+if [ ${osname} = "el7" ]; then 
+  # Seems now the git autostash option is used, but not in the older git in el7. To prevent failure to get Mumps, just delete Thirdparty
+  # Looks like the only things in therd party are thing that Ipopt gets, so this should be ok.
+  rm -rf ./Thirdparty/*
+fi
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk'
 cp -r Ipopt Ipopt_share
 
