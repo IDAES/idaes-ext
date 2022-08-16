@@ -249,8 +249,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "P(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
@@ -264,8 +264,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "S(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_entropy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 0);
     if(err){
       std::cout << err;
@@ -279,12 +279,11 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "H(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_enthalpy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
     if(err){
       std::cout << err;
-
       return err;
     }
     else{
@@ -295,8 +294,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "U(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_internal_energy, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::u_col], 1e-2, 0);
     if(err){
       std::cout << err;
@@ -310,8 +309,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "cv(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_isochoric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 0);
     if(err){
       std::cout << err;
@@ -325,8 +324,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "cp(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_isobaric_heat_capacity, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::cp_col], 1e-1, 0);
     if(err){
       std::cout << err;
@@ -340,8 +339,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "w(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_speed_of_sound, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, dat[i][test_data::w_col], 1e-1, 0);
     if(err){
       std::cout << err;
@@ -355,8 +354,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "g(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     if(tau < 0.35){
       continue;
     }
@@ -373,8 +372,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "f(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     pressure = dat[i][test_data::P_col]*1000;
     if(tau < 0.35){
       continue;
@@ -392,8 +391,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_ideal, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -407,8 +406,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii_d(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_ideal_d, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -422,8 +421,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii_t(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_ideal_t, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -437,8 +436,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii_dd(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
     err = fd2(memo2_phi_ideal_dd, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
@@ -453,8 +452,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii_dt(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
     err = fd2(memo2_phi_ideal_dt, comp, delta, tau, &p_vec_fd, 1e-10, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
@@ -469,8 +468,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phii_tt(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
     err = fd2(memo2_phi_ideal_tt, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
@@ -485,8 +484,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -500,8 +499,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir_d(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi_d, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -515,8 +514,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir_t(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi_t, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -530,8 +529,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir_dd(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi_dd, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -545,8 +544,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir_dt(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi_dt, comp, delta, tau, &p_vec_fd, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -560,8 +559,8 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
 
   std::cout << "phir_tt(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
+    delta = dat[i][test_data::rho_col]/param::rho_star[comp];
     err = fd2(memo2_phi_resi_tt, comp, delta, tau, &p_vec_fd, 1e-9, 1e-6, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
@@ -587,7 +586,7 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
 
   std::cout << "P_sat(" << comp_str << ", tau) ";
   for(i=0; i<sat_liq_data.size(); ++i){
-    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    tau = param::T_star[comp]/sat_liq_data[i][test_data::T_col];
     pressure = sat_liq_data[i][test_data::P_col]*1000;
     err = fd1(sat_p, comp, tau, &p_vec_fd, 1e-8, pressure, 1e-3, 0);
     if(err){
@@ -602,7 +601,7 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
 
   std::cout << "tau_sat(" << comp_str << ", P) ";
   for(i=0; i<sat_liq_data.size(); ++i){
-    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
+    tau = param::T_star[comp]/sat_liq_data[i][test_data::T_col];
     pressure = sat_liq_data[i][test_data::P_col]*1000;
     err = fd1(sat_tau, comp, pressure, &p_vec_fd, 1e-5, tau, 1e-3, 0);
     if(err){
@@ -617,8 +616,8 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
 
   std::cout << "rho_liq_sat(" << comp_str << ", tau) ";
   for(i=0; i<sat_liq_data.size(); ++i){
-    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
-    delta = sat_liq_data[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/sat_liq_data[i][test_data::T_col];
+    delta = sat_liq_data[i][test_data::rho_col]/param::rho_star[comp];
     err = fd1(sat_delta_l, comp, tau, &p_vec_fd, 1e-8, delta, 1, 0);
     if(err){
       std::cout << err;
@@ -633,8 +632,8 @@ uint test_sat_curve(comp_enum comp, test_data::data_set_enum data_set){
 
   std::cout << "rho_vap_sat(" << comp_str << ", tau) ";
   for(i=0; i<sat_liq_data.size(); ++i){
-    tau = param::Tc[comp]/sat_liq_data[i][test_data::T_col];
-    delta = sat_vap_data[i][test_data::rho_col]/param::rhoc[comp];
+    tau = param::T_star[comp]/sat_liq_data[i][test_data::T_col];
+    delta = sat_vap_data[i][test_data::rho_col]/param::rho_star[comp];
     err = fd1(sat_delta_v, comp, tau, &p_vec_fd, 1e-8, delta, 1e-3, 0);
     if(err){
       std::cout << err;
@@ -658,13 +657,13 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "delta_v(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
-      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 0);
+      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rho_star[comp], 1e-2, 0);
     }
     else{ // stay loose at the critical point
-      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1, 0);
+      err = fd2(memo2_delta_vapor, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rho_star[comp], 1, 0);
     }
     if(err){
       std::cout << err;
@@ -678,7 +677,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "h_v(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_enthalpy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
@@ -698,7 +697,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "s_v(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (pressure < 0.02){
       continue;
@@ -721,7 +720,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "u_v(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_internal_energy_vapor, comp, pressure, tau, &p_vec_fd, 1e-3, 1e-4, dat[i][test_data::u_col], 1e-2, 0);
@@ -741,7 +740,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "tau(" << comp_str << ", h, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
@@ -761,7 +760,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "tau(" << comp_str << ", s, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
       err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-1, 1e-5, tau, 1e-1, 0);
@@ -781,7 +780,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "tau(" << comp_str << ", u, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
       err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
@@ -801,7 +800,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "vf(" << comp_str << ", h, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
@@ -821,7 +820,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "vf(" << comp_str << ", s, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
@@ -841,7 +840,7 @@ uint test_vapor_state_var_change(comp_enum comp, test_data::data_set_enum data_s
 
   std::cout << "vf(" << comp_str << ", u, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 1.0, 1e-2, 0);
@@ -872,13 +871,13 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "delta_l(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.01 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
-      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1e-2, 0);
+      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rho_star[comp], 1e-2, 0);
     }
     else{ // stay loose at the critical point
-      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rhoc[comp], 1, 0);
+      err = fd2(memo2_delta_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::rho_col]/param::rho_star[comp], 1, 0);
     }
     if(err){
       std::cout << err;
@@ -892,7 +891,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "h_l(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_enthalpy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
@@ -912,7 +911,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "s_l(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_entropy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::s_col], 1e-2, 0);
@@ -932,7 +931,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "u_l(" << comp_str << ", P, tau) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_internal_energy_liquid, comp, pressure, tau, &p_vec_fd, 1e-4, 1e-5, dat[i][test_data::u_col], 1e-2, 0);
@@ -952,7 +951,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "tau(" << comp_str << ", h, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
@@ -961,6 +960,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
       err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-1, 0);
     }
     if(err){
+      err = fd2(memo2_tau_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 1);
       std::cout << err;
       return err;
     }
@@ -972,7 +972,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "tau(" << comp_str << ", s, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
       err = fd2(memo2_tau_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
@@ -992,7 +992,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "tau(" << comp_str << ", u, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.05 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.01){
       err = fd2(memo2_tau_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, tau, 1e-2, 0);
@@ -1012,7 +1012,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "vf(" << comp_str << ", h, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_hp, comp, dat[i][test_data::h_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
@@ -1032,7 +1032,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "vf(" << comp_str << ", s, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_sp, comp, dat[i][test_data::s_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
@@ -1052,7 +1052,7 @@ uint test_liquid_state_var_change(comp_enum comp, test_data::data_set_enum data_
 
   std::cout << "vf(" << comp_str << ", u, P) ";
   for(i=0; i<dat.size(); ++i){
-    tau = param::Tc[comp]/dat[i][test_data::T_col];
+    tau = param::T_star[comp]/dat[i][test_data::T_col];
     pressure = dat[i][test_data::P_col]*1000;
     if (fabs(tau - 1.0) > 0.001 || fabs(pressure - param::Pc[comp])/param::Pc[comp] > 0.0001){
       err = fd2(memo2_vf_up, comp, dat[i][test_data::u_col], pressure, &p_vec_fd, 1e-4, 1e-5, 0.0, 1e-2, 0);
@@ -1180,11 +1180,18 @@ int main(){
     exit(err);
   }
 
-
   std::cout << std::endl;
   std::cout << "Test basic r1234ze properties" << std::endl;
   std::cout << "------------------------------------------------------" << std::endl;
   err = test_basic_properties(r1234ze, test_data::mixed_set);
+  if(err){
+    exit(err);
+  }
+
+  std::cout << std::endl;
+  std::cout << "Test basic r134a properties" << std::endl;
+  std::cout << "------------------------------------------------------" << std::endl;
+  err = test_basic_properties(r134a, test_data::mixed_set);
   if(err){
     exit(err);
   }
@@ -1196,12 +1203,12 @@ int main(){
     T = (647.09 + 0.0001*i);
 
     std::cout << T << ", "
-      << sat_p(h2o, param::Tc[h2o]/T)->at(0) << ", "
-      << sat_delta_l(h2o, param::Tc[h2o]/T)->at(0) << ", "
-      << sat_delta_v(h2o, param::Tc[h2o]/T)->at(0) << ", "
+      << sat_p(h2o, param::T_star[h2o]/T)->at(0) << ", "
+      << sat_delta_l(h2o, param::T_star[h2o]/T)->at(0) << ", "
+      << sat_delta_v(h2o, param::T_star[h2o]/T)->at(0) << ", "
       << sat_tau(h2o, P)->at(0) << ", "
-      <<  delta_liquid(h2o, P, param::Tc[h2o]/T) << ", "
-      <<  delta_vapor(h2o, P, param::Tc[h2o]/T) << std::endl;
+      <<  delta_liquid(h2o, P, param::T_star[h2o]/T) << ", "
+      <<  delta_vapor(h2o, P, param::T_star[h2o]/T) << std::endl;
   }
   */
   return 0;

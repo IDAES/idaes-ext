@@ -27,8 +27,8 @@ Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
 
 double delta_sat_l_approx_r1234ze(double tau);
 double delta_sat_v_approx_r1234ze(double tau);
-double melting_temperature_r1234ze(double pr);
-double melting_liquid_density_r1234ze(double pr);
+double melting_tau_r1234ze(double pr);
+double melting_liquid_delta_r1234ze(double pr);
 
 void phi_r1234ze_resi_tape();
 void phi_r1234ze_ideal_tape();

@@ -27,7 +27,7 @@
 #include <adolc/adolc.h>
 #include "../config.h"
 
-double melting_temperature_co2(double pr){
+double melting_tau_co2(double pr){
   /*
     Estimate the melting temperature at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid tange of
@@ -35,20 +35,20 @@ double melting_temperature_co2(double pr){
     data just supply a resonable upper limit on vapor temperature.
   */
   if(pr < param::Pt[co2]){ // melting
-    return -0.000000*pr*pr + 0.000201*pr + 216.687349;
+    return param::T_star[co2]/(-0.000000*pr*pr + 0.000201*pr + 216.687349);
   }
   // Sublimation
-  return 150.56*pow(pr, 0.0559);
+  return param::T_star[co2]/(150.56*pow(pr, 0.0559));
 }
 
-double melting_liquid_density_co2(double pr){
+double melting_liquid_delta_co2(double pr){
   /*
     Estimate the melting liquid density at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid range of
     temperatures at a given pressure (kPa). If there is no good metling curve,
     data just supply a resonable upper limit on vapor density.
   */
-  return -3.776E-10*pr*pr + 6.860E-04*pr + 1.187E+03;
+  return (-3.776E-10*pr*pr + 6.860E-04*pr + 1.187E+03)/param::rho_star[co2];
 }
 
 double delta_sat_v_approx_co2(double tau){

@@ -28,8 +28,8 @@
 
 double delta_sat_l_approx_co2(double tau);
 double delta_sat_v_approx_co2(double tau);
-double melting_temperature_co2(double pr);
-double melting_liquid_density_co2(double pr);
+double melting_tau_co2(double pr);
+double melting_liquid_delta_co2(double pr);
 
 void phi_co2_resi_tape();
 void phi_co2_ideal_tape();

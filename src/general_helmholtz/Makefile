@@ -1,7 +1,7 @@
 include ../Makefile.in
 
-#BOOST=/opt/homebrew/include
-#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+BOOST=/opt/homebrew/include
+ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
@@ -12,13 +12,13 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-#ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
-#ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
+ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
+ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 #ADOLC_INC = /home/johne/local/include
 #ADOLC_LIB = /home/johne/local/lib64
 
 OBJECTS = phi.o props.o sat.o solver.o delta.o state.o ampl_wrap.o \
-	h2o.o r1234ze.o co2.o
+	h2o.o r1234ze.o co2.o r134a.o
 .PHONY: clean
 
 ALL: general_helmholtz_external.so
@@ -36,6 +36,9 @@ r1234ze.o: components/r1234ze.cpp
 
 co2.o: components/co2.cpp
 	  $(CXX) $(CXXFLAGS) components/co2.cpp -o co2.o -I$(ADOLC_INC)
+
+r134a.o: components/r134a.cpp
+	  $(CXX) $(CXXFLAGS) components/r134a.cpp -o r134a.o -I$(ADOLC_INC)
 
 phi.o: phi.cpp
 	  $(CXX) $(CXXFLAGS) phi.cpp -o phi.o -I$(ADOLC_INC)

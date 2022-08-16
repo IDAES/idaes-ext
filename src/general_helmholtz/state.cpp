@@ -301,16 +301,16 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/(melting_temperature_func[comp](pr));
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 1, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
   }
   else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_vapor(comp, pr, tau);
@@ -318,14 +318,14 @@ void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_lo = param::T_star[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
@@ -432,16 +432,16 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
   }
   else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_vapor(comp, pr, tau);
@@ -449,14 +449,14 @@ void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_lo = param::T_star[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
@@ -563,16 +563,16 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
     //   This is a pretty big temperature range bracketing for a good guess for
     //   Newton method may be slow here.  May want some aux functions to break
     //   it up a bit more
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
   }
   else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
     // Assume between sublimation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_lo = param::T_star[comp]/param::T_max[comp];
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
@@ -580,14 +580,14 @@ void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
   else if(ht <= hls){ // liquid (unless it's ice)
     // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = param::Tc[comp]/melting_temperature_func[comp](pr);
+    tau_hi = melting_tau_func[comp](pr);
     int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
     hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
   }
   else{ //if(ht >= hvs){ // vapor for sure
     // Assume between saturation temperature and Tmax
-    tau_lo = param::Tc[comp]/param::T_max[comp];
+    tau_lo = param::T_star[comp]/param::T_max[comp];
     tau_hi = taus;
     int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
     int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
