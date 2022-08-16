@@ -7,6 +7,11 @@ RUN yum -y install flex bison
 RUN yum -y install epel-release
 RUN yum -y install cmake3
 RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
+RUN yum -y remove git
+RUN yum -y remove git-*
+RUN yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+RUN yum -y install git
+
 RUN mkdir repo
 
 RUN cd repo; \
