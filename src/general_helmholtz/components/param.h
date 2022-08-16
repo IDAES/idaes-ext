@@ -185,7 +185,7 @@ namespace param {
     235,     // h2o
     200,     // co2
     150,     // r1234ze
-    170,     // r134a
+    168,     // r134a
   };
 
   // upper bound on T (K)

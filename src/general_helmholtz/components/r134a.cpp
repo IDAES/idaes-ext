@@ -34,7 +34,7 @@ double melting_tau_r134a(double pr){
     temperatures at a given pressure (kPa). If there is no good metling curve,
     data just supply a resonable upper limit on vapor temperature.
   */
-  return param::T_star[r134a]/170.0;
+  return param::T_star[r134a]/168.0;
 }
 
 double melting_liquid_delta_r134a(double pr){
@@ -44,7 +44,7 @@ double melting_liquid_delta_r134a(double pr){
     temperatures at a given pressure (kPa). If there is no good metling curve,
     data just supply a resonable upper limit on vapor density.
   */
-  return 1500.0/param::rho_star[r134a];
+  return 1650.0/param::rho_star[r134a];
 }
 
 double delta_sat_v_approx_r134a(double tau){
@@ -52,12 +52,12 @@ double delta_sat_v_approx_r134a(double tau){
   Approximate saturated vapor density
 */
   double XX = 1 - 1.0/tau;
-  return exp(
+  return 516.86 / param::rho_star[r134a] * exp(
     -2.837294*pow(XX, 1.0/3.0) +
     -7.875988*pow(XX, 2.0/3.0) +
     4.478586*pow(XX, 1.0/2.0) +
     -14.140125*pow(XX, 9.0/4.0) +
-    -52.361297*pow(XX, 11.0/12.0)
+    -52.361297*pow(XX, 11.0/2.0)
   );
 }
 
@@ -67,10 +67,10 @@ double delta_sat_l_approx_r134a(double tau){
 */
   double XX = 1 - 1.0/tau;
   return
-    518.20
+    (518.20
     + 884.13*pow(XX, 1.0/3.0)
     + 485.84*pow(XX, 2.0/3.0)
-    + 193.29*pow(XX, 10.0/3.0);
+    + 193.29*pow(XX, 10.0/3.0))/param::rho_star[r134a];
 }
 
 
