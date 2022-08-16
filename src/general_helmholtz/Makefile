@@ -1,7 +1,7 @@
 include ../Makefile.in
 
-BOOST=/opt/homebrew/include
-ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#BOOST=/opt/homebrew/include
+#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
@@ -12,8 +12,8 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
-ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
+#ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
+#ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
 #ADOLC_INC = /home/johne/local/include
 #ADOLC_LIB = /home/johne/local/lib64
 
