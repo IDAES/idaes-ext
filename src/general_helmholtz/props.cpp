@@ -54,13 +54,13 @@ double pressure(comp_enum comp, double delta, double tau){
   std::vector<double> *y = phi_resi(comp, delta, tau);
   double phir_d = y->at(f4_1);
   double u = 1 + delta*phir_d;
-  return param::rhoc[comp]*param::Tc[comp]*param::R[comp]*delta/tau*u;
+  return param::rho_star[comp]*param::T_star[comp]*param::R[comp]*delta/tau*u;
 }
 
 void pressure1(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *y = phi_resi(comp, delta, tau);
   double res[3];
-  double c = param::rhoc[comp]*param::Tc[comp]*param::R[comp];
+  double c = param::rho_star[comp]*param::T_star[comp]*param::R[comp];
   double phir_d = y->at(f4_1);
   double phir_dd = y->at(f4_11);
   double phir_dt = y->at(f4_12);
@@ -78,7 +78,7 @@ void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   double res[6];
   // while the intermediate varaibles look inefficent the copiler optimization
   // should fix it, and hopfully .
-  double c = param::rhoc[comp]*param::Tc[comp]*param::R[comp];
+  double c = param::rho_star[comp]*param::T_star[comp]*param::R[comp];
   double phir_d = y->at(f4_1);
   double phir_dd = y->at(f4_11);
   double phir_ddd = y->at(f4_111);
@@ -103,7 +103,7 @@ void pressure2(comp_enum comp, double delta, double tau, std::vector<double> *ou
 double internal_energy(comp_enum comp, double delta, double tau){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
-  double c = param::Tc[comp]*param::R[comp];
+  double c = param::T_star[comp]*param::R[comp];
   double phii_t = yi->at(f4_2);
   double phir_t = yr->at(f4_2);
   double z = phii_t + phir_t;
@@ -115,7 +115,7 @@ void internal_energy2(comp_enum comp, double delta, double tau, std::vector<doub
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = param::Tc[comp]*param::R[comp];
+  double c = param::T_star[comp]*param::R[comp];
   double phii_t = yi->at(f4_2);
   double phii_dt = yi->at(f4_12);
   double phii_tt = yi->at(f4_22);
@@ -199,7 +199,7 @@ void entropy2(comp_enum comp, double delta, double tau, std::vector<double> *out
 double enthalpy(comp_enum comp, double delta, double tau){
   std::vector<double> *yr = phi_resi(comp, delta, tau);
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
-  double c = param::R[comp]*param::Tc[comp];
+  double c = param::R[comp]*param::T_star[comp];
   double phii_t = yi->at(f4_2);
   double phir_t = yr->at(f4_2);
   double phir_d = yr->at(f4_1);
@@ -213,7 +213,7 @@ void enthalpy2(comp_enum comp, double delta, double tau, std::vector<double> *ou
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = param::R[comp]*param::Tc[comp];
+  double c = param::R[comp]*param::T_star[comp];
   double phii_t = yi->at(f4_2);
   double phii_dt = yi->at(f4_12);
   double phii_tt = yi->at(f4_22);
@@ -259,7 +259,7 @@ void gibbs2(comp_enum comp, double delta, double tau, std::vector<double> *out){
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = param::R[comp]*param::Tc[comp];
+  double c = param::R[comp]*param::T_star[comp];
   double phii = yi->at(f4);
   double phii_d = yi->at(f4_1);
   double phii_dd = yi->at(f4_11);
@@ -291,7 +291,7 @@ void helmholtz2(comp_enum comp, double delta, double tau, std::vector<double> *o
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = param::R[comp]*param::Tc[comp];
+  double c = param::R[comp]*param::T_star[comp];
   double phii = yi->at(f4);
   double phii_d = yi->at(f4_1);
   double phii_dd = yi->at(f4_11);
@@ -403,7 +403,7 @@ void speed_of_sound2(comp_enum comp, double delta, double tau, std::vector<doubl
   std::vector<double> *yi = phi_ideal(comp, delta, tau);
 
   double res[6];
-  double c = param::R[comp]*param::Tc[comp]*1000; // the 100 is because when the units shae out you get w^2 [=] km*m/s^2 so convert to m^2/s^2
+  double c = param::R[comp]*param::T_star[comp]*1000; // the 100 is because when the units shae out you get w^2 [=] km*m/s^2 so convert to m^2/s^2
   double phii_tt = yi->at(f4_22);
   double phii_dtt = yi->at(f4_122);
   double phii_ddtt = yi->at(f4_1122);

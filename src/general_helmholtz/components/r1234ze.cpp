@@ -26,24 +26,24 @@ Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
 #include <adolc/adolc.h>
 #include "../config.h"
 
-double melting_temperature_r1234ze(double pr){
+double melting_tau_r1234ze(double pr){
   /*
     Estimate the melting temperature at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid tange of
     temperatures at a given pressure (kPa). If there is no good metling curve,
     data just supply a resonable upper limit on vapor temperature.
   */
-  return 200.0;
+  return param::T_star[r1234ze]/(200.0);
 }
 
-double melting_liquid_density_r1234ze(double pr){
+double melting_liquid_delta_r1234ze(double pr){
   /*
     Estimate the melting liquid density at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid range of
     temperatures at a given pressure (kPa). If there is no good metling curve,
     data just supply a resonable upper limit on vapor density.
   */
-  return 1450.0;
+  return 1450.0/param::rho_star[r1234ze];
 }
 
 double delta_sat_v_approx_r1234ze(double tau){
@@ -91,8 +91,8 @@ void phi_r1234ze_ideal_tape(){
     -12.558347537 +
     8.7912297624*x[1] +
     (4.0 - 1.0)*log(x[1]) +
-    9.3575*log(1 - exp(-513.0*x[1]/param::Tc[comp_enum::r1234ze])) +
-    10.717*log(1 - exp(-1972.0*x[1]/param::Tc[comp_enum::r1234ze]));
+    9.3575*log(1 - exp(-513.0*x[1]/param::T_star[comp_enum::r1234ze])) +
+    10.717*log(1 - exp(-1972.0*x[1]/param::T_star[comp_enum::r1234ze]));
   y[0] >>= out;
   delete[] y;
   delete[] x;

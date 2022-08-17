@@ -12,25 +12,25 @@
 +-------------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------------
- Specific r1234ze (r1234ze(e)) functions from:
+ Specific r134a (r1234ze(e)) functions from:
 
 Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
   Properties of trans-1,3,3,3-Tetrafluoropropene [R-1234ze(E)]." Int. J.
   Thermophys, 37(3):1–16, 2016. doi:10.1007/s10765-016-2040-6.
 
  Author: John Eslick
- File: r1234ze.h
+ File: r134a.h
 --------------------------------------------------------------------------------*/
 
-#ifndef _INCLUDE_R1234ZE_H_
-#define _INCLUDE_R1234ZE_H_
+#ifndef _INCLUDE_R134A_H_
+#define _INCLUDE_R134A_H_
 
-double delta_sat_l_approx_r1234ze(double tau);
-double delta_sat_v_approx_r1234ze(double tau);
-double melting_tau_r1234ze(double pr);
-double melting_liquid_delta_r1234ze(double pr);
+double delta_sat_l_approx_r134a(double tau);
+double delta_sat_v_approx_r134a(double tau);
+double melting_tau_r134a(double pr);
+double melting_liquid_delta_r134a(double pr);
 
-void phi_r1234ze_resi_tape();
-void phi_r1234ze_ideal_tape();
+void phi_r134a_resi_tape();
+void phi_r134a_ideal_tape();
 
 #endif

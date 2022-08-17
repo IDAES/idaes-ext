@@ -34,8 +34,8 @@
 
 double delta_sat_l_approx_h2o(double tau);
 double delta_sat_v_approx_h2o(double tau);
-double melting_temperature_h2o(double pr);
-double melting_liquid_density_h2o(double pr);
+double melting_tau_h2o(double pr);
+double melting_liquid_delta_h2o(double pr);
 
 void phi_h2o_resi_tape();
 void phi_h2o_ideal_tape();

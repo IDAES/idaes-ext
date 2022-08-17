@@ -72,16 +72,16 @@ double delta_vapor(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
-    return 1.0;
-  }
+  //if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
+  //  return 1.0;
+  //}
   // case 1 P > Pc (don't really need to worry about phase change)
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
   if(pr > param::Pc[comp]){
     std::vector<double> out;
-    if(tau > 1.0){
+    if(tau > tau_c(comp)){
       // This is liquid just use the liquid density
       return delta_liquid(comp, pr, tau);
     }
@@ -124,14 +124,14 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   ps.tau = tau;
 
   // case 0 super close to the critical point
-  if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
-    return 1.0;
-  }
+  //if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
+  //  return 1.0;
+  //}
   // case 1 P > Pc (don't really need to worry about phase change)
   //   This could really be ice, liquid or vapor, but for liquid/vapor there is
   //   no phase change, and for ice, I'll try to pretend it's still liquid and
   //   give a reasonable number anyway for math reasons
-  if(pr >= param::Pc[comp] && tau < 1.0){
+  if(pr >= param::Pc[comp] && tau < tau_c(comp)){
     std::vector<double> out;
     bracket(pwrap, 0.0001, 1.001, &delta, 20, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
@@ -144,7 +144,7 @@ double delta_liquid(comp_enum comp, double pr, double tau){
   std::vector<double> out;
 
   if(pr >= p_sat){
-    bracket(pwrap, delta_sat, melting_liquid_density_func[comp](pr)/param::rhoc[comp], &delta, 3, 1e-4, 1e-4, &ps);
+    bracket(pwrap, delta_sat, melting_liquid_delta_func[comp](pr), &delta, 3, 1e-4, 1e-4, &ps);
     halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
     return delta;
   }

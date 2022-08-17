@@ -69,6 +69,8 @@ ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, pr
 
 // Some parameters to make it easier to sync Pyomo parameters with external functions
 ASL_WRAP_FUNC_0ARG(mw, param::mw)          // Critical Pressure     [g/mol]
+ASL_WRAP_FUNC_0ARG(t_star, param::T_star)  // Temperature to calculate tau [K]
+ASL_WRAP_FUNC_0ARG(rho_star, param::rho_star) // Desity to calculate delta [kg/m^3]
 ASL_WRAP_FUNC_0ARG(pc, param::Pc)          // Critical Pressure     [kPa]
 ASL_WRAP_FUNC_0ARG(tc, param::Tc)          // Critical Temperature  [K]
 ASL_WRAP_FUNC_0ARG(rhoc, param::rhoc)      // Critical Density      [kg/m^3]
@@ -135,6 +137,8 @@ void funcadd(AmplExports *ae){
     addfunc("tau_sat", (rfunc)tau_sat, typ, 2, NULL);
     // Parameters
     addfunc("mw", (rfunc)mw, typ, 1, NULL);
+    addfunc("t_star", (rfunc)t_star, typ, 1, NULL);
+    addfunc("rho_star", (rfunc)rho_star, typ, 1, NULL);
     addfunc("pc", (rfunc)pc, typ, 1, NULL);
     addfunc("tc", (rfunc)tc, typ, 1, NULL);
     addfunc("rhoc", (rfunc)rhoc, typ, 1, NULL);

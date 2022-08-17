@@ -33,7 +33,7 @@
 #include <adolc/adolc.h>
 #include "../config.h"
 
-double melting_temperature_h2o(double pr){
+double melting_tau_h2o(double pr){
   /*
     Estimate the melting temperature at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid tange of
@@ -46,51 +46,51 @@ double melting_temperature_h2o(double pr){
   if(pr < param::Pt[h2o]){
     Tn = 273.16;
     Pn = 0.611657;
-    return Tn * 0.9995047*pow(pr/Pn, 0.04264942);
+    return param::T_star[h2o]/(Tn * 0.9995047*pow(pr/Pn, 0.04264942));
   }
   // Ice I Melting, Max error 0.05 K
   if(pr <= 206207.0){
     Tn = 273.16;
     Pn = 0.611657;
-    return Tn * (
+    return param::T_star[h2o]/(Tn * (
       -0.0000000000002087276*(pr/Pn)*(pr/Pn) -
       0.0000001637791*pr/Pn +
       1.000026
-    );
+    ));
   }
   // Ice III Melting, Max error 0.065 K
   if(pr <= 350110.0){
     Tn = 251.165;
     Pn = 209900;
-    return Tn * (
+    return param::T_star[h2o]/(Tn * (
       -0.02487839*(pr/Pn)*(pr/Pn) -
       0.09535237*pr/Pn +
       0.9298592
-    );
+    ));
   }
   // Ice V Melting, Max error 0.055 K
   if(pr <= 632400.0){
     Tn = 256.164;
     Pn = 350100.00;
-    return Tn * (
+    return param::T_star[h2o]/(Tn * (
       -0.02304521*(pr/Pn)*(pr/Pn) +
       0.1472252*pr/Pn +
       0.8760317
-    );
+    ));
   }
   // Ice VI Melting, Max error 0.9 K
   //   shouldn't get anywhere near the max pressure on this, so we'll let this
   //   pick up the rest (goes to about 2,000 MPa)
   Tn = 273.31;
   Pn = 632400.00;
-  return Tn * (
+  return param::T_star[h2o]/(Tn * (
     -0.02197019*(pr/Pn)*(pr/Pn) +
     0.2161217*pr/Pn +
     0.8086136
-  );
+  ));
 }
 
-double melting_liquid_density_h2o(double pr){
+double melting_liquid_delta_h2o(double pr){
   /*
     Estimate the melting liquid density at a given pressure.  This doesn't need
     to be highly accurate, it is just used to partly define the valid range of
@@ -98,16 +98,16 @@ double melting_liquid_density_h2o(double pr){
     data just supply a resonable upper limit on vapor density.
   */
   if(pr >= 400000){
-    return -9.025000E-11*pr*pr + 2.802900E-04*pr + 1.047067E+03;
+    return (-9.025000E-11*pr*pr + 2.802900E-04*pr + 1.047067E+03)/param::rho_star[h2o];
   }
   if(pr >= 22500){
-    return -3.908565E-10*pr*pr + 5.195933E-04*pr + 9.992365E+02;
+    return (-3.908565E-10*pr*pr + 5.195933E-04*pr + 9.992365E+02)/param::rho_star[h2o];
   }
   if(pr >= 7000){
-    return 4.954471E-04*pr + 9.998203E+02;
+    return (4.954471E-04*pr + 9.998203E+02)/param::rho_star[h2o];
   }
   if(pr >= param::Pt[h2o]){
-    return 4.974967E-04*pr + 9.997973E+02;
+    return (4.974967E-04*pr + 9.997973E+02)/param::rho_star[h2o];
   }
 }
 
