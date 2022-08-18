@@ -254,8 +254,6 @@ uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, do
     err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
-      err = fd2(memo2_pressure, comp, delta, tau, &p_vec_fd, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 0);
-      std::cout << " P = " << dat[i][test_data::P_col]*1000 << " tau = " << tau << std::endl;
       return err;
     }
     else{
