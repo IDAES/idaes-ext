@@ -12,11 +12,12 @@
 +-------------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------------
- Specific r134a (r1234ze(e)) functions from:
+Specific r134a functions from:
 
-Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic
-  Properties of trans-1,3,3,3-Tetrafluoropropene [R-1234ze(E)]." Int. J.
-  Thermophys, 37(3):1–16, 2016. doi:10.1007/s10765-016-2040-6.
+Perkins, R.A.; Laesecke, A.; Howley, J.; Ramires, M.L.V.; Gurova, A.N.; Cusco, L.,
+    Experimental thermal conductivity values for the IUPAC round-robin sample of
+    1,1,1,2-tetrafluoroethane (R134a), NIST Interagency/Internal Report (NISTIR)
+    - 6605, 2000, https://doi.org/10.6028/NIST.IR.6605.
 
  Author: John Eslick
  File: r134a.h
