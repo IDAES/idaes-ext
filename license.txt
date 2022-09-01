@@ -10,7 +10,8 @@ third-party solver libraries.
 idaes-lib-<platform>.tar.gz
 ===========================
 
-  cubic_root.so, functions.so, iapws95_external.so, and swco2_external.so
+  cubic_root.so, functions.so, iapws95_external.so, general_helmholtz.so,
+  and swco2_external.so
   -----------------------------------------------------------------------
   License: IDAES BSD 3-clause,
            https://github.com/IDAES/idaes-pse/blob/master/LICENSE.md
@@ -102,7 +103,6 @@ idaes-solvers-<platform>.tar.gz
   Source: https://gcc.gnu.org/
 
 
-
   MinGW
   -----
   For Windows, MinGW runtime libraries are included.
@@ -129,6 +129,15 @@ idaes-solvers-<platform>.tar.gz
   whatsoever resulting from loss of use, data or profits, whether in an
   action of contract, negligence or other tortious action, arising out
   of or in connection with the use or performance of this software.
+
+  
+  ADOL-C
+  ------
+  
+  Source: https://github.com/coin-or/ADOL-C
+  License: ECLIPSE PUBLIC LICENSE VERSION 1.0
+           https://github.com/coin-or/ADOL-C/blob/master/LICENSE
+           
 
 idaes-petsc-<platform>.tar.gz
 ===============================
