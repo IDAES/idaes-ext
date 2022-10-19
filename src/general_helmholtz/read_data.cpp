@@ -12,6 +12,10 @@ std::vector< std::vector<double> > read_data(std::string comp_str, test_data::da
   char row_buf[1500];
   char col_buf[256];
 
+  std::string data_path("");
+  if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_TEST_DATA_PATH")){
+      data_path = env_data_path;
+  }
 
   // Really should have used a map, oh well
   if(data_set == test_data::vapor_set){
@@ -30,7 +34,7 @@ std::vector< std::vector<double> > read_data(std::string comp_str, test_data::da
     data_set_str = "mixed";
   }
 
-  file_name_stream << "test_data/" << comp_str << "_" << data_set_str << "_data.csv";
+  file_name_stream << data_path << comp_str << "_" << data_set_str << "_data.csv";
   std::cout << "Reading: "<< file_name_stream.str() << std::endl;
 
   filestream.open(file_name_stream.str(), std::fstream::in);

@@ -1,4 +1,5 @@
 #include<boost/json/src.hpp>
+#include<cstdlib>
 #include<math.h>
 #include"config.h"
 #include<iostream>
@@ -17,6 +18,11 @@ uint read_params(std::string comp){
     } // not read yet
     ASL *asl;
     std::ostringstream nl_file_path, json_file_path;
+    std::string data_path("");
+
+    if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
+        data_path = env_data_path;
+    }
 
     // IDAES component naming standards are not clear on case.  I'll assume you
     // won't have two different components whoes name differs only by case. Some
@@ -32,10 +38,13 @@ uint read_params(std::string comp){
     }
 
     // parameter file other parameters
-    json_file_path << lower_comp << "_parameters.json";
+    json_file_path << data_path << lower_comp << "_parameters.json";
    
     // Read the json parameter file
     std::ifstream jp_file_stream(json_file_path.str());
+    if(!jp_file_stream.good()){
+        std::cout << "Data file not found: " << json_file_path.str() << std::endl;
+    }
     std::stringstream jp_buffer;
     jp_buffer << jp_file_stream.rdbuf();
     boost::json::value jp = boost::json::parse(jp_buffer.str());
@@ -69,8 +78,12 @@ uint read_params(std::string comp){
         cdata[comp_idx].var_map[i] = boost::json::value_to<long>(jp.at("var_map").at(i));
     }
 
-    std::string nl_file_string = boost::json::value_to<std::string>(jp.at("nl_file"));
-
+    nl_file_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file"));
+    std::string nl_file_string = nl_file_path.str();
+    std::ifstream nl_file_stream(nl_file_path.str());
+    if(!nl_file_stream.good()){
+        std::cout << "Data file not found: " << nl_file_path.str() << std::endl;
+    }
     // Read the NL-file
     asl = ASL_alloc(ASL_read_pfgh);
     pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);

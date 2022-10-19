@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 #undef filename
 
 #ifndef _INCLUDE_READ_DATA_H_
