@@ -82,8 +82,8 @@ void phi_co2_ideal_tape(){
 // Create a ADOL-C tape for the ideal part of phi for CO2
   double out;
 
-  taped_ideal[comp_enum::co2] = PHI_IDEAL_TAPE(comp_enum::co2);
-  trace_on(PHI_IDEAL_TAPE(comp_enum::co2));
+  taped_ideal[std::string::co2] = PHI_IDEAL_TAPE(std::string::co2);
+  trace_on(PHI_IDEAL_TAPE(std::string::co2));
   adouble *x, *y;
 
   double a[] = {
@@ -337,8 +337,8 @@ void phi_co2_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::co2] = PHI_RESI_TAPE(comp_enum::co2);
-  trace_on(PHI_RESI_TAPE(comp_enum::co2));
+  taped_resi[std::string::co2] = PHI_RESI_TAPE(std::string::co2);
+  trace_on(PHI_RESI_TAPE(std::string::co2));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

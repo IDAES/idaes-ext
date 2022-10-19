@@ -21,20 +21,13 @@
 #ifndef _INCLUDE_DELTA_H_
 #define _INCLUDE_DELTA_H_
 
-struct pressure_wrap_state {
-  comp_enum comp;
-  double p;
-  double tau;
-};
+double delta_liquid(uint comp, double pr, double tau);
+double delta_vapor(uint comp, double pr, double tau);
 
-double delta_liquid(comp_enum comp, double pr, double tau);
-double delta_vapor(comp_enum comp, double pr, double tau);
+void delta_liquid2(uint comp, double pr, double tau, f22_struct *out);
+void delta_vapor2(uint comp, double pr, double tau, f22_struct *out);
 
-void delta_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void delta_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-
-
-std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_delta_vapor(comp_enum comp, double pr, double tau);
+f22_struct memo2_delta_liquid(uint comp, double pr, double tau);
+f22_struct memo2_delta_vapor(uint comp, double pr, double tau);
 
 #endif

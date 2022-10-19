@@ -78,8 +78,8 @@ void phi_r134a_ideal_tape(){
 // Create a ADOL-C tape for the ideal part of phi for R1234ze
   double out;
 
-  taped_ideal[comp_enum::r134a] = PHI_IDEAL_TAPE(comp_enum::r134a);
-  trace_on(PHI_IDEAL_TAPE(comp_enum::r134a));
+  taped_ideal[std::string::r134a] = PHI_IDEAL_TAPE(std::string::r134a);
+  trace_on(PHI_IDEAL_TAPE(std::string::r134a));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];
@@ -182,8 +182,8 @@ void phi_r134a_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::r134a] = PHI_RESI_TAPE(comp_enum::r134a);
-  trace_on(PHI_RESI_TAPE(comp_enum::r134a));
+  taped_resi[std::string::r134a] = PHI_RESI_TAPE(std::string::r134a);
+  trace_on(PHI_RESI_TAPE(std::string::r134a));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

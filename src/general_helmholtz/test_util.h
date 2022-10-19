@@ -11,15 +11,22 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-#include<vector>
 #include"config.h"
+#include"read_data.h"
 
-#ifndef _INCLUDE_TESTING_H_
-#define _INCLUDE_TESTING_H_
+#ifndef _INCLUDE_TEST_UTIL_H_
+#define _INCLUDE_TEST_UTIL_H_
 
-typedef std::vector<double>* (*test_fptr1)(comp_enum comp, double x);
-typedef std::vector<double>* (*test_fptr2)(comp_enum comp, double x, double y);
+typedef f12_struct (*test_fptr1)(uint comp, double x);
+typedef f22_struct (*test_fptr2)(uint comp, double x1, double x2);
 
-uint test_basic_properties(comp_enum comp, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
+int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, bool dbg);
+int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg);
+
+uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
+uint test_sat_curve(uint comp, std::string comp_str);
+uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set);
+uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set);
+uint test_sat_curve_more(uint comp, std::string comp_str);
 
 #endif

@@ -33,7 +33,7 @@ typedef double (*bin_double_function_type)(double);
 typedef void (*zero_void_function_type)();
 
 /*
-In the function pointer arrays the indexing needs to match the comp_enum
+In the function pointer arrays the indexing needs to match the std::string
 defined in config.h
 */
 
@@ -81,7 +81,7 @@ const uni_double_function_type delta_v_sat_guess_func[] = {
 // Make AD/calculation tape for residual dimensionless Helmholtz free energy
 const zero_void_function_type phi_resi_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
-  phi_h2o_resi_tape,               // 1 - h2o
+  phi_h2o_read_ampl,               // 1 - h2o
   phi_co2_resi_tape,               // 2 - co2
   phi_r1234ze_resi_tape,           // 3 - r1234ze
   phi_r134a_resi_tape,             // 4 - r134a
@@ -91,7 +91,7 @@ const zero_void_function_type phi_resi_tape_func[] = {
 // Make AD/calculation tape for ideal dimensionless Helmholtz free energy
 const zero_void_function_type phi_ideal_tape_func[] = {
   (zero_void_function_type)NULL,   // 0 - not used
-  phi_h2o_ideal_tape,              // 1 - h2o
+  phi_h2o_read_ampl,              // 1 - h2o
   phi_co2_ideal_tape,              // 2 - co2
   phi_r1234ze_ideal_tape,          // 3 - r1234ze
   phi_r134a_ideal_tape,            // 4 - r134a

@@ -11,7 +11,7 @@
 | license information.                                                           |
 +-------------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------
 Author: John Eslick
 File sat.cpp
 
@@ -21,50 +21,53 @@ File sat.cpp
  Akasaka, R. (2008). "A Reliable and Useful Method to Determine the Saturation
      State from Helmholtz Energy Equations of State." Journal of Thermal
      Science and Technology, 3(3), 442-451.
-------------------------------------------------------------------------------*/
-
+--------------------------------------------------------------------------------*/
+//#define BOOST_MATH_INSTRUMENT
+#include<boost/math/special_functions/relative_difference.hpp>
+#include<boost/math/tools/roots.hpp>
 #include<math.h>
 #include"phi.h"
 #include"props.h"
 #include"config.h"
-#include"solver.h"
 #include"sat.h"
+#include<iostream>
 
-prop_memo_table1 memo_table_sat_delta_l;
-prop_memo_table1 memo_table_sat_delta_v;
-prop_memo_table1 memo_table_sat_p;
-prop_memo_table1 memo_table_sat_tau;
+prop_memo_table12 memo_table_sat_delta_l;
+prop_memo_table12 memo_table_sat_delta_v;
+prop_memo_table12 memo_table_sat_p;
+prop_memo_table12 memo_table_sat_tau;
 
-inline double J(double delta, std::vector<double> *phi){
+inline double J(double delta, f12_struct *phi){
   // Term from Akasaka method for saturation state
-  return delta*(1 + delta*phi->at(1));
+  return delta*(1 + delta*phi->f_1);
 }
 
-inline double K(double delta, std::vector<double> *phi){
+inline double K(double delta, f12_struct *phi){
   // Term from Akasaka method for saturation state
-  return delta*phi->at(1) + phi->at(0) + log(delta);
+  return delta*phi->f_1 + phi->f + log(delta);
 }
 
-inline double J_delta(double delta, std::vector<double> *phi){
+inline double J_delta(double delta, f12_struct *phi){
   // Derivative term from Akasaka method for saturation state
-  return 1.0 + 2.0*delta*phi->at(1) + delta*delta*phi->at(2);
+  return 1.0 + 2.0*delta*phi->f_1 + delta*delta*phi->f_11;
 }
 
-inline double K_delta(double delta, std::vector<double> *phi){
+inline double K_delta(double delta, f12_struct *phi){
   // Derivative term from Akasaka method for saturation state
-  return 2.0*phi->at(1) + delta*phi->at(2) + 1.0/delta;
+  return 2.0*phi->f_1 + delta*phi->f_11 + 1.0/delta;
 }
 
-int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
+int sat(uint comp, double tau, double *delta_l, double *delta_v){
+  using boost::math::epsilon_difference;
   double Kdiff=1, Jdiff=1, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
   unsigned int n=0;
-  std::vector<double> phir_v, phir_l;
+  f12_struct phir_v, phir_l;
 
-  static const double tol_sat = 1e-11;
-  static const double sat_gamma = 1.0;
-  static const unsigned int max_iter = 100;
+  static const double tol = 1e-6;
+  static const double sat_gamma = 1.00;
+  static const unsigned int max_iter = 15;
 
-  if(tau - 1 < tol_sat){
+  if(tau <= tau_c(comp)){
     // So close to the critical point assume we are at the pritical point, if
     // over the critical point this will also use the critical density
     *delta_l = 1.0;
@@ -72,18 +75,18 @@ int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
   }
   else{
     // okay so you've decided to solve this thing
-    *delta_l = delta_l_sat_guess_func[comp](tau); // DELTA_LIQ_SAT_GUESS;
-    *delta_v = delta_v_sat_guess_func[comp](tau); // DELTA_VAP_SAT_GUESS;
+    *delta_l = sat_delta_l_approx(comp, tau); // DELTA_LIQ_SAT_GUESS;
+    *delta_v = sat_delta_v_approx(comp, tau); // DELTA_VAP_SAT_GUESS;
     while(n < max_iter){
-      phi_resi_for_sat(comp, *delta_v, tau, &phir_v);
-      phi_resi_for_sat(comp, *delta_l, tau, &phir_l);
+      phir_v = phi_resi_for_sat(comp, *delta_v, tau);
+      phir_l = phi_resi_for_sat(comp, *delta_l, tau);
       Jv = J(*delta_v, &phir_v);
       Jl = J(*delta_l, &phir_l);
       Kv = K(*delta_v, &phir_v);
       Kl = K(*delta_l, &phir_l);
       Jdiff = Jv - Jl;
       Kdiff = Kv - Kl;
-      if (fabs(Jdiff) < tol_sat && fabs(Kdiff) < tol_sat){
+      if (fabs(Jdiff/Jl) + fabs(Kdiff/Kl) <= tol){
         break;
       }
       dJv = J_delta(*delta_v, &phir_v);
@@ -96,15 +99,16 @@ int sat(comp_enum comp, double tau, double *delta_l, double *delta_v){
       *delta_v += sat_gamma*(Kdiff*dJl - Jdiff*dKl)/det;
     }
   }
+  //std::cout << n << std::endl;
   return n;
 }
 
 int sat_delta_with_derivs(
-  comp_enum comp,
+  uint comp,
   double tau,
-  std::vector<double> *delta_l_vec_ptr,
-  std::vector<double> *delta_v_vec_ptr,
-  std::vector<double> *p_vec_ptr
+  f12_struct *delta_l_vec_ptr,
+  f12_struct *delta_v_vec_ptr,
+  f12_struct *p_vec_ptr
 ){
 /*
 Calculate grad and hes for and memoize
@@ -123,30 +127,24 @@ Calculate grad and hes for and memoize
   // Calculate saturated delta_l and delta_v from tau.
   unsigned int n = sat(comp, tau, &delta_l, &delta_v);
 
-  // Calcualte the resi contribution to phi at the sat conditions
-  std::vector<double> *phir_l_vec = phi_resi(comp, delta_l, tau);
-  std::vector<double> *phir_v_vec = phi_resi(comp, delta_v, tau);
-
-  // Get what I need of phi and it's derivatives.  This just makes the
-  // expressions easier to read and write.
-  double phir_l = phir_l_vec->at(f4);
-  double phir_l_d = phir_l_vec->at(f4_1);
-  double phir_l_dd = phir_l_vec->at(f4_11);
-  double phir_l_ddd = phir_l_vec->at(f4_111);
-  double phir_l_t = phir_l_vec->at(f4_2);
-  double phir_l_dt = phir_l_vec->at(f4_12);
-  double phir_l_ddt = phir_l_vec->at(f4_112);
-  double phir_l_tt = phir_l_vec->at(f4_22);
-  double phir_l_dtt = phir_l_vec->at(f4_122);
-  double phir_v = phir_v_vec->at(f4);
-  double phir_v_d = phir_v_vec->at(f4_1);
-  double phir_v_dd = phir_v_vec->at(f4_11);
-  double phir_v_ddd = phir_v_vec->at(f4_111);
-  double phir_v_t = phir_v_vec->at(f4_2);
-  double phir_v_dt = phir_v_vec->at(f4_12);
-  double phir_v_ddt = phir_v_vec->at(f4_112);
-  double phir_v_tt = phir_v_vec->at(f4_22);
-  double phir_v_dtt = phir_v_vec->at(f4_122);
+  f23_struct phir_ls = phi_resi(comp, delta_l, tau);
+  double phir_l_d = phir_ls.f_1;
+  double phir_l_dd = phir_ls.f_11;
+  double phir_l_ddd = phir_ls.f_111;
+  double phir_l_t = phir_ls.f_2;
+  double phir_l_dt = phir_ls.f_12;
+  double phir_l_ddt = phir_ls.f_112;
+  double phir_l_tt = phir_ls.f_22;
+  double phir_l_dtt = phir_ls.f_122;
+  f23_struct phir_vs = phi_resi(comp, delta_v, tau);
+  double phir_v_d = phir_vs.f_1;
+  double phir_v_dd = phir_vs.f_11;
+  double phir_v_ddd = phir_vs.f_111;
+  double phir_v_t = phir_vs.f_2;
+  double phir_v_dt = phir_vs.f_12;
+  double phir_v_ddt = phir_vs.f_112;
+  double phir_v_tt = phir_vs.f_22;
+  double phir_v_dtt = phir_vs.f_122;
 
   // A is the expression for p/(R*T*rho).  We'll use it to simplify writing
   // some expressions.
@@ -256,45 +254,35 @@ Calculate grad and hes for and memoize
   While we're at it, may as well calculate Psat.  We'll use delta_v to do it.
 
   */
-  std::vector<double> p_vec;
+  f22_struct p_vec;
   pressure2(comp, delta_v, tau, &p_vec);
 
-  double psat = p_vec.at(f2);
+  double psat = p_vec.f;
   double psat_t =
-    p_vec.at(f2_2) +
-    p_vec.at(f2_1) * delta_v_t;
+    p_vec.f_2 +
+    p_vec.f_1 * delta_v_t;
   double psat_tt =
-    p_vec.at(f2_22) +
-    2*p_vec.at(f2_12) * delta_v_t +
-    p_vec.at(f2_1) * delta_v_tt +
-    p_vec.at(f2_11) * delta_v_t * delta_v_t;
+    p_vec.f_22 +
+    2*p_vec.f_12 * delta_v_t +
+    p_vec.f_1 * delta_v_tt +
+    p_vec.f_11 * delta_v_t * delta_v_t;
 
-  delta_l_vec_ptr->resize(3);
-  delta_l_vec_ptr->at(0) = delta_l;
-  delta_l_vec_ptr->at(1) = delta_l_t;
-  delta_l_vec_ptr->at(2) = delta_l_tt;
-  delta_v_vec_ptr->resize(3);
-  delta_v_vec_ptr->at(0) = delta_v;
-  delta_v_vec_ptr->at(1) = delta_v_t;
-  delta_v_vec_ptr->at(2) = delta_v_tt;
-  p_vec_ptr->resize(3);
-  p_vec_ptr->at(0) = psat;
-  p_vec_ptr->at(1) = psat_t;
-  p_vec_ptr->at(2) = psat_tt;
+  delta_l_vec_ptr->f = delta_l;
+  delta_l_vec_ptr->f_1 = delta_l_t;
+  delta_l_vec_ptr->f_11 = delta_l_tt;
+  delta_v_vec_ptr->f = delta_v;
+  delta_v_vec_ptr->f_1 = delta_v_t;
+  delta_v_vec_ptr->f_11 = delta_v_tt;
+  p_vec_ptr->f = psat;
+  p_vec_ptr->f_1 = psat_t;
+  p_vec_ptr->f_11 = psat_tt;
   return n;
 }
 
 int cache_sat_delta_with_derivs(
-    comp_enum comp,
+    uint comp,
     double tau)
 {
-  int n=0;
-  std::vector<double> delta_l_vec; //answer
-  std::vector<double> delta_v_vec;
-  std::vector<double> p_vec;
-  std::vector<double> *delta_l_vec_ptr; //cache
-  std::vector<double> *delta_v_vec_ptr;
-  std::vector<double> *p_vec_ptr;
 
   if(memo_table_sat_delta_l.size() > MAX_MEMO_PROP){
      memo_table_sat_delta_l.clear();
@@ -302,82 +290,87 @@ int cache_sat_delta_with_derivs(
      memo_table_sat_p.clear();
   }
 
+  f12_struct *delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
+  f12_struct *delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
+  f12_struct *p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];  
+
   if (tau <= tau_c(comp)){
+    tau = tau_c(comp);
     delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
-    delta_l_vec_ptr->resize(3);
-    delta_l_vec_ptr->at(f1) = 1;
-    delta_l_vec_ptr->at(f1_1) = 0;
-    delta_l_vec_ptr->at(f1_2) = 0;
+    delta_l_vec_ptr->f = delta_c(comp);
+    delta_l_vec_ptr->f_1 = 0;
+    delta_l_vec_ptr->f_11 = 0;
     delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
-    delta_v_vec_ptr->resize(3);
-    delta_v_vec_ptr->at(f1) = 1;
-    delta_v_vec_ptr->at(f1_1) = 0;
-    delta_v_vec_ptr->at(f1_2) = 0;
+    delta_v_vec_ptr->f = delta_c(comp);
+    delta_v_vec_ptr->f_1 = 0;
+    delta_v_vec_ptr->f_11 = 0;
     p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];
-    p_vec_ptr->resize(3);
-    p_vec_ptr->at(f1) = param::Pc[comp];
-    p_vec_ptr->at(f1_1) = 0;
-    p_vec_ptr->at(f1_2) = 0;
+    p_vec_ptr->f = cdata[comp].Pc;
+    p_vec_ptr->f_1 = 0;
+    p_vec_ptr->f_11 = 0;
     return 0;
   }
-
-  n = sat_delta_with_derivs(comp, tau, &delta_l_vec, &delta_v_vec, &p_vec);
-  delta_l_vec_ptr = &memo_table_sat_delta_l[std::make_tuple(comp, tau)];
-  delta_l_vec_ptr->resize(3);
-  delta_l_vec_ptr->at(f1) = delta_l_vec[0];
-  delta_l_vec_ptr->at(f1_1) = delta_l_vec[1];
-  delta_l_vec_ptr->at(f1_2) = delta_l_vec[2];
-  delta_v_vec_ptr = &memo_table_sat_delta_v[std::make_tuple(comp, tau)];
-  delta_v_vec_ptr->resize(3);
-  delta_v_vec_ptr->at(f1) = delta_v_vec[0];
-  delta_v_vec_ptr->at(f1_1) = delta_v_vec[1];
-  delta_v_vec_ptr->at(f1_2) = delta_v_vec[2];
-  p_vec_ptr = &memo_table_sat_p[std::make_tuple(comp, tau)];
-  p_vec_ptr->resize(3);
-  p_vec_ptr->at(f1) = p_vec[0];
-  p_vec_ptr->at(f1_1) = p_vec[1];
-  p_vec_ptr->at(f1_2) = p_vec[2];
-
-  return n;
+  return sat_delta_with_derivs(comp, tau, delta_l_vec_ptr, delta_v_vec_ptr, p_vec_ptr);
 }
 
-std::vector<double> *sat_delta_l(comp_enum comp, double tau){
+f12_struct sat_delta_l(uint comp, double tau){
   if (isnan(tau)){
-    return &nan_vec3;
+    f12_struct res;
+    res.f = nan("");
+    res.f_1 = nan("");
+    res.f_11 = nan("");
+    return res;
+  }
+  if (tau <= tau_c(comp)){
+    tau = tau_c(comp);
   }
   try{
-    return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
+    return memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
   }
   catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
-  return &memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
+  return memo_table_sat_delta_l.at(std::make_tuple(comp, tau));
 }
 
-std::vector<double> *sat_delta_v(comp_enum comp, double tau){
+f12_struct sat_delta_v(uint comp, double tau){
   if (isnan(tau)){
-    return &nan_vec3;
+    f12_struct res;
+    res.f = nan("");
+    res.f_1 = nan("");
+    res.f_11 = nan("");
+    return res;
+  }
+  if (tau <= tau_c(comp)){
+    tau = tau_c(comp);
   }
   try{
-    return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
+    return memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
   }
   catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
-  return &memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
+  return memo_table_sat_delta_v.at(std::make_tuple(comp, tau));
 }
 
-std::vector<double> *sat_p(comp_enum comp, double tau){
+f12_struct sat_p(uint comp, double tau){
   if (isnan(tau)){
-    return &nan_vec3;
+    f12_struct res;
+    res.f = nan("");
+    res.f_1 = nan("");
+    res.f_11 = nan("");
+    return res;
+  }
+  if (tau <= tau_c(comp)){
+    tau = tau_c(comp);
   }
   try{
-    return &memo_table_sat_p.at(std::make_tuple(comp, tau));
+    return memo_table_sat_p.at(std::make_tuple(comp, tau));
   }
   catch(std::out_of_range const&){
   }
   cache_sat_delta_with_derivs(comp, tau);
-  return &memo_table_sat_p.at(std::make_tuple(comp, tau));
+  return memo_table_sat_p.at(std::make_tuple(comp, tau));
 }
 
 
@@ -385,65 +378,81 @@ std::vector<double> *sat_p(comp_enum comp, double tau){
  Solve for tau_sat as a function of pressure.
 ------------------------------------------------------------------------------*/
 
-// Structure for const args to functions to solve.
-struct sat_wrap_struct {
-  comp_enum comp;
-  double pr;
+class deltav_functor
+{
+private:
+    uint _comp;
+    double _pressure;
+public:
+    deltav_functor(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    double operator () (double tau) {
+        double delta_l, delta_v;
+        sat(this->_comp, tau, &delta_l, &delta_v);
+        return (pressure(this->_comp, delta_v, tau) - this->_pressure)/cdata[this->_comp].Pc;
+    }
 };
 
-// Function wrapper to solve the P_sat(delta_v_sat, tau_sat) - P = 0 for bracket
-// method, doesn't calculate derivatives.
-inline double f_deltav(double tau, void* dat){
-  double delta_l, delta_v;
-  sat(((sat_wrap_struct*)dat)->comp, tau, &delta_l, &delta_v);
-  return ((sat_wrap_struct*)dat)->pr - pressure(((sat_wrap_struct*)dat)->comp, delta_v, tau);
-}
-
-// Function wrapper to solve the P_sat(delta_v_sat, tau_sat) - P = 0 for halley
-// method, calculates second order derivatives.
-void f_deltav2(double tau, std::vector<double> *out, void *dat){
-  std::vector<double> pvec, dlvec, dvvec;
-  sat_delta_with_derivs(((sat_wrap_struct*)dat)->comp, tau, &dlvec, &dvvec, &pvec);
-  out->resize(6);
-  out->at(0) = pvec[0] - ((sat_wrap_struct*)dat)->pr;
-  out->at(1) = pvec[1];
-  out->at(2) = pvec[2];
-}
+class deltav_deriv_functor
+{
+private:
+    uint _comp;
+    double _pressure;
+public:
+    deltav_deriv_functor(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    std::tuple<double, double, double> operator () (double tau) {
+        f12_struct dl, dv, p;
+        sat_delta_with_derivs(this->_comp, tau, &dl, &dv, &p);
+        return std::make_tuple(
+          (p.f - this->_pressure) / cdata[this->_comp].Pc,
+          p.f_1 / cdata[this->_comp].Pc,
+          p.f_11 / cdata[this->_comp].Pc
+        );
+    }
+};
 
 // Solve for tau sat, calculate derivatives and cache results.
-std::vector<double> *sat_tau(comp_enum comp, double pr){
+f12_struct sat_tau(uint comp, double pr){
   try{
-    return &memo_table_sat_tau.at(std::make_tuple(comp, pr));
+    return memo_table_sat_tau.at(std::make_tuple(comp, pr));
   }
   catch(std::out_of_range const&){
   }
-
-  int n = 0;
-  std::vector<double> out;
-  out.resize(3);
   double tau;
-  sat_wrap_struct dat;
-  dat.comp = comp;
-  dat.pr = pr;
-  if(pr > param::Pc[comp] - 1e-9){
-    tau = tau_c(comp);
-    out.at(0) = tau;
-    out.at(1) = 0;
-    out.at(2) = 0;
-  }
-  else{
-    n = bracket(f_deltav, 1, param::T_star[comp]/param::T_min[comp], &tau, 5, 1e-4, 1e-4, &dat);
-    n = halley(f_deltav2, tau, &tau, &out, 50, 1e-9, &dat);
-    //std::cout << n << " ";
-  }
+  deltav_functor fp(comp);
+  deltav_deriv_functor fp2(comp);
+  fp.set_pressure(pr);
+  fp2.set_pressure(pr);
+
   if(memo_table_sat_tau.size() > MAX_MEMO_PROP){
      memo_table_sat_tau.clear();
   }
-  std::vector<double> *tau_vec_ptr;
-  tau_vec_ptr = &memo_table_sat_tau[std::make_tuple(comp, pr)];
-  tau_vec_ptr->resize(3);
-  tau_vec_ptr->at(0) = tau;
-  tau_vec_ptr->at(1) = 1.0/out.at(1);
-  tau_vec_ptr->at(2) = -tau_vec_ptr->at(1)*tau_vec_ptr->at(1)*tau_vec_ptr->at(1)*out.at(2);
-  return &memo_table_sat_tau.at(std::make_tuple(comp, pr));
+  f12_struct *res_ptr = &memo_table_sat_tau[std::make_tuple(comp, pr)];
+  parameters_struct *dat = &cdata[comp];
+  if(pr >= dat->Pc){
+    tau = tau_c(comp);
+    res_ptr->f = tau;
+    res_ptr->f_1 = 0;
+    res_ptr->f_11 = 0;
+    return *res_ptr;
+  }
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=50;
+  int digits = std::numeric_limits<double>::digits - 4;
+
+  tau = halley_iterate(fp2, 1.01, 1.0, dat->T_star/dat->T_min, digits, h_it_max);
+  f12_struct pres = sat_p(comp, tau);
+  res_ptr->f = tau;
+  res_ptr->f_1 = 1.0/pres.f_1; 
+  res_ptr->f_11 = -res_ptr->f_1*res_ptr->f_1*res_ptr->f_1*pres.f_11;
+  return *res_ptr;
 }

@@ -2,9 +2,9 @@
 #include<string>
 #include<iostream>
 #include<fstream>
+#undef filename
 
-std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
-  std::string comp_str = comp_enum_table[comp];
+std::vector< std::vector<double> > read_data(std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
   std::string data_set_str, nd_str = "ND";
   std::ostringstream file_name_stream;
   std::istringstream row_stream;
@@ -74,12 +74,12 @@ std::vector< std::vector<double> > read_data(comp_enum comp, test_data::data_set
 
 
 void sort_sat( //read sat data, and assume the rows are: liq, vap, liq vap ... and even number of data
-    comp_enum comp,
+    std::string comp_str,
     test_data::data_set_enum data_set,
     std::vector< std::vector<double> > *liq_ptr,
     std::vector< std::vector<double> > *vap_ptr
 ){
-  std::vector< std::vector<double> > all_data = read_data(comp, data_set);
+  std::vector< std::vector<double> > all_data = read_data(comp_str, data_set);
   unsigned long int i, n = all_data.size()/2;  // beter be even
   liq_ptr->resize(n);
   vap_ptr->resize(n);

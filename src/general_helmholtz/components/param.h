@@ -27,28 +27,63 @@
 #ifndef _INCLUDE_PARAM_H_
 #define _INCLUDE_PARAM_H_
 
+
 #define NCOMPS 5  // make this one more than the last component index
 
+namespace expr_idx{
+  const long phii = 0;
+  const long phii_d = 1;
+  const long phii_dd = 2;
+  const long phii_t = 3;
+  const long phii_tt = 4;
+  const long phii_dt = 5;
+  const long phir = 6;
+  const long phir_d = 7;
+  const long phir_dd = 8;
+  const long phir_t = 9;
+  const long phir_tt = 10;
+  const long phir_dt = 11;
+
+  static const long expr_map[] = {
+    0,
+    1,
+    2,
+    3,
+    4,
+    11,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  };
+}
+
 // if adding components update NCOMPS above should be 1 more than last index
-enum comp_enum{
+enum std::string{
   h2o = 1,
   co2 = 2,
   r1234ze = 3,
   r134a = 4,
 };
 
-static std::unordered_map<std::string, comp_enum> comp_string_table = {
-  {"h2o", comp_enum::h2o},
-  {"co2", comp_enum::co2},
-  {"r1234ze", comp_enum::r1234ze},
-  {"r134a", comp_enum::r134a},
+static std::unordered_map<std::string, std::string> comp_string_table = {
+  {"h2o", std::string::h2o},
+  {"co2", std::string::co2},
+  {"H2O", std::string::h2o},
+  {"CO2", std::string::co2},
+  {"r1234ze", std::string::r1234ze},
+  {"r134a", std::string::r134a},
+  {"h2o", std::string::h2o},
+  {"co2", std::string::co2},
 };
 
-static std::unordered_map<unsigned int, std::string> comp_enum_table = {
-  {comp_enum::h2o, "h2o"},
-  {comp_enum::co2, "co2"},
-  {comp_enum::r1234ze, "r1234ze"},
-  {comp_enum::r134a, "r134a"},
+static std::unordered_map<unsigned int, std::string> std::string_table = {
+  {std::string::h2o, "h2o"},
+  {std::string::co2, "co2"},
+  {std::string::r1234ze, "r1234ze"},
+  {std::string::r134a, "r134a"},
 };
 
 namespace param {
@@ -175,14 +210,14 @@ namespace param {
     0,       // not used
     1250.0,  // h2o
     1500.0,  // co2
-    2500.0,  //r1234ze
-    2500.0,  //r134a
+    2500.0,  // r1234ze
+    2500.0,  // r134a
   };
 
   // upper pressue bound (kPa)
   const double T_min[] = {
     0,       // not used
-    235,     // h2o
+    273,     // h2o
     200,     // co2
     150,     // r1234ze
     168,     // r134a
@@ -198,7 +233,7 @@ namespace param {
   };
 }
 
-inline double tau_c(comp_enum comp){return param::T_star[comp]/param::Tc[comp];}
-inline double delta_c(comp_enum comp){return param::rhoc[comp]/param::rho_star[comp];}
+inline double tau_c(uint comp){return param::T_star[comp]/param::Tc[comp];}
+inline double delta_c(uint comp){return param::rhoc[comp]/param::rho_star[comp];}
 
 #endif

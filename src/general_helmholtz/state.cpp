@@ -28,16 +28,16 @@ The general method for changing state varaibles is (first step is here):
   4) calculate mixed phase properies
 ------------------------------------------------------------------------------*/
 
-#include "components/function_pointers.h"
+#include <boost/math/tools/roots.hpp>
+#include "config.h"
 #include "state.h"
 #include "props.h"
-#include "solver.h"
 #include "delta.h"
 #include "sat.h"
 #include <iostream>
 
 struct state_solve_dat{ // Solver wrapper data structure for const args
-  comp_enum comp;
+  uint comp;
   double p;
   double h;
 };
@@ -46,219 +46,347 @@ struct state_solve_dat{ // Solver wrapper data structure for const args
   Memoization tables
 ------------------------------------------------------------------------------*/
 
-prop_memo_table2 memo_table_enthalpy_vapor2;
-prop_memo_table2 memo_table_entropy_vapor2;
-prop_memo_table2 memo_table_internal_energy_vapor2;
-prop_memo_table2 memo_table_enthalpy_liquid2;
-prop_memo_table2 memo_table_entropy_liquid2;
-prop_memo_table2 memo_table_internal_energy_liquid2;
-prop_memo_table2 memo_table_tau_hp2;
-prop_memo_table2 memo_table_tau_sp2;
-prop_memo_table2 memo_table_tau_up2;
-prop_memo_table2 memo_table_vf_hp2;
-prop_memo_table2 memo_table_vf_sp2;
-prop_memo_table2 memo_table_vf_up2;
+prop_memo_table22 memo_table_enthalpy_vapor2;
+prop_memo_table22 memo_table_entropy_vapor2;
+prop_memo_table22 memo_table_internal_energy_vapor2;
+prop_memo_table22 memo_table_enthalpy_liquid2;
+prop_memo_table22 memo_table_entropy_liquid2;
+prop_memo_table22 memo_table_internal_energy_liquid2;
+prop_memo_table22 memo_table_tau_hp2;
+prop_memo_table22 memo_table_tau_sp2;
+prop_memo_table22 memo_table_tau_up2;
+prop_memo_table22 memo_table_vf_hp2;
+prop_memo_table22 memo_table_vf_sp2;
+prop_memo_table22 memo_table_vf_up2;
 
 /*------------------------------------------------------------------------------
   Vapor enthalpy as a function of pressure and tau, used to solve T(h, p)
 ------------------------------------------------------------------------------*/
 
-void enthalpy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
-  delta_v_vec = memo2_delta_vapor(comp, pr, tau);
-  h_vec = memo2_enthalpy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+void enthalpy_vapor2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
+  delta_vapor2(comp, pr, tau, &delta_v_vec);
+  enthalpy2(comp, delta_v_vec.f, tau, &h_vec);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
   Vapor entropy as a function of pressure and tau, used to solve T(s, p)
 ------------------------------------------------------------------------------*/
 
-void entropy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
+void entropy_vapor2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
   delta_v_vec = memo2_delta_vapor(comp, pr, tau);
-  h_vec = memo2_entropy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+  h_vec = memo2_entropy(comp, delta_v_vec.f, tau);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
   Vapor internal energy as a function of pressure and tau, used to solve T(u, p)
 ------------------------------------------------------------------------------*/
 
-void internal_energy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
+void internal_energy_vapor2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
   delta_v_vec = memo2_delta_vapor(comp, pr, tau);
-  h_vec = memo2_internal_energy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+  h_vec = memo2_internal_energy(comp, delta_v_vec.f, tau);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
   Vapor enthalpy as a function of pressure and tau, used to solve T(h, p)
 ------------------------------------------------------------------------------*/
 
-void enthalpy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
-  delta_v_vec = memo2_delta_liquid(comp, pr, tau);
-  h_vec = memo2_enthalpy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+double enthalpy_liquid(uint comp, double pr, double tau){
+  double delta_l = delta_liquid(comp, pr, tau);
+  return enthalpy(comp, delta_l, tau);
+}
+
+void enthalpy_liquid2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
+  delta_liquid2(comp, pr, tau, &delta_v_vec);
+  enthalpy2(comp, delta_v_vec.f, tau, &h_vec);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
   Liquid entropy as a function of pressure and tau, used to solve T(s, p)
 ------------------------------------------------------------------------------*/
 
-void entropy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
+void entropy_liquid2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
   delta_v_vec = memo2_delta_liquid(comp, pr, tau);
-  h_vec = memo2_entropy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+  h_vec = memo2_entropy(comp, delta_v_vec.f, tau);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
   Liquid internal energy as a function of pressure and tau, used to solve T(u, p)
 ------------------------------------------------------------------------------*/
-void internal_energy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
-  std::vector<double> *delta_v_vec, *h_vec;
+void internal_energy_liquid2(uint comp, double pr, double tau, f22_struct *out){
+  f22_struct delta_v_vec, h_vec;
   delta_v_vec = memo2_delta_liquid(comp, pr, tau);
-  h_vec = memo2_internal_energy(comp, delta_v_vec->at(0), tau);
-  out->resize(6);
-  out->at(0) = h_vec->at(0);
-  out->at(f2_1) = h_vec->at(f2_1)*delta_v_vec->at(f2_1);
-  out->at(f2_2) = h_vec->at(f2_2) + delta_v_vec->at(f2_2)*h_vec->at(f2_1);
-  out->at(f2_11) =
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_11);
-  out->at(f2_12) =
-    h_vec->at(f2_12)*delta_v_vec->at(f2_1) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_1)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_12);
-  out->at(f2_22) =
-    h_vec->at(f2_22) +
-    2*h_vec->at(f2_12)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_11)*delta_v_vec->at(f2_2)*delta_v_vec->at(f2_2) +
-    h_vec->at(f2_1)*delta_v_vec->at(f2_22);
+  h_vec = memo2_internal_energy(comp, delta_v_vec.f, tau);
+  out->f = h_vec.f;
+  out->f_1 = h_vec.f_1*delta_v_vec.f_1;
+  out->f_2 = h_vec.f_2 + delta_v_vec.f_2*h_vec.f_1;
+  out->f_11 =
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_1 +
+    h_vec.f_1*delta_v_vec.f_11;
+  out->f_12 =
+    h_vec.f_12*delta_v_vec.f_1 +
+    h_vec.f_11*delta_v_vec.f_1*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_12;
+  out->f_22 =
+    h_vec.f_22 +
+    2*h_vec.f_12*delta_v_vec.f_2 +
+    h_vec.f_11*delta_v_vec.f_2*delta_v_vec.f_2 +
+    h_vec.f_1*delta_v_vec.f_22;
 }
 
 /*------------------------------------------------------------------------------
-  Enthalpy solver function wrappers
+  Enthalpy solver functors
 ------------------------------------------------------------------------------*/
 
-double f_thv(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  enthalpy_vapor2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
+class fthl_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _enthalpy;
+public:
+    fthl_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_enthalpy(double t){
+      this->_enthalpy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      enthalpy_liquid2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_enthalpy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
 
-double f_thl(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  enthalpy_liquid2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
+class fthv_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _enthalpy;
+public:
+    fthv_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_enthalpy(double t){
+      this->_enthalpy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      enthalpy_vapor2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_enthalpy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
 
-void f_thv2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  enthalpy_vapor2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
-}
+/*------------------------------------------------------------------------------
+  Entropy solver functors
+------------------------------------------------------------------------------*/
 
-void f_thl2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  enthalpy_liquid2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
-}
+class ftsl_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _entropy;
+public:
+    ftsl_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_entropy(double t){
+      this->_entropy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      entropy_liquid2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_entropy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
+
+class ftsv_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _entropy;
+public:
+    ftsv_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_entropy(double t){
+      this->_entropy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      entropy_vapor2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_entropy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
+
+
+/*------------------------------------------------------------------------------
+  Internal Energy solver functors
+------------------------------------------------------------------------------*/
+
+class ftul_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _intenergy;
+public:
+    ftul_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_intenergy(double t){
+      this->_intenergy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      internal_energy_liquid2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_intenergy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
+
+class ftuv_functor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _intenergy;
+public:
+    ftuv_functor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_intenergy(double t){
+      this->_intenergy = t;
+    }
+    std::tuple<double, double, double>  operator () (double tau) {
+      f22_struct out;
+      internal_energy_vapor2(this->_comp, this->_pressure, tau, &out);
+      return std::make_tuple(
+        out.f - this->_intenergy,
+        out.f_2,
+        out.f_22
+      );
+    }
+};
 
 /*------------------------------------------------------------------------------
   tau(h, p) solver with derivatives
@@ -266,569 +394,483 @@ void f_thl2(double tau, std::vector<double> *out, void* dat){
   This function first checks that if at the given pressure, the enthalpy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
   classify the region in either liquid, vapor, vapor below the tripple point,
-  or supercritical. Once the region is itentified, a bracketing method is used
-  to narrow down the initial guess before solving with a Newton method.
+  or supercritical. 
 ------------------------------------------------------------------------------*/
 
-void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  std::vector<double> *taus_vec_ptr;
-  double taus, hvs, hls, tau_hi, tau_lo, tau=0;
+void tau_hp2(uint comp, double ht, double pr, f22_struct *out){
+  f12_struct taus_vec;
+  double taus, hvs, hls, tau_hi, tau_lo, tau_fail, hc, tau=0;
 
-  taus_vec_ptr = sat_tau(comp, pr);
-  taus = taus_vec_ptr->at(0);
-  if(pr < param::Pc[comp]){ // Could be two phase
-    hvs = enthalpy(comp, sat_delta_v(comp, taus)->at(0), taus);
-    hls = enthalpy(comp, sat_delta_l(comp, taus)->at(0), taus);
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=40;
+  int digits = std::numeric_limits<double>::digits - 5;
+  parameters_struct *dat = &cdata[comp];
+  fthv_functor_deriv fghv = fthv_functor_deriv(comp); fghv.set_pressure(pr); fghv.set_enthalpy(ht); 
+  fthl_functor_deriv fghl = fthl_functor_deriv(comp); fghl.set_pressure(pr); fghl.set_enthalpy(ht);
+  bool is_vapor = 0;
+
+  taus_vec = sat_tau(comp, pr);
+  taus = taus_vec.f;
+  if(pr < dat->Pc){ // Could be two phase
+    hvs = enthalpy(comp, sat_delta_v(comp, taus).f, taus);
+    hls = enthalpy(comp, sat_delta_l(comp, taus).f, taus);
     if(ht > hls && ht < hvs){ // two-phase
-      out->resize(6);
-      out->at(0) = taus;
-      out->at(f2_1) = 0;
-      out->at(f2_2) = taus_vec_ptr->at(1);
-      out->at(f2_11) = 0;
-      out->at(f2_12) = 0;
-      out->at(f2_22) = taus_vec_ptr->at(2);
+      out->f = taus;
+      out->f_1 = 0;
+      out->f_2 = taus_vec.f_1;
+      out->f_11 = 0;
+      out->f_12 = 0;
+      out->f_22 = taus_vec.f_11;
       return;
     }
   }
-  std::vector<double> *hvec_ptr;
-  state_solve_dat sd;
-  std::vector<double> hout;
-  sd.p = pr;
-  sd.h = ht;
-  sd.comp = comp;
-  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
-    // Assume between melting and Tmax
-    //   This is a pretty big temperature range bracketing for a good guess for
-    //   Newton method may be slow here.  May want some aux functions to break
-    //   it up a bit more
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 1, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
-  }
-  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
-    // Assume between sublimation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_enthalpy_vapor(comp, pr, tau);
+  f22_struct hvec, outc;
+  if(pr >= dat->Pc){ // liquid or supercritical
+    enthalpy_liquid2(comp, pr, tau_c(comp), &outc);
+    hc = outc.f;
+    if(ht < hc){ // enthalpy < critical enthalpy, liquid (Tmin <= T <= Tc)
+      tau_lo = tau_c(comp) * 0.999; 
+      tau_hi = dat->T_star/dat->T_min; 
+      tau_fail = tau_lo;
+      is_vapor = 0;
+    }
+    else{ // enthalpy >= critival enthalpy, supercritical (Tc <= T <= Tmax)
+      tau_hi = tau_c(comp) * 1.001;
+      tau_lo = dat->T_star/dat->T_max;
+      tau_fail = tau_hi;
+      is_vapor = 0;
+    }
+  } 
+  else if(pr < dat->Pt){ // it's vapor (unless it's ice)
+    tau_lo = dat->T_star/dat->T_max;
+    tau_hi = dat->T_star/dat->Tt;
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
   else if(ht <= hls){ // liquid (unless it's ice)
-    // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_thl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_thl2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_enthalpy_liquid(comp, pr, tau);
+    tau_hi = dat->T_star/dat->T_min;  //melting_tau_func(pr);
+    tau_fail = tau_hi;
+    is_vapor = 0;
   }
-  else{ //if(ht >= hvs){ // vapor for sure
-    // Assume between saturation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
+  else{ // vapor for sure
+    tau_lo = dat->T_star/dat->T_max;
     tau_hi = taus;
-    int n1 = bracket(f_thv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_thv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_enthalpy_vapor(comp, pr, tau);
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
-  out->resize(6);
-  out->at(0) = tau;
-  // here, for indexing of **out only**:
-  //   d will be derivative with resepect to h and
-  //   t will be with respect to p
-  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
-  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
-  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
-  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
-    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
-  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
-    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
+
+  try{
+    if(is_vapor) tau = halley_iterate(fghv, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+    else tau = halley_iterate(fghl, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+  }
+  catch(...){
+    tau = tau_fail;
+    std::cout << "tau(h = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
+  }
+  if(is_vapor) hvec = memo2_enthalpy_vapor(comp, pr, tau);
+  else hvec = memo2_enthalpy_liquid(comp, pr, tau);
+
+  out->f = tau;
+  out->f_1 = 1.0/hvec.f_2; // d/dh
+  out->f_2 = -out->f_1 * hvec.f_1; // d/dp, triple product
+  out->f_11 = -out->f_1 * out->f_1 * out->f_1 * hvec.f_22;
+  out->f_12 = -out->f_1 * out->f_1 *
+    (hvec.f_12 + hvec.f_22*out->f_2);
+  out->f_22 = -out->f_12*hvec.f_1 -
+    out->f_1*(hvec.f_11 + hvec.f_12*out->f_2);
 }
 
-/*------------------------------------------------------------------------------
-  Entropy solver function wrappers
-------------------------------------------------------------------------------*/
-
-double f_tsv(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  entropy_vapor2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
-
-double f_tsl(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  entropy_liquid2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
-
-void f_tsv2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  entropy_vapor2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
-}
-
-void f_tsl2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  entropy_liquid2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
-}
 
 /*------------------------------------------------------------------------------
   tau(s, p) solver with derivatives
 
-  This function first checks that if at the given pressure, the enthalpy is
+  This function first checks that if at the given pressure, the entropy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
   classify the region in either liquid, vapor, vapor below the tripple point,
-  or supercritical. Once the region is itentified, a bracketing method is used
-  to narrow down the initial guess before solving with a Newton method.
+  or supercritical. 
 ------------------------------------------------------------------------------*/
 
-void tau_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  std::vector<double> *taus_vec_ptr;
-  double taus, hvs, hls, tau_hi, tau_lo, tau=0;
+void tau_sp2(uint comp, double ht, double pr, f22_struct *out){
+  f12_struct taus_vec;
+  double taus, hvs, hls, tau_hi, tau_lo, tau_fail, hc, tau=0;
 
-  taus_vec_ptr = sat_tau(comp, pr);
-  taus = taus_vec_ptr->at(0);
-  if(pr < param::Pc[comp]){ // Could be two phase
-    hvs = entropy(comp, sat_delta_v(comp, taus)->at(0), taus);
-    hls = entropy(comp, sat_delta_l(comp, taus)->at(0), taus);
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=40;
+  int digits = std::numeric_limits<double>::digits - 5;
+  parameters_struct *dat = &cdata[comp];
+  ftsv_functor_deriv fghv = ftsv_functor_deriv(comp); fghv.set_pressure(pr); fghv.set_entropy(ht); 
+  ftsl_functor_deriv fghl = ftsl_functor_deriv(comp); fghl.set_pressure(pr); fghl.set_entropy(ht);
+  bool is_vapor = 0;
+
+  taus_vec = sat_tau(comp, pr);
+  taus = taus_vec.f;
+  if(pr < dat->Pc){ // Could be two phase
+    hvs = entropy(comp, sat_delta_v(comp, taus).f, taus);
+    hls = entropy(comp, sat_delta_l(comp, taus).f, taus);
     if(ht > hls && ht < hvs){ // two-phase
-      out->resize(6);
-      out->at(0) = taus;
-      out->at(f2_1) = 0;
-      out->at(f2_2) = taus_vec_ptr->at(1);
-      out->at(f2_11) = 0;
-      out->at(f2_12) = 0;
-      out->at(f2_22) = taus_vec_ptr->at(2);
+      out->f = taus;
+      out->f_1 = 0;
+      out->f_2 = taus_vec.f_1;
+      out->f_11 = 0;
+      out->f_12 = 0;
+      out->f_22 = taus_vec.f_11;
       return;
     }
   }
-  std::vector<double> *hvec_ptr;
-  state_solve_dat sd;
-  std::vector<double> hout;
-  sd.p = pr;
-  sd.h = ht;
-  sd.comp = comp;
-  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
-    // Assume between melting and Tmax
-    //   This is a pretty big temperature range bracketing for a good guess for
-    //   Newton method may be slow here.  May want some aux functions to break
-    //   it up a bit more
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
-  }
-  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
-    // Assume between sublimation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_entropy_vapor(comp, pr, tau);
+  f22_struct hvec, outc;
+  if(pr >= dat->Pc){ // liquid or supercritical
+   entropy_liquid2(comp, pr, tau_c(comp), &outc);
+    hc = outc.f;
+    if(ht < hc){ // entropy < critical entropy, liquid (Tmin <= T <= Tc)
+      tau_lo = tau_c(comp) * 0.999; 
+      tau_hi = dat->T_star/dat->T_min; 
+      tau_fail = tau_lo;
+      is_vapor = 0;
+    }
+    else{ // entropy >= critival eentropy, supercritical (Tc <= T <= Tmax)
+      tau_hi = tau_c(comp) * 1.001;
+      tau_lo = dat->T_star/dat->T_max;
+      tau_fail = tau_hi;
+      is_vapor = 0;
+    }
+  } 
+  else if(pr < dat->Pt){ // it's vapor (unless it's ice)
+    tau_lo = dat->T_star/dat->T_max;
+    tau_hi = dat->T_star/dat->Tt;
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
   else if(ht <= hls){ // liquid (unless it's ice)
-    // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tsl, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tsl2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_entropy_liquid(comp, pr, tau);
+    tau_hi = dat->T_star/dat->T_min;  //melting_tau_func(pr);
+    tau_fail = tau_hi;
+    is_vapor = 0;
   }
-  else{ //if(ht >= hvs){ // vapor for sure
-    // Assume between saturation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
+  else{ // vapor for sure
+    tau_lo = dat->T_star/dat->T_max;
     tau_hi = taus;
-    int n1 = bracket(f_tsv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tsv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_entropy_vapor(comp, pr, tau);
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
-  out->resize(6);
-  out->at(0) = tau;
-  // here, for indexing of **out only**:
-  //   d will be derivative with resepect to h and
-  //   t will be with respect to p
-  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
-  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
-  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
-  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
-    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
-  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
-    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
-}
 
-/*------------------------------------------------------------------------------
-  Internal energy solver function wrappers
-------------------------------------------------------------------------------*/
+  try{
+    if(is_vapor) tau = halley_iterate(fghv, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+    else tau = halley_iterate(fghl, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+  }
+  catch(...){
+    tau = tau_fail;
+    std::cout << "tau(s = " << ht <<  " kJ/kg/K, p = " << pr << " kPa) solve failed" << std::endl;
+  }
+  if(is_vapor) hvec = memo2_entropy_vapor(comp, pr, tau);
+  else hvec = memo2_entropy_liquid(comp, pr, tau);
 
-double f_tuv(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  internal_energy_vapor2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
-
-double f_tul(double tau, void* dat){
-  // This is for bracket solver, so may want to use an underlying function that
-  // doesn't bother calculating deriavtives, but I don't currently have such a
-  // version.
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> out;
-  internal_energy_liquid2(sd->comp, sd->p, tau, &out);
-  return out[0] - sd->h;
-}
-
-void f_tuv2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  internal_energy_vapor2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
-}
-
-void f_tul2(double tau, std::vector<double> *out, void* dat){
-  // This is for the halley method which needs second order derivatives
-  state_solve_dat *sd = (state_solve_dat*)dat;
-  std::vector<double> hvec;
-  internal_energy_liquid2(sd->comp, sd->p, tau, &hvec);
-  out->resize(3);
-  out->at(0) = hvec[0] - sd->h;
-  out->at(1) = hvec[f2_2]; // here p is constant
-  out->at(2) = hvec[f2_22]; // here p is constant
+  out->f = tau;
+  out->f_1 = 1.0/hvec.f_2; // d/dh
+  out->f_2 = -out->f_1 * hvec.f_1; // d/dp, triple product
+  out->f_11 = -out->f_1 * out->f_1 * out->f_1 * hvec.f_22;
+  out->f_12 = -out->f_1 * out->f_1 *
+    (hvec.f_12 + hvec.f_22*out->f_2);
+  out->f_22 = -out->f_12*hvec.f_1 -
+    out->f_1*(hvec.f_11 + hvec.f_12*out->f_2);
 }
 
 /*------------------------------------------------------------------------------
   tau(u, p) solver with derivatives
 
-  This function first checks that if at the given pressure, the enthalpy is
+  This function first checks that if at the given pressure, the int. energy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
   classify the region in either liquid, vapor, vapor below the tripple point,
-  or supercritical. Once the region is itentified, a bracketing method is used
-  to narrow down the initial guess before solving with a Newton method.
+  or supercritical. 
 ------------------------------------------------------------------------------*/
 
-void tau_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  std::vector<double> *taus_vec_ptr;
-  double taus, hvs, hls, tau_hi, tau_lo, tau=0;
+void tau_up2(uint comp, double ht, double pr, f22_struct *out){
+  f12_struct taus_vec;
+  double taus, hvs, hls, tau_hi, tau_lo, tau_fail, hc, tau=0;
 
-  taus_vec_ptr = sat_tau(comp, pr);
-  taus = taus_vec_ptr->at(0);
-  if(pr < param::Pc[comp]){ // Could be two phase
-    hvs = internal_energy(comp, sat_delta_v(comp, taus)->at(0), taus);
-    hls = internal_energy(comp, sat_delta_l(comp, taus)->at(0), taus);
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=40;
+  int digits = std::numeric_limits<double>::digits - 5;
+  parameters_struct *dat = &cdata[comp];
+  ftuv_functor_deriv fghv = ftuv_functor_deriv(comp); fghv.set_pressure(pr); fghv.set_intenergy(ht); 
+  ftul_functor_deriv fghl = ftul_functor_deriv(comp); fghl.set_pressure(pr); fghl.set_intenergy(ht);
+  bool is_vapor = 0;
+
+  taus_vec = sat_tau(comp, pr);
+  taus = taus_vec.f;
+  if(pr < dat->Pc){ // Could be two phase
+    hvs = internal_energy(comp, sat_delta_v(comp, taus).f, taus);
+    hls = internal_energy(comp, sat_delta_l(comp, taus).f, taus);
     if(ht > hls && ht < hvs){ // two-phase
-      out->resize(6);
-      out->at(0) = taus;
-      out->at(f2_1) = 0;
-      out->at(f2_2) = taus_vec_ptr->at(1);
-      out->at(f2_11) = 0;
-      out->at(f2_12) = 0;
-      out->at(f2_22) = taus_vec_ptr->at(2);
+      out->f = taus;
+      out->f_1 = 0;
+      out->f_2 = taus_vec.f_1;
+      out->f_11 = 0;
+      out->f_12 = 0;
+      out->f_22 = taus_vec.f_11;
       return;
     }
   }
-  std::vector<double> *hvec_ptr;
-  state_solve_dat sd;
-  std::vector<double> hout;
-  sd.p = pr;
-  sd.h = ht;
-  sd.comp = comp;
-  if(pr >= param::Pc[comp]){ // it's liquid or supercritical
-    // Assume between melting and Tmax
-    //   This is a pretty big temperature range bracketing for a good guess for
-    //   Newton method may be slow here.  May want some aux functions to break
-    //   it up a bit more
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 20, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
-  }
-  else if(pr < param::Pt[comp]){ // it's vapor (unless it's ice)
-    // Assume between sublimation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
+  f22_struct hvec, outc;
+  if(pr >= dat->Pc){ // liquid or supercritical
+    internal_energy_liquid2(comp, pr, tau_c(comp), &outc);
+    hc = outc.f;
+    if(ht < hc){ // enthalpy < critical enthalpy, liquid (Tmin <= T <= Tc)
+      tau_lo = tau_c(comp) * 0.999; 
+      tau_hi = dat->T_star/dat->T_min; 
+      tau_fail = tau_lo;
+      is_vapor = 0;
+    }
+    else{ // enthalpy >= critival enthalpy, supercritical (Tc <= T <= Tmax)
+      tau_hi = tau_c(comp) * 1.001;
+      tau_lo = dat->T_star/dat->T_max;
+      tau_fail = tau_hi;
+      is_vapor = 0;
+    }
+  } 
+  else if(pr < dat->Pt){ // it's vapor (unless it's ice)
+    tau_lo = dat->T_star/dat->T_max;
+    tau_hi = dat->T_star/dat->Tt;
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
   else if(ht <= hls){ // liquid (unless it's ice)
-    // Assume between melting temperature and sat temperature
     tau_lo = taus;
-    tau_hi = melting_tau_func[comp](pr);
-    int n1 = bracket(f_tul, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tul2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_internal_energy_liquid(comp, pr, tau);
+    tau_hi = dat->T_star/dat->T_min;  //melting_tau_func(pr);
+    tau_fail = tau_hi;
+    is_vapor = 0;
   }
-  else{ //if(ht >= hvs){ // vapor for sure
-    // Assume between saturation temperature and Tmax
-    tau_lo = param::T_star[comp]/param::T_max[comp];
+  else{ // vapor for sure
+    tau_lo = dat->T_star/dat->T_max;
     tau_hi = taus;
-    int n1 = bracket(f_tuv, tau_lo, tau_hi, &tau, 10, 1e-4, 1e-4, &sd);
-    int n2 = halley(f_tuv2, tau, &tau, &hout, 40, 1e-9, &sd);
-    hvec_ptr = memo2_internal_energy_vapor(comp, pr, tau);
+    tau_fail = tau_hi;
+    is_vapor = 1;
   }
-  out->resize(6);
-  out->at(0) = tau;
-  // here, for indexing of **out only**:
-  //   d will be derivative with resepect to h and
-  //   t will be with respect to p
-  out->at(f2_1) = 1.0/hvec_ptr->at(f2_2);           // d/dh
-  out->at(f2_2) = -out->at(f2_1) * hvec_ptr->at(f2_1); // d/dp, tripple product
-  out->at(f2_11) = -out->at(f2_1) * out->at(f2_1) * out->at(f2_1) * hvec_ptr->at(f2_22);
-  out->at(f2_12) = -out->at(f2_1) * out->at(f2_1) *
-    (hvec_ptr->at(f2_12) + hvec_ptr->at(f2_22)*out->at(f2_2));
-  out->at(f2_22) = -out->at(f2_12)*hvec_ptr->at(f2_1) -
-    out->at(f2_1)*(hvec_ptr->at(f2_11) + hvec_ptr->at(f2_12)*out->at(f2_2));
+
+  try{
+    if(is_vapor) tau = halley_iterate(fghv, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+    else tau = halley_iterate(fghl, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
+  }
+  catch(...){
+    tau = tau_fail;
+    std::cout << "tau(u = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
+  }
+  if(is_vapor) hvec = memo2_internal_energy_vapor(comp, pr, tau);
+  else hvec = memo2_internal_energy_liquid(comp, pr, tau);
+
+  out->f = tau;
+  out->f_1 = 1.0/hvec.f_2; // d/dh
+  out->f_2 = -out->f_1 * hvec.f_1; // d/dp, triple product
+  out->f_11 = -out->f_1 * out->f_1 * out->f_1 * hvec.f_22;
+  out->f_12 = -out->f_1 * out->f_1 *
+    (hvec.f_12 + hvec.f_22*out->f_2);
+  out->f_22 = -out->f_12*hvec.f_1 -
+    out->f_1*(hvec.f_11 + hvec.f_12*out->f_2);
 }
 
-void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  out->resize(6);
-  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+
+/*------------------------------------------------------------------------------
+  Vapor fraction functions
+------------------------------------------------------------------------------*/
+
+void vf_hp2(uint comp, double ht, double pr, f22_struct *out){
+  parameters_struct *dat = &cdata[comp];
+
+  if(pr >= dat->Pc){ // consider supercritical fluid liquid
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
-  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
-    return;
-  }
+  f22_struct hsat_l_vec, hsat_v_vec;
+  f12_struct taus_vec;
 
-  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
+  taus_vec = sat_tau(comp, pr);
+  hsat_l_vec = memo2_enthalpy_liquid(comp, pr, taus_vec.f);
+  hsat_v_vec = memo2_enthalpy_vapor(comp, pr, taus_vec.f);
+  double hv = hsat_v_vec.f;
+  double hl = hsat_l_vec.f;
 
-  taus_vec_ptr = sat_tau(comp, pr);
-  hsat_l_vec_ptr = memo2_enthalpy_liquid(comp, pr, taus_vec_ptr->at(0));
-  hsat_v_vec_ptr = memo2_enthalpy_vapor(comp, pr, taus_vec_ptr->at(0));
-  double hv = hsat_v_vec_ptr->at(0);
-  double hl = hsat_l_vec_ptr->at(0);
-
-  if(ht < hl){
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+  if(ht < hl){ // Liquid, vapor fraction is 0 and no change with T, P
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
-  if(ht > hv){
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+  if(ht > hv){ // Vapor, vapor fraction is 1 and no change with T, P
+    out->f = 1;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
   // if you're here then your in the saturated area
   double vf = (ht - hl)/(hv - hl);
-  out->at(0) = vf;
+  out->f = vf;
 
-  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
-  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhvdp = hsat_v_vec.f_1 + hsat_v_vec.f_2*taus_vec.f_1;
+  double dhldp = hsat_l_vec.f_1 + hsat_l_vec.f_2*taus_vec.f_1;
 
-  out->at(f2_1) = 1.0/(hv - hl);
-  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+  out->f_1 = 1.0/(hv - hl);
+  out->f_2 = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
 
-  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
-    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
-    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  out->at(f2_11) = 0;
-  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
-  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+  double d2hvdp2 = hsat_v_vec.f_11 +
+    2*hsat_v_vec.f_12*taus_vec.f_1 +
+    hsat_v_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_v_vec.f_2*taus_vec.f_11;
+  double d2hldp2 = hsat_l_vec.f_11 +
+    2*hsat_l_vec.f_12*taus_vec.f_1 +
+    hsat_l_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_l_vec.f_2*taus_vec.f_11;
+  out->f_11 = 0;
+  out->f_12 = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->f_22 = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
             2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
             (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
 }
 
-void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  out->resize(6);
-  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+void vf_sp2(uint comp, double ht, double pr, f22_struct *out){
+  parameters_struct *dat = &cdata[comp];
+
+  if(pr >= dat->Pc){ // consider supercritical fluid liquid
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
-  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
-    return;
-  }
+  f22_struct hsat_l_vec, hsat_v_vec;
+  f12_struct taus_vec;
 
-  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
-
-  taus_vec_ptr = sat_tau(comp, pr);
-  hsat_l_vec_ptr = memo2_entropy_liquid(comp, pr, taus_vec_ptr->at(0));
-  hsat_v_vec_ptr = memo2_entropy_vapor(comp, pr, taus_vec_ptr->at(0));
-  double hv = hsat_v_vec_ptr->at(0);
-  double hl = hsat_l_vec_ptr->at(0);
+  taus_vec = sat_tau(comp, pr);
+  hsat_l_vec = memo2_entropy_liquid(comp, pr, taus_vec.f);
+  hsat_v_vec = memo2_entropy_vapor(comp, pr, taus_vec.f);
+  double hv = hsat_v_vec.f;
+  double hl = hsat_l_vec.f;
 
   if(ht < hl){
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
   if(ht > hv){
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+    out->f = 1;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
   // if you're here then your in the saturated area
   double vf = (ht - hl)/(hv - hl);
-  out->at(0) = vf;
+  out->f = vf;
 
-  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
-  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhvdp = hsat_v_vec.f_1 + hsat_v_vec.f_2*taus_vec.f_1;
+  double dhldp = hsat_l_vec.f_1 + hsat_l_vec.f_2*taus_vec.f_1;
 
-  out->at(f2_1) = 1.0/(hv - hl);
-  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+  out->f_1 = 1.0/(hv - hl);
+  out->f_2 = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
 
-  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
-    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
-    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  out->at(f2_11) = 0;
-  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
-  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+  double d2hvdp2 = hsat_v_vec.f_11 +
+    2*hsat_v_vec.f_12*taus_vec.f_1 +
+    hsat_v_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_v_vec.f_2*taus_vec.f_11;
+  double d2hldp2 = hsat_l_vec.f_11 +
+    2*hsat_l_vec.f_12*taus_vec.f_1 +
+    hsat_l_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_l_vec.f_2*taus_vec.f_11;
+  out->f_11 = 0;
+  out->f_12 = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->f_22 = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
             2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
             (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
 }
 
-void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out){
-  out->resize(6);
-  if(pr >= param::Pc[comp]){ // consider supercritical fluid liquid
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
-    return;
-  }
-  if(pr < param::Pt[comp]){  // either vapor or ice, ignoring ice
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+void vf_up2(uint comp, double ht, double pr, f22_struct *out){
+  parameters_struct *dat = &cdata[comp];
+
+  if(pr >= dat->Pc){ // consider supercritical fluid liquid
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
-  std::vector<double> *taus_vec_ptr, *hsat_l_vec_ptr, *hsat_v_vec_ptr;
+  f22_struct hsat_l_vec, hsat_v_vec;
+  f12_struct taus_vec;
 
-  taus_vec_ptr = sat_tau(comp, pr);
-  hsat_l_vec_ptr = memo2_internal_energy_liquid(comp, pr, taus_vec_ptr->at(0));
-  hsat_v_vec_ptr = memo2_internal_energy_vapor(comp, pr, taus_vec_ptr->at(0));
-  double hv = hsat_v_vec_ptr->at(0);
-  double hl = hsat_l_vec_ptr->at(0);
+  taus_vec = sat_tau(comp, pr);
+  hsat_l_vec = memo2_internal_energy_liquid(comp, pr, taus_vec.f);
+  hsat_v_vec = memo2_internal_energy_vapor(comp, pr, taus_vec.f);
+  double hv = hsat_v_vec.f;
+  double hl = hsat_l_vec.f;
 
   if(ht < hl){
-    out->at(0) = 0;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+    out->f = 0;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
   if(ht > hv){
-    out->at(0) = 1;
-    out->at(f2_1) = 0;
-    out->at(f2_2) = 0;
-    out->at(f2_11) = 0;
-    out->at(f2_12) = 0;
-    out->at(f2_22) = 0;
+    out->f = 1;
+    out->f_1 = 0;
+    out->f_2 = 0;
+    out->f_11 = 0;
+    out->f_12 = 0;
+    out->f_22 = 0;
     return;
   }
 
   // if you're here then your in the saturated area
   double vf = (ht - hl)/(hv - hl);
-  out->at(0) = vf;
+  out->f = vf;
 
-  double dhvdp = hsat_v_vec_ptr->at(f2_1) + hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
-  double dhldp = hsat_l_vec_ptr->at(f2_1) + hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(1);
+  double dhvdp = hsat_v_vec.f_1 + hsat_v_vec.f_2*taus_vec.f_1;
+  double dhldp = hsat_l_vec.f_1 + hsat_l_vec.f_2*taus_vec.f_1;
 
-  out->at(f2_1) = 1.0/(hv - hl);
-  out->at(f2_2) = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
+  out->f_1 = 1.0/(hv - hl);
+  out->f_2 = -dhldp/(hv - hl) - vf/(hv-hl)*(dhvdp - dhldp);
 
-  double d2hvdp2 = hsat_v_vec_ptr->at(f2_11) +
-    2*hsat_v_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_v_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  double d2hldp2 = hsat_l_vec_ptr->at(f2_11) +
-    2*hsat_l_vec_ptr->at(f2_12)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_22)*taus_vec_ptr->at(1)*taus_vec_ptr->at(1) +
-    hsat_l_vec_ptr->at(f2_2)*taus_vec_ptr->at(2);
-  out->at(f2_11) = 0;
-  out->at(f2_12) = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
-  out->at(f2_22) = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
+  double d2hvdp2 = hsat_v_vec.f_11 +
+    2*hsat_v_vec.f_12*taus_vec.f_1 +
+    hsat_v_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_v_vec.f_2*taus_vec.f_11;
+  double d2hldp2 = hsat_l_vec.f_11 +
+    2*hsat_l_vec.f_12*taus_vec.f_1 +
+    hsat_l_vec.f_22*taus_vec.f_1*taus_vec.f_1 +
+    hsat_l_vec.f_2*taus_vec.f_11;
+  out->f_11 = 0;
+  out->f_12 = -1.0/(hv-hl)/(hv-hl)*(dhvdp - dhldp);
+  out->f_22 = -d2hldp2/(hv-hl) + 2*dhldp/(hv-hl)/(hv-hl)*(dhvdp - dhldp) +
             2*(ht-hl)/(hv-hl)/(hv-hl)/(hv-hl)*(dhvdp - dhldp)*(dhvdp - dhldp) -
             (ht-hl)/(hv-hl)/(hv-hl)*(d2hvdp2 - d2hldp2);
 }
-
 
 /*------------------------------------------------------------------------------
   Memo functions

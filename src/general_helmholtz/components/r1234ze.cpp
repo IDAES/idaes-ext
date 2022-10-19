@@ -78,8 +78,8 @@ void phi_r1234ze_ideal_tape(){
 // Create a ADOL-C tape for the ideal part of phi for R1234ze
   double out;
 
-  taped_ideal[comp_enum::r1234ze] = PHI_IDEAL_TAPE(comp_enum::r1234ze);
-  trace_on(PHI_IDEAL_TAPE(comp_enum::r1234ze));
+  taped_ideal[std::string::r1234ze] = PHI_IDEAL_TAPE(std::string::r1234ze);
+  trace_on(PHI_IDEAL_TAPE(std::string::r1234ze));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];
@@ -91,8 +91,8 @@ void phi_r1234ze_ideal_tape(){
     -12.558347537 +
     8.7912297624*x[1] +
     (4.0 - 1.0)*log(x[1]) +
-    9.3575*log(1 - exp(-513.0*x[1]/param::T_star[comp_enum::r1234ze])) +
-    10.717*log(1 - exp(-1972.0*x[1]/param::T_star[comp_enum::r1234ze]));
+    9.3575*log(1 - exp(-513.0*x[1]/param::T_star[std::string::r1234ze])) +
+    10.717*log(1 - exp(-1972.0*x[1]/param::T_star[std::string::r1234ze]));
   y[0] >>= out;
   delete[] y;
   delete[] x;
@@ -266,8 +266,8 @@ void phi_r1234ze_resi_tape(){
   int i = 0;
   double out;
 
-  taped_resi[comp_enum::r1234ze] = PHI_RESI_TAPE(comp_enum::r1234ze);
-  trace_on(PHI_RESI_TAPE(comp_enum::r1234ze));
+  taped_resi[std::string::r1234ze] = PHI_RESI_TAPE(std::string::r1234ze);
+  trace_on(PHI_RESI_TAPE(std::string::r1234ze));
   adouble *x, *y;
   x = new adouble[2];
   y = new adouble[1];

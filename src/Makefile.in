@@ -34,9 +34,9 @@ MKDIR = mkdir
 LINK = g++
 
 ifeq ($(ASL),)
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC
+    CFLAGS = -Wall -Wextra -g -static -fPIC
 else
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL)
+    CFLAGS = -Wall -Wextra -g -static -fPIC -I$(ASL)
 endif
 
 LDFLAGS = -shared

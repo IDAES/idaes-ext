@@ -17,196 +17,171 @@
  Author: John Eslick
  File: delta.cpp
 --------------------------------------------------------------------------------*/
+#include<math.h>
+#include<iostream>
+#include<boost/math/tools/roots.hpp>
+#include"props.h"
+#include"sat.h"
+#include"delta.h"
 
-#include<unordered_map>
-#include<boost/functional/hash.hpp>
-#include "components/function_pointers.h"
-#include "props.h"
-#include "solver.h"
-#include "delta.h"
-#include "math.h"
-#include "sat.h"
-#include <iostream>
+prop_memo_table22 memo_table_delta_liquid2;
+prop_memo_table22 memo_table_delta_vapor2;
 
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_delta_liquid2;
-
-std::unordered_map<
-  std::tuple<comp_enum, double, double>,
-  std::vector<double>,
-  boost::hash<std::tuple<comp_enum, double, double>>
-> memo_table_delta_vapor2;
-
-static std::vector<double> nan_vec2 = {
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan(""),
-  nan("")
+class pfunctor
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _tau;
+public:
+    pfunctor(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_tau(double t){
+      this->_tau = t;
+    }
+    double operator () (double delta) {
+        return (pressure(this->_comp, delta, this->_tau) - this->_pressure)/cdata[this->_comp].Pc;
+    }
 };
 
-double pwrap(double delta, void *dat){
-  pressure_wrap_state *d = (pressure_wrap_state*)dat;
-  return (pressure(d->comp, delta, d->tau) - d->p)/param::Pc[d->comp];
-}
+class pfunctor_deriv
+{
+private:
+    uint _comp;
+    double _pressure;
+    double _tau;
+public:
+    pfunctor_deriv(uint comp){
+      this->_comp = comp;
+    }
+    void set_pressure(double p){
+      this->_pressure = p;
+    }
+    void set_tau(double t){
+      this->_tau = t;
+    }
+    std::tuple<double, double, double>  operator () (double delta) {
+      f22_struct out;
+      pressure2(this->_comp, delta, this->_tau, &out);
+      return std::make_tuple(
+        (out.f - this->_pressure)/cdata[this->_comp].Pc,
+        out.f_1/cdata[this->_comp].Pc,
+        out.f_11/cdata[this->_comp].Pc
+      );
+    }
+};
 
-void pwrap_gh(double delta, std::vector<double> *out, void *dat){
-  pressure_wrap_state *d = (pressure_wrap_state*)dat;
-  pressure2(d->comp, delta, d->tau, out);
-  out->at(0) = ((*out)[0] - d->p)/param::Pc[d->comp];
-  out->at(1) = (*out)[1]/param::Pc[d->comp];
-  out->at(2) = (*out)[2]/param::Pc[d->comp];
-}
-
-double delta_vapor(comp_enum comp, double pr, double tau){
-  double delta;
+double delta_vapor(uint comp, double pr, double tau){
   double delta_sat;
   double p_sat;
-  pressure_wrap_state ps;
-  ps.comp = comp;
-  ps.p = pr;
-  ps.tau = tau;
+  parameters_struct *dat = &cdata[comp];
 
-  // case 0 super close to the critical point
-  //if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
-  //  return 1.0;
-  //}
-  // case 1 P > Pc (don't really need to worry about phase change)
-  //   This could really be ice, liquid or vapor, but for liquid/vapor there is
-  //   no phase change, and for ice, I'll try to pretend it's still liquid and
-  //   give a reasonable number anyway for math reasons
-  if(pr > param::Pc[comp]){
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=80;
+  int digits = std::numeric_limits<double>::digits - 4;
+  pfunctor f = pfunctor(comp); f.set_pressure(pr); f.set_tau(tau);
+  pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
+
+  if(pr > dat->Pc){ // over ciritical pressure
     std::vector<double> out;
-    if(tau > tau_c(comp)){
-      // This is liquid just use the liquid density
+    if(tau >= tau_c(comp)){ // supercritical
       return delta_liquid(comp, pr, tau);
     }
-    else{
-      bracket(pwrap, 0.0001, 1.001, &delta, 20, 1e-4, 1e-4, &ps);
-      halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
+    else{ // high pressure vapor
+      double delta_guess = pr/dat->R/(dat->T_star/tau)/dat->rhoc;
+      return halley_iterate(fgh, delta_guess, 1e-6, delta_c(comp) * 1.001, digits, h_it_max);
     }
-    return delta;
   }
-
-  // case 2 P < Psat, this is vapor or ice, if ice, I'll pretend its
-  //   vapor and try to return a reasonable number anyway for math reasons
-  delta_sat = sat_delta_v(comp, tau)->at(0);
-  p_sat = sat_p(comp, tau)->at(0);
-  std::vector<double> out;
-  if(pr <= p_sat){
-    bracket(pwrap, 1e-8, delta_sat, &delta, 3, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
-    return delta;
+  delta_sat = sat_delta_v(comp, tau).f;
+  p_sat = sat_p(comp, tau).f;
+  if(pr <= p_sat){ // vapor
+    double delta_guess = pr/dat->R/(dat->T_star/tau)/dat->rhoc;
+    return halley_iterate(fgh, delta_guess, 1e-8, delta_sat, digits, h_it_max);
   }
-
-  // case 3, you're in the liquid region, I'll still try to pretend to have vapor
-  //   and see if I can give a good answer by looking between the saturated
-  //   liquid density and the vapor density.  There may be multiple roots here,
-  //   so I'll start from the sat density and hope to pick up the closest
-  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
-  if(delta < 0 || std::isnan(delta)){
-      return 0.1;
+  try{ // liquid or right on the edge
+    return halley_iterate(fgh, delta_sat, delta_sat*0.5, delta_sat*2.0, digits, h_it_max);
   }
-  return delta;
+  catch(...){
+  }
+  return delta_sat;
 }
 
-double delta_liquid(comp_enum comp, double pr, double tau){
-  double delta;
+double delta_liquid(uint comp, double pr, double tau){
   double delta_sat;
   double p_sat;
-  pressure_wrap_state ps;
-  ps.comp = comp;
-  ps.p = pr;
-  ps.tau = tau;
+  parameters_struct *dat = &cdata[comp];
 
-  // case 0 super close to the critical point
-  //if(fabs(tau - 1) < 1e-9 and fabs(pr/param::Pc[comp] - 1) < 1e-9){
-  //  return 1.0;
-  //}
-  // case 1 P > Pc (don't really need to worry about phase change)
-  //   This could really be ice, liquid or vapor, but for liquid/vapor there is
-  //   no phase change, and for ice, I'll try to pretend it's still liquid and
-  //   give a reasonable number anyway for math reasons
-  if(pr >= param::Pc[comp] && tau < tau_c(comp)){
-    std::vector<double> out;
-    bracket(pwrap, 0.0001, 1.001, &delta, 20, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
+  using namespace boost::math::tools;
+  std::uintmax_t h_it_max=80;
+  int digits = std::numeric_limits<double>::digits - 4;
+  pfunctor f = pfunctor(comp); f.set_pressure(pr); f.set_tau(tau);
+  pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
+
+  if(pr >= dat->Pc && tau <= tau_c(comp)){ // super critical
+    return halley_iterate(fgh, delta_c(comp), 1e-7, dat->rho_max/dat->rho_star, digits, h_it_max);
+  }
+  delta_sat = sat_delta_l(comp, tau).f;
+  p_sat = sat_p(comp, tau).f;
+  if(pr >= p_sat){ // liquid
+    return halley_iterate(fgh, delta_sat, delta_sat*0.99, dat->rho_max/dat->rho_star, digits, h_it_max);
+  }
+  try{ // vapor or right on the edge
+    //std::cout << "delta sat " << delta_sat << std::endl;
+    double delta = halley_iterate(fgh, delta_sat, delta_sat*0.8, delta_sat*1.2, digits, h_it_max);
+    //std::cout << "delta = " << delta << " residual " << std::get<0>(fgh(delta)) << std::endl;
     return delta;
   }
-  // case 2 Psat < P < Pc, this is liquid or ice, if ice, I'll pretend its
-  //   liquid and try to return a reasonable number anyway for math reasons
-  delta_sat = sat_delta_l(comp, tau)->at(0);
-  p_sat = sat_p(comp, tau)->at(0);
-  std::vector<double> out;
-
-  if(pr >= p_sat){
-    bracket(pwrap, delta_sat, melting_liquid_delta_func[comp](pr), &delta, 3, 1e-4, 1e-4, &ps);
-    halley(pwrap_gh, delta, &delta, &out, 50, 1e-9, &ps);
-    return delta;
+  catch(...){
   }
-
-  // case 3, you're in the vapor region, I'll still try to pretend to have liquid
-  //   and see if I can give a good answer by looking between the saturated
-  //   liquid density and the vapor density.  There may be multiple roots here,
-  //   so I'll start from the sat density and hope to pick up the closest
-  halley(pwrap_gh, delta_sat, &delta, &out, 50, 1e-9, &ps);
-
-  if(delta < 0 || std::isnan(delta)){
-      return 2.0;
-  }
-  return delta;
+  return delta_sat;
 }
 
-void delta_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out){
+void delta_liquid2(uint comp, double pr, double tau, f22_struct *out){
   double delta_l = delta_liquid(comp, pr, tau);
-  std::vector<double> *pr_vec = memo2_pressure(comp, delta_l, tau); // get derivatives
-  out->resize(6);
-  out->at(0) = delta_l;
-  out->at(f2_1) = 1.0/pr_vec->at(f2_1);
-  out->at(f2_2) = -pr_vec->at(f2_2)/pr_vec->at(f2_1);
-  out->at(f2_11) = -pr_vec->at(f2_11)*out->at(f2_1)*out->at(f2_1)*out->at(f2_1);
-  out->at(f2_12) = -(pr_vec->at(f2_12) + pr_vec->at(f2_11)*out->at(f2_2))*out->at(f2_1)*out->at(f2_1);
-  out->at(f2_22) = -(out->at(f2_1)*(pr_vec->at(f2_22) + out->at(f2_2)*pr_vec->at(f2_12)) + pr_vec->at(f2_2)*out->at(f2_12));
+  f22_struct pr_vec = memo2_pressure(comp, delta_l, tau); // get derivatives
+  out->f = delta_l;
+  out->f_1 = 1.0/pr_vec.f_1;
+  out->f_2 = -pr_vec.f_2/pr_vec.f_1;
+  out->f_11 = -pr_vec.f_11*out->f_1*out->f_1*out->f_1;
+  out->f_12 = -(pr_vec.f_12 + pr_vec.f_11*out->f_2)*out->f_1*out->f_1;
+  out->f_22 = -(out->f_1*(pr_vec.f_22 + out->f_2*pr_vec.f_12) + pr_vec.f_2*out->f_12);
 }
 
-void delta_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out){
+void delta_vapor2(uint comp, double pr, double tau, f22_struct *out){
   double delta_v = delta_vapor(comp, pr, tau);
-  std::vector<double> *pr_vec = memo2_pressure(comp, delta_v, tau); // get derivatives
-  out->resize(6);
-  out->at(0) = delta_v;
-  out->at(f2_1) = 1.0/pr_vec->at(f2_1);
-  out->at(f2_2) = -pr_vec->at(f2_2)/pr_vec->at(f2_1);
-  out->at(f2_11) = -pr_vec->at(f2_11)*out->at(f2_1)*out->at(f2_1)*out->at(f2_1);
-  out->at(f2_12) = -(pr_vec->at(f2_12) + pr_vec->at(f2_11)*out->at(f2_2))*out->at(f2_1)*out->at(f2_1);
-  out->at(f2_22) = -(out->at(f2_1)*(pr_vec->at(f2_22) + out->at(f2_2)*pr_vec->at(f2_12)) + pr_vec->at(f2_2)*out->at(f2_12));
+  f22_struct pr_vec = memo2_pressure(comp, delta_v, tau); // get derivatives
+  out->f = delta_v;
+  out->f_1 = 1.0/pr_vec.f_1;
+  out->f_2 = -pr_vec.f_2/pr_vec.f_1;
+  out->f_11 = -pr_vec.f_11*out->f_1*out->f_1*out->f_1;
+  out->f_12 = -(pr_vec.f_12 + pr_vec.f_11*out->f_2)*out->f_1*out->f_1;
+  out->f_22 = -(out->f_1*(pr_vec.f_22 + out->f_2*pr_vec.f_12) + pr_vec.f_2*out->f_12);
 }
 
-std::vector<double> *memo2_delta_liquid(comp_enum comp, double pr, double tau){
+f22_struct memo2_delta_liquid(uint comp, double pr, double tau){
   try{
-    return &memo_table_delta_liquid2.at(std::make_tuple(comp, pr, tau));
+    return memo_table_delta_liquid2.at(std::make_tuple(comp, pr, tau));
   }
   catch(std::out_of_range const&){
   }
-  std::vector<double> *yvec_ptr;
   if(memo_table_delta_liquid2.size() > MAX_MEMO_PROP) memo_table_delta_liquid2.clear();
-  yvec_ptr = &memo_table_delta_liquid2[std::make_tuple(comp, pr, tau)];
+  f22_struct *yvec_ptr = &memo_table_delta_liquid2[std::make_tuple(comp, pr, tau)];
   delta_liquid2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
+  return *yvec_ptr;
 }
 
-std::vector<double> *memo2_delta_vapor(comp_enum comp, double pr, double tau){
+f22_struct memo2_delta_vapor(uint comp, double pr, double tau){
   try{
-    return &memo_table_delta_vapor2.at(std::make_tuple(comp, pr, tau));
+    return memo_table_delta_vapor2.at(std::make_tuple(comp, pr, tau));
   }
   catch(std::out_of_range const&){
   }
-  std::vector<double> *yvec_ptr;
   if(memo_table_delta_vapor2.size() > MAX_MEMO_PROP) memo_table_delta_vapor2.clear();
-  yvec_ptr = &memo_table_delta_vapor2[std::make_tuple(comp, pr, tau)];
+  f22_struct *yvec_ptr = &memo_table_delta_vapor2[std::make_tuple(comp, pr, tau)];
   delta_vapor2(comp, pr, tau, yvec_ptr);
-  return yvec_ptr;
+  return *yvec_ptr;
 }
