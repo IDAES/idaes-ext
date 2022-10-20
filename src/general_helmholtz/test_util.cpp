@@ -138,19 +138,19 @@ int fd2(
   if (!std::isnan(tv)){
     if (!rel_same(y0.f, tv, tol)) return 1;
   }
-  if (rel_same(yb.f_1, yf.f_1, 1e-2)){ // trust fd approx?
+  if (rel_same(y.f_1, yf.f_1, 1e-3) && rel_same(y.f_1, yb.f_1, 1e-3)){ // trust fd approx?
     if (!rel_same(y0.f_1, y.f_1, tol)) return 2;
   }
-  if (rel_same(yb.f_2, yf.f_2, 1e-2)){ // trust fd approx?
+  if (rel_same(y.f_2, yf.f_2, 1e-3) && rel_same(y.f_2, yb.f_2, 1e-3)){ // trust fd approx?
     if (!rel_same(y0.f_2, y.f_2, tol)) return 3;
   }
-  if (rel_same(yb.f_11, yf.f_11, 1e-2)){ // trust fd approx?
+  if (rel_same(y.f_11, yf.f_11, 1e-3) && rel_same(y.f_11, yb.f_11, 1e-3)){ // trust fd approx?
     if (!rel_same(y0.f_11, y.f_11, tol)) return 4;
   }
-  if (rel_same(yb.f_12, yf.f_12, 1e-2)){ // trust fd approx?
+  if (rel_same(y.f_12, yf.f_12, 1e-3) && rel_same(y.f_12, yb.f_12, 1e-3)){ // trust fd approx?
     if (!rel_same(y0.f_12, y.f_12, tol)) return 5;
   }
-  if (rel_same(yb.f_22, yf.f_22, 1e-2)){ // trust fd approx?
+  if (rel_same(y.f_22, yf.f_22, 1e-3) && rel_same(y.f_22, yb.f_22, 1e-3)){ // trust fd approx?
     if (!rel_same(y0.f_22, y.f_22, tol)) return 6;
   }
   return 0;
@@ -176,6 +176,8 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
+      std::cout << delta << " " << tau << " " << dat[i][test_data::P_col]*1000 << std::endl; 
+      err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 1);
       return err;
     }
 
@@ -192,6 +194,8 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     err = fd2(memo2_entropy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 0);
     if(err){
+      std::cout << delta << " " << tau << " " << dat[i][test_data::P_col]*1000 << std::endl; 
+      fd2(memo2_entropy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 1);
       std::cout << err;
       return err;
     }
@@ -517,10 +521,10 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-7, 1e-7, nan("no check"), 1e-2, 0);
+    err = fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
-      fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-7, 1e-7, nan("no check"), 1e-2, 1);
+      fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 1);
       return err;
     }
 
@@ -536,11 +540,11 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-8, 1e-6, nan("no check"), 1e-2, 0);
+    err = fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 0);
     if(err){
       std::cout << err;
       std::cout << "delta = " << delta << " tau = " << tau;
-      fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-8, 1e-6, nan("no check"), 1e-2, 1);
+      fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 1);
       return err;
     }
   }
@@ -576,7 +580,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
 // Check saturation curve values and derivatives
 //
 //
-uint test_sat_curve(uint comp, std::string comp_str){
+uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
   std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
   sort_sat(comp_str, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
   uint err = 0;
@@ -589,10 +593,10 @@ uint test_sat_curve(uint comp, std::string comp_str){
   for(i=0; i<sat_liq_data.size(); ++i){
     tau = pdat->T_star/sat_liq_data[i][test_data::T_col];
     pressure = sat_liq_data[i][test_data::P_col]*1000;
-    err = fd1(sat_p, comp, tau, 1e-9, pressure, 1e-4, 0);
+    err = fd1(sat_p, comp, tau, 1e-6, pressure, 1e-3, 0);
     if(err){
       std::cout << err;
-      err = fd1(sat_p, comp, tau, 1e-9, pressure, 1e-4, 1);
+      err = fd1(sat_p, comp, tau, 1e-6, pressure, 1e-3, 1);
       return err;
     }
 
@@ -606,7 +610,7 @@ uint test_sat_curve(uint comp, std::string comp_str){
   for(i=0; i<sat_liq_data.size(); ++i){
     tau = pdat->T_star/sat_liq_data[i][test_data::T_col];
     pressure = sat_liq_data[i][test_data::P_col]*1000;
-    err = fd1(sat_tau, comp, pressure, 1e-5, tau, 1e-3, 0);
+    err = fd1(sat_tau, comp, pressure, 1e-7, tau, 1e-3, 0);
     if(err){
       std::cout << err;
       return err;
@@ -622,7 +626,7 @@ uint test_sat_curve(uint comp, std::string comp_str){
   for(i=0; i<sat_liq_data.size(); ++i){
     tau = pdat->T_star/sat_liq_data[i][test_data::T_col];
     delta = sat_liq_data[i][test_data::rho_col]/pdat->rho_star;
-    err = fd1(sat_delta_l, comp, tau, 1e-8, delta, 1, 0);
+    err = fd1(sat_delta_l, comp, tau, 1e-7, delta, 1, 0);
     if(err){
       std::cout << err;
       return err;
@@ -657,7 +661,7 @@ uint test_sat_curve(uint comp, std::string comp_str){
 // Check delta(T, tau) functionsand derivatives
 //
 //
-uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set){
+uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
   int err = 0;
   unsigned long i;
   double tau, delta, P, Psat;
@@ -681,6 +685,7 @@ uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_en
     Psat = sat_p(comp, tau).f;
     if((P >= Psat && delta_func == memo2_delta_liquid) || (P <= Psat && delta_func == memo2_delta_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
+        if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
         err = fd2(delta_func, comp, P, tau, 1e-3, 1e-8, delta, 1e-2, 0);
         if(err){
             std::cout << err;
@@ -703,7 +708,7 @@ uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_en
 // Check state var change 
 //
 //
-uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set){
+uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
   int err = 0;
   unsigned long i;
   double tau, delta, P, Psat, enth, entr, inte, tv;
@@ -732,11 +737,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     Psat = sat_p(comp, tau).f;
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
-        err = fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth, 1e-2, 0);
+        if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
+        err = fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth - h_off, 1e-2, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth, 1e-2, 1);
+            fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth - h_off, 1e-2, 1);
             return err;
         }
     }
@@ -761,11 +767,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     Psat = sat_p(comp, tau).f;
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
-        err = fd2(s_func, comp, P, tau, 1e-3, 1e-8, entr, 1e-2, 0);
+        err = fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(s_func, comp, P, tau, 1e-3, 1e-8, entr, 1e-2, 1);
+            fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 1);
             return err;
         }
     }
@@ -790,11 +796,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     Psat = sat_p(comp, tau).f;
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
-        err = fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte, 1e-2, 0);
+        if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
+        err = fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte - u_off, 1e-2, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte, 1e-2, 1);
+            fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte - u_off, 1e-2, 1);
             return err;
         }
     }
@@ -812,11 +819,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     enth = dat[i][test_data::h_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_hp, comp, enth, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-        fd2(memo2_tau_hp, comp, enth, P, 1e-3, 1e-8, tau, 1e-2, 1);
+        fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 1);
         return err;
     }
   }
@@ -833,11 +840,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     entr = dat[i][test_data::s_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_sp, comp, entr, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, entr  - s_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-        fd2(memo2_tau_sp, comp, entr, P, 1e-3, 1e-8, tau, 1e-2, 1);
+        fd2(memo2_tau_sp, comp, entr  - s_off, P, 1e-2, 1e-7, tau, 1e-2, 1);
         return err;
     }
   }
@@ -854,11 +861,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     inte = dat[i][test_data::u_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_up, comp, inte, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, inte  - u_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-        fd2(memo2_tau_up, comp, inte, P, 1e-3, 1e-8, tau, 1e-2, 1);
+        fd2(memo2_tau_up, comp, inte  - u_off, P, 1e-3, 1e-8, tau, 1e-2, 1);
         return err;
     }
   }
@@ -881,9 +888,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_hp, comp, enth, P, 1e-3, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_hp, comp, enth, P, 1e-3, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -906,9 +913,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_sp, comp, entr, P, 1e-3, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_sp, comp, entr, P, 1e-3, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -931,9 +938,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_up, comp, inte, P, 1e-3, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_up, comp, inte - u_off, P, 1e-2, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_up, comp, inte, P, 1e-3, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_up, comp, inte - u_off, P, 1e-2, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -951,7 +958,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
 // Check vapor fractions and other functions along sat curve
 //
 //
-uint test_sat_curve_more(uint comp, std::string comp_str){
+uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
   std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
   sort_sat(comp_str, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
   uint err = 0;
@@ -984,7 +991,8 @@ uint test_sat_curve_more(uint comp, std::string comp_str){
     }
     err = fd2(memo2_vf_hp, comp, ht, pressure, 1e-3, 1e-8, 0.5, 1e-2, 0);
     if(err){
-        std::cout << "fail" << std::endl;
+        fd2(memo2_vf_hp, comp, ht, pressure, 1e-3, 1e-8, 0.5, 1e-2, 1);
+        std::cout << "fail vfhp " << pressure << ", " << delta_l << ", " << delta_v << std::endl;
         return 1;
     }
     ht = 0.25*hl_vec.f + 0.75*hv_vec.f;

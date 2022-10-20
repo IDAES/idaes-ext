@@ -59,24 +59,27 @@ inline double K_delta(double delta, f12_struct *phi){
 
 int sat(uint comp, double tau, double *delta_l, double *delta_v){
   using boost::math::epsilon_difference;
-  double Kdiff=1, Jdiff=1, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl;
+  double Kdiff=1, Jdiff=1, Jv, Jl, Kv, Kl, det, dJv, dJl, dKv, dKl, detla_v_step, detla_l_step;
   unsigned int n=0;
   f12_struct phir_v, phir_l;
-
-  static const double tol = 1e-6;
-  static const double sat_gamma = 1.00;
-  static const unsigned int max_iter = 15;
+  double tol = 1e-12;
+  double sat_gamma = 1.00;
+  unsigned int max_iter = 10;
 
   if(tau <= tau_c(comp)){
-    // So close to the critical point assume we are at the pritical point, if
+    // So close to the critical point assume we are at the critical point, if
     // over the critical point this will also use the critical density
-    *delta_l = 1.0;
-    *delta_v = 1.0;
+    *delta_l = delta_c(comp)*(1+1e-9);
+    *delta_v = delta_c(comp)*(1-1e-9);
   }
   else{
-    // okay so you've decided to solve this thing
     *delta_l = sat_delta_l_approx(comp, tau); // DELTA_LIQ_SAT_GUESS;
     *delta_v = sat_delta_v_approx(comp, tau); // DELTA_VAP_SAT_GUESS;
+    if (tau < tau_c(comp)*1.001){
+      sat_gamma = 0.25;
+      max_iter = 20;
+      tol = 1e-10;
+    }
     while(n < max_iter){
       phir_v = phi_resi_for_sat(comp, *delta_v, tau);
       phir_l = phi_resi_for_sat(comp, *delta_l, tau);
@@ -95,11 +98,21 @@ int sat(uint comp, double tau, double *delta_l, double *delta_v){
       dKl = K_delta(*delta_l, &phir_l);
       det = dJv*dKl - dJl*dKv;
       ++n; // Count iterations
-      *delta_l += sat_gamma*(Kdiff*dJv - Jdiff*dKv)/det;
-      *delta_v += sat_gamma*(Kdiff*dJl - Jdiff*dKl)/det;
+
+      detla_l_step = sat_gamma*(Kdiff*dJv - Jdiff*dKv)/det;
+      detla_v_step = sat_gamma*(Kdiff*dJl - Jdiff*dKl)/det;
+      if(detla_l_step + *delta_l <= delta_c(comp) || detla_v_step + *delta_v >= delta_c(comp)){
+        // unfortunatly it seems these things can happen near the critical temperature
+        // the derivatives blow up and it gets really hard to solve.  This should only
+        // catch the cases right near the critical point, but it is possible that
+        // it could hide other problems
+        // std::cout << "sat curve solve stopped on out of bounds. tau = " << tau << std::endl;
+        break; // should be every close
+      }      
+      *delta_l += detla_l_step;
+      *delta_v += detla_v_step;
     }
   }
-  //std::cout << n << std::endl;
   return n;
 }
 
@@ -359,6 +372,7 @@ f12_struct sat_p(uint comp, double tau){
     res.f = nan("");
     res.f_1 = nan("");
     res.f_11 = nan("");
+    std::cout << "got tau = nan" << std::endl;
     return res;
   }
   if (tau <= tau_c(comp)){

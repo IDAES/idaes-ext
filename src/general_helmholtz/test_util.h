@@ -24,9 +24,9 @@ int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, b
 int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg);
 
 uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
-uint test_sat_curve(uint comp, std::string comp_str);
-uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set);
-uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set);
-uint test_sat_curve_more(uint comp, std::string comp_str);
+uint test_sat_curve(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
+uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
+uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
+uint test_sat_curve_more(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
 
 #endif
