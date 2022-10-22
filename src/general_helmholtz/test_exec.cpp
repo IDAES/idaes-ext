@@ -13,7 +13,7 @@
 
 
 int main(){
-    std::string comp_str("r134a");
+    std::string comp_str("r1234ze");
     uint comp = read_params(comp_str);
     int err;
 
@@ -28,19 +28,15 @@ int main(){
     double h_off = 0;
     double s_off = 0;
 
-    f22_struct res;
-    entropy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
-    std::cout << res.f << std::endl;
-    enthalpy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
-    std::cout << res.f << std::endl;
-    internal_energy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
-    std::cout << res.f << std::endl;
-    isochoric_heat_capacity2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
-    std::cout << res.f << std::endl;
-    double rd = pressure(comp, 1590.79/cdata[comp].rho_star, cdata[comp].T_star/170.0);
-    std::cout << rd << std::endl;
+    std::cout << std::endl;
+    std::cout << "Test basic r1234ze properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::mixed_set, u_off, h_off, s_off);
+    if(err){
+        exit(err);
+    }
 
-
+    /*
     std::cout << std::endl << std::endl;
 
     std::cout << std::endl;
@@ -130,6 +126,7 @@ int main(){
     if(err){
         exit(err);
     }
+    */
 
     std::cout << std::endl << std::endl;
     exit(0);

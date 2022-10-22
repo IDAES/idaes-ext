@@ -170,7 +170,6 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     
   auto start = std::chrono::high_resolution_clock::now();
   std::cout << "    P(" << comp_str << ", delta, tau) ";
-  /*
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
@@ -182,7 +181,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
       return err;
     }
 
-  }*/
+  }
   auto stop = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.

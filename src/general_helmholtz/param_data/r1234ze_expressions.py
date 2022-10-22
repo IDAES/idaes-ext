@@ -275,7 +275,7 @@ def main():
             ),
             "phir_dt": sum(
                 n[i] * t[i] * d[i] * m.delta ** (d[i] - 1) * m.tau ** (t[i] - 1)
-                for i in range(1, 6 + 1)
+                for i in range(1, 5 + 1)
             )
             + sum(
                 n[i]
