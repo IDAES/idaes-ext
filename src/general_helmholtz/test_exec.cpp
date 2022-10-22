@@ -13,20 +13,33 @@
 
 
 int main(){
-    std::string comp_str("co2");
+    std::string comp_str("r134a");
     uint comp = read_params(comp_str);
     int err;
 
-    
+    /*
+    // CO2
     double u_off = 506.778;
     double h_off = 506.778;
     double s_off = 2.738255753;
-    
-    /*
+    */
+
     double u_off = 0;
     double h_off = 0;
     double s_off = 0;
-    */
+
+    f22_struct res;
+    entropy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
+    std::cout << res.f << std::endl;
+    enthalpy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
+    std::cout << res.f << std::endl;
+    internal_energy2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
+    std::cout << res.f << std::endl;
+    isochoric_heat_capacity2(comp, 1590.7/cdata[comp].rho_star, cdata[comp].T_star/170.0, &res);
+    std::cout << res.f << std::endl;
+    double rd = pressure(comp, 1590.79/cdata[comp].rho_star, cdata[comp].T_star/170.0);
+    std::cout << rd << std::endl;
+
 
     std::cout << std::endl << std::endl;
 

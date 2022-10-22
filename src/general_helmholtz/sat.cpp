@@ -108,7 +108,7 @@ int sat(uint comp, double tau, double *delta_l, double *delta_v){
         // it could hide other problems
         // std::cout << "sat curve solve stopped on out of bounds. tau = " << tau << std::endl;
         break; // should be every close
-      }      
+      }
       *delta_l += detla_l_step;
       *delta_v += detla_v_step;
     }

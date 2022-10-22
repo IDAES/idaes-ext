@@ -170,18 +170,19 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     
   auto start = std::chrono::high_resolution_clock::now();
   std::cout << "    P(" << comp_str << ", delta, tau) ";
+  /*
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 0);
     if(err){
       std::cout << err;
-      std::cout << delta << " " << tau << " " << dat[i][test_data::P_col]*1000 << std::endl; 
+      std::cout << " density " << dat[i][test_data::rho_col] << " delta: " << delta << " tau: " << tau << " pressure: " << dat[i][test_data::P_col]*1000 << ", T= " << dat[i][test_data::T_col] <<  std::endl; 
       err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 1);
       return err;
     }
 
-  }
+  }*/
   auto stop = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
@@ -251,7 +252,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     err = fd2(memo2_isochoric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 0);
     if(err){
       std::cout << err;
-      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << std::endl;
+      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << ", T = " << dat[i][test_data::T_col] << std::endl;
       fd2(memo2_isochoric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 1);
       return err;
     }
@@ -348,7 +349,6 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
 
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    phii(" << comp_str << ", delta, tau) ";
@@ -461,7 +461,6 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
-
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    phir(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
@@ -469,6 +468,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     err = fd2(memo2_phi_resi, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
     if(err){
+      fd2(memo2_phi_resi, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 1);
       std::cout << err;
       return err;
     }
