@@ -80,6 +80,9 @@ int sat(uint comp, double tau, double *delta_l, double *delta_v){
       max_iter = 20;
       tol = 1e-10;
     }
+    //std::cout << "delta_l guess = " << *delta_l << " delta_v guess = " << *delta_v << std::endl;
+    //std::cout << "rho_l guess = " << *delta_l*cdata[comp].rhoc << " rho_v guess = " << *delta_v*cdata[comp].rhoc << std::endl;
+
     while(n < max_iter){
       phir_v = phi_resi_for_sat(comp, *delta_v, tau);
       phir_l = phi_resi_for_sat(comp, *delta_l, tau);
@@ -111,6 +114,7 @@ int sat(uint comp, double tau, double *delta_l, double *delta_v){
       }
       *delta_l += detla_l_step;
       *delta_v += detla_v_step;
+      //std::cout << n << " delta_l = " << *delta_l << " delta_v = " << *delta_v << std::endl;
     }
   }
   return n;

@@ -28,6 +28,7 @@ namespace test_data {
     mixed_set = 4, // data for phases mixed in the same file
   };
 
+
 }
 
 std::vector< std::vector<double> > read_data(std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
@@ -37,6 +38,8 @@ void sort_sat( //read sat data, and assume the rows are: liq, vap, liq vap ... a
     std::vector< std::vector<double> > *liq_ptr,
     std::vector< std::vector<double> > *vap_ptr
 );
+
+
 
 
 #endif

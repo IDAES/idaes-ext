@@ -468,6 +468,10 @@ void tau_hp2(uint comp, double ht, double pr, f22_struct *out){
     tau = tau_fail;
     std::cout << "tau(h = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
   }
+  if(isnan(tau)){
+    tau = tau_fail;
+    std::cout << "tau(h = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
+  }
   if(is_vapor) hvec = memo2_enthalpy_vapor(comp, pr, tau);
   else hvec = memo2_enthalpy_liquid(comp, pr, tau);
 
@@ -562,6 +566,10 @@ void tau_sp2(uint comp, double ht, double pr, f22_struct *out){
     tau = tau_fail;
     std::cout << "tau(s = " << ht <<  " kJ/kg/K, p = " << pr << " kPa) solve failed" << std::endl;
   }
+  if(isnan(tau)){
+    tau = tau_fail;
+    std::cout << "tau(s = " << ht <<  " kJ/kg/K, p = " << pr << " kPa) solve failed" << std::endl;
+  }
   if(is_vapor) hvec = memo2_entropy_vapor(comp, pr, tau);
   else hvec = memo2_entropy_liquid(comp, pr, tau);
 
@@ -652,6 +660,10 @@ void tau_up2(uint comp, double ht, double pr, f22_struct *out){
     else tau = halley_iterate(fghl, (tau_lo + tau_hi)/2.0, tau_lo, tau_hi, digits, h_it_max);
   }
   catch(...){
+    tau = tau_fail;
+    std::cout << "tau(u = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
+  }
+  if(isnan(tau)){
     tau = tau_fail;
     std::cout << "tau(u = " << ht <<  " kJ/kg, p = " << pr << " kPa) solve failed" << std::endl;
   }

@@ -13,121 +13,23 @@
 
 
 int main(){
-    std::string comp_str("r1234ze");
-    uint comp = read_params(comp_str);
-    int err;
+    uint comp, err;
+    std::vector<tests_struct> tests;
+    tests = read_run_tests();
 
-    /*
-    // CO2
-    double u_off = 506.778;
-    double h_off = 506.778;
-    double s_off = 2.738255753;
-    */
-
-    double u_off = 0;
-    double h_off = 0;
-    double s_off = 0;
-
-    std::cout << std::endl;
-    std::cout << "Test basic r1234ze properties" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::mixed_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
+    for (auto t = tests.begin(); t != tests.end(); ++t){
+        std::cout << t->comp_str << std::endl;
+        uint comp = read_params(t->comp_str);
+        std::cout << "Calculated critical pressure for " << t->comp_str << ": " << pressure(comp, delta_c(comp), tau_c(comp)) << std::endl;
+        if (t->test_set == "all"){
+            err = run_set_all(comp, t->comp_str, t->u_off, t->h_off, t->s_off);
+        }
+        if (t->test_set == "mixed"){
+            err = run_set_mixed(comp, t->comp_str, t->u_off, t->h_off, t->s_off);
+        }
+        if (err){
+            exit(err);
+        }
     }
-
-    /*
-    std::cout << std::endl << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "Test basic comp liquid properties" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test basic comp vapor properties" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test basic comp supercritical properties" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp sat. curve" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_sat_curve(comp, comp_str, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp liquid delta" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp vapor delta" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp supercritical delta" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp functions for state var change on liquid data" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp functions for state var change on vapor data" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp functions for state var change on sc data" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test comp two phase" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_sat_curve_more(comp, comp_str, u_off, h_off, s_off);
-    if(err){
-        exit(err);
-    }
-    */
-
-    std::cout << std::endl << std::endl;
     exit(0);
 }

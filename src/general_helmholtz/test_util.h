@@ -29,4 +29,7 @@ uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_en
 uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
 uint test_sat_curve_more(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
 
+uint run_set_all(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
+uint run_set_mixed(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
+
 #endif

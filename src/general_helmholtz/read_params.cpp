@@ -2,6 +2,7 @@
 #include<cstdlib>
 #include<math.h>
 #include"config.h"
+#include"read_params.h"
 #include<iostream>
 #include<fstream>
 #include<string>
@@ -44,6 +45,7 @@ uint read_params(std::string comp){
     std::ifstream jp_file_stream(json_file_path.str());
     if(!jp_file_stream.good()){
         std::cout << "Data file not found: " << json_file_path.str() << std::endl;
+        exit(1);
     }
     std::stringstream jp_buffer;
     jp_buffer << jp_file_stream.rdbuf();
@@ -83,10 +85,55 @@ uint read_params(std::string comp){
     std::ifstream nl_file_stream(nl_file_path.str());
     if(!nl_file_stream.good()){
         std::cout << "Data file not found: " << nl_file_path.str() << std::endl;
+        exit(1);
     }
     // Read the NL-file
     asl = ASL_alloc(ASL_read_pfgh);
     pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
     cdata[comp_idx].asl = (void*)asl;
     return comp_idx;
+}
+
+std::vector<tests_struct> read_run_tests(void){
+  std::vector<tests_struct> test_data;
+  std::ostringstream file_name_stream;
+  std::string data_path("");
+  
+  if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_TEST_DATA_PATH")){
+    data_path = env_data_path;
+  }
+  
+  file_name_stream << data_path << "run_tests.json";
+  std::cout << "Reading: "<< file_name_stream.str() << std::endl;
+  std::ifstream jp_file_stream(file_name_stream.str());
+  
+  if(!jp_file_stream.good()){
+    std::cout << "Data file not found: " << file_name_stream.str() << std::endl;
+    exit(1);
+  }
+
+  std::stringstream jp_buffer;
+  jp_buffer << jp_file_stream.rdbuf();
+
+  boost::json::value jp = boost::json::parse(jp_buffer.str());
+
+  test_data.resize(jp.as_object().size());
+  uint i = 0;
+  for (auto it=jp.as_object().cbegin(); it != jp.as_object().cend(); ++it){
+    std::cout << i << ": " << it->key() << std::endl;
+    test_data.at(i).comp_str = boost::json::value_to<std::string>(it->value().at("component"));
+    test_data.at(i).test_set = boost::json::value_to<std::string>(it->value().at("tests"));
+    if (it->value().as_object().contains("u_off")){
+        test_data.at(i).u_off = boost::json::value_to<double>(it->value().at("u_off"));
+    }
+    if (it->value().as_object().contains("h_off")){
+        test_data.at(i).h_off = boost::json::value_to<double>(it->value().at("h_off"));
+    }
+    if (it->value().as_object().contains("s_off")){
+        test_data.at(i).s_off = boost::json::value_to<double>(it->value().at("s_off"));
+    }
+    ++i;
+  }
+
+  return test_data;
 }

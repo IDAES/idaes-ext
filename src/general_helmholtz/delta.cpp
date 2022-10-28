@@ -65,12 +65,8 @@ double delta_vapor(uint comp, double pr, double tau){
   pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
 
   if(pr >= dat->Pc){ // over ciritical pressure
-    if(tau <= tau_c(comp)){ // supercritical
+    if(tau <= tau_c(comp)){ // supercritical or liquid (there is no vapor over critial pressure)
       return delta_liquid(comp, pr, tau);
-    }
-    else{ // high pressure vapor
-      delta_guess = pr/dat->R/(dat->T_star/tau)/dat->rhoc;
-      return halley_iterate(fgh, delta_guess, 1e-6, delta_c(comp) * 1.001, digits, h_it_max);
     }
   }
   if(tau <= tau_c(comp)){
@@ -83,16 +79,19 @@ double delta_vapor(uint comp, double pr, double tau){
   }
   try{
     delta_guess = pr/dat->R/(dat->T_star/tau)/dat->rhoc;
-    delta = halley_iterate(fgh, delta_guess, 1e-10, delta_sat, digits, h_it_max);
+    if(delta_guess > delta_sat){
+      delta_guess = delta_sat;
+    }
+    delta = halley_iterate(fgh, delta_guess, 1e-8, delta_sat, digits, h_it_max);
     return delta;
   }
   catch(...){
     try{ // edgy cases
-      delta_guess = pr/dat->R/(dat->T_star/tau)/dat->rhoc;
-      delta = halley_iterate(fgh, delta_guess, delta_sat, delta_sat*1.75, digits, h_it_max);
+      delta = halley_iterate(fgh, delta_sat, delta_sat*0.75, delta_sat*1.25, digits, h_it_max);
       return delta;
     }
     catch(...){
+      delta = delta_guess;
       std::cout << "delta_vapor(p, t) solve failed" << std::endl;
       std::cout << "res: " << std::get<0>(fgh(delta)) << " delta: " << delta;
       std::cout << " delta_guess: " << delta_guess << " delta_sat " << delta_sat;
@@ -110,11 +109,20 @@ double delta_liquid(uint comp, double pr, double tau){
 
   using namespace boost::math::tools;
   std::uintmax_t h_it_max=40;
-  int digits = std::numeric_limits<double>::digits - 4;
+  int digits = std::numeric_limits<double>::digits - 2;
   pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
 
   if(pr >= dat->Pc && tau <= tau_c(comp)){ // super critical
-    return halley_iterate(fgh, delta_c(comp), 1e-7, dat->rho_max/dat->rho_star, digits, h_it_max);
+    try{
+      delta = halley_iterate(fgh, dat->rho_max/dat->rho_star*0.99, 1e-7, dat->rho_max/dat->rho_star, digits, h_it_max);
+      return delta;
+    }
+    catch(...){
+      delta = delta_c(comp);
+      std::cout << "delta_liquid(p, t) solve failed in supercritical region" << std::endl;
+      std::cout << "res: " << std::get<0>(fgh(delta)) << " delta: " << delta << " tau: " << tau << " p:" << pr << std::endl;
+      return delta;
+    }
   }
   if(tau <= tau_c(comp)){
     delta_sat = delta_c(comp);

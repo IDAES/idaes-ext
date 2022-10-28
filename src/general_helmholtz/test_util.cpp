@@ -180,13 +180,11 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
       err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 1);
       return err;
     }
-
   }
   auto stop = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    S(" << comp_str << ", delta, tau) ";
   for(i=0; i<dat.size(); ++i){
@@ -208,16 +206,19 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
 
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    H(" << comp_str << ", delta, tau) ";
+
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     err = fd2(memo2_enthalpy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
     if(err){
       std::cout << err;
+      std::cout << " density " << dat[i][test_data::rho_col] << " delta: " << delta << " tau: " << tau << " pressure: " << dat[i][test_data::P_col]*1000 << ", T= " << dat[i][test_data::T_col] <<  std::endl; 
+      err = fd2(memo2_enthalpy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 1);
       return err;
     }
-
   }
+
   stop = std::chrono::high_resolution_clock::now();
   duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
@@ -769,7 +770,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
         err = fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 0);
         if(err){
             std::cout << err;
-            std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
+            std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << " tau = " << tau << std::endl;
             fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 1);
             return err;
         }
@@ -821,7 +822,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     err = fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
-        std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
+        std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << " tau = " << tau << std::endl;
         fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 1);
         return err;
     }
@@ -1081,6 +1082,114 @@ uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h
     }
   }
   std::cout << "passed" << std::endl;
+  return 0;
+}
+
+uint run_set_mixed(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+    uint err = 0;
+
+    std::cout << std::endl;
+    std::cout << "Test basic " << comp_str << " mixed properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::mixed_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    return 0;
+}
+
+uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+    uint err = 0;
+
+    std::cout << std::endl;
+    std::cout << "Test basic " << comp_str << " vapor properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test basic " << comp_str << " supercritical properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test basic " << comp_str << " liquid properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " sat. curve" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_sat_curve(comp, comp_str, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " liquid delta" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_delta_function(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " vapor delta" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_delta_function(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " supercritical delta" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_delta_function(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " functions for state var change on liquid data" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_state(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    if(err){
+       return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " functions for state var change on vapor data" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_state(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " functions for state var change on sc data" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_state(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
+    std::cout << "Test " << comp_str << " two phase" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_sat_curve_more(comp, comp_str, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
   return 0;
 }
 
