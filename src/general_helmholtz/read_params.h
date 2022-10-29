@@ -14,7 +14,7 @@ struct tests_struct{
     std::string test_set;
 };
 
-uint read_params(std::string comp);
+uint read_params(std::string comp, std::string data_path="");
 std::vector<tests_struct> read_run_tests(void);
 
 #endif

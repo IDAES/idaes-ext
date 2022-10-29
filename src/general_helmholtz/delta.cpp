@@ -82,7 +82,7 @@ double delta_vapor(uint comp, double pr, double tau){
     if(delta_guess > delta_sat){
       delta_guess = delta_sat;
     }
-    delta = halley_iterate(fgh, delta_guess, 1e-8, delta_sat, digits, h_it_max);
+    delta = halley_iterate(fgh, delta_guess, 1e-12, delta_sat, digits, h_it_max);
     return delta;
   }
   catch(...){

@@ -15,8 +15,6 @@ export IDAES_EXT=`pwd`
 
 # Run this after solvers are compiled, uses the ASL header from solver build
 export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
-export ADOLC_INC=$IDAES_EXT/coinbrew/dist/include
-export ADOLC_LIB=$IDAES_EXT/coinbrew/dist/lib64
 
 # Compile IDAES function libraries
 cd $IDAES_EXT/src
@@ -37,6 +35,8 @@ cd dist-lib
 cp ../src/dist/*.so ./
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
+mkdir ./helm_data
+cp ../src/general_helmholtz/param_data/* ./helm_data/
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
 mv tmp2 version_lib.txt

@@ -11,20 +11,21 @@
 std::unordered_map<std::string, uint> cindex;
 std::vector<parameters_struct> cdata;
 
-uint read_params(std::string comp){
+uint read_params(std::string comp, std::string data_path){
     try{
         return cindex.at(comp);
     }
     catch(std::out_of_range const&){
     } // not read yet
     ASL *asl;
-    std::ostringstream nl_file_path, json_file_path;
-    std::string data_path("");
+    std::ostringstream nl_file_path, json_file_path, except_string;
 
-    if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
-        data_path = env_data_path;
+    if(data_path == ""){
+        if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
+            data_path = env_data_path;
+        }
     }
-
+    
     // IDAES component naming standards are not clear on case.  I'll assume you
     // won't have two different components whoes name differs only by case. Some
     // file systems aren't case sensitive anyway.  This setup requires the file
@@ -44,8 +45,9 @@ uint read_params(std::string comp){
     // Read the json parameter file
     std::ifstream jp_file_stream(json_file_path.str());
     if(!jp_file_stream.good()){
-        std::cout << "Data file not found: " << json_file_path.str() << std::endl;
-        exit(1);
+        except_string << "Data file not found: " << json_file_path.str();
+        std::cout << except_string.str() << std::endl;
+        return MISSING_DATA;
     }
     std::stringstream jp_buffer;
     jp_buffer << jp_file_stream.rdbuf();
@@ -84,8 +86,9 @@ uint read_params(std::string comp){
     std::string nl_file_string = nl_file_path.str();
     std::ifstream nl_file_stream(nl_file_path.str());
     if(!nl_file_stream.good()){
-        std::cout << "Data file not found: " << nl_file_path.str() << std::endl;
-        exit(1);
+        except_string << "Data file not found: " << nl_file_path.str();
+        std::cout << except_string.str() << std::endl;
+        return MISSING_DATA;
     }
     // Read the NL-file
     asl = ASL_alloc(ASL_read_pfgh);
@@ -96,7 +99,7 @@ uint read_params(std::string comp){
 
 std::vector<tests_struct> read_run_tests(void){
   std::vector<tests_struct> test_data;
-  std::ostringstream file_name_stream;
+  std::ostringstream file_name_stream, except_string;
   std::string data_path("");
   
   if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_TEST_DATA_PATH")){
@@ -108,8 +111,9 @@ std::vector<tests_struct> read_run_tests(void){
   std::ifstream jp_file_stream(file_name_stream.str());
   
   if(!jp_file_stream.good()){
-    std::cout << "Data file not found: " << file_name_stream.str() << std::endl;
-    exit(1);
+    except_string << "Data file not found: " << file_name_stream.str();
+    std::cout << except_string.str() << std::endl;
+    throw std::runtime_error(except_string.str());
   }
 
   std::stringstream jp_buffer;

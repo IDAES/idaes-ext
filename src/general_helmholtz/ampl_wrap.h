@@ -38,8 +38,22 @@
 #define ASL_WRAP_FUNC_2ARG(new_func, calc_func) \
 double new_func(arglist *al){ \
   f22_struct out; \
-  uint comp = read_params(al->sa[0]); \
-  out = calc_func(comp, al->ra[0], al->ra[1]); \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    out.f = nan("missing data"); \
+    out.f_1 = nan("missing data"); \
+     out.f_2 = nan("missing data"); \
+    out.f_11 = nan("missing data"); \
+    out.f_12 = nan("missing data"); \
+    out.f_22 = nan("missing data"); \
+  } \
+  else{ \
+    out = calc_func(comp, al->ra[0], al->ra[1]); \
+  } \
   if(al->derivs != NULL){ \
     al->derivs[0] = out.f_1; \
     al->derivs[1] = out.f_2; \
@@ -55,8 +69,19 @@ double new_func(arglist *al){ \
 #define ASL_WRAP_FUNC_1ARG(new_func, calc_func) \
 double new_func(arglist *al){ \
   f12_struct out; \
-  uint comp = read_params(al->sa[0]); \
-  out = calc_func(comp, al->ra[0]); \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    out.f = nan("missing data"); \
+    out.f_1 = nan("missing data"); \
+    out.f_11 = nan("missing data"); \
+  } \
+  else{ \
+    out = calc_func(comp, al->ra[0]); \
+  } \
   if(al->derivs != NULL){ \
     al->derivs[0] = out.f_1; \
   } \
@@ -68,7 +93,14 @@ double new_func(arglist *al){ \
 
 #define ASL_WRAP_FUNC_0ARG(new_func, parameter) \
 double new_func(arglist *al){ \
-  uint comp = read_params(al->sa[0]); \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    return nan("missing data"); \
+  } \
   return cdata[comp].parameter; \
 }
 

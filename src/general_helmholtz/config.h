@@ -21,6 +21,7 @@
 #include<vector>
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
+#include<climits>
 
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_
@@ -135,6 +136,7 @@ struct parameters_struct {
 };
 
 // AMPL models for a component
+const uint MISSING_DATA = UINT_MAX;
 extern std::unordered_map<std::string, uint> cindex;
 extern std::vector<parameters_struct> cdata;
 

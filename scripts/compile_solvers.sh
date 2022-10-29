@@ -410,32 +410,6 @@ if [ ${osname} = "darwin" ]; then
 fi
 
 echo "#########################################################################"
-echo "# ADOL-C                                                                #"
-echo "#########################################################################"
-# Compile ADOL-C
-cd $IDAES_EXT/coinbrew
-rm -rf adolc
-git clone https://github.com/coin-or/ADOL-C adolc
-cd $IDAES_EXT/coinbrew/adolc
-if [ ${osname} = "windows" ]
-then
-  ./configure --prefix=$IDAES_EXT/coinbrew/dist --with-boost-libdir=/mingw64/lib/
-else
-  ./configure --prefix=$IDAES_EXT/coinbrew/dist
-fi
-make
-make check
-make install
-
-if [ ${osname} = "windows" ]; then
-  cp ./ADOL-C/.libs/libadol*.dll $IDAES_EXT/coinbrew/dist/lib64/
-fi
-
-cd $IDAES_EXT/dist-solvers/
-cp $IDAES_EXT/coinbrew/dist/lib64/libadolc* ./
-
-
-echo "#########################################################################"
 echo "# Pynumero                                                              #"
 echo "#########################################################################"
 
