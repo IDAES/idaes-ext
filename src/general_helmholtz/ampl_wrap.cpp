@@ -69,21 +69,21 @@ ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, pr
 ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, pressure) [none]
 
 // Some parameters to make it easier to sync Pyomo parameters with external functions
-ASL_WRAP_FUNC_0ARG(mw, param::mw)          // Critical Pressure     [g/mol]
-ASL_WRAP_FUNC_0ARG(t_star, param::T_star)  // Temperature to calculate tau [K]
-ASL_WRAP_FUNC_0ARG(rho_star, param::rho_star) // Desity to calculate delta [kg/m^3]
-ASL_WRAP_FUNC_0ARG(pc, param::Pc)          // Critical Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tc, param::Tc)          // Critical Temperature  [K]
-ASL_WRAP_FUNC_0ARG(rhoc, param::rhoc)      // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(pt, param::Pt)          // Critical Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tt, param::Tt)          // Critical Temperature  [K]
-ASL_WRAP_FUNC_0ARG(rhot_v, param::rhot_v)  // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(rhot_l, param::rhot_l)  // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(sgc, param::R)          // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
-ASL_WRAP_FUNC_0ARG(pmin, param::P_min)     // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmin, param::T_min)     // Minumum Temperature  [K]
-ASL_WRAP_FUNC_0ARG(pmax, param::P_max)     // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmax, param::T_max)     // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(mw, MW)          // Critical Pressure     [g/mol]
+ASL_WRAP_FUNC_0ARG(t_star, T_star)  // Temperature to calculate tau [K]
+ASL_WRAP_FUNC_0ARG(rho_star, rho_star) // Desity to calculate delta [kg/m^3]
+ASL_WRAP_FUNC_0ARG(pc, Pc)          // Critical Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tc, Tc)          // Critical Temperature  [K]
+ASL_WRAP_FUNC_0ARG(rhoc, rhoc)      // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(pt, Pt)          // Critical Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tt, Tt)          // Critical Temperature  [K]
+ASL_WRAP_FUNC_0ARG(rhot_v, rhot_v)  // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(rhot_l, rhot_l)  // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(sgc, R)          // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
+ASL_WRAP_FUNC_0ARG(pmin, P_min)     // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmin, T_min)     // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(pmax, P_max)     // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmax, T_max)     // Minumum Temperature  [K]
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -93,64 +93,64 @@ void funcadd(AmplExports *ae){
      * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info */
     int typ = FUNCADD_REAL_VALUED | FUNCADD_STRING_ARGS;
-    addfunc("p", (rfunc)p, typ, 3, NULL);
-    addfunc("u", (rfunc)u, typ, 3, NULL);
-    addfunc("s", (rfunc)s, typ, 3, NULL);
-    addfunc("h", (rfunc)h, typ, 3, NULL);
-    addfunc("g", (rfunc)g, typ, 3, NULL);
-    addfunc("f", (rfunc)f, typ, 3, NULL);
-    addfunc("cv", (rfunc)cv, typ, 3, NULL);
-    addfunc("cp", (rfunc)cp, typ, 3, NULL);
-    addfunc("w", (rfunc)w, typ, 3, NULL);
+    addfunc("p", (rfunc)p, typ, -4, NULL);
+    addfunc("u", (rfunc)u, typ, -4, NULL);
+    addfunc("s", (rfunc)s, typ, -4, NULL);
+    addfunc("h", (rfunc)h, typ, -4, NULL);
+    addfunc("g", (rfunc)g, typ, -4, NULL);
+    addfunc("f", (rfunc)f, typ, -4, NULL);
+    addfunc("cv", (rfunc)cv, typ, -4, NULL);
+    addfunc("cp", (rfunc)cp, typ, -4, NULL);
+    addfunc("w", (rfunc)w, typ, -4, NULL);
     /*
     addfunc("w", (rfunc)w, typ, 2, NULL);
     */
-    addfunc("hvpt", (rfunc)hvpt, typ, 3, NULL);
-    addfunc("hlpt", (rfunc)hlpt, typ, 3, NULL);
-    addfunc("svpt", (rfunc)svpt, typ, 3, NULL);
-    addfunc("slpt", (rfunc)slpt, typ, 3, NULL);
-    addfunc("uvpt", (rfunc)uvpt, typ, 3, NULL);
-    addfunc("ulpt", (rfunc)ulpt, typ, 3, NULL);
-    addfunc("tau", (rfunc)tau, typ, 3, NULL);
-    addfunc("taus", (rfunc)taus, typ, 3, NULL);
-    addfunc("tauu", (rfunc)tauu, typ, 3, NULL);
-    addfunc("vf", (rfunc)vf, typ, 3, NULL);
-    addfunc("vfs", (rfunc)vfs, typ, 3, NULL);
-    addfunc("vfu", (rfunc)vfu, typ, 3, NULL);
-    addfunc("delta_liq", (rfunc)delta_liq, typ, 3, NULL);
-    addfunc("delta_vap", (rfunc)delta_vap, typ, 3, NULL);
+    addfunc("hvpt", (rfunc)hvpt, typ, -4, NULL);
+    addfunc("hlpt", (rfunc)hlpt, typ, -4, NULL);
+    addfunc("svpt", (rfunc)svpt, typ, -4, NULL);
+    addfunc("slpt", (rfunc)slpt, typ, -4, NULL);
+    addfunc("uvpt", (rfunc)uvpt, typ, -4, NULL);
+    addfunc("ulpt", (rfunc)ulpt, typ, -4, NULL);
+    addfunc("tau", (rfunc)tau, typ, -4, NULL);
+    addfunc("taus", (rfunc)taus, typ, -4, NULL);
+    addfunc("tauu", (rfunc)tauu, typ, -4, NULL);
+    addfunc("vf", (rfunc)vf, typ, -4, NULL);
+    addfunc("vfs", (rfunc)vfs, typ, -4, NULL);
+    addfunc("vfu", (rfunc)vfu, typ, -4, NULL);
+    addfunc("delta_liq", (rfunc)delta_liq, typ, -4, NULL);
+    addfunc("delta_vap", (rfunc)delta_vap, typ, -4, NULL);
     // phi and derivatives for calculating more thermo properties.
-    addfunc("phi0", (rfunc)phi0, typ, 3, NULL);
-    addfunc("phir", (rfunc)phir, typ, 3, NULL);
-    addfunc("phi0_d", (rfunc)phi0_d, typ, 3, NULL);
-    addfunc("phir_d", (rfunc)phir_d, typ, 3, NULL);
-    addfunc("phi0_t", (rfunc)phi0_t, typ, 3, NULL);
-    addfunc("phir_t", (rfunc)phir_t, typ, 3, NULL);
-    addfunc("phi0_dd", (rfunc)phi0_dd, typ, 3, NULL);
-    addfunc("phir_dd", (rfunc)phir_dd, typ, 3, NULL);
-    addfunc("phi0_dt", (rfunc)phi0_dt, typ, 3, NULL);
-    addfunc("phir_dt", (rfunc)phir_dt, typ, 3, NULL);
-    addfunc("phi0_tt", (rfunc)phi0_tt, typ, 3, NULL);
-    addfunc("phir_tt", (rfunc)phir_tt, typ, 3, NULL);
+    addfunc("phi0", (rfunc)phi0, typ, -4, NULL);
+    addfunc("phir", (rfunc)phir, typ, -4, NULL);
+    addfunc("phi0_d", (rfunc)phi0_d, typ, -4, NULL);
+    addfunc("phir_d", (rfunc)phir_d, typ, -4, NULL);
+    addfunc("phi0_t", (rfunc)phi0_t, typ, -4, NULL);
+    addfunc("phir_t", (rfunc)phir_t, typ, -4, NULL);
+    addfunc("phi0_dd", (rfunc)phi0_dd, typ, -4, NULL);
+    addfunc("phir_dd", (rfunc)phir_dd, typ, -4, NULL);
+    addfunc("phi0_dt", (rfunc)phi0_dt, typ, -4, NULL);
+    addfunc("phir_dt", (rfunc)phir_dt, typ, -4, NULL);
+    addfunc("phi0_tt", (rfunc)phi0_tt, typ, -4, NULL);
+    addfunc("phir_tt", (rfunc)phir_tt, typ, -4, NULL);
     // Unary functions for sat curve
-    addfunc("delta_sat_l", (rfunc)delta_sat_l, typ, 2, NULL);
-    addfunc("delta_sat_v", (rfunc)delta_sat_v, typ, 2, NULL);
-    addfunc("p_sat", (rfunc)p_sat, typ, 2, NULL);
-    addfunc("tau_sat", (rfunc)tau_sat, typ, 2, NULL);
+    addfunc("delta_sat_l", (rfunc)delta_sat_l, typ, -3, NULL);
+    addfunc("delta_sat_v", (rfunc)delta_sat_v, typ, -3, NULL);
+    addfunc("p_sat", (rfunc)p_sat, typ, -3, NULL);
+    addfunc("tau_sat", (rfunc)tau_sat, typ, -3, NULL);
     // Parameters
-    addfunc("mw", (rfunc)mw, typ, 1, NULL);
-    addfunc("t_star", (rfunc)t_star, typ, 1, NULL);
-    addfunc("rho_star", (rfunc)rho_star, typ, 1, NULL);
-    addfunc("pc", (rfunc)pc, typ, 1, NULL);
-    addfunc("tc", (rfunc)tc, typ, 1, NULL);
-    addfunc("rhoc", (rfunc)rhoc, typ, 1, NULL);
-    addfunc("pt", (rfunc)pt, typ, 1, NULL);
-    addfunc("tt", (rfunc)tt, typ, 1, NULL);
-    addfunc("rhot_v", (rfunc)rhot_l, typ, 1, NULL);
-    addfunc("rhot_l", (rfunc)rhot_v, typ, 1, NULL);
-    addfunc("sgc", (rfunc)sgc, typ, 1, NULL);
-    addfunc("pmin", (rfunc)pmin, typ, 1, NULL);
-    addfunc("tmin", (rfunc)tmin, typ, 1, NULL);
-    addfunc("pmax", (rfunc)pmax, typ, 1, NULL);
-    addfunc("tmax", (rfunc)tmax, typ, 1, NULL);
+    addfunc("mw", (rfunc)mw, typ, -2, NULL);
+    addfunc("t_star", (rfunc)t_star, typ, -2, NULL);
+    addfunc("rho_star", (rfunc)rho_star, typ, -2, NULL);
+    addfunc("pc", (rfunc)pc, typ, -2, NULL);
+    addfunc("tc", (rfunc)tc, typ, -2, NULL);
+    addfunc("rhoc", (rfunc)rhoc, typ, -2, NULL);
+    addfunc("pt", (rfunc)pt, typ, -2, NULL);
+    addfunc("tt", (rfunc)tt, typ, -2, NULL);
+    addfunc("rhot_v", (rfunc)rhot_l, typ, -2, NULL);
+    addfunc("rhot_l", (rfunc)rhot_v, typ, -2, NULL);
+    addfunc("sgc", (rfunc)sgc, typ, -2, NULL);
+    addfunc("pmin", (rfunc)pmin, typ, -2, NULL);
+    addfunc("tmin", (rfunc)tmin, typ, -2, NULL);
+    addfunc("pmax", (rfunc)pmax, typ, -2, NULL);
+    addfunc("tmax", (rfunc)tmax, typ, -2, NULL);
 }

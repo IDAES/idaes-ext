@@ -21,6 +21,8 @@
 #ifndef _AMPL_WRAP_H_
 #define _AMPL_WRAP_H_
 
+#include "read_params.h"
+#include "config.h"
 #include <funcadd.h>
 
 #undef getenv
@@ -35,36 +37,71 @@
 
 #define ASL_WRAP_FUNC_2ARG(new_func, calc_func) \
 double new_func(arglist *al){ \
-  std::vector<double> *out; \
-  out = calc_func(comp_string_table[al->sa[0]], al->ra[0], al->ra[1]); \
+  f22_struct out; \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    out.f = nan("missing data"); \
+    out.f_1 = nan("missing data"); \
+     out.f_2 = nan("missing data"); \
+    out.f_11 = nan("missing data"); \
+    out.f_12 = nan("missing data"); \
+    out.f_22 = nan("missing data"); \
+  } \
+  else{ \
+    out = calc_func(comp, al->ra[0], al->ra[1]); \
+  } \
   if(al->derivs != NULL){ \
-    al->derivs[0] = out->at(f2_1); \
-    al->derivs[1] = out->at(f2_2); \
+    al->derivs[0] = out.f_1; \
+    al->derivs[1] = out.f_2; \
   } \
   if(al->hes != NULL){ \
-    al->hes[0] = out->at(f2_11); \
-    al->hes[1] = out->at(f2_12); \
-    al->hes[2] = out->at(f2_22); \
+    al->hes[0] = out.f_11; \
+    al->hes[1] = out.f_12; \
+    al->hes[2] = out.f_22; \
   } \
-  return out->at(0); \
+  return out.f; \
 }
 
 #define ASL_WRAP_FUNC_1ARG(new_func, calc_func) \
 double new_func(arglist *al){ \
-  std::vector<double> *out; \
-  out = calc_func(comp_string_table[al->sa[0]], al->ra[0]); \
+  f12_struct out; \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    out.f = nan("missing data"); \
+    out.f_1 = nan("missing data"); \
+    out.f_11 = nan("missing data"); \
+  } \
+  else{ \
+    out = calc_func(comp, al->ra[0]); \
+  } \
   if(al->derivs != NULL){ \
-    al->derivs[0] = out->at(1); \
+    al->derivs[0] = out.f_1; \
   } \
   if(al->hes != NULL){ \
-    al->hes[0] = out->at(2); \
+    al->hes[0] = out.f_11; \
   } \
-  return out->at(0); \
+  return out.f; \
 }
 
 #define ASL_WRAP_FUNC_0ARG(new_func, parameter) \
 double new_func(arglist *al){ \
-  return parameter[comp_string_table[al->sa[0]]]; \
+  std::string data_path(""); \
+  if (al->n - al->nr > 1){ \
+    data_path.assign(al->sa[1]); \
+  } \
+  uint comp = read_params(al->sa[0], data_path); \
+  if (comp==MISSING_DATA){ \
+    return nan("missing data"); \
+  } \
+  return cdata[comp].parameter; \
 }
 
 #endif

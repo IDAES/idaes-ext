@@ -1,18 +1,11 @@
 # This contains variables for Makefiles.  The defaults should usually work on
 # Linux, but this may need edited if you are using other compilers.
 
-# ASL is the location of the ASL build.  By default it is set from the
-# ASL_BUILD environment variable, but you can set it directly here.
-# You can get the ASL from here https://ampl.com/netlib/ampl/solvers.tgz, and
-# documentation is https://ampl.com/resources/hooking-your-solver-to-ampl/.
-# Usually unpacking the ASL files in a convenient location then running:
-# > ./configure
-# > make
-# in that directory would generate a subdirectory called something like
-# "sys.x86_64.Linux." The exact name would depend on your system. This is the
-# directory ASL (or the ASL_BUILD environment variable should be set to).
+# ASL is the location of the ASL build header files. ASL_LIB is the location of
+# the ASL library files.
 
-ASL=$(ASL_BUILD)
+ASL=$(ASL_HEADERS)
+ASL_LIB=$(ASL_LIBRARIES)
 
 # BOOST is a extra location to look for header files.  Depending on how BOOST is
 # obtained the header files may not be in the default search path. This variable
@@ -34,9 +27,9 @@ MKDIR = mkdir
 LINK = g++
 
 ifeq ($(ASL),)
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC
+    CFLAGS = -Wall -Wextra -O2 -static -fPIC
 else
-    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL)
+    CFLAGS = -Wall -Wextra -O2 -static -fPIC -I$(ASL)
 endif
 
 LDFLAGS = -shared

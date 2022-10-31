@@ -2,6 +2,7 @@ include ../Makefile.in
 
 #BOOST=/opt/homebrew/include
 #ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
@@ -12,45 +13,19 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-#ADOLC_INC = /Users/john/src/idaes-ext-build/coinbrew/dist/include
-#ADOLC_LIB = /Users/john/src/idaes-ext-build/coinbrew/dist/lib64
-#ADOLC_INC = /home/johne/local/include
-#ADOLC_LIB = /home/johne/local/lib64
-
-OBJECTS = phi.o props.o sat.o solver.o delta.o state.o ampl_wrap.o \
-	h2o.o r1234ze.o co2.o r134a.o
+OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o ampl_wrap.o
 .PHONY: clean
 
-ALL: general_helmholtz_external.so
+ALL: general_helmholtz_external.so test_exec
 
-run_test:
-	./general_helmholtz_testing
+test: test_exec
+	./test_exec
 
-test: read_data.o testing.o general_helmholtz_external.so general_helmholtz_testing run_test
-
-h2o.o: components/h2o.cpp
-	  $(CXX) $(CXXFLAGS) components/h2o.cpp -o h2o.o -I$(ADOLC_INC)
-
-r1234ze.o: components/r1234ze.cpp
-	  $(CXX) $(CXXFLAGS) components/r1234ze.cpp -o r1234ze.o -I$(ADOLC_INC)
-
-co2.o: components/co2.cpp
-	  $(CXX) $(CXXFLAGS) components/co2.cpp -o co2.o -I$(ADOLC_INC)
-
-r134a.o: components/r134a.cpp
-	  $(CXX) $(CXXFLAGS) components/r134a.cpp -o r134a.o -I$(ADOLC_INC)
+read_params.o: read_params.cpp
+	  $(CXX) $(CXXFLAGS) read_params.cpp -o read_params.o -I$(ASL)
 
 phi.o: phi.cpp
-	  $(CXX) $(CXXFLAGS) phi.cpp -o phi.o -I$(ADOLC_INC)
-
-solver.o: solver.cpp
-	  $(CXX) $(CXXFLAGS) solver.cpp -o solver.o
-
-state.o: state.cpp
-	  $(CXX) $(CXXFLAGS) state.cpp -o state.o
-
-delta.o: delta.cpp
-	  $(CXX) $(CXXFLAGS) delta.cpp -o delta.o
+	  $(CXX) $(CXXFLAGS) phi.cpp -o phi.o -I$(ASL)
 
 props.o: props.cpp
 	  $(CXX) $(CXXFLAGS) props.cpp -o props.o
@@ -58,22 +33,32 @@ props.o: props.cpp
 sat.o: sat.cpp
 	  $(CXX) $(CXXFLAGS) sat.cpp -o sat.o
 
+delta.o: delta.cpp
+	  $(CXX) $(CXXFLAGS) delta.cpp -o delta.o
+
+state.o: state.cpp
+	  $(CXX) $(CXXFLAGS) state.cpp -o state.o
+
+read_data.o: read_data.cpp
+	$(CXX) $(CXXFLAGS) read_data.cpp -o read_data.o
+
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)
 
-read_data.o: test_data/read_data.cpp
-	$(CXX) $(CXXFLAGS) test_data/read_data.cpp -o read_data.o
+test_util.o: test_util.cpp
+	  $(CXX) $(CXXFLAGS) test_util.cpp -o test_util.o
 
-testing.o: testing.cpp
-	  $(CXX) $(CXXFLAGS) testing.cpp -o testing.o
+test_exec.o: test_exec.cpp
+	  $(CXX) $(CXXFLAGS) test_exec.cpp -o test_exec.o 
 
-general_helmholtz_testing: $(OBJECTS)
-	  $(LINK) $(OBJECTS) read_data.o testing.o -o general_helmholtz_testing -ladolc -L$(ADOLC_LIB)
+test_exec: $(OBJECTS) read_data.o test_exec.o test_util.o
+	  $(LINK) $(OBJECTS) read_data.o test_exec.o test_util.o -o test_exec -lcoinasl -L$(ASL_LIB)
 
 general_helmholtz_external.so: $(OBJECTS)
-	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -ladolc -L$(ADOLC_LIB)
+	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -lcoinasl -L$(ASL_LIB)
 
 clean:
 	rm -f *.o
 	rm -f *.so
-	rm -f general_helmholtz_testing
+	rm -f test_exec
+	rm -f test_exec.exe

@@ -33,34 +33,34 @@ The general method for changing state varaibles is (first step is here):
 #ifndef _INCLUDE_STATE_H_
 #define _INCLUDE_STATE_H_
 
-void enthalpy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void entropy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void internal_energy_vapor2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void enthalpy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void entropy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out);
-void internal_energy_liquid2(comp_enum comp, double pr, double tau, std::vector<double> *out);
+void enthalpy_vapor2(uint comp, double pr, double tau, f22_struct *out);
+void entropy_vapor2(uint comp, double pr, double tau, f22_struct *out);
+void internal_energy_vapor2(uint comp, double pr, double tau, f22_struct *out);
+void enthalpy_liquid2(uint comp, double pr, double tau, f22_struct *out);
+void entropy_liquid2(uint comp, double pr, double tau, f22_struct *out);
+void internal_energy_liquid2(uint comp, double pr, double tau, f22_struct *out);
 
-std::vector<double> *memo2_enthalpy_vapor(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_entropy_vapor(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_internal_energy_vapor(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_enthalpy_liquid(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_entropy_liquid(comp_enum comp, double pr, double tau);
-std::vector<double> *memo2_internal_energy_liquid(comp_enum comp, double pr, double tau);
+f22_struct memo2_enthalpy_vapor(uint comp, double pr, double tau);
+f22_struct memo2_entropy_vapor(uint comp, double pr, double tau);
+f22_struct memo2_internal_energy_vapor(uint comp, double pr, double tau);
+f22_struct memo2_enthalpy_liquid(uint comp, double pr, double tau);
+f22_struct memo2_entropy_liquid(uint comp, double pr, double tau);
+f22_struct memo2_internal_energy_liquid(uint comp, double pr, double tau);
 
-void tau_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out);
-void tau_sp2(comp_enum comp, double st, double pr, std::vector<double> *out);
-void tau_up2(comp_enum comp, double ut, double pr, std::vector<double> *out);
+void tau_hp2(uint comp, double ht, double pr, f22_struct *out);
+void tau_sp2(uint comp, double st, double pr, f22_struct *out);
+void tau_up2(uint comp, double ut, double pr, f22_struct *out);
 
-std::vector<double> *memo2_tau_hp(comp_enum comp, double ht, double pr);
-std::vector<double> *memo2_tau_sp(comp_enum comp, double st, double pr);
-std::vector<double> *memo2_tau_up(comp_enum comp, double ut, double pr);
+f22_struct memo2_tau_hp(uint comp, double ht, double pr);
+f22_struct memo2_tau_sp(uint comp, double st, double pr);
+f22_struct memo2_tau_up(uint comp, double ut, double pr);
 
-void vf_hp2(comp_enum comp, double ht, double pr, std::vector<double> *out);
-void vf_sp2(comp_enum comp, double ht, double pr, std::vector<double> *out);
-void vf_up2(comp_enum comp, double ht, double pr, std::vector<double> *out);
+void vf_hp2(uint comp, double ht, double pr, f22_struct *out);
+void vf_sp2(uint comp, double ht, double pr, f22_struct *out);
+void vf_up2(uint comp, double ht, double pr, f22_struct *out);
 
-std::vector<double> *memo2_vf_hp(comp_enum comp, double ht, double pr);
-std::vector<double> *memo2_vf_sp(comp_enum comp, double ht, double pr);
-std::vector<double> *memo2_vf_up(comp_enum comp, double ht, double pr);
+f22_struct memo2_vf_hp(uint comp, double ht, double pr);
+f22_struct memo2_vf_sp(uint comp, double ht, double pr);
+f22_struct memo2_vf_up(uint comp, double ht, double pr);
 
 #endif
