@@ -49,8 +49,8 @@ cd coinbrew
 
 if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  export CC="gcc-11"
-  export CXX="g++-11"
+  export CC="gcc-12"
+  export CXX="g++-12"
 else
   wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
@@ -403,10 +403,10 @@ fi
 
 if [ ${osname} = "darwin" ]; then
     # some libraries from homebrew
-    cp /opt/homebrew/opt/gcc/lib/gcc/11/libgfortran.5.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/11/libgcc_s.1.1.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/11/libstdc++.6.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/11/libgomp.1.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgfortran.5.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgcc_s.1.1.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/12/libstdc++.6.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgomp.1.dylib ./
 fi
 
 echo "#########################################################################"
