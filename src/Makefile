@@ -1,9 +1,9 @@
 # Make it slightly easier to compile external functions and build docs
-#   The external functions all require the ASL, so set the ASL_BUILD environment
+#   The external functions all require the ASL, so set the ASL_HEADERS environment
 #   variable to point to the ASL build and this should be good to go.
 include Makefile.in
 
-ALL: general_hemlholtz iapws95 swco2 cubic functions dist
+ALL: general_hemlholtz cubic functions dist
 
 .PHONY: iapws95 iapws95_clean
 
@@ -13,19 +13,6 @@ general_hemlholtz:
 
 general_hemlholtz_clean:
 	$(MAKE) -C ./general_helmholtz clean
-
-iapws95:
-	$(MAKE) -C ./helmholtz/iapws95
-
-iapws95_clean:
-	$(MAKE) -C ./helmholtz/iapws95 clean
-
-.PHONY: swco2 swco2_clean
-swco2:
-	$(MAKE) -C ./helmholtz/swco2
-
-swco2_clean:
-	$(MAKE) -C ./helmholtz/swco2 clean
 
 .PHONY: cubic
 cubic:
@@ -45,9 +32,12 @@ functions_clean:
 dist:
 	$(RM) -rf dist
 	$(MKDIR) dist/
+	$(MKDIR) dist/param_data
 	$(CP) general_helmholtz/*.so dist/
-	$(CP) helmholtz/iapws95/*.so dist/
-	$(CP) helmholtz/swco2/*.so dist/
+	$(CP) general_helmholtz/param_data/*.json dist/param_data/
+	$(CP) general_helmholtz/param_data/*.nl dist/param_data/
+	$(CP) general_helmholtz/param_data/*.py dist/param_data/
+
 	$(CP) cubic/*.so dist/
 	$(CP) functions/*.so dist/
 
@@ -59,4 +49,4 @@ install:
 dist_clean:
 	$(RM) -rf dist
 
-clean: iapws95_clean swco2_clean cubic_clean functions_clean dist_clean dist_clean
+clean: general_hemlholtz_clean cubic_clean functions_clean dist_clean dist_clean

@@ -14,7 +14,8 @@ export MNAME=`uname -m`
 export IDAES_EXT=`pwd`
 
 # Run this after solvers are compiled, uses the ASL header from solver build
-export ASL_BUILD=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
+export ASL_HEADERS=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
+export ASL_LIBRARIES=$IDAES_EXT/coinbrew/dist/lib
 
 # Compile IDAES function libraries
 cd $IDAES_EXT/src

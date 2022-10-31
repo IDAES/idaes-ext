@@ -1,8 +1,8 @@
 include ../Makefile.in
 
-BOOST=/opt/homebrew/include
-ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
-ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
+#BOOST=/opt/homebrew/include
+#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
