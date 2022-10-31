@@ -37,7 +37,9 @@ cp ../src/dist/*.so ./
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
 mkdir ./helm_data
-cp ../src/general_helmholtz/param_data/* ./helm_data/
+cp ../src/dist/param_data/*.json ./helm_data/
+cp ../src/dist/param_data/*.nl ./helm_data/
+cp ../src/dist/param_data/*.py ./helm_data/
 sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
 mv tmp2 version_lib.txt
