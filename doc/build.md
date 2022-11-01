@@ -66,6 +66,7 @@ To build the IDAES binary extensions on macOS follow the rough steps below.
   * brew install gcc
   * brew install pkgconfig
   * brew install boost
+  * brew install bash
   
 ### Build PETSc
 
@@ -79,13 +80,9 @@ we currently aren't aiming to do super computing.
 4. Configure PETSc (-fPIC is so we can use the Metis and Mumps builds again)
    ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
       --download-metis --download-mumps --with-mumps-serial=1 \
-      --prefix=$HOME/src/petsc-dist \
-      FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+      --prefix=$HOME/src/petsc-dist 
 5. make
 6. make install
-7. Ipopt is going to need sequential Mumps MPI header, so put it where we can find it.
-  * mkdir ../petsc-dist/include/mumps_libseq
-  * cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/
 
 ### Build
 
