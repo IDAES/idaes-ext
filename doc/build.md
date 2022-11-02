@@ -56,7 +56,7 @@ On Winodws make sure Docker Desktop is set to Linux mode.
 1. Go to the build-extensions directory
 2. Put coinhsl.zip in the extras directoy if you have it
 3. In a bash shell (can use git bash on Windows) run 
-  `sh build.sh {flavor}`
+  `sh build.sh {flavor} {arch}`, where arch is x86_64 or aarch64.
 
 ### Windows 
 
