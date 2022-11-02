@@ -13,9 +13,9 @@ jobs:
       - name: "Clone/Install IDAES-PSE"
         shell: cmd
         run: |
-          git clone https://github.com/idaes/idaes-pse.git
+          git clone https://github.com/eslickj/idaes-pse.git
           cd idaes-pse
-          git checkout master
+          git checkout rm_old_helmholtz
           pip install -r requirements-dev.txt
           idaes get-extensions --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --extra petsc
       - name: "Test IDAES-PSE"
