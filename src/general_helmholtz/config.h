@@ -22,6 +22,7 @@
 #include<unordered_map>
 #include<boost/functional/hash.hpp>
 #include<climits>
+#include<math.h>
 
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_

@@ -8,7 +8,7 @@ RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime;
 RUN apt-get -y update;
 RUN apt-get -y upgrade;
 Run apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
-RUN apt-get -y install gfortran libboost-all-dev cmake
+RUN apt-get -y install gfortran cmake
 RUN apt-get -y install pkg-config bison
 RUN apt-get -y install flex valgrind
 
@@ -20,6 +20,12 @@ RUN cd repo; \
     cd petsc; \
     ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
     make;\
-    make install;\
-    mkdir ../petsc-dist/include/mumps_libseq; \
-    cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/;
+    make install;
+
+RUN cd repo; \
+    wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz; \
+    tar -zxvf boost_1_80_0.tar.gz; \
+    cd ./boost_1_80_0; \
+    sh bootstrap.sh --prefix=/usr/local/; \
+    chmod a+x ./b2; \
+    ./b2 install;

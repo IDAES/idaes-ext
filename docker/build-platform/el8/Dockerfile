@@ -1,7 +1,7 @@
 FROM rockylinux:8
 
 RUN yum -y update; yum clean all
-RUN yum -y install git make gcc gcc-c++ gcc-gfortran boost-devel cmake
+RUN yum -y install git make gcc gcc-c++ gcc-gfortran cmake
 RUN yum -y install wget unzip patch which file valgrind flex bison
 RUN yum -y install dnf-plugins-core
 RUN yum config-manager --set-enabled powertools
@@ -16,6 +16,12 @@ RUN cd repo; \
     cd petsc; \
     ./configure configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
     make;\
-    make install;\
-    mkdir ../petsc-dist/include/mumps_libseq; \
-    cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/;
+    make install;
+
+RUN cd repo; \
+    wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz; \
+    tar -zxvf boost_1_80_0.tar.gz; \
+    cd ./boost_1_80_0; \
+    sh bootstrap.sh --prefix=/usr/local/; \
+    chmod a+x ./b2; \
+    ./b2 install;
