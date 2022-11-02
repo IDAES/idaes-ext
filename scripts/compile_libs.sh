@@ -26,6 +26,9 @@ if [ ${osname} = "windows" ]; then
   export PATH=$PATH:$IDAES_EXT/coinbrew/dist/lib64
 fi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_EXT/coinbrew/dist/lib64
+export IDAES_HELMHOLTZ_DATA_PATH=$IDAES_EXT/src/general_helmholtz/param_data/
+export IDAES_HELMHOLTZ_TEST_DATA_PATH=$IDAES_EXT/src/general_helmholtz/test_data/
+
 make
 cd $IDAES_EXT
 
