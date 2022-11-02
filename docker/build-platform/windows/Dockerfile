@@ -21,19 +21,12 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
   function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
   msys 'pacman --noconfirm -Syuu'; \
   msys 'pacman --noconfirm -Syuu'; \
-  msys 'pacman --noconfirm -Scc';
-
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
+  msys 'pacman --noconfirm -Scc'; \
   msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake mingw-w64-x86_64-make'; \
-  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack';
-
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
+  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack'; \
   msys 'mkdir /c/repo'; \
-  msys 'mkdir /c/repo/petsc-dist';
+  msys 'mkdir /c/repo/petsc-dist'; \
+  msys 'rm -rf /c/\$Recycle.Bin/*';
 
 WORKDIR c:/repo
 
@@ -54,6 +47,5 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 SHELL ["C:\\msys64\\usr\\bin\\bash.exe", "-l", "-c"]
 RUN 'cd /c/repo/petsc-3.18.1 && mingw32-make PETSC_DIR=/c/repo/petsc-3.18.1 PETSC_ARCH=arch-mswin-c-opt all'
 RUN 'cd /c/repo/petsc-3.18.1 && /usr/bin/python config/install.py'
-RUN 'cd /c/repo/petsc-3.18.1 && mkdir ../petsc-dist/include/mumps_libseq && cp ./arch-*/externalpackages/git.mumps/libseq/mpi.h ../petsc-dist/include/mumps_libseq/'
 
 RUN cmd /c 'taskkill /F /FI "MODULES eq msys-2.0.dll"'
