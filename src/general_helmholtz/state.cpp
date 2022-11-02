@@ -35,6 +35,7 @@ The general method for changing state varaibles is (first step is here):
 #include "delta.h"
 #include "sat.h"
 #include <iostream>
+#include <math.h>
 
 struct state_solve_dat{ // Solver wrapper data structure for const args
   uint comp;
