@@ -1,77 +1,40 @@
 # Building IDAES Binaries
 
-The build scripts are not intended for general use. Most builds are done using
-Docker containers.  IDAES users do not generally build IDAES binaries.
+The build scripts are not intended for general use. IDAES users do not 
+generally need to build IDAES binaries. 
 
-## Linux
+Aside from macOS the Linux and Windows builds use Docker, and I'll assume 
+we are using Docker Desktop.  The Linux ARM64 builds are done on macOS with 
+Docker.  Since Windows Docker containers require Windows, the x86_64 builds
+for Linux and Windows are done on Windows.
 
-### Building
+## Build Environments
 
-Install docker desktop.
+### Docker
 
-Copy the idaes-ext repo.
+1. Install Docker Desktop.
+2. Get the docker files from https://github.com/IDAES/idaes-ext/tree/main/docker
+3. Go to the build-platform directory.
+4. From the shell run `docker build -t idaes-ext-{flavor}-build .` in the flavor
+  directory. Replace `{flavor}` with the platform (el7, el8, ubuntu1804, ubuntu2004, 
+  ubuntu2204, or windows). On ARM64 there is no el7 or windows.
+5. Usually testing is done by GitHub actions and the testing inages are built on
+  DockerHub, but ARM64 is not supported.  If you need to build testing containers,
+  go to the test-platform directory and run `docker build -t idaes-ext-{flavor}-test .`
+  in the directory for the platform to build. 
 
-Build the docker build and test platforms.  The x86_64 Linux test images are also
-built on DockerHub for use in GitHub actions.  To build the images just go to the
-to either test-platform or build-platform in the docker directory then run the
-build.sh (e.g. sh build.sh ubuntu1804) script with the flavor (OS of distro) to
-build.  The available flavors are the subdirectories.  After running the build
-script, a docker image should be available to build or test binaries.
+### macOS
 
-If you want to compile with the HSL, put your coinhsl.zip file in the
-./docker/build-extensions/extras directory.  If the HSL file is not available
-the solvers will be built without it.
-
-In the build-extensions directory run the build.sh script with the flavor to build
-and the architecture {x86_64, aarch64} (e.g. sh build.sh ubuntu1804 aarch64). After
-the build is complete tar files will be available in the ``tarballs`` subdirectory.
-
-### Testing
-
-Remove old builds from the test release on GitHub in the idaes-ext repo.  The test
-containers will pull binaries from GitHub.
-
-Trigger the GitHub actions tests or run the docker Linux test script with the
-name of the platform to test.  
-
-## Windows
-
-### Building
-
-On a Windows machine, install Docker Desktop.  Make sure docker is in Windows mode.
-Use MSYS2 or the Git bash shell to run the build script in ./docker/build-platform
-to create a windows build image (i.e. sh bash.sh windows).
-
-Add coinhsl.zip to ./docker/build-extensions/extras if desired. Run the build.ps1
-powershell script with the OS and arch names (i.e. build.ps1 windows x86_64).
-The tarballs for the binaries will be in the tarballs directory.
-
-### Testing
-
-Remove old builds from the test release on GitHub in the idaes-ext repo.  The test
-containers will pull binaries from GitHub.
-
-Trigger the GitHub actions Windows test.
-
-## macOS
-
-To build the IDAES binary extensions on macOS follow the rough steps below.
-
-### Preliminary Setup
-
-1. Install Xcode
-2. Install the Xcode command line tools
-3. Install cmake (cmake.org), and set it up to run from the command line
-4. Install homebrew
+1. Install the Xcode command line tools
+2. Install cmake (cmake.org), and set it up to run from the command line
+3. Install homebrew and a few things:
   * brew install gcc
   * brew install pkgconfig
   * brew install boost
   * brew install bash
   
-### Build PETSc
-
 You only need to rebuild PETSc when you want to update to a new version.  A
-recommended location for this is $HOME/SRC.  For now, we compile without MPI, as
+recommended location for this is $HOME/src.  For now, we compile without MPI, as
 we currently aren't aiming to do super computing.
 
 1. download https://petsc.org/release/download/
@@ -84,29 +47,51 @@ we currently aren't aiming to do super computing.
 5. make
 6. make install
 
-### Build
+## Building
 
-1. Get idaes-ext (clone or download from github)
-2. If you have the HSL, put the coinhsl.zip file in the same directory as
-  idaes-ext (not in it peer to).  Or in the directory were you plan to put the
-  build directory later.
-3. Go to the idaes-ext directory
-  * (optional recommended) run the build directory script to create a build directory
-    (e.g. sh ./scripts/build_directory.sh ~/src/idaes-ext-build)
-  * Go to the build directory.
-4. Run build scripts.  The scripts assume the homebrew location is /opt/homebrew, and
-   homebrew is active.
-  * > bash ./scripts/compile_solvers.sh darwin
-  * > bash ./scripts/compile_libs.sh darwin
-  * > bash ./scripts/mac_collect.sh
+### Linux
 
-If the build completes without errors the *.tar.gz files will be in the
-build directory.
+On Winodws make sure Docker Desktop is set to Linux mode.
 
-### Test
+1. Go to the build-extensions directory
+2. Put coinhsl.zip in the extras directoy if you have it
+3. In a bash shell (can use git bash on Windows) run 
+  `sh build.sh {flavor}`
 
-Usually install the binaries on a minimal VM with IDAES-PSE installed and see
-if the tests run properly.
+### Windows 
+
+The `build.sh` script does not work for the Windows build. There is a PowerShell
+script that will work. Make sure Docker Desktop is set to Windows mode (only works
+on Windows).
+
+1. Go to the build-extensions directory
+2. Put coinhsl.zip in the extras directoy if you have it
+3. In powershell run `.\build.ps1 windows --no-cache`
+
+### MacOS
+
+1. Checkout the idaes-ext repo.  
+2. In the idaes-ext directory run the script to copy the
+  source files to a new build location (
+  `sh ./scripts/build_directory.sh ~/src/idaes-ext-build`).
+3. Go to the build directory.
+4. > bash ./scripts/compile_solvers.sh darwin
+5. > bash ./scripts/compile_libs.sh darwin
+6. > bash ./scripts/mac_collect.sh
+
+## Testing
+
+### x86 Windows and Linux
+
+We do testing with GitHub actions.  There are container images on docker hub.
+
+### ARM64 Linux
+
+There is a python script `docker_linux_tests.py` in the idaes-ext/scripts directory.
+
+### macOS (Apple Silicon Only)
+
+Test on clean VM.
 
 ## Release Hashes
 
