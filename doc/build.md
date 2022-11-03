@@ -10,18 +10,21 @@ for Linux and Windows are done on Windows.
 
 ## Build Environments
 
+On Windows, except for one excpetion noted below the git Bash shell can be used. 
+
 ### Docker
 
 1. Install Docker Desktop.
 2. Get the docker files from https://github.com/IDAES/idaes-ext/tree/main/docker
 3. Go to the build-platform directory.
-4. From the shell run `docker build -t idaes-ext-{flavor}-build .` in the flavor
-  directory. Replace `{flavor}` with the platform (el7, el8, ubuntu1804, ubuntu2004, 
-  ubuntu2204, or windows). On ARM64 there is no el7 or windows.
-5. Usually testing is done by GitHub actions and the testing inages are built on
+4. From the a bash shell run `sh build.sh {flavor}` Replace `{flavor}` with the 
+  platform (el7, el8, ubuntu1804, ubuntu2004, ubuntu2204, or windows). On ARM64 
+  there is no el7 or windows.
+5. Usually testing is done by GitHub actions and the testing images are built on
   DockerHub, but ARM64 is not supported.  If you need to build testing containers,
-  go to the test-platform directory and run `docker build -t idaes-ext-{flavor}-test .`
-  in the directory for the platform to build. 
+  go to the test-platform directory and run `sh build.sh {platform}`.  The platform
+  argument is slightly differnt than flavor.  For testing it indicates a specific
+  Linux distribution (or Windows).
 
 ### macOS
 
@@ -83,11 +86,15 @@ on Windows).
 
 ### x86 Windows and Linux
 
-We do testing with GitHub actions.  There are container images on docker hub.
+Testing is done with GitHub actions.  There are container images on docker hub.
 
 ### ARM64 Linux
 
-There is a python script `docker_linux_tests.py` in the idaes-ext/scripts directory.
+There is a python script `docker_linux_tests.sh` in the idaes-ext/scripts directory. 
+To run tests `sh docker_linux_tests.sh {platform}`. To help with debugging the
+`test` container is left after the script completes.  You can run the container
+interactively if needed.  Once done you will need to delete the container before
+running another test.
 
 ### macOS (Apple Silicon Only)
 
