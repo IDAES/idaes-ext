@@ -104,6 +104,6 @@ Test on clean VM.
 
 Collect all the tar files for a release in the same directory.
 
-With IDAES installed, run ``idaes hash-release --path <path to tar files> --release <release>``
+With IDAES installed, run ``idaes hash-extensions --path <path to tar files> --release <release>``
 A text file with the hash of all the files will be written to the directory with the
 release files.
