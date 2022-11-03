@@ -24,4 +24,4 @@ RUN cd repo; \
     cd ./boost_1_80_0; \
     sh bootstrap.sh --prefix=/usr/local/; \
     chmod a+x ./b2; \
-    ./b2 install;
+    ./b2 install || true;
