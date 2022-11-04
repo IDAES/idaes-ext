@@ -64,10 +64,12 @@ if [ ${GFMV[0]} -ge 10 ]; then
 fi
 
 # Fetch coin-or stuff and dependencies
-bash coinbrew fetch Clp --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
-bash coinbrew fetch Cbc --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
-bash coinbrew fetch Bonmin --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
-bash coinbrew fetch Couenne --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+bash coinbrew fetch Clp --no-prompt --skip "$SKIP_PKGS"
+bash coinbrew fetch Cbc --no-prompt --skip "$SKIP_PKGS"
+SKIP_PKGS="$SKIP_PKGS Cbc Clp Cgl Osi"
+bash coinbrew fetch Bonmin --no-prompt --skip "$SKIP_PKGS"
+bash coinbrew fetch Couenne --no-prompt --skip "$SKIP_PKGS"
 # Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
 cd Couenne
 cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
@@ -76,7 +78,7 @@ patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
 rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip "$SKIP_PKGS"
 mv ./Ipopt ./Ipopt_l1
 rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
 if [ ${osname} = "el7" ]; then 
