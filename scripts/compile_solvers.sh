@@ -106,7 +106,7 @@ if [ -f $IDAES_EXT/../metis-4.0-novariadic.tar.gz ]; then
   echo "#########################################################################"
   echo "# Use novariadic metis 4.0.3                                            #"
   echo "#########################################################################"
-  make
+  make $PARALLEL
   cd $IDAES_EXT/coinbrew
 fi
 
@@ -139,7 +139,7 @@ echo "# Thirdparty/ASL                                                        #"
 echo "#########################################################################"
 cd ThirdParty/ASL
 ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -149,7 +149,7 @@ echo "#########################################################################"
 cd ThirdParty/Metis
 ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
   --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -159,7 +159,7 @@ echo "#########################################################################"
 cd ThirdParty/HSL
 ./configure --disable-shared --enable-static --with-metis \
   --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -169,7 +169,7 @@ echo "#########################################################################"
 cd ThirdParty/Mumps
 ./configure --disable-shared --enable-static --with-metis \
  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -179,7 +179,7 @@ echo "#########################################################################"
 cd Ipopt
 ./configure --disable-shared --enable-static --with-mumps --with-hsl \
   --prefix=$IDAES_EXT/coinbrew/dist
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -195,7 +195,7 @@ else
   ./configure --disable-shared --enable-static --with-mumps --with-hsl \
     --prefix=$IDAES_EXT/coinbrew/dist_l1
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -210,7 +210,7 @@ if [ "$MNAME" = "aarch64" ]; then
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -225,7 +225,7 @@ if [ "$MNAME" = "aarch64" ]; then
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -240,7 +240,7 @@ if [ "$MNAME" = "aarch64" ]; then
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -255,7 +255,7 @@ if [ "$MNAME" = "aarch64" ]; then
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -270,7 +270,7 @@ if [ "$MNAME" = "aarch64" ]; then
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -293,7 +293,7 @@ else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
     LDFLAGS=-fopenmp
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -309,7 +309,7 @@ else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
     LDFLAGS=-fopenmp
 fi
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -319,7 +319,7 @@ echo "#########################################################################"
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
   --with-mumps --with-hsl --prefix=$IDAES_EXT/coinbrew/dist-share
-make
+make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
@@ -433,7 +433,7 @@ then
 else
   cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
-make
+make $PARALLEL
 cp libpynumero_ASL* $IDAES_EXT/dist-solvers
 
 echo "#########################################################################"
@@ -450,7 +450,7 @@ then
 else
   cmake -DCMAKE_C_COMPILER=$CC .
 fi
-make
+make $PARALLEL
 cp bin/k_aug* $IDAES_EXT/dist-solvers
 cp dot_sens* $IDAES_EXT/dist-solvers
 
@@ -460,7 +460,7 @@ echo "#########################################################################"
 export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
 cd $IDAES_EXT/petsc
-make
+make $PARALLEL
 make py
 mkdir $IDAES_EXT/dist-petsc
 if [ ${osname} = "windows" ]
