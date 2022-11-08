@@ -35,9 +35,9 @@ jobs:
         run: |
            docker exec test /bin/bash -c 'cd repo
             eval "$(/root/miniconda/bin/conda shell.bash hook)"
-            git clone https://github.com/eslickj/idaes-pse.git
+            git clone https://github.com/idaes/idaes-pse.git
             cd idaes-pse
-            git checkout rm_old_helmholtz
+            git checkout main
             conda create -n idaes python=3.9 pip psutil
             conda activate idaes
             pip install -r requirements-dev.txt
