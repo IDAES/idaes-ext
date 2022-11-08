@@ -123,3 +123,5 @@ venv.bak/
 
 # test file
 test_exec
+
+.DS_Store
