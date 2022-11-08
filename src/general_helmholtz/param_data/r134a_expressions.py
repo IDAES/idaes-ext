@@ -1,3 +1,14 @@
+##################################################################################
+#                                                                                #
+# R134A EOS Expressions and Parameters:                                          #
+#                                                                                #
+# Tillner-Roth, R.; Baehr, H.D., An International Standard Formulation for the   #
+#    Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for        #
+#    Temperatures from 170 K to 455 K and Pressures up to 70 MPa, J. Phys. Chem. #
+#    Ref. Data, 1994, 23, 5, 657-729, https://doi.org/10.1063/1.555958           #
+#                                                                                #
+##################################################################################
+
 import pyomo.environ as pyo
 import json
 from helmholtz_parameters import WriteParameters

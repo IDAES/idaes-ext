@@ -1,3 +1,14 @@
+##################################################################################
+#                                                                                #
+# R1234ZE EOS Expressions and Parameters:                                        #
+#                                                                                #
+# Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic       #
+#  Properties of trans-1,3,3,3-Tetrafluoropropene [R-1234ze(E)]." Int. J.        #
+#  Thermophys, 37(3):1–16, 2016. doi:10.1007/s10765-016-2040-6.                  #
+#                                                                                #
+##################################################################################
+
+
 import pyomo.environ as pyo
 import json
 from helmholtz_parameters import WriteParameters
