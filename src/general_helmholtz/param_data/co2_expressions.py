@@ -1,3 +1,15 @@
+
+##################################################################################
+#                                                                                #
+# CO2 EOS Expressions and Parameters:                                            #
+#                                                                                #
+# Span, R., and W. Wanger (1996). "A New Equation of State for Carbon Dioxide    #
+#     Covering the Fluid Region from the Triple-Point Temperature to 1100 K as   #
+#     Pressures up to 800 MPa." Journal of Physical and Chemical Reference Data, #
+#     25, 1509.                                                                  #
+#                                                                                #
+##################################################################################
+
 import pyomo.environ as pyo
 import json
 from helmholtz_parameters import WriteParameters

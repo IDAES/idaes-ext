@@ -1,3 +1,13 @@
+##################################################################################
+#                                                                                #
+# R227EA EOS Expressions and Parameters:                                         #
+#                                                                                #
+# Eric W. Lemmon and Roland Span. Thermodynamic Properties of R-227ea,           #
+#     R-365mfc, R-115, and R13I1. J. Chem. Eng. Data, 2016, submitted.           #
+#     doi:10.1021/acs.jced.5b00684.                                              #
+#                                                                                #
+##################################################################################
+
 import pyomo.environ as pyo
 import json
 from helmholtz_parameters import WriteParameters
