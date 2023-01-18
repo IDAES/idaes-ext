@@ -1,8 +1,8 @@
 include ../Makefile.in
 
-#BOOST=/opt/homebrew/include
-#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
-#ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
+BOOST=/opt/homebrew/include
+ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
@@ -13,10 +13,10 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o ampl_wrap.o
+OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o ampl_wrap.o
 .PHONY: clean
 
-ALL: general_helmholtz_external.so test_exec
+ALL: general_helmholtz_external.so test_exec test_r515b
 
 test: test_exec
 	./test_exec
@@ -42,6 +42,9 @@ state.o: state.cpp
 read_data.o: read_data.cpp
 	$(CXX) $(CXXFLAGS) read_data.cpp -o read_data.o
 
+props_hp.o: props_hp.cpp
+	  $(CXX) $(CXXFLAGS) props_hp.cpp -o props_hp.o
+
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)
 
@@ -53,6 +56,12 @@ test_exec.o: test_exec.cpp
 
 test_exec: $(OBJECTS) read_data.o test_exec.o test_util.o
 	  $(LINK) $(OBJECTS) read_data.o test_exec.o test_util.o -o test_exec -lcoinasl -L$(ASL_LIB)
+
+test_r515b.o: test_r515b.cpp
+	  $(CXX) $(CXXFLAGS) test_r515b.cpp -o test_r515b.o 
+
+test_r515b: $(OBJECTS) read_data.o test_r515b.o test_util.o
+	  $(LINK) $(OBJECTS) read_data.o test_r515b.o test_util.o -o test_r515b -lcoinasl -L$(ASL_LIB)
 
 general_helmholtz_external.so: $(OBJECTS)
 	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -lcoinasl -L$(ASL_LIB)
