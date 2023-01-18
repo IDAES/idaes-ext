@@ -409,6 +409,7 @@ if [ ${osname} = "darwin" ]; then
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libgcc_s.1.1.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libstdc++.6.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libgomp.1.dylib ./
+    cp /opt/homebrew/opt/gcc/lib/gcc/12/libquadmath.0.dylib ./
 fi
 
 echo "#########################################################################"
