@@ -35,6 +35,7 @@ prop_memo_table22 memo_table_helmholtz2;
 prop_memo_table22 memo_table_isochoric_heat_capacity2;
 prop_memo_table22 memo_table_isobaric_heat_capacity2;
 prop_memo_table22 memo_table_speed_of_sound2;
+prop_memo_table22 memo_table_specific_volume2;
 
 prop_memo_table22 memo_table_phi_ideal2;
 prop_memo_table22 memo_table_phi_resi2;
@@ -441,6 +442,17 @@ void speed_of_sound2(uint comp, double delta, double tau, f22_struct *out){
   out->f_22 = 0.5*pow(w2, -0.5) * w2_tt - 0.25*pow(w2, -1.5) * w2_t*w2_t;
 }
 
+void specific_volume2(uint comp, double delta, double tau, f22_struct *out){
+  parameters_struct *dat = &cdata[comp];
+  double c = 1.0/dat->rho_star;
+  out->f = c/delta;
+  out->f_1 = -c/delta/delta;
+  out->f_11 = 2*c/delta/delta/delta;
+  out->f_2 = 0.0;
+  out->f_12 = 0.0;
+  out->f_22 = 0.0;
+}
+
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out){
   f23_struct y = phi_ideal(comp, delta, tau);
   out->f = y.f;
@@ -570,7 +582,7 @@ MEMO2_FUNCTION(memo2_helmholtz, helmholtz2, memo_table_helmholtz2)
 MEMO2_FUNCTION(memo2_isochoric_heat_capacity, isochoric_heat_capacity2, memo_table_isochoric_heat_capacity2)
 MEMO2_FUNCTION(memo2_isobaric_heat_capacity, isobaric_heat_capacity2, memo_table_isobaric_heat_capacity2)
 MEMO2_FUNCTION(memo2_speed_of_sound, speed_of_sound2, memo_table_speed_of_sound2)
-
+MEMO2_FUNCTION(memo2_specific_volume, specific_volume2, memo_table_specific_volume2)
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
 MEMO2_FUNCTION(memo2_phi_ideal_d, phi_ideal_d2, memo_table_phi_ideal_d2)

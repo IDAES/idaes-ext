@@ -13,7 +13,8 @@ else
     CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
 endif
 
-OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o ampl_wrap.o
+OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o \
+	props_sp.o props_up.o ampl_wrap.o
 .PHONY: clean
 
 ALL: general_helmholtz_external.so test_exec test_r515b
@@ -44,6 +45,12 @@ read_data.o: read_data.cpp
 
 props_hp.o: props_hp.cpp
 	  $(CXX) $(CXXFLAGS) props_hp.cpp -o props_hp.o
+
+props_sp.o: props_sp.cpp
+	  $(CXX) $(CXXFLAGS) props_sp.cpp -o props_sp.o
+
+props_up.o: props_up.cpp
+	  $(CXX) $(CXXFLAGS) props_up.cpp -o props_up.o
 
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)

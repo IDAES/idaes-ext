@@ -1,0 +1,61 @@
+#include "props_hp.h"
+#include<iostream>
+#include<stdlib.h>
+
+prop_memo_table22 memo_table_internal_energy_hp;
+prop_memo_table22 memo_table_entropy_hp;
+prop_memo_table22 memo_table_gibbs_hp;
+prop_memo_table22 memo_table_helmholtz_hp;
+prop_memo_table22 memo_table_isochoric_heat_capacity_hp;
+prop_memo_table22 memo_table_isobaric_heat_capacity_hp;
+prop_memo_table22 memo_table_speed_of_sound_hp;
+prop_memo_table22 memo_table_specific_volume_hp;
+
+//u
+PROP_HP_SINGLE_PHASE(internal_energy_vap_hp, memo2_internal_energy, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(internal_energy_liq_hp, memo2_internal_energy, memo2_delta_liquid)
+PROP_HP_GENERAL(internal_energy_hp, internal_energy_liq_hp, internal_energy_vap_hp)
+MEMO2_FUNCTION(memo2_internal_energy_hp, internal_energy_hp, memo_table_internal_energy_hp)
+
+//s
+PROP_HP_SINGLE_PHASE(entropy_vap_hp, memo2_entropy, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(entropy_liq_hp, memo2_entropy, memo2_delta_liquid)
+PROP_HP_GENERAL(entropy_hp, entropy_liq_hp, entropy_vap_hp)
+MEMO2_FUNCTION(memo2_entropy_hp, entropy_hp, memo_table_entropy_hp)
+
+//g
+PROP_HP_SINGLE_PHASE(gibbs_vap_hp, memo2_gibbs, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(gibbs_liq_hp, memo2_gibbs, memo2_delta_liquid)
+PROP_HP_GENERAL(gibbs_hp, gibbs_liq_hp, gibbs_vap_hp)
+MEMO2_FUNCTION(memo2_gibbs_hp, gibbs_hp, memo_table_gibbs_hp)
+
+//f
+PROP_HP_SINGLE_PHASE(helmholtz_vap_hp, memo2_helmholtz, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(helmholtz_liq_hp, memo2_helmholtz, memo2_delta_liquid)
+PROP_HP_GENERAL(helmholtz_hp, helmholtz_liq_hp, helmholtz_vap_hp)
+MEMO2_FUNCTION(memo2_helmholtz_hp, helmholtz_hp, memo_table_helmholtz_hp)
+
+//cv
+PROP_HP_SINGLE_PHASE(isochoric_heat_capacity_vap_hp, memo2_isochoric_heat_capacity, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(isochoric_heat_capacity_liq_hp, memo2_isochoric_heat_capacity, memo2_delta_liquid)
+PROP_HP_GENERAL(isochoric_heat_capacity_hp, isochoric_heat_capacity_liq_hp, isochoric_heat_capacity_vap_hp)
+MEMO2_FUNCTION(memo2_isochoric_heat_capacity_hp, isochoric_heat_capacity_hp, memo_table_isochoric_heat_capacity_hp)
+
+//cp
+PROP_HP_SINGLE_PHASE(isobaric_heat_capacity_vap_hp, memo2_isobaric_heat_capacity, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(isobaric_heat_capacity_liq_hp, memo2_isobaric_heat_capacity, memo2_delta_liquid)
+PROP_HP_GENERAL(isobaric_heat_capacity_hp, isobaric_heat_capacity_liq_hp, isobaric_heat_capacity_vap_hp)
+MEMO2_FUNCTION(memo2_isobaric_heat_capacity_hp, isobaric_heat_capacity_hp, memo_table_isobaric_heat_capacity_hp)
+
+//w (doesn't really mean much in the two phase region, so use with care)
+PROP_HP_SINGLE_PHASE(speed_of_sound_vap_hp, memo2_speed_of_sound, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(speed_of_sound_liq_hp, memo2_speed_of_sound, memo2_delta_liquid)
+PROP_HP_GENERAL(speed_of_sound_hp, speed_of_sound_liq_hp, speed_of_sound_vap_hp)
+MEMO2_FUNCTION(memo2_speed_of_sound_hp, speed_of_sound_hp, memo_table_speed_of_sound_hp)
+
+//v
+PROP_HP_SINGLE_PHASE(specific_volume_vap_hp, memo2_specific_volume, memo2_delta_vapor)
+PROP_HP_SINGLE_PHASE(specific_volume_liq_hp, memo2_specific_volume, memo2_delta_liquid)
+PROP_HP_GENERAL(specific_volume_hp, specific_volume_liq_hp, specific_volume_vap_hp)
+MEMO2_FUNCTION(memo2_specific_volume_hp, specific_volume_hp, memo_table_specific_volume_hp)
+
