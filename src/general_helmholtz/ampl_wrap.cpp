@@ -21,6 +21,9 @@
 #include "ampl_wrap.h"
 #include "config.h"
 #include "props.h"
+#include "props_hp.h"
+#include "props_sp.h"
+#include "props_up.h"
 #include "state.h"
 #include "delta.h"
 #include "sat.h"
@@ -69,22 +72,59 @@ ASL_WRAP_FUNC_1ARG(p_sat, sat_p)                         // p_sat(comp, pressure
 ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, pressure) [none]
 ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, pressure) [none]
 
+// General (liquid, vapor, two-phase) property functions of (h, p)
+ASL_WRAP_FUNC_2ARG(tau_hp, memo2_tau_hp)                    // tau(comp, h, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_hp, memo2_vf_hp)                      // vf(comp, h, p) [none]
+ASL_WRAP_FUNC_2ARG(u_hp, memo2_internal_energy_hp)          // u(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(s_hp, memo2_entropy_hp)                  // s(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(g_hp, memo2_gibbs_hp)                    // g(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_hp, memo2_helmholtz_hp)                // f(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_hp, memo2_isochoric_heat_capacity_hp) // cv(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_hp, memo2_isobaric_heat_capacity_hp)  // cp(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_hp, memo2_speed_of_sound_hp)           // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_hp, memo2_specific_volume_hp)          // v(comp, h, p) [m3/kg]
+
+// General (liquid, vapor, two-phase) property functions of (s, p)
+ASL_WRAP_FUNC_2ARG(tau_sp, memo2_tau_sp)                    // tau(comp, s, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_sp, memo2_vf_sp)                      // vf(comp, s, p) [none]
+ASL_WRAP_FUNC_2ARG(u_sp, memo2_internal_energy_sp)          // u(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(h_sp, memo2_enthalpy_sp)                 // h(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_sp, memo2_gibbs_sp)                    // g(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_sp, memo2_helmholtz_sp)                // f(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_sp, memo2_isochoric_heat_capacity_sp) // cv(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_sp, memo2_isobaric_heat_capacity_sp)  // cp(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_sp, memo2_speed_of_sound_sp)           // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_sp, memo2_specific_volume_sp)          // v(comp, s, p) [m3/kg]
+
+// General (liquid, vapor, two-phase) property functions of (u, p)
+ASL_WRAP_FUNC_2ARG(tau_up, memo2_tau_up)                    // tau(comp, u, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_up, memo2_vf_up)                      // vf(comp, u, p) [none]
+ASL_WRAP_FUNC_2ARG(s_up, memo2_entropy_up)                  // s(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_up, memo2_enthalpy_up)                 // h(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_up, memo2_gibbs_up)                    // g(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_up, memo2_helmholtz_up)                // f(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_up, memo2_isochoric_heat_capacity_up) // cv(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_up, memo2_isobaric_heat_capacity_up)  // cp(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_up, memo2_speed_of_sound_up)           // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_up, memo2_specific_volume_up)          // v(comp, u, p) [m3/kg]
+
 // Some parameters to make it easier to sync Pyomo parameters with external functions
-ASL_WRAP_FUNC_0ARG(mw, MW)          // Critical Pressure     [g/mol]
-ASL_WRAP_FUNC_0ARG(t_star, T_star)  // Temperature to calculate tau [K]
-ASL_WRAP_FUNC_0ARG(rho_star, rho_star) // Desity to calculate delta [kg/m^3]
-ASL_WRAP_FUNC_0ARG(pc, Pc)          // Critical Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tc, Tc)          // Critical Temperature  [K]
-ASL_WRAP_FUNC_0ARG(rhoc, rhoc)      // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(pt, Pt)          // Critical Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tt, Tt)          // Critical Temperature  [K]
-ASL_WRAP_FUNC_0ARG(rhot_v, rhot_v)  // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(rhot_l, rhot_l)  // Critical Density      [kg/m^3]
-ASL_WRAP_FUNC_0ARG(sgc, R)          // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
-ASL_WRAP_FUNC_0ARG(pmin, P_min)     // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmin, T_min)     // Minumum Temperature  [K]
-ASL_WRAP_FUNC_0ARG(pmax, P_max)     // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmax, T_max)     // Minumum Temperature  [K]
+// these take the component name as an argument
+ASL_WRAP_FUNC_0ARG(mw, MW)              // Critical Pressure     [g/mol]
+ASL_WRAP_FUNC_0ARG(t_star, T_star)      // Temperature to calculate tau [K]
+ASL_WRAP_FUNC_0ARG(rho_star, rho_star)  // Desity to calculate delta [kg/m^3]
+ASL_WRAP_FUNC_0ARG(pc, Pc)              // Critical Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tc, Tc)              // Critical Temperature  [K]
+ASL_WRAP_FUNC_0ARG(rhoc, rhoc)          // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(pt, Pt)              // Critical Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tt, Tt)              // Critical Temperature  [K]
+ASL_WRAP_FUNC_0ARG(rhot_v, rhot_v)      // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(rhot_l, rhot_l)      // Critical Density      [kg/m^3]
+ASL_WRAP_FUNC_0ARG(sgc, R)              // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
+ASL_WRAP_FUNC_0ARG(pmin, P_min)         // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmin, T_min)         // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(pmax, P_max)         // Minimum Pressure     [kPa]
+ASL_WRAP_FUNC_0ARG(tmax, T_max)         // Minumum Temperature  [K]
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)
@@ -103,7 +143,41 @@ void funcadd(AmplExports *ae){
     addfunc("cv", (rfunc)cv, typ, -4, NULL);
     addfunc("cp", (rfunc)cp, typ, -4, NULL);
     addfunc("w", (rfunc)w, typ, -4, NULL);
-    addfunc("v", (rfunc)w, typ, -4, NULL);
+    addfunc("v", (rfunc)v, typ, -4, NULL);
+
+    addfunc("tau_hp", (rfunc)tau_hp, typ, -4, NULL);
+    addfunc("vf_hp", (rfunc)vf_hp, typ, -4, NULL);
+    addfunc("u_hp", (rfunc)u_hp, typ, -4, NULL);
+    addfunc("s_hp", (rfunc)s_hp, typ, -4, NULL);
+    addfunc("g_hp", (rfunc)g_hp, typ, -4, NULL);
+    addfunc("f_hp", (rfunc)f_hp, typ, -4, NULL);
+    addfunc("cv_hp", (rfunc)cv_hp, typ, -4, NULL);
+    addfunc("cp_hp", (rfunc)cp_hp, typ, -4, NULL);
+    addfunc("w_hp", (rfunc)w_hp, typ, -4, NULL);
+    addfunc("v_hp", (rfunc)v_hp, typ, -4, NULL);
+
+    addfunc("tau_sp", (rfunc)tau_sp, typ, -4, NULL);
+    addfunc("vf_sp", (rfunc)vf_sp, typ, -4, NULL);
+    addfunc("u_sp", (rfunc)u_sp, typ, -4, NULL);
+    addfunc("h_sp", (rfunc)h_sp, typ, -4, NULL);
+    addfunc("g_sp", (rfunc)g_sp, typ, -4, NULL);
+    addfunc("f_sp", (rfunc)f_sp, typ, -4, NULL);
+    addfunc("cv_sp", (rfunc)cv_sp, typ, -4, NULL);
+    addfunc("cp_sp", (rfunc)cp_sp, typ, -4, NULL);
+    addfunc("w_sp", (rfunc)w_sp, typ, -4, NULL);
+    addfunc("v_sp", (rfunc)v_sp, typ, -4, NULL);
+
+    addfunc("tau_up", (rfunc)tau_up, typ, -4, NULL);
+    addfunc("vf_up", (rfunc)vf_up, typ, -4, NULL);
+    addfunc("s_up", (rfunc)s_up, typ, -4, NULL);
+    addfunc("h_up", (rfunc)h_up, typ, -4, NULL);
+    addfunc("g_up", (rfunc)g_up, typ, -4, NULL);
+    addfunc("f_up", (rfunc)f_up, typ, -4, NULL);
+    addfunc("cv_up", (rfunc)cv_up, typ, -4, NULL);
+    addfunc("cp_up", (rfunc)cp_up, typ, -4, NULL);
+    addfunc("w_up", (rfunc)w_up, typ, -4, NULL);
+    addfunc("v_up", (rfunc)v_up, typ, -4, NULL);
+
     addfunc("hvpt", (rfunc)hvpt, typ, -4, NULL);
     addfunc("hlpt", (rfunc)hlpt, typ, -4, NULL);
     addfunc("svpt", (rfunc)svpt, typ, -4, NULL);

@@ -1,7 +1,7 @@
 include ../Makefile.in
 
-BOOST=/opt/homebrew/include
-ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#BOOST=/opt/homebrew/include
+#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
 ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
@@ -63,12 +63,6 @@ test_exec.o: test_exec.cpp
 
 test_exec: $(OBJECTS) read_data.o test_exec.o test_util.o
 	  $(LINK) $(OBJECTS) read_data.o test_exec.o test_util.o -o test_exec -lcoinasl -L$(ASL_LIB)
-
-test_r515b.o: test_r515b.cpp
-	  $(CXX) $(CXXFLAGS) test_r515b.cpp -o test_r515b.o 
-
-test_r515b: $(OBJECTS) read_data.o test_r515b.o test_util.o
-	  $(LINK) $(OBJECTS) read_data.o test_r515b.o test_util.o -o test_r515b -lcoinasl -L$(ASL_LIB)
 
 general_helmholtz_external.so: $(OBJECTS)
 	  $(LINK) $(LDFLAGS) $(OBJECTS) -o general_helmholtz_external.so -lcoinasl -L$(ASL_LIB)
