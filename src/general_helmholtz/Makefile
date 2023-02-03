@@ -17,7 +17,7 @@ OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o \
 	props_sp.o props_up.o ampl_wrap.o
 .PHONY: clean
 
-ALL: general_helmholtz_external.so test_exec test_r515b
+ALL: general_helmholtz_external.so test_exec
 
 test: test_exec
 	./test_exec
