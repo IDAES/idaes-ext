@@ -4,7 +4,7 @@ name: macOS Build
 on: [workflow_dispatch]
 
 jobs:
-  test:
+  build:
     runs-on: macos-latest
     steps:
       - name: Install boost and bash
@@ -32,7 +32,7 @@ jobs:
           cd ~/src/idaes-ext-build
           bash ./scripts/compile_solvers.sh darwin
           bash ./scripts/compile_libs.sh darwin
-          bash ./scripts/mac_collect.sh
+          bash ./scripts/mac_collect_x86_64.sh
       - name: Upload lib
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
