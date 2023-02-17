@@ -11,6 +11,7 @@ jobs:
         run: |
           brew install boost
           brew install bash
+          brew install pkgconfig
       - name: Make src directory
         run: mkdir src
       - name: Get/Build PETSc
@@ -29,7 +30,7 @@ jobs:
           git clone https://github.com/idaes/idaes-ext
           cd idaes-ext
           sh ./scripts/build_directory.sh ~/src/idaes-ext-build
-          cd ~/src/idaes-ext-build
+          cd ../idaes-ext-build
           bash ./scripts/compile_solvers.sh darwin
           bash ./scripts/compile_libs.sh darwin
           bash ./scripts/mac_collect_x86_64.sh
