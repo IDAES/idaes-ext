@@ -14,6 +14,7 @@ jobs:
       - name: Get/Build PETSc
         run: |
           cd src
+          eval "$(/opt/homebrew/bin/brew shellenv)"
           wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.1.tar.gz
           tar -zxf petsc-3.18.1.tar.gz
           cd petsc-3.18.1
