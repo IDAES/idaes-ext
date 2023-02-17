@@ -404,12 +404,21 @@ if [ ${osname} = "windows" ]; then
 fi
 
 if [ ${osname} = "darwin" ]; then
+  if [ "$MNAME" = "aarch64" ]; then
     # some libraries from homebrew
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libgfortran.5.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libgcc_s.1.1.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libstdc++.6.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libgomp.1.dylib ./
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libquadmath.0.dylib ./
+  else
+    # some libraries from homebrew (this is built on github actions for now)
+    cp /usr/local/lib/libgfortran.5.dylib ./
+    cp /usr/local/lib/libgcc_s.1.1.dylib ./
+    cp /usr/local/lib/libstdc++.6.dylib ./
+    cp /usr/local/lib/libgomp.1.dylib ./
+    cp /usr/local/lib/libquadmath.0.dylib ./  
+  fi
 fi
 
 echo "#########################################################################"
