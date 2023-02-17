@@ -20,3 +20,9 @@ jobs:
           ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
           make
           make install
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: petsc_config_log
+          path: configure.log
+          retention-days: 1
