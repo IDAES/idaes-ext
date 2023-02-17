@@ -21,6 +21,7 @@ jobs:
           make
           make install
       - name: 'Upload Artifact'
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: petsc_config_log
