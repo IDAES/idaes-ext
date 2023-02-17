@@ -22,10 +22,33 @@ jobs:
           ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
           make
           make install
-      - name: 'Upload Artifact'
+      - name: Checkout IDAES-EXT
+        run: |
+          git clone https://github.com/idaes/idaes-ext
+          cd idaes-ext
+          sh ./scripts/build_directory.sh ~/src/idaes-ext-build
+          cd ~/src/idaes-ext-build
+          bash ./scripts/compile_solvers.sh darwin
+          bash ./scripts/compile_libs.sh darwin
+          bash ./scripts/mac_collect.sh
+      - name: Upload lib
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
-          name: petsc_config_log
-          path: src/petsc-3.18.1/configure.log
+          name: idaes-lib-darwin-aarch64.tar.gz
+          path: src/idaes-ext-build/idaes-lib-darwin-aarch64.tar.gz
+          retention-days: 1
+      - name: Upload solvers
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: idaes-solvers-darwin-aarch64.tar.gz
+          path: src/idaes-ext-build/idaes-solvers-darwin-aarch64.tar.gz
+          retention-days: 1
+      - name: Upload petsc
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: idaes-petsc-darwin-aarch64.tar.gz
+          path: src/idaes-ext-build/idaes-petsc-darwin-aarch64.tar.gz
           retention-days: 1
