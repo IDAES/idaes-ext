@@ -1,0 +1,11 @@
+
+name: macOS Build
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Install boost
+      - run: brew install boost
