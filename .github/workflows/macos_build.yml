@@ -7,8 +7,10 @@ jobs:
   test:
     runs-on: macos-latest
     steps:
-      - name: Install boost
-        run: brew install boost
+      - name: Install boost and bash
+        run: |
+          brew install boost
+          brew install bash
       - name: Make src directory
         run: mkdir src
       - name: Get/Build PETSc
