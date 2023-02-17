@@ -13,10 +13,10 @@ jobs:
           brew install bash
           brew install pkgconfig
       - name: Make src directory
-        run: mkdir src
+        run: mkdir ~/src
       - name: Get/Build PETSc
         run: |
-          cd src
+          cd ~/src
           which gfortran-12
           ln -s /usr/local/bin/gfortran-12 /usr/local/bin/gfortran
           wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.4.tar.gz
@@ -27,10 +27,15 @@ jobs:
           make install
       - name: Checkout IDAES-EXT
         run: |
+          cd ~/src
           git clone https://github.com/idaes/idaes-ext
           cd idaes-ext
           sh ./scripts/build_directory.sh ~/src/idaes-ext-build
-          cd ../idaes-ext-build
+      - name: Build IDAES-EXT
+        run: |
+          cd ~/src
+          git clone h
+          cd ~/src/idaes-ext-build
           bash ./scripts/compile_solvers.sh darwin
           bash ./scripts/compile_libs.sh darwin
           bash ./scripts/mac_collect_x86_64.sh
@@ -39,19 +44,19 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: idaes-lib-darwin-aarch64.tar.gz
-          path: src/idaes-ext-build/idaes-lib-darwin-aarch64.tar.gz
+          path: ~/src/idaes-ext-build/idaes-lib-darwin-aarch64.tar.gz
           retention-days: 1
       - name: Upload solvers
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: idaes-solvers-darwin-aarch64.tar.gz
-          path: src/idaes-ext-build/idaes-solvers-darwin-aarch64.tar.gz
+          path: ~/src/idaes-ext-build/idaes-solvers-darwin-aarch64.tar.gz
           retention-days: 1
       - name: Upload petsc
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: idaes-petsc-darwin-aarch64.tar.gz
-          path: src/idaes-ext-build/idaes-petsc-darwin-aarch64.tar.gz
+          path: ~/src/idaes-ext-build/idaes-petsc-darwin-aarch64.tar.gz
           retention-days: 1
