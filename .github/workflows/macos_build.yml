@@ -33,8 +33,6 @@ jobs:
           sh ./scripts/build_directory.sh ~/src/idaes-ext-build
       - name: Build IDAES-EXT
         run: |
-          cd ~/src
-          git clone h
           cd ~/src/idaes-ext-build
           bash ./scripts/compile_solvers.sh darwin
           bash ./scripts/compile_libs.sh darwin
