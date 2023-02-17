@@ -25,5 +25,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: petsc_config_log
-          path: configure.log
+          path: src/petsc-3.18.1/configure.log
           retention-days: 1
