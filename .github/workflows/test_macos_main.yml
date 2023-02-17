@@ -1,0 +1,24 @@
+
+name: macOS Test IDAES-PSE Main
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: "Clone/Install IDAES-PSE"
+        run: |
+          git clone https://github.com/idaes/idaes-pse.git
+          cd idaes-pse
+          git checkout main
+          pip install -r requirements-dev.txt
+          idaes get-extensions --nochecksum --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --extra petsc
+      - name: "Test IDAES-PSE"
+        run: |
+          cd idaes-pse\idaes
+          pytest --ignore=dmf --ignore=commands
