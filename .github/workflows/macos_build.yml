@@ -15,9 +15,10 @@ jobs:
         run: |
           cd src
           eval "$(/opt/homebrew/bin/brew shellenv)"
-          wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.1.tar.gz
-          tar -zxf petsc-3.18.1.tar.gz
-          cd petsc-3.18.1
+          which gfortran
+          wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.4.tar.gz
+          tar -zxf petsc-3.18.4.tar.gz
+          cd petsc-3.18.4
           ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
           make
           make install
