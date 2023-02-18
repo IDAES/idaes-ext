@@ -413,11 +413,11 @@ if [ ${osname} = "darwin" ]; then
     cp /opt/homebrew/opt/gcc/lib/gcc/12/libquadmath.0.dylib ./
   else
     # some libraries from homebrew (this is built on github actions for now)
-    cp /usr/local/lib/libgfortran.5.dylib ./
-    cp /usr/local/lib/libgcc_s.1.1.dylib ./
-    cp /usr/local/lib/libstdc++.6.dylib ./
-    cp /usr/local/lib/libgomp.1.dylib ./
-    cp /usr/local/lib/libquadmath.0.dylib ./  
+    cp /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ./
+    cp /usr/local/opt/gcc/lib/gcc/current/libgcc_s.1.1.dylib ./
+    cp /usr/local/opt/gcc/lib/gcc/current/libstdc++.6.dylib ./
+    cp /usr/local/opt/gcc/lib/gcc/current/libgomp.1.dylib ./
+    cp /usr/local/opt/gcc/lib/gcc/current/libquadmath.0.dylib ./  
   fi
 fi
 
