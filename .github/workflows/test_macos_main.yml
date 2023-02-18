@@ -20,5 +20,5 @@ jobs:
           idaes get-extensions --nochecksum --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --extra petsc
       - name: "Test IDAES-PSE"
         run: |
-          cd idaes-pse\idaes
+          cd idaes-pse/idaes
           pytest --ignore=dmf --ignore=commands
