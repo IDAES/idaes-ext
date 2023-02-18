@@ -42,19 +42,19 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: idaes-lib-darwin-x86_64.tar.gz
-          path: ~/src/idaes-ext-build/idaes-lib-darwin-x86_64.tar.gz
-          retention-days: 1
+          path: src/idaes-ext-build/idaes-lib-darwin-x86_64.tar.gz
+          retention-days: 2
       - name: Upload solvers
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: idaes-solvers-darwin-x86_64.tar.gz
-          path: ~/src/idaes-ext-build/idaes-solvers-darwin-x86_64.tar.gz
-          retention-days: 1
+          path: src/idaes-ext-build/idaes-solvers-darwin-x86_64.tar.gz
+          retention-days: 2
       - name: Upload petsc
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: idaes-petsc-darwin-x86_64.tar.gz
-          path: ~/src/idaes-ext-build/idaes-petsc-darwin-x86_64.tar.gz
-          retention-days: 1
+          path: src/idaes-ext-build/idaes-petsc-darwin-x86_64.tar.gz
+          retention-days: 2
