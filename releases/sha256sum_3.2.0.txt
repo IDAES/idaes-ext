@@ -1,5 +1,7 @@
 00222a0d2004d3906bf74944e5402dee43d4285461420d46853546c150f02b79  idaes-solvers-darwin-aarch64.tar.gz
+0901ae506ee6efc8cac9216976a28f1958b62167acb9a4beddc894dfb6555f20  idaes-solvers-darwin-x86_64.tar.gz
 57839a6a6a328e3c6d90c681ffaad012881d5f609a9e3b73c25349960154e76f  idaes-lib-darwin-aarch64.tar.gz
+269b12ebd297b5fc07a829eba7cc3ac786cfe7155b174d498f87b1bd6d36864d  idaes-lib-darwin-x86_64.tar.gz
 d1d89de8f0a2e119c6435ac658526412fd0158c401a64b653e0e11e5aac5c847  idaes-solvers-el7-x86_64.tar.gz
 4b407f8e2f909a468579ca6ed0778479e5365d775feb4defb3b154f1ebe2c923  idaes-lib-el7-x86_64.tar.gz
 d7b07179446e0a48a8f8128acf765008b82de854e1e3d88fbeae59a3ddeb85a3  idaes-solvers-el8-x86_64.tar.gz
@@ -21,6 +23,7 @@ b99f6d59b803102cc5f8dc99614ceae12653b5dca1d03f2ae9da7ac15538755f  idaes-lib-ubun
 7d474bbf7ee7d0d525d96c3d37f65a84bc205baf722456a7289b7676a556a467  idaes-solvers-windows-x86_64.tar.gz
 ba4b18e133e9ecf99e1d496396682aaaccc2c3e11ddc81ca3427e5fddf323b3a  idaes-lib-windows-x86_64.tar.gz
 4c82c922c59ff94d1a6cbf44f85a141d0c3507e6fff8f470dd039f8cba5750ed  idaes-petsc-darwin-aarch64.tar.gz
+e2206ab146c2af499f28ec781fa13e494275430650e6cb9756c7221384825cab  idaes-petsc-darwin-x86_64.tar.gz
 5dc40877a53c72666afd2a0781d0acef2fcd43ba7916f964b94037d75eee041c  idaes-petsc-el7-x86_64.tar.gz
 a736459a901ec851b0cbb10f126471cd65ac3a8200d49773aa7332c7e4056bf0  idaes-petsc-el8-x86_64.tar.gz
 121f947a5ec2335d9148afdfd8cefc78bb782845b976099b16af727fb25778f6  idaes-petsc-el8-aarch64.tar.gz
