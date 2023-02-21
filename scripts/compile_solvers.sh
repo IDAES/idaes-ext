@@ -497,11 +497,11 @@ if [ ${osname} = "darwin" ]; then
   echo "#########################################################################"
   cd $IDAES_EXT/dist-solvers
   update_rpath_darwin() {
-    install_name_tool -change ${BREWPATH}libgfortran.5.dylib @rpath/libgfortran.5.dylib $1
-    install_name_tool -change ${BREWPATH}libgcc_s.1.1.dylib @rpath/libgcc_s.1.1.dylib $1
-    install_name_tool -change ${BREWPATH}libstdc++.6.dylib @rpath/libstdc++.6.dylib $1
-    install_name_tool -change ${BREWPATH}libgomp.1.dylib @rpath/libgomp.1.dylib $1
-    install_name_tool -change ${BREWPATH}libquadmath.0.dylib @rpath/libquadmath.0.dylib $1
+    install_name_tool -change ${BREWLIB}libgfortran.5.dylib @rpath/libgfortran.5.dylib $1
+    install_name_tool -change ${BREWLIB}libgcc_s.1.1.dylib @rpath/libgcc_s.1.1.dylib $1
+    install_name_tool -change ${BREWLIB}libstdc++.6.dylib @rpath/libstdc++.6.dylib $1
+    install_name_tool -change ${BREWLIB}libgomp.1.dylib @rpath/libgomp.1.dylib $1
+    install_name_tool -change ${BREWLIB}libquadmath.0.dylib @rpath/libquadmath.0.dylib $1
   }
   update_rpath_darwin ipopt
   update_rpath_darwin ipopt_sens
