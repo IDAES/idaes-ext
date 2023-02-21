@@ -55,7 +55,7 @@ then
   if [ -f /opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
   then
     export BREWLIB=/opt/homebrew/opt/gcc/lib/gcc/current/
-  elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
+  elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
     export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
   fi
 fi
