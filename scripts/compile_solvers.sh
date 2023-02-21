@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# These scripts are not meant to be used for general builds.  They
+# are taylor only to specific build systems.  They may provide some
+# hints on how to build the solvers, but are limited.
+
 # First argument is OS name provided by user when running this
 osname=$1;
 if [ -z $osname ]
@@ -43,6 +48,18 @@ else
   export PETSC_DIR=/repo/petsc-dist
 fi
 export PETSC_ARCH=""
+
+# locate homebrew libs (this script is not at all for general builds)
+if [ ${osname} = "darwin" ]
+then
+  if [ -f /opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
+  then
+    export BREWLIB=/opt/homebrew/opt/gcc/lib/gcc/current/
+  elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
+    export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
+  fi
+fi
+
 
 mkdir coinbrew
 cd coinbrew
@@ -404,21 +421,11 @@ if [ ${osname} = "windows" ]; then
 fi
 
 if [ ${osname} = "darwin" ]; then
-  if [ "$MNAME" = "aarch64" ]; then
-    # some libraries from homebrew
-    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgfortran.5.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgcc_s.1.1.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/12/libstdc++.6.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/12/libgomp.1.dylib ./
-    cp /opt/homebrew/opt/gcc/lib/gcc/12/libquadmath.0.dylib ./
-  else
-    # some libraries from homebrew (this is built on github actions for now)
-    cp /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ./
-    cp /usr/local/opt/gcc/lib/gcc/current/libgcc_s.1.1.dylib ./
-    cp /usr/local/opt/gcc/lib/gcc/current/libstdc++.6.dylib ./
-    cp /usr/local/opt/gcc/lib/gcc/current/libgomp.1.dylib ./
-    cp /usr/local/opt/gcc/lib/gcc/current/libquadmath.0.dylib ./  
-  fi
+  cp ${BREWLIB}libgfortran.5.dylib ./
+  cp ${BREWLIB}libgcc_s.1.1.dylib ./
+  cp ${BREWLIB}libstdc++.6.dylib ./
+  cp ${BREWLIB}libgomp.1.dylib ./
+  cp ${BREWLIB}libquadmath.0.dylib ./
 fi
 
 echo "#########################################################################"
@@ -482,6 +489,39 @@ fi
 cp -r petscpy $IDAES_EXT/dist-petsc
 cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
 cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
+
+
+if [ ${osname} = "darwin" ]; then
+  echo "#########################################################################"
+  echo "# macOS update rpaths                                                   #"
+  echo "#########################################################################"
+  cd $IDAES_EXT/dist-solvers
+  update_rpath_darwin() {
+    install_name_tool -change ${BREWPATH}libgfortran.5.dylib @rpath/libgfortran.5.dylib $1
+    install_name_tool -change ${BREWPATH}libgcc_s.1.1.dylib @rpath/libgcc_s.1.1.dylib $1
+    install_name_tool -change ${BREWPATH}libstdc++.6.dylib @rpath/libstdc++.6.dylib $1
+    install_name_tool -change ${BREWPATH}libgomp.1.dylib @rpath/libgomp.1.dylib $1
+    install_name_tool -change ${BREWPATH}libquadmath.0.dylib @rpath/libquadmath.0.dylib $1
+  }
+  update_rpath_darwin ipopt
+  update_rpath_darwin ipopt_sens
+  update_rpath_darwin clp
+  update_rpath_darwin cbc
+  update_rpath_darwin bonmin
+  update_rpath_darwin couenne  
+  update_rpath_darwin ipopt_l1
+  update_rpath_darwin ipopt_sens_l1
+  update_rpath_darwin libipopt.dylib
+  update_rpath_darwin libsipopt.dylib
+  update_rpath_darwin libipopt.3.dylib
+  update_rpath_darwin libsipopt.3.dylib
+  update_rpath_darwin libpynumero_ASL.dylib
+  # if no hsl k_aug and dot_snse won't exist
+  update_rpath_darwin k_aug || true 
+  update_rpath_darwin dot_sens || true
+  cd $IDAES_EXT/dist-petsc
+  update_rpath_darwin petsc
+fi
 
 # here you pack files
 echo "#########################################################################"
