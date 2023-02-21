@@ -19,9 +19,6 @@ export ASL_LIBRARIES=$IDAES_EXT/coinbrew/dist/lib
 
 # Compile IDAES function libraries
 cd $IDAES_EXT/src
-if [ ${osname} = "darwin" ]; then
-  export BOOST_HEADER=/opt/homebrew/include
-fi
 if [ ${osname} = "windows" ]; then
   export PATH=$PATH:$IDAES_EXT/coinbrew/dist/lib64
 fi
@@ -37,6 +34,16 @@ rm -rf ./dist-lib
 mkdir dist-lib
 cd dist-lib
 cp ../src/dist/*.so ./
+if [ ${osname} = "windows" ]; then
+  mv functions.so functions.dll
+  mv general_helmholtz_external.so general_helmholtz_external.dll
+  mv cubic_roots.so cubic_roots.dll
+fi
+if [ ${osname} = "darwin" ]; then
+  mv functions.so functions.dylib
+  mv general_helmholtz_external.so general_helmholtz_external.dylib
+  mv cubic_roots.so cubic_roots.dylib
+fi
 cp ../license.txt ./license_lib.txt
 cp ../version.txt ./version_lib.txt
 mkdir ./helm_data
