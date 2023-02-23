@@ -48,7 +48,11 @@ namespace expr_idx{
   const long phir_dt = 11;
   const long delta_v_sat_approx = 12;
   const long delta_l_sat_approx = 13;
+  const long viscosity_idx = 14;
+  const long thermal_conductivity_idx = 15;
+  const long surface_tension_idx = 16;
 }
+const long expr_map_size = 17;
 
 // Structure for unary function value and 1st order derivatives
 struct f11_struct {
@@ -116,7 +120,7 @@ struct f24_struct {
 // Structure for parameters and expressions for specific component
 struct parameters_struct {
   void *asl = nullptr;// expressions in ASL (cast to ASL*)
-  long expr_map[14];  // index of expressions in NL file
+  long expr_map[expr_map_size];  // index of expressions in NL file
   long var_map[3];    // index of variables in NL file
   double R;           // specific ideal gas constant [kJ/kg/K]
   double MW;          // molecular weight [g/mol]

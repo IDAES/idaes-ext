@@ -28,7 +28,7 @@
 //
 //
 //
-// Check if two floats are reletively almost the same
+// Check if two floats are relatively almost the same
 //
 //
 inline bool rel_same(double x1, double x2, double tol){
@@ -573,7 +573,49 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-  
+
+  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+    start = std::chrono::high_resolution_clock::now();
+    std::cout << "    viscosity(" << comp_str << ", delta, tau) ";
+    for(i=0; i<dat.size(); ++i){
+      tau = pdat->T_star/dat[i][test_data::T_col];
+      delta = dat[i][test_data::rho_col]/pdat->rho_star;
+      err = fd2(memo2_viscosity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::visc_col], 1e-2, 0);
+      if(err){
+        std::cout << "Error: " << err << " T = " << dat[i][test_data::T_col] << " P = " << dat[i][test_data::P_col];
+        err = fd2(memo2_viscosity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::visc_col], 1e-2, 1);
+        return err;
+      }
+
+    }
+    stop = std::chrono::high_resolution_clock::now();
+    duration =  stop - start;
+    // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
+    std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  }
+
+  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+    start = std::chrono::high_resolution_clock::now();
+    std::cout << "    thermal_conductivity(" << comp_str << ", delta, tau) ";
+    for(i=0; i<dat.size(); ++i){
+      tau = pdat->T_star/dat[i][test_data::T_col];
+      delta = dat[i][test_data::rho_col]/pdat->rho_star;
+      // since I may not have the same method or may not have various complex correction factors, just check
+      // that I'm in the ball park.  Print errors over 20% but dont fail.
+      err = fd2(memo2_thermal_conductivity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::tc_col], 0.2, 0);
+      if(err){
+        std::cout << "Error: " << err << " T = " << dat[i][test_data::T_col] << " P = " << dat[i][test_data::P_col];
+        err = fd2(memo2_thermal_conductivity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::tc_col], 0.2, 1);
+        //return err;
+      }
+
+    }
+    stop = std::chrono::high_resolution_clock::now();
+    duration =  stop - start;
+    // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
+    std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  }
+
   return 0;
 }
 
@@ -661,7 +703,7 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
 
 //
 //
-// Check delta(T, tau) functionsand derivatives
+// Check delta(T, tau) functions and derivatives
 //
 //
 uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){

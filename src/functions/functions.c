@@ -1,6 +1,5 @@
 #include "functions.h"
 #include <math.h>
-#include <string.h>
 
 #undef printf
 
@@ -12,55 +11,7 @@ void funcadd(AmplExports *ae){
      * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info */
     addfunc("cbrt", (rfunc)scbrt, FUNCADD_REAL_VALUED, 1, NULL);
-    addfunc("testing_only", (rfunc)testing_only, FUNCADD_REAL_VALUED|FUNCADD_STRING_ARGS, -1, NULL);
 }
-
-
-extern real testing_only(arglist *al){
-    const char* sarg = al->sa[-(al->at[0]+1)];
-    int i, j;
-    real s=0;
-    char inv=0;
-
-    if(!strcmp("inv", sarg)){
-      inv = 1;
-    }
-    if(!inv){
-      for(i=0;i<al->nr;++i){
-        s += al->ra[i];
-      }
-    }
-    else{
-      for(i=0;i<al->nr;++i){
-        s += 1.0/al->ra[i];
-      }
-    }
-
-    if(al->derivs!=NULL){
-      for(i=0;i<al->nr;++i){
-        if(!inv){
-          al->derivs[i] = 1.0;
-        }
-        else{
-          al->derivs[i] = -1.0/(al->ra[i]*al->ra[i]);
-        }
-      }
-      if(al->hes!=NULL){
-        for(i=0;i<(al->nr*al->nr - al->nr)/2 + al->nr;++i){
-          al->hes[i] = 0;
-        }
-        if(inv){
-          j = -1;
-          for(i=0;i<al->nr;++i){
-            j = j + (i+1);
-              al->hes[j] = 2.0/(al->ra[i]*al->ra[i]*al->ra[i]);
-          }
-        }
-      }
-    }
-    return s;
-}
-
 
 extern real scbrt(arglist *al){
     // al is the argument list data structure

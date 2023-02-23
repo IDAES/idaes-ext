@@ -417,9 +417,9 @@ int ScaleEqsUser(Solver_ctx *sol_ctx){
 }
 
 int ScaleVarsUser(Solver_ctx *sol_ctx){
-    //Use scalling factors set in the scaling_factor suffix, for DAEs ignore
-    //scaling on the derivatives and use scaling from the differntial vars
-    //instead varaibles and there derivatives should be scaled the same
+    //Use scaling factors set in the scaling_factor suffix, for DAEs ignore
+    //scaling on the derivatives and use scaling from the differential vars
+    //instead variables and there derivatives should be scaled the same
     int i=0, j=0, err=0;
     real s;
     ASL *asl = sol_ctx->asl;
@@ -427,7 +427,7 @@ int ScaleVarsUser(Solver_ctx *sol_ctx){
     if (sol_ctx->opt.dae_solve){ //dae variable scaling
       for(i=0;i<n_var;++i){ //n_var is asl vodoo
         if (sol_ctx->dae_suffix_var->u.i[i] == 2) {
-          j = sol_ctx->dae_link[i]; //use differntial var scale
+          j = sol_ctx->dae_link[i]; //use differential var scale
           s = sol_ctx->scaling_factor_var->u.r[j];
           if(s != 0.0) varscale(i, 1.0/s, &err);
         }

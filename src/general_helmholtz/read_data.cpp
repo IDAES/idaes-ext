@@ -43,7 +43,7 @@ std::vector< std::vector<double> > read_data(std::string comp_str, test_data::da
   while (filestream.getline(row_buf, 1500)){
     ++nrows;
   }
-  std::vector< std::vector<double> > rows(nrows, std::vector<double>(12));
+  std::vector< std::vector<double> > rows(nrows, std::vector<double>(14));
   filestream.clear();
   filestream.seekg(0);
   int r = 0;
@@ -69,7 +69,7 @@ std::vector< std::vector<double> > read_data(std::string comp_str, test_data::da
         rows[r][c] = std::stod(col_buf);
       }
       ++c;
-      if(c == 12) break; // don't want phase string
+      if(c == 13) break; // don't want phase string
     }
     ++r;
   }
@@ -84,7 +84,7 @@ void sort_sat( //read sat data, and assume the rows are: liq, vap, liq vap ... a
     std::vector< std::vector<double> > *vap_ptr
 ){
   std::vector< std::vector<double> > all_data = read_data(comp_str, data_set);
-  unsigned long int i, n = all_data.size()/2;  // beter be even
+  unsigned long int i, n = all_data.size()/2;  // better be even
   liq_ptr->resize(n);
   vap_ptr->resize(n);
   for(i=0; i<n; ++i){

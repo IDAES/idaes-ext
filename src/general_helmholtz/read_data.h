@@ -17,6 +17,9 @@ namespace test_data {
     cv_col = 7,
     cp_col = 8,
     w_col = 9,
+    jt_col = 10,
+    visc_col = 11,
+    tc_col = 12,
     last_col = 13,
   };
 

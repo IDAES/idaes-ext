@@ -40,4 +40,9 @@ f12_struct phi_resi_for_sat(uint comp, double delta, double tau);
 double sat_delta_v_approx(uint comp, double tau);
 double sat_delta_l_approx(uint comp, double tau);
 
+// Transport properties
+f22_struct memo2_viscosity(uint comp, double delta, double tau);
+f22_struct memo2_thermal_conductivity(uint comp, double delta, double tau);
+f22_struct memo2_surface_tension(uint comp, double delta, double tau);
+
 #endif
