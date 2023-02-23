@@ -3,9 +3,13 @@
         "component":"r227ea",
         "tests":"all"
     },
-    "h2o_tests":{
-        "component":"h2o",
+    "r134a_tests":{
+        "component": "r134a",
         "tests":"all"
+    },
+    "r1234ze_tests":{
+        "component": "r1234ze",
+        "tests":"mixed"
     },
     "co2_tests":{
         "component": "co2",
@@ -14,12 +18,8 @@
         "s_off":2.738255753,
         "tests":"all"
     },
-    "r134a_tests":{
-        "component": "r134a",
+    "h2o_tests":{
+        "component":"h2o",
         "tests":"all"
-    },
-    "r1234ze_tests":{
-        "component": "r1234ze",
-        "tests":"mixed"
     }
 }

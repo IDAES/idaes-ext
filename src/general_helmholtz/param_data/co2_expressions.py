@@ -6,13 +6,89 @@
 #     Covering the Fluid Region from the Triple-Point Temperature to 1100 K as   #
 #     Pressures up to 800 MPa." Journal of Physical and Chemical Reference Data, #
 #     25, 1509.                                                                  #
+# Vesovic, V., W.A. Wakeham, G.A. Olchowy, J.V. Sengers, J.T.R. Watson, J.       #
+#     Millat, (1990). "The transport properties of carbon dioxide." J. Phys.     #
+#     Chem. Ref. Data, 19, 763-808.                                              #
+# Fenghour, A., W.A. Wakeham, V. Vesovic, (1998). "The Viscosity of Carbon       #
+#     Dioxide." J. Phys. Chem. Ref. Data, 27, 31-44.                             #
 #                                                                                #
 ##################################################################################
 
 import pyomo.environ as pyo
-import json
 from helmholtz_parameters import WriteParameters
 
+
+def thermal_conductivity_rule(m):
+    b = {
+        0: 0.4226159,
+        1: 0.6280115,
+        2: -0.5387661,
+        3: 0.6735941,
+        4: 0,
+        5: 0,
+        6: -0.4362677,
+        7: 0.2255388,
+    }
+    c = {
+        1: 2.387869e-2,
+        2: 4.350794,
+        3: -10.33404,
+        4: 7.981590,
+        5: -1.940558,
+    }
+    d = {
+        1: 2.447164e-5,
+        2: 8.705605e-8,
+        3: -6.547950e-11,
+        4: 6.594919e-14,
+    }
+    T = m.T_star / m.tau
+    Ts = T / 251.196
+    G = sum(b[i] / Ts**i for i in b)
+    cint_over_k = 1.0 + pyo.exp(-183.5 / T) * sum(
+        c[i] * (T / 100) ** (2 - i) for i in c
+    )
+    return (
+        (
+            0.475598 * pyo.sqrt(T) * (1 + 2.0 / 5.0 * cint_over_k) / G
+            + d[1] * m.delta
+            + d[2] * m.delta**2
+            + d[3] * m.delta**3
+            + d[4] * m.delta**4
+        )
+        / 1e3
+    )
+
+def viscosity_rule(m):
+    a = {
+        0: 0.235156,
+        1: -0.491266,
+        2: 5.211155e-2,
+        3: 5.347906e-2,
+        4: -1.537102e-2,
+    }
+    d = {
+        1: 0.4071119e-8 * pyo.value(m.rho_star),
+        2: 0.7198037e-10 * pyo.value(m.rho_star) ** 2,
+        3: 0.2411697e-22 * pyo.value(m.rho_star) ** 6,
+        4: 0.2971072e-28 * pyo.value(m.rho_star) ** 8,
+        5: -0.1627888e-28 * pyo.value(m.rho_star) ** 8,
+    }
+    T = m.T_star / m.tau
+    Ts = T / 251.196
+    return (
+        (
+            1.00697
+            * pyo.sqrt(T)
+            / pyo.exp(sum(a[i] * pyo.log(Ts) ** i for i in a))
+            / 1e6
+            + d[1] * m.delta
+            + d[2] * m.delta**2
+            + d[3] * m.delta**6 / Ts**3
+            + d[4] * m.delta**8
+            + d[5] * m.delta**8 / Ts
+        )
+    )
 
 def main():
     m = pyo.ConcreteModel()
@@ -415,8 +491,11 @@ def main():
                 - 0.32731127 * (1 - 1.0 / m.tau) ** 10.0 / 6.0
                 + 0.39245142 * (1 - 1.0 / m.tau) ** 11.0 / 6.0
             ),
+            "viscosity": viscosity_rule,
+            "thermal_conductivity": thermal_conductivity_rule, 
         }
     )
+    #print(we.m.thermal_conductivity.expr)
     we.write()
 
 

@@ -27,11 +27,11 @@ uint read_params(std::string comp, std::string data_path){
     }
     
     // IDAES component naming standards are not clear on case.  I'll assume you
-    // won't have two different components whoes name differs only by case. Some
+    // won't have two different components who's name differs only by case. Some
     // file systems aren't case sensitive anyway.  This setup requires the file
-    // names for the components to be lower case, but the compoent name can be
+    // names for the components to be lower case, but the component name can be
     // upper, lower, or mixed case.  Like I could have "h2o" and/or "H2O", but
-    // both componenets would use the "h2o" parameter set.
+    // both components would use the "h2o" parameter set.
 
     //Get the lower case component name for file names.
     std::string lower_comp = comp;
@@ -75,7 +75,7 @@ uint read_params(std::string comp, std::string data_path){
     cdata[comp_idx].T_min = boost::json::value_to<double>(jp.at("param").at("T_min"));
     cdata[comp_idx].T_max = boost::json::value_to<double>(jp.at("param").at("T_max"));
 
-    for(uint i=0; i<14; i++){
+    for(uint i=0; i<expr_map_size; i++){
         cdata[comp_idx].expr_map[i] = boost::json::value_to<long>(jp.at("expr_map").at(i));
     }
     for(uint i=0; i<3; i++){
