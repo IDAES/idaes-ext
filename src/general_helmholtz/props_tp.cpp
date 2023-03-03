@@ -1,0 +1,109 @@
+#include "props_tp.h"
+#include<iostream>
+#include<stdlib.h>
+
+prop_memo_table22 memo_table_enthalpy_liq_tp;
+prop_memo_table22 memo_table_internal_energy_liq_tp;
+prop_memo_table22 memo_table_entropy_liq_tp;
+prop_memo_table22 memo_table_gibbs_liq_tp;
+prop_memo_table22 memo_table_helmholtz_liq_tp;
+prop_memo_table22 memo_table_isochoric_heat_capacity_liq_tp;
+prop_memo_table22 memo_table_isobaric_heat_capacity_liq_tp;
+prop_memo_table22 memo_table_speed_of_sound_liq_tp;
+prop_memo_table22 memo_table_specific_volume_liq_tp;
+prop_memo_table22 memo_table_viscosity_liq_tp;
+prop_memo_table22 memo_table_thermal_conductivity_liq_tp;
+prop_memo_table22 memo_table_surface_tension_liq_tp;
+
+prop_memo_table22 memo_table_enthalpy_vap_tp;
+prop_memo_table22 memo_table_internal_energy_vap_tp;
+prop_memo_table22 memo_table_entropy_vap_tp;
+prop_memo_table22 memo_table_gibbs_vap_tp;
+prop_memo_table22 memo_table_helmholtz_vap_tp;
+prop_memo_table22 memo_table_isochoric_heat_capacity_vap_tp;
+prop_memo_table22 memo_table_isobaric_heat_capacity_vap_tp;
+prop_memo_table22 memo_table_speed_of_sound_vap_tp;
+prop_memo_table22 memo_table_specific_volume_vap_tp;
+prop_memo_table22 memo_table_viscosity_vap_tp;
+prop_memo_table22 memo_table_thermal_conductivity_vap_tp;
+prop_memo_table22 memo_table_surface_tension_vap_tp;
+
+inline bool lt(double a, double b){
+    return a < b;
+}
+
+inline bool gt(double a, double b){
+    return a > b;
+}
+
+//h
+PROP_TP_SINGLE_PHASE(enthalpy_vap_tp, memo2_enthalpy, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(enthalpy_liq_tp, memo2_enthalpy, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_enthalpy_liq_tp, enthalpy_liq_tp, memo_table_enthalpy_liq_tp)
+MEMO2_FUNCTION(memo2_enthalpy_vap_tp, enthalpy_vap_tp, memo_table_enthalpy_vap_tp)
+
+//u
+PROP_TP_SINGLE_PHASE(internal_energy_vap_tp, memo2_internal_energy, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(internal_energy_liq_tp, memo2_internal_energy, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_internal_energy_liq_tp, internal_energy_liq_tp, memo_table_internal_energy_liq_tp)
+MEMO2_FUNCTION(memo2_internal_energy_vap_tp, internal_energy_vap_tp, memo_table_internal_energy_vap_tp)
+
+//s
+PROP_TP_SINGLE_PHASE(entropy_vap_tp, memo2_entropy, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(entropy_liq_tp, memo2_entropy, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_entropy_liq_tp, entropy_liq_tp, memo_table_entropy_liq_tp)
+MEMO2_FUNCTION(memo2_entropy_vap_tp, entropy_vap_tp, memo_table_entropy_vap_tp)
+
+//g
+PROP_TP_SINGLE_PHASE(gibbs_vap_tp, memo2_gibbs, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(gibbs_liq_tp, memo2_gibbs, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_gibbs_liq_tp, gibbs_liq_tp, memo_table_gibbs_liq_tp)
+MEMO2_FUNCTION(memo2_gibbs_vap_tp, gibbs_vap_tp, memo_table_gibbs_vap_tp)
+
+//f
+PROP_TP_SINGLE_PHASE(helmholtz_vap_tp, memo2_helmholtz, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(helmholtz_liq_tp, memo2_helmholtz, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_helmholtz_liq_tp, helmholtz_liq_tp, memo_table_helmholtz_liq_tp)
+MEMO2_FUNCTION(memo2_helmholtz_vap_tp, helmholtz_vap_tp, memo_table_helmholtz_vap_tp)
+
+//cv
+PROP_TP_SINGLE_PHASE(isochoric_heat_capacity_vap_tp, memo2_isochoric_heat_capacity, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(isochoric_heat_capacity_liq_tp, memo2_isochoric_heat_capacity, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_isochoric_heat_capacity_liq_tp, isochoric_heat_capacity_liq_tp, memo_table_isochoric_heat_capacity_liq_tp)
+MEMO2_FUNCTION(memo2_isochoric_heat_capacity_vap_tp, isochoric_heat_capacity_vap_tp, memo_table_isochoric_heat_capacity_vap_tp)
+
+//cp
+PROP_TP_SINGLE_PHASE(isobaric_heat_capacity_vap_tp, memo2_isobaric_heat_capacity, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(isobaric_heat_capacity_liq_tp, memo2_isobaric_heat_capacity, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_isobaric_heat_capacity_liq_tp, isobaric_heat_capacity_liq_tp, memo_table_isobaric_heat_capacity_liq_tp)
+MEMO2_FUNCTION(memo2_isobaric_heat_capacity_vap_tp, isobaric_heat_capacity_vap_tp, memo_table_isobaric_heat_capacity_vap_tp)
+
+//w (doesn't really mean much in the two phase region, so use with care)
+PROP_TP_SINGLE_PHASE(speed_of_sound_vap_tp, memo2_speed_of_sound, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(speed_of_sound_liq_tp, memo2_speed_of_sound, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_speed_of_sound_liq_tp, speed_of_sound_liq_tp, memo_table_speed_of_sound_liq_tp)
+MEMO2_FUNCTION(memo2_speed_of_sound_vap_tp, speed_of_sound_vap_tp, memo_table_speed_of_sound_vap_tp)
+
+//v
+PROP_TP_SINGLE_PHASE(specific_volume_vap_tp, memo2_specific_volume, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(specific_volume_liq_tp, memo2_specific_volume, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_specific_volume_liq_tp, specific_volume_liq_tp, memo_table_specific_volume_liq_tp)
+MEMO2_FUNCTION(memo2_specific_volume_vap_tp, specific_volume_vap_tp, memo_table_specific_volume_vap_tp)
+
+//viscosity
+PROP_TP_SINGLE_PHASE(viscosity_vap_tp, memo2_viscosity, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(viscosity_liq_tp, memo2_viscosity, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_viscosity_liq_tp, viscosity_liq_tp, memo_table_viscosity_liq_tp)
+MEMO2_FUNCTION(memo2_viscosity_vap_tp, viscosity_vap_tp, memo_table_viscosity_vap_tp)
+
+//thermal conductivity
+PROP_TP_SINGLE_PHASE(thermal_conductivity_vap_tp, memo2_thermal_conductivity, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(thermal_conductivity_liq_tp, memo2_thermal_conductivity, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_thermal_conductivity_liq_tp, thermal_conductivity_liq_tp, memo_table_thermal_conductivity_liq_tp)
+MEMO2_FUNCTION(memo2_thermal_conductivity_vap_tp, thermal_conductivity_vap_tp, memo_table_thermal_conductivity_vap_tp)
+
+//surface tension
+PROP_TP_SINGLE_PHASE(surface_tension_vap_tp, memo2_surface_tension, memo2_delta_vapor, lt)
+PROP_TP_SINGLE_PHASE(surface_tension_liq_tp, memo2_surface_tension, memo2_delta_liquid, gt)
+MEMO2_FUNCTION(memo2_surface_tension_liq_tp, surface_tension_liq_tp, memo_table_surface_tension_liq_tp)
+MEMO2_FUNCTION(memo2_surface_tension_vap_tp, surface_tension_vap_tp, memo_table_surface_tension_vap_tp)

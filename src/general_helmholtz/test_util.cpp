@@ -18,6 +18,7 @@
 #include"props_hp.h"
 #include"props_sp.h"
 #include"props_up.h"
+#include"props_tp.h"
 #include"sat.h"
 #include"delta.h"
 #include"state.h"
@@ -172,450 +173,43 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   std::vector< std::vector<double> > dat = read_data(comp_str, data_set, u_off, h_off, s_off);
     
   auto start = std::chrono::high_resolution_clock::now();
-  std::cout << "    P(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 0);
-    if(err){
-      std::cout << err;
-      std::cout << " density " << dat[i][test_data::rho_col] << " delta: " << delta << " tau: " << tau << " pressure: " << dat[i][test_data::P_col]*1000 << ", T= " << dat[i][test_data::T_col] <<  std::endl; 
-      err = fd2(memo2_pressure, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::P_col]*1000, 1e-2, 1);
-      return err;
-    }
-  }
   auto stop = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    S(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_entropy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 0);
-    if(err){
-      std::cout << delta << " " << tau << " " << dat[i][test_data::P_col]*1000 << std::endl; 
-      fd2(memo2_entropy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::s_col], 1e-1, 1);
-      std::cout << err;
-      return err;
-    }
 
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  TEST_FUNCTION_OF_DELTA_TAU("P", memo2_pressure, dat[i][test_data::P_col]*1000, 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("s", memo2_entropy, dat[i][test_data::s_col], 1e-1, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("h", memo2_enthalpy, dat[i][test_data::h_col], 1e-1, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("u", memo2_internal_energy, dat[i][test_data::u_col], 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("cv", memo2_isochoric_heat_capacity, dat[i][test_data::cv_col], 1e-1, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("cp", memo2_isobaric_heat_capacity, dat[i][test_data::cp_col], 1e-1, 1)
+  TEST_FUNCTION_OF_DELTA_TAU("w", memo2_speed_of_sound, dat[i][test_data::w_col], 1e-1, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("g", memo2_gibbs, dat[i][test_data::h_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 1)
+  TEST_FUNCTION_OF_DELTA_TAU("f", memo2_helmholtz, dat[i][test_data::u_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 1)
 
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    H(" << comp_str << ", delta, tau) ";
+  // If the properties are right phis are right, just check derivatives.
+  TEST_FUNCTION_OF_DELTA_TAU("phii", memo2_phi_ideal, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phii_d", memo2_phi_ideal_d, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phii_t", memo2_phi_ideal_t, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phii_dd", memo2_phi_ideal_dd, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phii_dt", memo2_phi_ideal_dt, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phii_tt", memo2_phi_ideal_tt, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir", memo2_phi_resi, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir_d", memo2_phi_resi_d, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir_t", memo2_phi_resi_t, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir_dd", memo2_phi_resi_dd, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir_dt", memo2_phi_resi_dt, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("phir_tt", memo2_phi_resi_tt, nan("no check"), 1e-2, 0)
 
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_enthalpy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 0);
-    if(err){
-      std::cout << err;
-      std::cout << " density " << dat[i][test_data::rho_col] << " delta: " << delta << " tau: " << tau << " pressure: " << dat[i][test_data::P_col]*1000 << ", T= " << dat[i][test_data::T_col] <<  std::endl; 
-      err = fd2(memo2_enthalpy, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col], 1e-2, 1);
-      return err;
-    }
-  }
-
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    U(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_internal_energy, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::u_col], 1e-2, 0);
-    if(err){
-      std::cout << err;
-      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << std::endl;
-      fd2(memo2_internal_energy, comp, delta, tau, 1e-8, 1e-4, dat[i][test_data::u_col], 1e-2, 1);
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cv(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_isochoric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 0);
-    if(err){
-      std::cout << err;
-      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << ", T = " << dat[i][test_data::T_col] << std::endl;
-      fd2(memo2_isochoric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cv_col], 1e-1, 1);
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cp(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    if(fabs(dat[i][test_data::T_col] - pdat->Tc) < 0.5 && fabs(dat[i][test_data::P_col]*1000 - pdat->Pc) < 10){
-      err = fd2(memo2_isobaric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cp_col], 1e-1, 0);
-    }
-    else{
-      err = fd2(memo2_isobaric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cp_col], 0.5, 0);
-    }
-    if(err){
-      std::cout << err;
-      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << std::endl;
-      fd2(memo2_isobaric_heat_capacity, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::cp_col], 1e-1, 1); 
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    w(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_speed_of_sound, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::w_col], 1e-1, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    g(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    if(tau < 0.35){
-      continue;
-    }
-    err = fd2(memo2_gibbs, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 3e-1, 0);
-    if(err){
-      std::cout << err;
-      std::cout << std::endl << "T = " << dat[i][test_data::T_col] << ", P = " << dat[i][test_data::P_col]*1000 << std::endl;
-      fd2(memo2_gibbs, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::h_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 3e-1, 1);
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    f(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    if(tau < 0.35){
-      continue;
-    }
-    err = fd2(memo2_helmholtz, comp, delta, tau, 1e-9, 1e-5, dat[i][test_data::u_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 0);
-    if(err){
-      std::cout << err;
-      //return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_ideal, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      fd2(memo2_phi_ideal, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 1);
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii_d(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_ideal_d, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii_t(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_ideal_t, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii_dd(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
-    err = fd2(memo2_phi_ideal_dd, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii_dt(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
-    err = fd2(memo2_phi_ideal_dt, comp, delta, tau, 1e-10, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phii_tt(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    // The tolerances may seem a little loose, but the data doesn't have quite enough sig figs.
-    err = fd2(memo2_phi_ideal_tt, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 0);
-    if(err){
-      fd2(memo2_phi_resi, comp, delta, tau, 1e-9, 1e-5, nan("no check"), 1e-2, 1);
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir_d(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_d, comp, delta, tau, 1e-8, 1e-4, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir_t(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_t, comp, delta, tau, 1e-8, 1e-8, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir_dd(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      fd2(memo2_phi_resi_dd, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 1);
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir_dt(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      std::cout << "delta = " << delta << " tau = " << tau;
-      fd2(memo2_phi_resi_dt, comp, delta, tau, 1e-6, 1e-4, nan("no check"), 1e-2, 1);
-      return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    phir_tt(" << comp_str << ", delta, tau) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    err = fd2(memo2_phi_resi_tt, comp, delta, tau, 1e-8, 1e-6, nan("no check"), 1e-2, 0);
-    if(err){
-      std::cout << err;
-      return err;
-    }
-
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
+  // Transport properties
   if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
-    start = std::chrono::high_resolution_clock::now();
-    std::cout << "    viscosity(" << comp_str << ", delta, tau) ";
-    for(i=0; i<dat.size(); ++i){
-      tau = pdat->T_star/dat[i][test_data::T_col];
-      delta = dat[i][test_data::rho_col]/pdat->rho_star;
-      err = fd2(memo2_viscosity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::visc_col], 1e-2, 0);
-      if(err){
-        std::cout << "Error: " << err << " T = " << dat[i][test_data::T_col] << " P = " << dat[i][test_data::P_col];
-        err = fd2(memo2_viscosity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::visc_col], 1e-2, 1);
-        return err;
-      }
-
-    }
-    stop = std::chrono::high_resolution_clock::now();
-    duration =  stop - start;
-    // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-    std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+      TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-2, 0)
   }
-
-  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
-    start = std::chrono::high_resolution_clock::now();
-    std::cout << "    thermal_conductivity(" << comp_str << ", delta, tau) ";
-    for(i=0; i<dat.size(); ++i){
-      tau = pdat->T_star/dat[i][test_data::T_col];
-      delta = dat[i][test_data::rho_col]/pdat->rho_star;
-      // since I may not have the same method or may not have various complex correction factors, just check
-      // that I'm in the ball park.  Print errors over 20% but dont fail.
-      err = fd2(memo2_thermal_conductivity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::tc_col], 0.2, 0);
-      if(err){
-        std::cout << "Error: " << err << " T = " << dat[i][test_data::T_col] << " P = " << dat[i][test_data::P_col];
-        err = fd2(memo2_thermal_conductivity, comp, delta, tau, 1e-8, 1e-6, dat[i][test_data::tc_col], 0.2, 1);
-        //return err;
-      }
-
-    }
-    stop = std::chrono::high_resolution_clock::now();
-    duration =  stop - start;
-    // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-    std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  // For thermal conductivity, for a lot of reasons, (e.g. different correlation, no critical 
+  // correction, ...) these may or may not be super accurate, just check they are roughly correct.
+  // ignore errors but print more than 33% error for manual inspection. 
+  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
   }
-
   return 0;
 }
 
@@ -703,7 +297,7 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
 
 //
 //
-// Check delta(T, tau) functions and derivatives
+// Check delta(P, tau) functions and derivatives
 //
 //
 uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
@@ -715,35 +309,15 @@ uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_en
   test_fptr2 delta_func;
 
   auto start = std::chrono::high_resolution_clock::now();
-  if(data_set == test_data::vapor_set){
-    std::cout << "    delta_vapor(" << comp_str << ", delta, tau) ";
-    delta_func = memo2_delta_vapor;
-  }
-  else{ // liquid or supercritical use the liquid call
-    std::cout << "    delta_liquid(" << comp_str << ", delta, tau) ";
-    delta_func = memo2_delta_liquid;
-  }
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    if((P >= Psat && delta_func == memo2_delta_liquid) || (P <= Psat && delta_func == memo2_delta_vapor)){ 
-        // make sure the phase is correct, this can be a little off due to lack of sig figs.
-        if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
-        err = fd2(delta_func, comp, P, tau, 1e-3, 1e-8, delta, 1e-2, 0);
-        if(err){
-            std::cout << err;
-            std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(delta_func, comp, P, tau, 1e-3, 1e-8, delta, 1e-2, 1);
-            return err;
-        }
-    }
-  }
   auto stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  std::chrono::duration<double> duration;
+
+  if(data_set == test_data::vapor_set){
+    TEST_FUNCTION_OF_P_TAU("delta_vapor", memo2_delta_vapor, dat[i][test_data::rho_col]/pdat->rho_star, 1e-2)
+  }
+  else{
+    TEST_FUNCTION_OF_P_TAU("delta_liquid", memo2_delta_liquid, dat[i][test_data::rho_col]/pdat->rho_star, 1e-2)
+  }
   return 0;
 }
 
@@ -945,142 +519,6 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
   start = std::chrono::high_resolution_clock::now();
-  std::cout << "    u(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::u_col] - u_off;
-    err = fd2(memo2_internal_energy_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
-    if(err){
-        fd2(memo2_internal_energy_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    s(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::s_col] - s_off;
-    err = fd2(memo2_entropy_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 5e-2, 0);
-    if(err){
-        fd2(memo2_entropy_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 5e-2, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cv(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cv_col];
-    err = fd2(memo2_isochoric_heat_capacity_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  H = " << enth << "P = " << P << std::endl;
-        fd2(memo2_isochoric_heat_capacity_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cp(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cp_col];
-    err = fd2(memo2_isobaric_heat_capacity_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  H = " << enth << "P = " << P << std::endl;
-        fd2(memo2_isobaric_heat_capacity_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    w(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::w_col];
-    err = fd2(memo2_speed_of_sound_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  H = " << enth << "P = " << P << std::endl;
-        fd2(memo2_speed_of_sound_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    v(" << comp_str << ", h, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    enth = dat[i][test_data::h_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = 1/dat[i][test_data::rho_col];
-    err = fd2(memo2_specific_volume_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  H = " << enth << "P = " << P << std::endl;
-        fd2(memo2_specific_volume_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
   std::cout << "    vf(" << comp_str << ", s, P) ";
   for(i=0; i<dat.size(); ++i){
     tau = pdat->T_star/dat[i][test_data::T_col];
@@ -1097,142 +535,6 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     err = fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
     if(err){
         fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    u(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::u_col] - u_off;
-    err = fd2(memo2_internal_energy_sp, comp, entr - s_off, P, 1e-3, 1e-3, tv, 1e-1, 0);
-    if(err){
-        fd2(memo2_internal_energy_sp, comp, entr - s_off, P, 1e-3, 1e-3, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    h(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::h_col] - h_off;
-    err = fd2(memo2_enthalpy_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 5e-2, 0);
-    if(err){
-        fd2(memo2_enthalpy_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 5e-2, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cv(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cv_col];
-    err = fd2(memo2_isochoric_heat_capacity_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  S = " << entr << "P = " << P << std::endl;
-        fd2(memo2_isochoric_heat_capacity_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cp(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cp_col];
-    err = fd2(memo2_isobaric_heat_capacity_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  S = " << entr << "P = " << P << std::endl;
-        fd2(memo2_isobaric_heat_capacity_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    w(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::w_col];
-    err = fd2(memo2_speed_of_sound_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  S = " << entr << "P = " << P << std::endl;
-        fd2(memo2_speed_of_sound_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    v(" << comp_str << ", s, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    entr = dat[i][test_data::s_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = 1/dat[i][test_data::rho_col];
-    err = fd2(memo2_specific_volume_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  S = " << entr << "P = " << P << std::endl;
-        fd2(memo2_specific_volume_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
         return err;
     }
   }
@@ -1264,143 +566,52 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   stop = std::chrono::high_resolution_clock::now();
   duration =  stop - start;
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;  
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    s(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::s_col] - s_off;
-    err = fd2(memo2_entropy_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 1e-1, 0);
-    if(err){
-        fd2(memo2_entropy_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    h(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::h_col] - h_off;
-    err = fd2(memo2_enthalpy_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 5e-2, 0);
-    if(err){
-        fd2(memo2_enthalpy_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 5e-2, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  TEST_FUNCTION_OF_STATE_VARS("u", "h", memo2_internal_energy_hp, dat[i][test_data::u_col] - u_off, dat[i][test_data::h_col] - h_off, 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("s", "h", memo2_entropy_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "h", memo2_isochoric_heat_capacity_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col] - h_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "h", memo2_isobaric_heat_capacity_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "h", memo2_speed_of_sound_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "h", memo2_specific_volume_hp, 1/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
 
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cv(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cv_col];
-    err = fd2(memo2_isochoric_heat_capacity_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  U = " << inte << "P = " << P << std::endl;
-        fd2(memo2_isochoric_heat_capacity_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  TEST_FUNCTION_OF_STATE_VARS("h", "s", memo2_enthalpy_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("u", "s", memo2_internal_energy_sp, dat[i][test_data::u_col] - u_off, dat[i][test_data::s_col] - s_off, 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "s", memo2_isochoric_heat_capacity_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col] - s_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "s", memo2_isobaric_heat_capacity_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "s", memo2_speed_of_sound_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "s", memo2_specific_volume_sp, 1/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
 
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    cp(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    if (fabs(P - pdat->Pc) < 1000){
-      continue;
-    }
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::cp_col];
-    err = fd2(memo2_isobaric_heat_capacity_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  U = " << inte << "P = " << P << std::endl;
-        fd2(memo2_isobaric_heat_capacity_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
-  }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  TEST_FUNCTION_OF_STATE_VARS("h", "u", memo2_enthalpy_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("s", "u", memo2_entropy_up, dat[i][test_data::s_col] - s_off, dat[i][test_data::u_col] - u_off, 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "u", memo2_isochoric_heat_capacity_up, dat[i][test_data::cv_col], dat[i][test_data::u_col] - u_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "u", memo2_isobaric_heat_capacity_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "u", memo2_speed_of_sound_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "u", memo2_specific_volume_up, 1/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
 
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    w(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = dat[i][test_data::w_col];
-    err = fd2(memo2_speed_of_sound_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  U = " << inte << "P = " << P << std::endl;
-        fd2(memo2_speed_of_sound_up, comp, inte - u_off, P, 1e-3, 1e-3, tv, 1e-1, 1);
-        return err;
-    }
+  if(data_set == test_data::vapor_set){
+    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_vap_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_vap_tp, dat[i][test_data::s_col] - s_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_vap_tp, dat[i][test_data::u_col] - u_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv", "T", memo2_isochoric_heat_capacity_vap_tp, dat[i][test_data::cv_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_vap_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_vap_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_vap_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_vap_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_viscosity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
   }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
-
-  start = std::chrono::high_resolution_clock::now();
-  std::cout << "    v(" << comp_str << ", u, P) ";
-  for(i=0; i<dat.size(); ++i){
-    tau = pdat->T_star/dat[i][test_data::T_col];
-    delta = dat[i][test_data::rho_col]/pdat->rho_star;
-    inte = dat[i][test_data::u_col];
-    P = dat[i][test_data::P_col]*1000.0;
-    Psat = sat_p(comp, tau).f;
-    tv = 1/dat[i][test_data::rho_col];
-    err = fd2(memo2_specific_volume_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 0);
-    if(err){
-        std::cout << std::endl << "  U = " << inte << "P = " << P << std::endl;
-        fd2(memo2_specific_volume_up, comp, inte - u_off, P, 1e-3, 1e-8, tv, 1e-1, 1);
-        return err;
-    }
+  else{
+    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_liq_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_liq_tp, dat[i][test_data::s_col] - s_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_liq_tp, dat[i][test_data::u_col] - u_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv", "T", memo2_isochoric_heat_capacity_liq_tp, dat[i][test_data::cv_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_liq_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_liq_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_liq_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_liq_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_viscosity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
   }
-  stop = std::chrono::high_resolution_clock::now();
-  duration =  stop - start;
-  // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
-  std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+  
 
   return 0;
 }

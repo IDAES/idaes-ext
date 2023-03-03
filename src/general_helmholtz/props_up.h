@@ -3,15 +3,8 @@
 #include "delta.h"
 #include "state.h"
 
-
-void enthalpy_up(uint comp, double u, double p, f22_struct *out);
-void entropy_up(uint comp, double u, double p, f22_struct *out);
-void gibbs_up(uint comp, double u, double p, f22_struct *out);
-void helmholtz_up(uint comp, double u, double p, f22_struct *out);
-void isochoric_heat_capacity_up(uint comp, double u, double p, f22_struct *out);
-void isobaric_heat_capacity_up(uint comp, double u, double p, f22_struct *out);
-void speed_of_sound_up(uint comp, double u, double p, f22_struct *out);
-void specific_volume_up(uint comp, double u, double p, f22_struct *out);
+f22_struct memo2_temperature_up(uint comp, double u, double p);
+f22_struct memo2_vapor_fraction_up(uint comp, double u, double p);
 
 f22_struct memo2_enthalpy_up(uint comp, double u, double p);
 f22_struct memo2_entropy_up(uint comp, double u, double p);

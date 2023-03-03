@@ -3,15 +3,8 @@
 #include "delta.h"
 #include "state.h"
 
-
-void internal_energy_sp(uint comp, double s, double p, f22_struct *out);
-void entropy_sp(uint comp, double s, double p, f22_struct *out);
-void gibbs_sp(uint comp, double s, double p, f22_struct *out);
-void helmholtz_sp(uint comp, double s, double p, f22_struct *out);
-void isochoric_heat_capacity_sp(uint comp, double s, double p, f22_struct *out);
-void isobaric_heat_capacity_sp(uint comp, double s, double p, f22_struct *out);
-void speed_of_sound_sp(uint comp, double s, double p, f22_struct *out);
-void specific_volume_sp(uint comp, double s, double p, f22_struct *out);
+f22_struct memo2_temperature_sp(uint comp, double s, double p);
+f22_struct memo2_vapor_fraction_sp(uint comp, double s, double p);
 
 f22_struct memo2_internal_energy_sp(uint comp, double s, double p);
 f22_struct memo2_enthalpy_sp(uint comp, double s, double p);
