@@ -16,6 +16,8 @@ int main(){
     uint comp, err;
     std::vector<tests_struct> tests;
     tests = read_run_tests();
+
+    /*
     comp = read_params("h2o");
     parameters_struct *pdat = &cdata[comp];
     double P = 1; // P = pdat->Pc;
@@ -23,7 +25,7 @@ int main(){
     std::cout << "sat_tau=" << taus <<std::endl; 
     for (double tau = 0.5; tau < 2.8; tau += 0.001){
         std::cout << pdat->T_star/tau << "\t" << tau << "\t" << delta_liquid(comp, P, tau) << "\t" << delta_vapor(comp, P, tau) << std::endl;
-    }
+    }*/
 
 
     for (auto t = tests.begin(); t != tests.end(); ++t){

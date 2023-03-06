@@ -13,7 +13,7 @@ prop_memo_table22 memo_table_specific_volume_up;
 prop_memo_table22 memo_table_temperature_up;
 prop_memo_table22 memo_table_vapor_fraction_up;
 
-prop_memo_table22 memo_table_internal_energy_liq_up;
+prop_memo_table22 memo_table_enthalpy_liq_up;
 prop_memo_table22 memo_table_entropy_liq_up;
 prop_memo_table22 memo_table_gibbs_liq_up;
 prop_memo_table22 memo_table_helmholtz_liq_up;
@@ -22,7 +22,7 @@ prop_memo_table22 memo_table_isobaric_heat_capacity_liq_up;
 prop_memo_table22 memo_table_speed_of_sound_liq_up;
 prop_memo_table22 memo_table_specific_volume_liq_up;
 
-prop_memo_table22 memo_table_internal_energy_vap_up;
+prop_memo_table22 memo_table_enthalpy_vap_up;
 prop_memo_table22 memo_table_entropy_vap_up;
 prop_memo_table22 memo_table_gibbs_vap_up;
 prop_memo_table22 memo_table_helmholtz_vap_up;
@@ -53,19 +53,23 @@ void vapor_fraction_up(uint comp, double u, double p, f22_struct *out){
     out->f_12 = vf_vec.f_12;
     out->f_22 = vf_vec.f_22;
 }
-MEMO2_FUNCTION(memo2_vapor_fraction_sp, vapor_fraction_sp, memo_table_vapor_fraction_sp)
+MEMO2_FUNCTION(memo2_vapor_fraction_up, vapor_fraction_up, memo_table_vapor_fraction_up)
 
 //u
 PROP_UP_SINGLE_PHASE(enthalpy_vap_up, memo2_enthalpy, memo2_delta_vapor)
 PROP_UP_SINGLE_PHASE(enthalpy_liq_up, memo2_enthalpy, memo2_delta_liquid)
 PROP_UP_GENERAL(enthalpy_up, enthalpy_liq_up, enthalpy_vap_up)
 MEMO2_FUNCTION(memo2_enthalpy_up, enthalpy_up, memo_table_enthalpy_up)
+MEMO2_FUNCTION(memo2_enthalpy_vap_up, enthalpy_vap_up, memo_table_enthalpy_vap_up)
+MEMO2_FUNCTION(memo2_enthalpy_liq_up, enthalpy_liq_up, memo_table_enthalpy_liq_up)
 
 //s
 PROP_UP_SINGLE_PHASE(entropy_vap_up, memo2_entropy, memo2_delta_vapor)
 PROP_UP_SINGLE_PHASE(entropy_liq_up, memo2_entropy, memo2_delta_liquid)
 PROP_UP_GENERAL(entropy_up, entropy_liq_up, entropy_vap_up)
 MEMO2_FUNCTION(memo2_entropy_up, entropy_up, memo_table_entropy_up)
+MEMO2_FUNCTION(memo2_entropy_vap_up, entropy_vap_up, memo_table_entropy_vap_up)
+MEMO2_FUNCTION(memo2_entropy_liq_up, entropy_liq_up, memo_table_entropy_liq_up)
 
 //g
 PROP_UP_SINGLE_PHASE(gibbs_vap_up, memo2_gibbs, memo2_delta_vapor)

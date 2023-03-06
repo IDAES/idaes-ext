@@ -568,6 +568,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
+  TEST_FUNCTION_OF_STATE_VARS("T", "h", memo2_temperature_hp, dat[i][test_data::T_col], dat[i][test_data::h_col] - h_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("u", "h", memo2_internal_energy_hp, dat[i][test_data::u_col] - u_off, dat[i][test_data::h_col] - h_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("s", "h", memo2_entropy_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 5e-2)
   TEST_FUNCTION_OF_STATE_VARS("cv", "h", memo2_isochoric_heat_capacity_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col] - h_off, 1e-1)
@@ -575,6 +576,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   TEST_FUNCTION_OF_STATE_VARS("w", "h", memo2_speed_of_sound_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("v", "h", memo2_specific_volume_hp, 1/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
 
+  TEST_FUNCTION_OF_STATE_VARS("T", "s", memo2_temperature_sp, dat[i][test_data::T_col], dat[i][test_data::s_col] - s_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("h", "s", memo2_enthalpy_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("u", "s", memo2_internal_energy_sp, dat[i][test_data::u_col] - u_off, dat[i][test_data::s_col] - s_off, 5e-2)
   TEST_FUNCTION_OF_STATE_VARS("cv", "s", memo2_isochoric_heat_capacity_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col] - s_off, 1e-1)
@@ -582,6 +584,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   TEST_FUNCTION_OF_STATE_VARS("w", "s", memo2_speed_of_sound_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("v", "s", memo2_specific_volume_sp, 1/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
 
+  TEST_FUNCTION_OF_STATE_VARS("T", "u", memo2_temperature_up, dat[i][test_data::T_col], dat[i][test_data::u_col] - u_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("h", "u", memo2_enthalpy_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("s", "u", memo2_entropy_up, dat[i][test_data::s_col] - s_off, dat[i][test_data::u_col] - u_off, 5e-2)
   TEST_FUNCTION_OF_STATE_VARS("cv", "u", memo2_isochoric_heat_capacity_up, dat[i][test_data::cv_col], dat[i][test_data::u_col] - u_off, 1e-1)
@@ -598,7 +601,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_vap_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_vap_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_vap_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_viscosity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
   }
   else{
     TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_liq_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
@@ -609,7 +612,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_liq_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_liq_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_liq_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_viscosity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
   }
   
 
