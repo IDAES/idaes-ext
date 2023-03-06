@@ -12,6 +12,9 @@ prop_memo_table22 memo_table_speed_of_sound_sp;
 prop_memo_table22 memo_table_specific_volume_sp;
 prop_memo_table22 memo_table_temperature_sp;
 prop_memo_table22 memo_table_vapor_fraction_sp;
+prop_memo_table22 memo_table_viscosity_sp;
+prop_memo_table22 memo_table_thermal_conductivity_sp;
+prop_memo_table22 memo_table_surface_tension_sp;
 
 prop_memo_table22 memo_table_internal_energy_liq_sp;
 prop_memo_table22 memo_table_enthalpy_liq_sp;
@@ -21,6 +24,9 @@ prop_memo_table22 memo_table_isochoric_heat_capacity_liq_sp;
 prop_memo_table22 memo_table_isobaric_heat_capacity_liq_sp;
 prop_memo_table22 memo_table_speed_of_sound_liq_sp;
 prop_memo_table22 memo_table_specific_volume_liq_sp;
+prop_memo_table22 memo_table_viscosity_liq_sp;
+prop_memo_table22 memo_table_thermal_conductivity_liq_sp;
+prop_memo_table22 memo_table_surface_tension_liq_sp;
 
 prop_memo_table22 memo_table_internal_energy_vap_sp;
 prop_memo_table22 memo_table_enthalpy_vap_sp;
@@ -30,6 +36,9 @@ prop_memo_table22 memo_table_isochoric_heat_capacity_vap_sp;
 prop_memo_table22 memo_table_isobaric_heat_capacity_vap_sp;
 prop_memo_table22 memo_table_speed_of_sound_vap_sp;
 prop_memo_table22 memo_table_specific_volume_vap_sp;
+prop_memo_table22 memo_table_viscosity_vap_sp;
+prop_memo_table22 memo_table_thermal_conductivity_vap_sp;
+prop_memo_table22 memo_table_surface_tension_vap_sp;
 
 //T
 void temperature_sp(uint comp, double s, double p, f22_struct *out){ 
@@ -119,3 +128,26 @@ MEMO2_FUNCTION(memo2_specific_volume_sp, specific_volume_sp, memo_table_specific
 MEMO2_FUNCTION(memo2_specific_volume_vap_sp, specific_volume_vap_sp, memo_table_specific_volume_vap_sp)
 MEMO2_FUNCTION(memo2_specific_volume_liq_sp, specific_volume_liq_sp, memo_table_specific_volume_liq_sp)
 
+//viscosity
+PROP_SP_SINGLE_PHASE(viscosity_vap_sp, memo2_viscosity, memo2_delta_vapor)
+PROP_SP_SINGLE_PHASE(viscosity_liq_sp, memo2_viscosity, memo2_delta_liquid)
+PROP_SP_GENERAL(viscosity_sp, viscosity_liq_sp, viscosity_vap_sp)
+MEMO2_FUNCTION(memo2_viscosity_sp, viscosity_sp, memo_table_viscosity_sp)
+MEMO2_FUNCTION(memo2_viscosity_vap_sp, viscosity_vap_sp, memo_table_viscosity_vap_sp)
+MEMO2_FUNCTION(memo2_viscosity_liq_sp, viscosity_liq_sp, memo_table_viscosity_liq_sp)
+
+//thermal conductivity
+PROP_SP_SINGLE_PHASE(thermal_conductivity_vap_sp, memo2_thermal_conductivity, memo2_delta_vapor)
+PROP_SP_SINGLE_PHASE(thermal_conductivity_liq_sp, memo2_thermal_conductivity, memo2_delta_liquid)
+PROP_SP_GENERAL(thermal_conductivity_sp, thermal_conductivity_liq_sp, thermal_conductivity_vap_sp)
+MEMO2_FUNCTION(memo2_thermal_conductivity_sp, thermal_conductivity_sp, memo_table_thermal_conductivity_sp)
+MEMO2_FUNCTION(memo2_thermal_conductivity_vap_sp, thermal_conductivity_vap_sp, memo_table_thermal_conductivity_vap_sp)
+MEMO2_FUNCTION(memo2_thermal_conductivity_liq_sp, thermal_conductivity_liq_sp, memo_table_thermal_conductivity_liq_sp)
+
+//surface tension
+PROP_SP_SINGLE_PHASE(surface_tension_vap_sp, memo2_surface_tension, memo2_delta_vapor)
+PROP_SP_SINGLE_PHASE(surface_tension_liq_sp, memo2_surface_tension, memo2_delta_liquid)
+PROP_SP_GENERAL(surface_tension_sp, surface_tension_liq_sp, surface_tension_vap_sp)
+MEMO2_FUNCTION(memo2_surface_tension_sp, surface_tension_sp, memo_table_surface_tension_sp)
+MEMO2_FUNCTION(memo2_surface_tension_vap_sp, surface_tension_vap_sp, memo_table_surface_tension_vap_sp)
+MEMO2_FUNCTION(memo2_surface_tension_liq_sp, surface_tension_liq_sp, memo_table_surface_tension_liq_sp)

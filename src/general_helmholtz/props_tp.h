@@ -2,7 +2,6 @@
 #include "props.h"
 #include "delta.h"
 #include "state.h"
-#include "sat.h"
 #include "phi.h"
 
 void enthalpy_liq_tp(uint comp, double t, double p, f22_struct *out);

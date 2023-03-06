@@ -2,6 +2,7 @@
 #include "props.h"
 #include "delta.h"
 #include "state.h"
+#include "phi.h"
 
 f22_struct memo2_temperature_up(uint comp, double u, double p);
 f22_struct memo2_vapor_fraction_up(uint comp, double u, double p);
@@ -14,6 +15,33 @@ f22_struct memo2_isochoric_heat_capacity_up(uint comp, double u, double p);
 f22_struct memo2_isobaric_heat_capacity_up(uint comp, double u, double p);
 f22_struct memo2_speed_of_sound_up(uint comp, double u, double p);
 f22_struct memo2_specific_volume_up(uint comp, double u, double p);
+f22_struct memo2_viscosity_up(uint comp, double u, double p);
+f22_struct memo2_thermal_conductivity_up(uint comp, double u, double p);
+f22_struct memo2_surface_tension_up(uint comp, double u, double p);
+
+f22_struct memo2_enthalpy_vap_up(uint comp, double u, double p);
+f22_struct memo2_entropy_vap_up(uint comp, double u, double p);
+f22_struct memo2_gibbs_vap_up(uint comp, double u, double p);
+f22_struct memo2_helmholtz_vap_up(uint comp, double u, double p);
+f22_struct memo2_isochoric_heat_capacity_vap_up(uint comp, double u, double p);
+f22_struct memo2_isobaric_heat_capacity_vap_up(uint comp, double u, double p);
+f22_struct memo2_speed_of_sound_vap_up(uint comp, double u, double p);
+f22_struct memo2_specific_volume_vap_up(uint comp, double u, double p);
+f22_struct memo2_viscosity_vap_up(uint comp, double u, double p);
+f22_struct memo2_thermal_conductivity_vap_up(uint comp, double u, double p);
+f22_struct memo2_surface_tension_vap_up(uint comp, double u, double p);
+
+f22_struct memo2_enthalpy_liq_up(uint comp, double u, double p);
+f22_struct memo2_entropy_liq_up(uint comp, double u, double p);
+f22_struct memo2_gibbs_liq_up(uint comp, double u, double p);
+f22_struct memo2_helmholtz_liq_up(uint comp, double u, double p);
+f22_struct memo2_isochoric_heat_capacity_liq_up(uint comp, double u, double p);
+f22_struct memo2_isobaric_heat_capacity_liq_up(uint comp, double u, double p);
+f22_struct memo2_speed_of_sound_liq_up(uint comp, double u, double p);
+f22_struct memo2_specific_volume_liq_up(uint comp, double u, double p);
+f22_struct memo2_viscosity_liq_up(uint comp, double u, double p);
+f22_struct memo2_thermal_conductivity_liq_up(uint comp, double u, double p);
+f22_struct memo2_surface_tension_liq_up(uint comp, double u, double p);
 
 #define PROP_UP_SINGLE_PHASE(new_func, prop_func, delta_func) \
 void new_func(uint comp, double u, double p, f22_struct *out){ \
