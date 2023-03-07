@@ -272,7 +272,11 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
 
 //
 //
+<<<<<<< HEAD
 // Check delta(P, tau) functions and derivatives
+=======
+// Check delta(T, tau) functions and derivatives
+>>>>>>> db3d29c6c8008340a1ac8153a73e3cd0fc59c676
 //
 //
 uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
