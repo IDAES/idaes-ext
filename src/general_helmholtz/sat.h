@@ -26,9 +26,12 @@ File sat.h
 #ifndef _INCLUDE_SAT_H_
 #define _INCLUDE_SAT_H_
 
-f12_struct sat_tau(uint comp, double pr);
-f12_struct sat_p(uint comp, double tau);
-f12_struct sat_delta_v(uint comp, double tau);
-f12_struct sat_delta_l(uint comp, double tau);
+f12_struct sat_tau(uint comp, double pr);  // tau_sat as a function of pressure [kPa]
+f12_struct sat_p(uint comp, double tau); // p_sat as a function of tau
+f12_struct sat_delta_v(uint comp, double tau); // vapor delta_sat as a function of tau
+f12_struct sat_delta_l(uint comp, double tau); // liquid delta_sat as a function of tau
+
+f12_struct sat_t(uint comp, double pr); // temperature [K] as a function of pressure [kPa]
+f12_struct sat_p_t(uint comp, double t); // pressure [kPa] as a function of temperature [K]
 
 #endif

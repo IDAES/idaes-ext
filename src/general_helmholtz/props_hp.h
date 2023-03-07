@@ -15,8 +15,8 @@ f22_struct memo2_isochoric_heat_capacity_hp(uint comp, double h, double p);
 f22_struct memo2_isobaric_heat_capacity_hp(uint comp, double h, double p);
 f22_struct memo2_speed_of_sound_hp(uint comp, double h, double p);
 f22_struct memo2_specific_volume_hp(uint comp, double h, double p);
-f22_struct memo2_viscosity_volume_hp(uint comp, double h, double p);
-f22_struct memo2_thermal_conductivity_volume_hp(uint comp, double h, double p);
+f22_struct memo2_viscosity_hp(uint comp, double h, double p);
+f22_struct memo2_thermal_conductivity_hp(uint comp, double h, double p);
 f22_struct memo2_surface_tension_hp(uint comp, double h, double p);
 
 f22_struct memo2_internal_energy_vap_hp(uint comp, double h, double p);

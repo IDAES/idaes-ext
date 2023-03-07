@@ -474,3 +474,23 @@ f12_struct sat_tau(uint comp, double pr){
   res_ptr->f_11 = -res_ptr->f_1*res_ptr->f_1*res_ptr->f_1*pres.f_11;
   return *res_ptr;
 }
+
+// Solve for tau sat, calculate derivatives and cache results.
+f12_struct sat_t(uint comp, double pr){
+  f12_struct res, tau = sat_tau(comp, pr);
+  double Tc = cdata[comp].Tc;
+  res.f = Tc/tau.f;
+  res.f_1 = -Tc*tau.f_1/tau.f/tau.f;
+  res.f_11 = -Tc*tau.f_11/tau.f/tau.f + 2*Tc*tau.f_1*tau.f_1/tau.f/tau.f/tau.f;
+  return res;
+}
+
+// Solve for tau sat, calculate derivatives and cache results.
+f12_struct sat_p_t(uint comp, double t){
+  double Tc = cdata[comp].Tc;
+  f12_struct res, p_res = sat_p(comp, Tc/t);
+  res.f = p_res.f;
+  res.f_1 = -p_res.f_1 * Tc / t / t;
+  res.f_11 = p_res.f_11 * Tc / t / t * Tc / t / t + 2*p_res.f_1 * Tc / t / t / t;
+  return res;
+}

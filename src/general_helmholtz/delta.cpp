@@ -60,7 +60,7 @@ double delta_vapor(uint comp, double pr, double tau){
   parameters_struct *dat = &cdata[comp];
 
   using namespace boost::math::tools;
-  std::uintmax_t h_it_max=50;
+  std::uintmax_t h_it_max=40;
   int digits = std::numeric_limits<double>::digits - 3;
   pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
 
@@ -100,8 +100,8 @@ double delta_liquid(uint comp, double pr, double tau){
   parameters_struct *dat = &cdata[comp];
 
   using namespace boost::math::tools;
-  std::uintmax_t h_it_max=50;
-  int digits = std::numeric_limits<double>::digits - 2;
+  std::uintmax_t h_it_max=40;
+  int digits = std::numeric_limits<double>::digits - 3;
   pfunctor_deriv fgh = pfunctor_deriv(comp); fgh.set_pressure(pr); fgh.set_tau(tau); 
 
   if(pr >= dat->Pc && tau <= tau_c(comp)){ // super critical

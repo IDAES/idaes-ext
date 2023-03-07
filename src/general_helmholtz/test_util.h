@@ -71,7 +71,7 @@ for(i=0; i<dat.size(); ++i){ \
             std::cout << std::endl; \
             std::cout << "-------------------------ERROR--" << err << "------------------------" << std::endl; \
             std::cout << "Property: " << PROP << " Comp: " << comp_str << std::endl; \
-            std::cout << "density " << dat[i][test_data::rho_col] << " delta: " << delta; \
+            std::cout << "density " << dat[i][test_data::rho_col]; \
             std::cout << " tau: " << tau << " pressure: " << dat[i][test_data::P_col]*1000; \
             std::cout << ", T= " << dat[i][test_data::T_col] <<  std::endl; \
             fd2(FUNC, comp, P, tau, 1e-3, 1e-8, DAT, TOL, 1); \
@@ -137,5 +137,23 @@ for(i=0; i<dat.size(); ++i){ \
 stop = std::chrono::high_resolution_clock::now(); \
 duration =  stop - start; \
 std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
+
+
+#define TEST_FUNCTION_SAT(PROP, STATE, FUNC, DATP, DATS, TOL, HSTEP) \
+start = std::chrono::high_resolution_clock::now(); \
+std::cout << "    " << PROP << "(" << comp_str << ", " << STATE << ") "; \
+for(i=0; i<sat_liq_data.size(); ++i){ \
+    tau = pdat->T_star/sat_liq_data[i][test_data::T_col]; \
+    pressure = sat_liq_data[i][test_data::P_col]*1000; \
+    err = fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 0); \
+    if(err){ \
+        std::cout << err; \
+        fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 1); \
+        return err; \
+    } \
+} \
+stop = std::chrono::high_resolution_clock::now(); \
+duration =  stop - start; \
+std::cout << "Passed " << 3*sat_liq_data.size() << " points in " << duration.count() << "s" << std::endl;
 
 #endif

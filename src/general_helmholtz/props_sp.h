@@ -22,7 +22,7 @@ f22_struct memo2_surface_tension_sp(uint comp, double s, double p);
 f22_struct memo2_internal_energy_vap_sp(uint comp, double s, double p);
 f22_struct memo2_enthalpy_vap_sp(uint comp, double s, double p);
 f22_struct memo2_gibbs_vap_sp(uint comp, double s, double p);
-f22_struct memo2_helmholtz_sp(uint comp, double s, double p);
+f22_struct memo2_helmholtz_vap_sp(uint comp, double s, double p);
 f22_struct memo2_isochoric_heat_capacity_vap_sp(uint comp, double s, double p);
 f22_struct memo2_isobaric_heat_capacity_vap_sp(uint comp, double s, double p);
 f22_struct memo2_speed_of_sound_vap_sp(uint comp, double s, double p);
