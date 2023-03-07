@@ -24,6 +24,7 @@
 #include "props_hp.h"
 #include "props_sp.h"
 #include "props_up.h"
+#include "props_tp.h"
 #include "state.h"
 #include "delta.h"
 #include "sat.h"
@@ -67,52 +68,165 @@ ASL_WRAP_FUNC_2ARG(phi0_tt, memo2_phi_ideal_tt)          // phi0_tt(comp, delta,
 ASL_WRAP_FUNC_2ARG(phir_tt, memo2_phi_resi_tt)           // phir_tt(comp, delta, tau) [none]
 
 // Saturation curve functions
-ASL_WRAP_FUNC_1ARG(tau_sat, sat_tau)                     // tau_sat(comp, pressure) [none]
-ASL_WRAP_FUNC_1ARG(p_sat, sat_p)                         // p_sat(comp, pressure) [kPa]
-ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, pressure) [none]
-ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, pressure) [none]
+ASL_WRAP_FUNC_1ARG(tau_sat, sat_tau)                     // tau_sat(comp, p [kPa]) [none]
+ASL_WRAP_FUNC_1ARG(p_sat, sat_p)                         // p_sat(comp, tau) [kPa]
+ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, tau) [none]
+ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, tau) [none]
+ASL_WRAP_FUNC_1ARG(p_sat_t, sat_p_t)                     // p_sat_t(comp, T [K]) [kPa]
+ASL_WRAP_FUNC_1ARG(T_sat, sat_t)                         // T_sat(comp, p [kPa]) [K]
 
-// General (liquid, vapor, two-phase) property functions of (h, p)
-ASL_WRAP_FUNC_2ARG(tau_hp, memo2_tau_hp)                    // tau(comp, h, p) [none]
-ASL_WRAP_FUNC_2ARG(vf_hp, memo2_vf_hp)                      // vf(comp, h, p) [none]
-ASL_WRAP_FUNC_2ARG(u_hp, memo2_internal_energy_hp)          // u(comp, h, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(s_hp, memo2_entropy_hp)                  // s(comp, h, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(g_hp, memo2_gibbs_hp)                    // g(comp, h, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(f_hp, memo2_helmholtz_hp)                // f(comp, h, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(cv_hp, memo2_isochoric_heat_capacity_hp) // cv(comp, h, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(cp_hp, memo2_isobaric_heat_capacity_hp)  // cp(comp, h, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(w_hp, memo2_speed_of_sound_hp)           // w(comp, h, p) [m/s]
-ASL_WRAP_FUNC_2ARG(v_hp, memo2_specific_volume_hp)          // v(comp, h, p) [m3/kg]
+// General (liquid, vapor, two-phase) property functions of (h [kJ/kg], p [kPa])
+ASL_WRAP_FUNC_2ARG(T_hp, memo2_temperature_hp)               // T(comp, h, p) [K]
+ASL_WRAP_FUNC_2ARG(tau_hp, memo2_tau_hp)                     // tau(comp, h, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_hp, memo2_vf_hp)                       // vf(comp, h, p) [none]
+ASL_WRAP_FUNC_2ARG(u_hp, memo2_internal_energy_hp)           // u(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(s_hp, memo2_entropy_hp)                   // s(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(g_hp, memo2_gibbs_hp)                     // g(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_hp, memo2_helmholtz_hp)                 // f(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_hp, memo2_isochoric_heat_capacity_hp)  // cv(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_hp, memo2_isobaric_heat_capacity_hp)   // cp(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_hp, memo2_speed_of_sound_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_hp, memo2_specific_volume_hp)           // v(comp, h, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_hp, memo2_viscosity_hp)                // viscosity(comp, h, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_hp, memo2_thermal_conductivity_hp) // thermal_conductivity(comp, h, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_hp, memo2_surface_tension_hp)       // surface_tension(comp, h, p) [N/m]
 
-// General (liquid, vapor, two-phase) property functions of (s, p)
-ASL_WRAP_FUNC_2ARG(tau_sp, memo2_tau_sp)                    // tau(comp, s, p) [none]
-ASL_WRAP_FUNC_2ARG(vf_sp, memo2_vf_sp)                      // vf(comp, s, p) [none]
-ASL_WRAP_FUNC_2ARG(u_sp, memo2_internal_energy_sp)          // u(comp, s, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(h_sp, memo2_enthalpy_sp)                 // h(comp, s, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(g_sp, memo2_gibbs_sp)                    // g(comp, s, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(f_sp, memo2_helmholtz_sp)                // f(comp, s, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(cv_sp, memo2_isochoric_heat_capacity_sp) // cv(comp, s, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(cp_sp, memo2_isobaric_heat_capacity_sp)  // cp(comp, s, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(w_sp, memo2_speed_of_sound_sp)           // w(comp, s, p) [m/s]
-ASL_WRAP_FUNC_2ARG(v_sp, memo2_specific_volume_sp)          // v(comp, s, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(u_vap_hp, memo2_internal_energy_vap_hp)           // u(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(s_vap_hp, memo2_entropy_vap_hp)                   // s(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(g_vap_hp, memo2_gibbs_vap_hp)                     // g(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_vap_hp, memo2_helmholtz_vap_hp)                 // f(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_vap_hp, memo2_isochoric_heat_capacity_vap_hp)  // cv(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_vap_hp, memo2_isobaric_heat_capacity_vap_hp)   // cp(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_vap_hp, memo2_speed_of_sound_vap_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_vap_hp, memo2_specific_volume_vap_hp)           // v(comp, h, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_vap_hp, memo2_viscosity_vap_hp)                // viscosity(comp, h, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_vap_hp, memo2_thermal_conductivity_vap_hp) // thermal_conductivity(comp, h, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_vap_hp, memo2_surface_tension_vap_hp)       // surface_tension(comp, h, p) [N/m]
 
-// General (liquid, vapor, two-phase) property functions of (u, p)
-ASL_WRAP_FUNC_2ARG(tau_up, memo2_tau_up)                    // tau(comp, u, p) [none]
-ASL_WRAP_FUNC_2ARG(vf_up, memo2_vf_up)                      // vf(comp, u, p) [none]
-ASL_WRAP_FUNC_2ARG(s_up, memo2_entropy_up)                  // s(comp, u, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(h_up, memo2_enthalpy_up)                 // h(comp, u, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(g_up, memo2_gibbs_up)                    // g(comp, u, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(f_up, memo2_helmholtz_up)                // f(comp, u, p) [kJ/kg]
-ASL_WRAP_FUNC_2ARG(cv_up, memo2_isochoric_heat_capacity_up) // cv(comp, u, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(cp_up, memo2_isobaric_heat_capacity_up)  // cp(comp, u, p) [kJ/kg/K]
-ASL_WRAP_FUNC_2ARG(w_up, memo2_speed_of_sound_up)           // w(comp, u, p) [m/s]
-ASL_WRAP_FUNC_2ARG(v_up, memo2_specific_volume_up)          // v(comp, u, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(u_liq_hp, memo2_internal_energy_liq_hp)           // u(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(s_liq_hp, memo2_entropy_liq_hp)                   // s(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(g_liq_hp, memo2_gibbs_liq_hp)                     // g(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_liq_hp, memo2_helmholtz_liq_hp)                 // f(comp, h, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_liq_hp, memo2_isochoric_heat_capacity_liq_hp)  // cv(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_liq_hp, memo2_isobaric_heat_capacity_liq_hp)   // cp(comp, h, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_liq_hp, memo2_speed_of_sound_liq_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_liq_hp, memo2_specific_volume_liq_hp)           // v(comp, h, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_liq_hp, memo2_viscosity_liq_hp)                // viscosity(comp, h, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_liq_hp, memo2_thermal_conductivity_liq_hp) // thermal_conductivity(comp, h, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_liq_hp, memo2_surface_tension_liq_hp)       // surface_tension(comp, h, p) [N/m]
+
+// General (liquid, vapor, two-phase) property functions of (s [kJ/kg/K], p [kPa])
+ASL_WRAP_FUNC_2ARG(T_sp, memo2_temperature_sp)               // T(comp, s, p) [K]
+ASL_WRAP_FUNC_2ARG(tau_sp, memo2_tau_sp)                     // tau(comp, s, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_sp, memo2_vf_sp)                       // vf(comp, s, p) [none]
+ASL_WRAP_FUNC_2ARG(u_sp, memo2_internal_energy_sp)           // u(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(h_sp, memo2_enthalpy_sp)                  // h(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_sp, memo2_gibbs_sp)                     // g(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_sp, memo2_helmholtz_sp)                 // f(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_sp, memo2_isochoric_heat_capacity_sp)  // cv(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_sp, memo2_isobaric_heat_capacity_sp)   // cp(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_sp, memo2_speed_of_sound_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_sp, memo2_specific_volume_sp)           // v(comp, s, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_sp, memo2_viscosity_sp)                // viscosity(comp, s, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_sp, memo2_thermal_conductivity_sp) // thermal_conductivity(comp, s, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_sp, memo2_surface_tension_sp)       // surface_tension(comp, s, p) [N/m]
+
+ASL_WRAP_FUNC_2ARG(u_vap_sp, memo2_internal_energy_vap_sp)           // u(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(h_vap_sp, memo2_enthalpy_vap_sp)                  // h(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_vap_sp, memo2_gibbs_vap_sp)                     // g(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_vap_sp, memo2_helmholtz_vap_sp)                 // f(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_vap_sp, memo2_isochoric_heat_capacity_vap_sp)  // cv(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_vap_sp, memo2_isobaric_heat_capacity_vap_sp)   // cp(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_vap_sp, memo2_speed_of_sound_vap_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_vap_sp, memo2_specific_volume_vap_sp)           // v(comp, s, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_vap_sp, memo2_viscosity_vap_sp)                // viscosity(comp, s, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_vap_sp, memo2_thermal_conductivity_vap_sp) // thermal_conductivity(comp, s, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_vap_sp, memo2_surface_tension_vap_sp)       // surface_tension(comp, s, p) [N/m]
+
+ASL_WRAP_FUNC_2ARG(u_liq_sp, memo2_internal_energy_liq_sp)           // u(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(h_liq_sp, memo2_enthalpy_liq_sp)                  // h(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_liq_sp, memo2_gibbs_liq_sp)                     // g(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_liq_sp, memo2_helmholtz_liq_sp)                 // f(comp, s, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_liq_sp, memo2_isochoric_heat_capacity_liq_sp)  // cv(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_liq_sp, memo2_isobaric_heat_capacity_liq_sp)   // cp(comp, s, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_liq_sp, memo2_speed_of_sound_liq_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_liq_sp, memo2_specific_volume_liq_sp)           // v(comp, s, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_liq_sp, memo2_viscosity_liq_sp)                // viscosity(comp, s, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_liq_sp, memo2_thermal_conductivity_liq_sp) // thermal_conductivity(comp, s, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_liq_sp, memo2_surface_tension_liq_sp)       // surface_tension(comp, s, p) [N/m]
+
+// General (liquid, vapor, two-phase) property functions of (u [kJ/kg], p [kPa])
+ASL_WRAP_FUNC_2ARG(T_up, memo2_temperature_up)               // T(comp, u, p) [K]
+ASL_WRAP_FUNC_2ARG(tau_up, memo2_tau_up)                     // tau(comp, u, p) [none]
+ASL_WRAP_FUNC_2ARG(vf_up, memo2_vf_up)                       // vf(comp, u, p) [none]
+ASL_WRAP_FUNC_2ARG(s_up, memo2_entropy_up)                   // s(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_up, memo2_enthalpy_up)                  // h(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_up, memo2_gibbs_up)                     // g(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_up, memo2_helmholtz_up)                 // f(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_up, memo2_isochoric_heat_capacity_up)  // cv(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_up, memo2_isobaric_heat_capacity_up)   // cp(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_up, memo2_speed_of_sound_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_up, memo2_specific_volume_up)           // v(comp, u, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_up, memo2_viscosity_up)                // viscosity(comp, u, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_up, memo2_thermal_conductivity_up) // thermal_conductivity(comp, u, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_up, memo2_surface_tension_up)       // surface_tension(comp, u, p) [N/m]
+
+ASL_WRAP_FUNC_2ARG(s_vap_up, memo2_entropy_vap_up)                   // s(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_vap_up, memo2_enthalpy_vap_up)                  // h(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_vap_up, memo2_gibbs_vap_up)                     // g(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_vap_up, memo2_helmholtz_vap_up)                 // f(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_vap_up, memo2_isochoric_heat_capacity_vap_up)  // cv(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_vap_up, memo2_isobaric_heat_capacity_vap_up)   // cp(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_vap_up, memo2_speed_of_sound_vap_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_vap_up, memo2_specific_volume_vap_up)           // v(comp, u, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_vap_up, memo2_viscosity_vap_up)                // viscosity(comp, u, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_vap_up, memo2_thermal_conductivity_vap_up) // thermal_conductivity(comp, u, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_vap_up, memo2_surface_tension_vap_up)       // surface_tension(comp, u, p) [N/m]
+
+ASL_WRAP_FUNC_2ARG(s_liq_up, memo2_entropy_liq_up)                   // s(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_liq_up, memo2_enthalpy_liq_up)                  // h(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_liq_up, memo2_gibbs_liq_up)                     // g(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_liq_up, memo2_helmholtz_liq_up)                 // f(comp, u, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_liq_up, memo2_isochoric_heat_capacity_liq_up)  // cv(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_liq_up, memo2_isobaric_heat_capacity_liq_up)   // cp(comp, u, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_liq_up, memo2_speed_of_sound_liq_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_liq_up, memo2_specific_volume_liq_up)           // v(comp, u, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_liq_up, memo2_viscosity_liq_up)                // viscosity(comp, u, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_liq_up, memo2_thermal_conductivity_liq_up) // thermal_conductivity(comp, u, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_liq_up, memo2_surface_tension_liq_up)       // surface_tension(comp, u, p) [N/m]
+
+// General (liquid, vapor, two-phase) property functions of (T [K], p [kPa])
+ASL_WRAP_FUNC_2ARG(u_vap_tp, memo2_internal_energy_vap_tp)           // u(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(s_vap_tp, memo2_entropy_vap_tp)                   // s(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_vap_tp, memo2_enthalpy_vap_tp)                  // h(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_vap_tp, memo2_gibbs_vap_tp)                     // g(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_vap_tp, memo2_helmholtz_vap_tp)                 // f(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_vap_tp, memo2_isochoric_heat_capacity_vap_tp)  // cv(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_vap_tp, memo2_isobaric_heat_capacity_vap_tp)   // cp(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_vap_tp, memo2_speed_of_sound_vap_tp)            // w(comp, T, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_vap_tp, memo2_specific_volume_vap_tp)           // v(comp, T, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_vap_tp, memo2_viscosity_vap_tp)                // viscosity(comp, T, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_vap_tp, memo2_thermal_conductivity_vap_tp) // thermal_conductivity(comp, T, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_vap_tp, memo2_surface_tension_vap_tp)       // surface_tension(comp, T, p) [N/m]
+
+ASL_WRAP_FUNC_2ARG(u_liq_tp, memo2_internal_energy_liq_tp)           // u(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(s_liq_tp, memo2_entropy_liq_tp)                   // s(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(h_liq_tp, memo2_enthalpy_liq_tp)                  // h(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(g_liq_tp, memo2_gibbs_liq_tp)                     // g(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(f_liq_tp, memo2_helmholtz_liq_tp)                 // f(comp, T, p) [kJ/kg]
+ASL_WRAP_FUNC_2ARG(cv_liq_tp, memo2_isochoric_heat_capacity_liq_tp)  // cv(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(cp_liq_tp, memo2_isobaric_heat_capacity_liq_tp)   // cp(comp, T, p) [kJ/kg/K]
+ASL_WRAP_FUNC_2ARG(w_liq_tp, memo2_speed_of_sound_liq_tp)            // w(comp, T, p) [m/s]
+ASL_WRAP_FUNC_2ARG(v_liq_tp, memo2_specific_volume_liq_tp)           // v(comp, T, p) [m3/kg]
+ASL_WRAP_FUNC_2ARG(mu_liq_tp, memo2_viscosity_liq_tp)                // viscosity(comp, T, p) [Pa*s]
+ASL_WRAP_FUNC_2ARG(lambda_liq_tp, memo2_thermal_conductivity_liq_tp) // thermal_conductivity(comp, T, p) [W/m/K]
+ASL_WRAP_FUNC_2ARG(sigma_liq_tp, memo2_surface_tension_liq_tp)       // surface_tension(comp, T, p) [N/m]
 
 // Some parameters to make it easier to sync Pyomo parameters with external functions
 // these take the component name as an argument
 ASL_WRAP_FUNC_0ARG(mw, MW)              // Critical Pressure     [g/mol]
 ASL_WRAP_FUNC_0ARG(t_star, T_star)      // Temperature to calculate tau [K]
-ASL_WRAP_FUNC_0ARG(rho_star, rho_star)  // Desity to calculate delta [kg/m^3]
+ASL_WRAP_FUNC_0ARG(rho_star, rho_star)  // Density to calculate delta [kg/m^3]
 ASL_WRAP_FUNC_0ARG(pc, Pc)              // Critical Pressure     [kPa]
 ASL_WRAP_FUNC_0ARG(tc, Tc)              // Critical Temperature  [K]
 ASL_WRAP_FUNC_0ARG(rhoc, rhoc)          // Critical Density      [kg/m^3]
@@ -145,6 +259,7 @@ void funcadd(AmplExports *ae){
     addfunc("w", (rfunc)w, typ, -4, NULL);
     addfunc("v", (rfunc)v, typ, -4, NULL);
 
+    addfunc("T_hp", (rfunc)T_hp, typ, -4, NULL);
     addfunc("tau_hp", (rfunc)tau_hp, typ, -4, NULL);
     addfunc("vf_hp", (rfunc)vf_hp, typ, -4, NULL);
     addfunc("u_hp", (rfunc)u_hp, typ, -4, NULL);
@@ -155,7 +270,35 @@ void funcadd(AmplExports *ae){
     addfunc("cp_hp", (rfunc)cp_hp, typ, -4, NULL);
     addfunc("w_hp", (rfunc)w_hp, typ, -4, NULL);
     addfunc("v_hp", (rfunc)v_hp, typ, -4, NULL);
+    addfunc("mu_hp", (rfunc)mu_hp, typ, -4, NULL);
+    addfunc("lambda_hp", (rfunc)lambda_hp, typ, -4, NULL);
+    addfunc("sigma_hp", (rfunc)sigma_hp, typ, -4, NULL);
 
+    addfunc("u_vap_hp", (rfunc)u_vap_hp, typ, -4, NULL);
+    addfunc("s_vap_hp", (rfunc)s_vap_hp, typ, -4, NULL);
+    addfunc("g_vap_hp", (rfunc)g_vap_hp, typ, -4, NULL);
+    addfunc("f_vap_hp", (rfunc)f_vap_hp, typ, -4, NULL);
+    addfunc("cv_vap_hp", (rfunc)cv_vap_hp, typ, -4, NULL);
+    addfunc("cp_vap_hp", (rfunc)cp_vap_hp, typ, -4, NULL);
+    addfunc("w_vap_hp", (rfunc)w_vap_hp, typ, -4, NULL);
+    addfunc("v_vap_hp", (rfunc)v_vap_hp, typ, -4, NULL);
+    addfunc("mu_vap_hp", (rfunc)mu_vap_hp, typ, -4, NULL);
+    addfunc("lambda_vap_hp", (rfunc)lambda_vap_hp, typ, -4, NULL);
+    addfunc("sigma_vap_hp", (rfunc)sigma_vap_hp, typ, -4, NULL);
+
+    addfunc("u_liq_hp", (rfunc)u_liq_hp, typ, -4, NULL);
+    addfunc("s_liq_hp", (rfunc)s_liq_hp, typ, -4, NULL);
+    addfunc("g_liq_hp", (rfunc)g_liq_hp, typ, -4, NULL);
+    addfunc("f_liq_hp", (rfunc)f_liq_hp, typ, -4, NULL);
+    addfunc("cv_liq_hp", (rfunc)cv_liq_hp, typ, -4, NULL);
+    addfunc("cp_liq_hp", (rfunc)cp_liq_hp, typ, -4, NULL);
+    addfunc("w_liq_hp", (rfunc)w_liq_hp, typ, -4, NULL);
+    addfunc("v_liq_hp", (rfunc)v_liq_hp, typ, -4, NULL);
+    addfunc("mu_liq_hp", (rfunc)mu_liq_hp, typ, -4, NULL);
+    addfunc("lambda_liq_hp", (rfunc)lambda_liq_hp, typ, -4, NULL);
+    addfunc("sigma_liq_hp", (rfunc)sigma_liq_hp, typ, -4, NULL);
+
+    addfunc("T_sp", (rfunc)T_sp, typ, -4, NULL);
     addfunc("tau_sp", (rfunc)tau_sp, typ, -4, NULL);
     addfunc("vf_sp", (rfunc)vf_sp, typ, -4, NULL);
     addfunc("u_sp", (rfunc)u_sp, typ, -4, NULL);
@@ -166,7 +309,35 @@ void funcadd(AmplExports *ae){
     addfunc("cp_sp", (rfunc)cp_sp, typ, -4, NULL);
     addfunc("w_sp", (rfunc)w_sp, typ, -4, NULL);
     addfunc("v_sp", (rfunc)v_sp, typ, -4, NULL);
+    addfunc("mu_sp", (rfunc)mu_sp, typ, -4, NULL);
+    addfunc("lambda_sp", (rfunc)lambda_sp, typ, -4, NULL);
+    addfunc("sigma_sp", (rfunc)sigma_sp, typ, -4, NULL);
 
+    addfunc("u_vap_sp", (rfunc)u_vap_sp, typ, -4, NULL);
+    addfunc("h_vap_sp", (rfunc)h_vap_sp, typ, -4, NULL);
+    addfunc("g_vap_sp", (rfunc)g_vap_sp, typ, -4, NULL);
+    addfunc("f_vap_sp", (rfunc)f_vap_sp, typ, -4, NULL);
+    addfunc("cv_vap_sp", (rfunc)cv_vap_sp, typ, -4, NULL);
+    addfunc("cp_vap_sp", (rfunc)cp_vap_sp, typ, -4, NULL);
+    addfunc("w_vap_sp", (rfunc)w_vap_sp, typ, -4, NULL);
+    addfunc("v_vap_sp", (rfunc)v_vap_sp, typ, -4, NULL);
+    addfunc("mu_vap_sp", (rfunc)mu_vap_sp, typ, -4, NULL);
+    addfunc("lambda_vap_sp", (rfunc)lambda_vap_sp, typ, -4, NULL);
+    addfunc("sigma_vap_sp", (rfunc)sigma_vap_sp, typ, -4, NULL);
+
+    addfunc("u_liq_sp", (rfunc)u_liq_sp, typ, -4, NULL);
+    addfunc("h_liq_sp", (rfunc)h_liq_sp, typ, -4, NULL);
+    addfunc("g_liq_sp", (rfunc)g_liq_sp, typ, -4, NULL);
+    addfunc("f_liq_sp", (rfunc)f_liq_sp, typ, -4, NULL);
+    addfunc("cv_liq_sp", (rfunc)cv_liq_sp, typ, -4, NULL);
+    addfunc("cp_liq_sp", (rfunc)cp_liq_sp, typ, -4, NULL);
+    addfunc("w_liq_sp", (rfunc)w_liq_sp, typ, -4, NULL);
+    addfunc("v_liq_sp", (rfunc)v_liq_sp, typ, -4, NULL);
+    addfunc("mu_liq_sp", (rfunc)mu_liq_sp, typ, -4, NULL);
+    addfunc("lambda_liq_sp", (rfunc)lambda_liq_sp, typ, -4, NULL);
+    addfunc("sigma_liq_sp", (rfunc)sigma_liq_sp, typ, -4, NULL);
+
+    addfunc("T_up", (rfunc)T_up, typ, -4, NULL);
     addfunc("tau_up", (rfunc)tau_up, typ, -4, NULL);
     addfunc("vf_up", (rfunc)vf_up, typ, -4, NULL);
     addfunc("s_up", (rfunc)s_up, typ, -4, NULL);
@@ -177,6 +348,59 @@ void funcadd(AmplExports *ae){
     addfunc("cp_up", (rfunc)cp_up, typ, -4, NULL);
     addfunc("w_up", (rfunc)w_up, typ, -4, NULL);
     addfunc("v_up", (rfunc)v_up, typ, -4, NULL);
+    addfunc("mu_up", (rfunc)mu_up, typ, -4, NULL);
+    addfunc("lambda_up", (rfunc)lambda_up, typ, -4, NULL);
+    addfunc("sigma_up", (rfunc)sigma_up, typ, -4, NULL);
+
+    addfunc("s_vap_up", (rfunc)s_vap_up, typ, -4, NULL);
+    addfunc("h_vap_up", (rfunc)h_vap_up, typ, -4, NULL);
+    addfunc("g_up", (rfunc)g_vap_up, typ, -4, NULL);
+    addfunc("f_vap_up", (rfunc)f_vap_up, typ, -4, NULL);
+    addfunc("cv_vap_up", (rfunc)cv_vap_up, typ, -4, NULL);
+    addfunc("cp_vap_up", (rfunc)cp_vap_up, typ, -4, NULL);
+    addfunc("w_vap_up", (rfunc)w_vap_up, typ, -4, NULL);
+    addfunc("v_vap_up", (rfunc)v_vap_up, typ, -4, NULL);
+    addfunc("mu_vap_up", (rfunc)mu_vap_up, typ, -4, NULL);
+    addfunc("lambda_vap_up", (rfunc)lambda_vap_up, typ, -4, NULL);
+    addfunc("sigma_vap_up", (rfunc)sigma_vap_up, typ, -4, NULL);
+
+    addfunc("s_liq_up", (rfunc)s_liq_up, typ, -4, NULL);
+    addfunc("h_liq_up", (rfunc)h_liq_up, typ, -4, NULL);
+    addfunc("g_up", (rfunc)g_liq_up, typ, -4, NULL);
+    addfunc("f_liq_up", (rfunc)f_liq_up, typ, -4, NULL);
+    addfunc("cv_liq_up", (rfunc)cv_liq_up, typ, -4, NULL);
+    addfunc("cp_liq_up", (rfunc)cp_liq_up, typ, -4, NULL);
+    addfunc("w_liq_up", (rfunc)w_liq_up, typ, -4, NULL);
+    addfunc("v_liq_up", (rfunc)v_liq_up, typ, -4, NULL);
+    addfunc("mu_liq_up", (rfunc)mu_liq_up, typ, -4, NULL);
+    addfunc("lambda_liq_up", (rfunc)lambda_liq_up, typ, -4, NULL);
+    addfunc("sigma_liq_up", (rfunc)sigma_liq_up, typ, -4, NULL);
+
+    addfunc("u_vap_tp", (rfunc)u_vap_tp, typ, -4, NULL);
+    addfunc("s_vap_tp", (rfunc)s_vap_tp, typ, -4, NULL);
+    addfunc("h_vap_tp", (rfunc)h_vap_tp, typ, -4, NULL);
+    addfunc("g_vap_tp", (rfunc)g_vap_tp, typ, -4, NULL);
+    addfunc("f_vap_tp", (rfunc)f_vap_tp, typ, -4, NULL);
+    addfunc("cv_vap_tp", (rfunc)cv_vap_tp, typ, -4, NULL);
+    addfunc("cp_vap_tp", (rfunc)cp_vap_tp, typ, -4, NULL);
+    addfunc("w_vap_tp", (rfunc)w_vap_tp, typ, -4, NULL);
+    addfunc("v_vap_tp", (rfunc)v_vap_tp, typ, -4, NULL);
+    addfunc("mu_vap_tp", (rfunc)mu_vap_tp, typ, -4, NULL);
+    addfunc("lambda_vap_tp", (rfunc)lambda_vap_tp, typ, -4, NULL);
+    addfunc("sigma_vap_tp", (rfunc)sigma_vap_tp, typ, -4, NULL);
+
+    addfunc("u_liq_tp", (rfunc)u_liq_tp, typ, -4, NULL);
+    addfunc("s_liq_tp", (rfunc)s_liq_tp, typ, -4, NULL);
+    addfunc("h_liq_tp", (rfunc)h_liq_tp, typ, -4, NULL);
+    addfunc("g_liq_tp", (rfunc)g_liq_tp, typ, -4, NULL);
+    addfunc("f_liq_tp", (rfunc)f_liq_tp, typ, -4, NULL);
+    addfunc("cv_liq_tp", (rfunc)cv_liq_tp, typ, -4, NULL);
+    addfunc("cp_liq_tp", (rfunc)cp_liq_tp, typ, -4, NULL);
+    addfunc("w_liq_tp", (rfunc)w_liq_tp, typ, -4, NULL);
+    addfunc("v_liq_tp", (rfunc)v_liq_tp, typ, -4, NULL);
+    addfunc("mu_liq_tp", (rfunc)mu_liq_tp, typ, -4, NULL);
+    addfunc("lambda_liq_tp", (rfunc)lambda_liq_tp, typ, -4, NULL);
+    addfunc("sigma_liq_tp", (rfunc)sigma_liq_tp, typ, -4, NULL);
 
     addfunc("hvpt", (rfunc)hvpt, typ, -4, NULL);
     addfunc("hlpt", (rfunc)hlpt, typ, -4, NULL);
@@ -184,12 +408,12 @@ void funcadd(AmplExports *ae){
     addfunc("slpt", (rfunc)slpt, typ, -4, NULL);
     addfunc("uvpt", (rfunc)uvpt, typ, -4, NULL);
     addfunc("ulpt", (rfunc)ulpt, typ, -4, NULL);
-    addfunc("tau", (rfunc)tau, typ, -4, NULL);
-    addfunc("taus", (rfunc)taus, typ, -4, NULL);
-    addfunc("tauu", (rfunc)tauu, typ, -4, NULL);
-    addfunc("vf", (rfunc)vf, typ, -4, NULL);
-    addfunc("vfs", (rfunc)vfs, typ, -4, NULL);
-    addfunc("vfu", (rfunc)vfu, typ, -4, NULL);
+    addfunc("tau", (rfunc)tau, typ, -4, NULL); //backward compatibility for new tau_hp
+    addfunc("taus", (rfunc)taus, typ, -4, NULL); //backward compatibility for new tau_sp
+    addfunc("tauu", (rfunc)tauu, typ, -4, NULL); //backward compatibility for new tau_up
+    addfunc("vf", (rfunc)vf, typ, -4, NULL); //backward compatibility for new vf_hp
+    addfunc("vfs", (rfunc)vfs, typ, -4, NULL); //backward compatibility for new vf_sp
+    addfunc("vfu", (rfunc)vfu, typ, -4, NULL); //backward compatibility for new vf_up
     addfunc("delta_liq", (rfunc)delta_liq, typ, -4, NULL);
     addfunc("delta_vap", (rfunc)delta_vap, typ, -4, NULL);
     // phi and derivatives for calculating more thermo properties.
@@ -210,6 +434,8 @@ void funcadd(AmplExports *ae){
     addfunc("delta_sat_v", (rfunc)delta_sat_v, typ, -3, NULL);
     addfunc("p_sat", (rfunc)p_sat, typ, -3, NULL);
     addfunc("tau_sat", (rfunc)tau_sat, typ, -3, NULL);
+    addfunc("T_sat", (rfunc)T_sat, typ, -3, NULL);
+    addfunc("p_sat_t", (rfunc)p_sat_t, typ, -3, NULL);
     // Parameters
     addfunc("mw", (rfunc)mw, typ, -2, NULL);
     addfunc("t_star", (rfunc)t_star, typ, -2, NULL);

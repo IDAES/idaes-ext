@@ -2,16 +2,10 @@
 #include "props.h"
 #include "delta.h"
 #include "state.h"
+#include "phi.h"
 
-
-void internal_energy_sp(uint comp, double s, double p, f22_struct *out);
-void entropy_sp(uint comp, double s, double p, f22_struct *out);
-void gibbs_sp(uint comp, double s, double p, f22_struct *out);
-void helmholtz_sp(uint comp, double s, double p, f22_struct *out);
-void isochoric_heat_capacity_sp(uint comp, double s, double p, f22_struct *out);
-void isobaric_heat_capacity_sp(uint comp, double s, double p, f22_struct *out);
-void speed_of_sound_sp(uint comp, double s, double p, f22_struct *out);
-void specific_volume_sp(uint comp, double s, double p, f22_struct *out);
+f22_struct memo2_temperature_sp(uint comp, double s, double p);
+f22_struct memo2_vapor_fraction_sp(uint comp, double s, double p);
 
 f22_struct memo2_internal_energy_sp(uint comp, double s, double p);
 f22_struct memo2_enthalpy_sp(uint comp, double s, double p);
@@ -21,6 +15,34 @@ f22_struct memo2_isochoric_heat_capacity_sp(uint comp, double s, double p);
 f22_struct memo2_isobaric_heat_capacity_sp(uint comp, double s, double p);
 f22_struct memo2_speed_of_sound_sp(uint comp, double s, double p);
 f22_struct memo2_specific_volume_sp(uint comp, double s, double p);
+f22_struct memo2_viscosity_sp(uint comp, double s, double p);
+f22_struct memo2_thermal_conductivity_sp(uint comp, double s, double p);
+f22_struct memo2_surface_tension_sp(uint comp, double s, double p);
+
+f22_struct memo2_internal_energy_vap_sp(uint comp, double s, double p);
+f22_struct memo2_enthalpy_vap_sp(uint comp, double s, double p);
+f22_struct memo2_gibbs_vap_sp(uint comp, double s, double p);
+f22_struct memo2_helmholtz_vap_sp(uint comp, double s, double p);
+f22_struct memo2_isochoric_heat_capacity_vap_sp(uint comp, double s, double p);
+f22_struct memo2_isobaric_heat_capacity_vap_sp(uint comp, double s, double p);
+f22_struct memo2_speed_of_sound_vap_sp(uint comp, double s, double p);
+f22_struct memo2_specific_volume_vap_sp(uint comp, double s, double p);
+f22_struct memo2_viscosity_vap_sp(uint comp, double s, double p);
+f22_struct memo2_thermal_conductivity_vap_sp(uint comp, double s, double p);
+f22_struct memo2_surface_tension_vap_sp(uint comp, double s, double p);
+
+f22_struct memo2_internal_energy_liq_sp(uint comp, double s, double p);
+f22_struct memo2_enthalpy_liq_sp(uint comp, double s, double p);
+f22_struct memo2_gibbs_liq_sp(uint comp, double s, double p);
+f22_struct memo2_helmholtz_liq_sp(uint comp, double s, double p);
+f22_struct memo2_isochoric_heat_capacity_liq_sp(uint comp, double s, double p);
+f22_struct memo2_isobaric_heat_capacity_liq_sp(uint comp, double s, double p);
+f22_struct memo2_speed_of_sound_liq_sp(uint comp, double s, double p);
+f22_struct memo2_specific_volume_liq_sp(uint comp, double s, double p);
+f22_struct memo2_viscosity_liq_sp(uint comp, double s, double p);
+f22_struct memo2_thermal_conductivity_liq_sp(uint comp, double s, double p);
+f22_struct memo2_surface_tension_liq_sp(uint comp, double s, double p);
+
 
 #define PROP_SP_SINGLE_PHASE(new_func, prop_func, delta_func) \
 void new_func(uint comp, double s, double p, f22_struct *out){ \

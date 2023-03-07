@@ -27,8 +27,8 @@
 #ifndef _INCLUDE_CONFIG_H_
 #define _INCLUDE_CONFIG_H_
 
-#define MAX_MEMO_PHI 500000
-#define MAX_MEMO_PROP 1000000
+#define MAX_MEMO_PHI 300000
+#define MAX_MEMO_PROP 600000
 
 typedef unsigned int uint;
 typedef unsigned char uchar;

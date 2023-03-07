@@ -3,6 +3,9 @@ include ../Makefile.in
 #BOOST=/opt/homebrew/include
 #ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
 #ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
+#IDAES_HELMHOLTZ_DATA_PATH=/Users/john/git/idaes-ext/src/general_helmholtz/param_data/
+#IDAES_HELMHOLTZ_TEST_DATA_PATH=/Users/john/git/idaes-ext/src/general_helmholtz/test_data/
+
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
@@ -14,7 +17,7 @@ else
 endif
 
 OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o \
-	props_sp.o props_up.o ampl_wrap.o
+	props_sp.o props_up.o props_tp.o ampl_wrap.o
 .PHONY: clean
 
 ALL: general_helmholtz_external.so test_exec
@@ -51,6 +54,9 @@ props_sp.o: props_sp.cpp
 
 props_up.o: props_up.cpp
 	  $(CXX) $(CXXFLAGS) props_up.cpp -o props_up.o
+
+props_tp.o: props_tp.cpp
+	  $(CXX) $(CXXFLAGS) props_tp.cpp -o props_tp.o
 
 ampl_wrap.o: ampl_wrap.cpp
 	  $(CXX) $(CXXFLAGS) ampl_wrap.cpp -o ampl_wrap.o -I$(ASL)
