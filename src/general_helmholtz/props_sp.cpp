@@ -16,6 +16,7 @@ prop_memo_table22 memo_table_viscosity_sp;
 prop_memo_table22 memo_table_thermal_conductivity_sp;
 prop_memo_table22 memo_table_surface_tension_sp;
 
+prop_memo_table22 memo_table_entropy_liq_sp;
 prop_memo_table22 memo_table_internal_energy_liq_sp;
 prop_memo_table22 memo_table_enthalpy_liq_sp;
 prop_memo_table22 memo_table_gibbs_liq_sp;
@@ -28,6 +29,7 @@ prop_memo_table22 memo_table_viscosity_liq_sp;
 prop_memo_table22 memo_table_thermal_conductivity_liq_sp;
 prop_memo_table22 memo_table_surface_tension_liq_sp;
 
+prop_memo_table22 memo_table_entropy_vap_sp;
 prop_memo_table22 memo_table_internal_energy_vap_sp;
 prop_memo_table22 memo_table_enthalpy_vap_sp;
 prop_memo_table22 memo_table_gibbs_vap_sp;
@@ -64,6 +66,13 @@ void vapor_fraction_sp(uint comp, double s, double p, f22_struct *out){
 }
 MEMO2_FUNCTION(memo2_vapor_fraction_sp, vapor_fraction_sp, memo_table_vapor_fraction_sp)
 
+
+//s
+PROP_SP_SINGLE_PHASE(entropy_vap_sp, memo2_entropy, memo2_delta_vapor)
+PROP_SP_SINGLE_PHASE(entropy_liq_sp, memo2_entropy, memo2_delta_liquid)
+MEMO2_FUNCTION(memo2_entropy_vap_sp, entropy_vap_sp, memo_table_entropy_vap_sp)
+MEMO2_FUNCTION(memo2_entropy_liq_sp, entropy_liq_sp, memo_table_entropy_liq_sp)
+
 //u
 PROP_SP_SINGLE_PHASE(internal_energy_vap_sp, memo2_internal_energy, memo2_delta_vapor)
 PROP_SP_SINGLE_PHASE(internal_energy_liq_sp, memo2_internal_energy, memo2_delta_liquid)
@@ -72,7 +81,7 @@ MEMO2_FUNCTION(memo2_internal_energy_sp, internal_energy_sp, memo_table_internal
 MEMO2_FUNCTION(memo2_internal_energy_vap_sp, internal_energy_vap_sp, memo_table_internal_energy_vap_sp)
 MEMO2_FUNCTION(memo2_internal_energy_liq_sp, internal_energy_liq_sp, memo_table_internal_energy_liq_sp)
 
-//s
+//h
 PROP_SP_SINGLE_PHASE(enthalpy_vap_sp, memo2_enthalpy, memo2_delta_vapor)
 PROP_SP_SINGLE_PHASE(enthalpy_liq_sp, memo2_enthalpy, memo2_delta_liquid)
 PROP_SP_GENERAL(enthalpy_sp, enthalpy_liq_sp, enthalpy_vap_sp)
