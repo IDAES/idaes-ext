@@ -19,6 +19,7 @@ f22_struct memo2_viscosity_sp(uint comp, double s, double p);
 f22_struct memo2_thermal_conductivity_sp(uint comp, double s, double p);
 f22_struct memo2_surface_tension_sp(uint comp, double s, double p);
 
+f22_struct memo2_entropy_vap_sp(uint comp, double s, double p);
 f22_struct memo2_internal_energy_vap_sp(uint comp, double s, double p);
 f22_struct memo2_enthalpy_vap_sp(uint comp, double s, double p);
 f22_struct memo2_gibbs_vap_sp(uint comp, double s, double p);
@@ -31,6 +32,7 @@ f22_struct memo2_viscosity_vap_sp(uint comp, double s, double p);
 f22_struct memo2_thermal_conductivity_vap_sp(uint comp, double s, double p);
 f22_struct memo2_surface_tension_vap_sp(uint comp, double s, double p);
 
+f22_struct memo2_entropy_liq_sp(uint comp, double s, double p);
 f22_struct memo2_internal_energy_liq_sp(uint comp, double s, double p);
 f22_struct memo2_enthalpy_liq_sp(uint comp, double s, double p);
 f22_struct memo2_gibbs_liq_sp(uint comp, double s, double p);
