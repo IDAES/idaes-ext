@@ -1,8 +1,8 @@
 include ../Makefile.in
 
-BOOST=/opt/homebrew/include
-ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
-ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
+#BOOST=/opt/homebrew/include
+#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#ASL_LIB=/Users/john/src/idaes-ext-build/coinbrew/dist/lib
 #IDAES_HELMHOLTZ_DATA_PATH=/Users/john/git/idaes-ext/src/general_helmholtz/param_data/
 #IDAES_HELMHOLTZ_TEST_DATA_PATH=/Users/john/git/idaes-ext/src/general_helmholtz/test_data/
 
