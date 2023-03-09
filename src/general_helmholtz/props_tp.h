@@ -56,7 +56,7 @@ f22_struct memo2_viscosity_vap_tp(uint comp, double t, double p);
 f22_struct memo2_thermal_conductivity_vap_tp(uint comp, double t, double p);
 f22_struct memo2_surface_tension_vap_tp(uint comp, double t, double p);
 
-#define PROP_TP_SINGLE_PHASE(new_func, prop_func, delta_func, cmp_func) \
+#define PROP_TP_SINGLE_PHASE(new_func, prop_func, delta_func) \
 void new_func(uint comp, double t, double p, f22_struct *out){ \
     f22_struct tau_vec, delta_vec, prop_vec; \
     tau_vec.f = cdata[comp].T_star/t; \
