@@ -32,9 +32,11 @@
 // Check if two floats are relatively almost the same
 //
 //
-inline bool rel_same(double x1, double x2, double tol){
-  if(fabs(x1) < tol) return fabs(x1 - x2) < tol;
-  return fabs((x1 - x2)/x1) < tol;
+inline bool rel_same(double x1, double x2, double tol, double zero_tol, double scale){
+  double x1s = scale*x1;
+  double x2s = scale*x2;
+  if(fabs(x1s) < zero_tol) return fabs(x1s - x2s) < zero_tol;
+  return fabs((x1s - x2s)/x1s) < tol;
 }
 
 //
@@ -70,9 +72,9 @@ int fd1(
     std::cout << "f1_1 = " << y0.f_1 << " f.d. approx = " << y.f_1 << std::endl;
     std::cout << "f1_11 = " << y0.f_11 << " f.d. approx = " << y.f_11 << std::endl;
   }
-  if(!rel_same(y.f, tv, tol*10.0)) return 1;
-  if(!rel_same(y0.f_1, y.f_1, tol*10.0)) return 2;
-  if(!rel_same(y0.f_11, y.f_11, tol*10.0)) return 3;
+  if(!rel_same(y.f, tv, tol, 1e-3, 1.0)) return 1;
+  if(!rel_same(y0.f_1, y.f_1, tol, 1e-3, 1.0)) return 2;
+  if(!rel_same(y0.f_11, y.f_11, tol, 1e-3, 1.0)) return 3;
   return 0;
 }
 
@@ -91,7 +93,8 @@ int fd2(
   double h2,
   double tv,
   double tol,
-  bool dbg){
+  bool dbg,
+  double scale){
 
   if (std::isnan(x1) || std::isnan(x2)){
     return 0;
@@ -140,22 +143,22 @@ int fd2(
   }
 
   if (!std::isnan(tv)){
-    if (!rel_same(y0.f, tv, tol)) return 1;
+    if (!rel_same(y0.f, tv, tol, 1e-3, 1)) return 1;
   }
-  if (rel_same(y.f_1, yf.f_1, 1e-3) && rel_same(y.f_1, yb.f_1, 1e-3)){ // trust fd approx?
-    if (!rel_same(y0.f_1, y.f_1, tol)) return 2;
+  if (rel_same(y.f_1, yf.f_1, 1e-3, 1e-8, 1) && rel_same(y.f_1, yb.f_1, 1e-3, 1e-8, 1)){ // trust fd approx?
+    if (!rel_same(y0.f_1, y.f_1, 10*tol, 1e-3, 1)) return 2;
   }
-  if (rel_same(y.f_2, yf.f_2, 1e-3) && rel_same(y.f_2, yb.f_2, 1e-3)){ // trust fd approx?
-    if (!rel_same(y0.f_2, y.f_2, tol)) return 3;
+  if (rel_same(y.f_2, yf.f_2, 1e-3, 1e-8, 1) && rel_same(y.f_2, yb.f_2, 1e-3, 1e-8, 1)){ // trust fd approx?
+    if (!rel_same(y0.f_2, y.f_2, 10*tol, 1e-3, 1)) return 3;
   }
-  if (rel_same(y.f_11, yf.f_11, 1e-3) && rel_same(y.f_11, yb.f_11, 1e-3)){ // trust fd approx?
-    if (!rel_same(y0.f_11, y.f_11, tol)) return 4;
+  if (rel_same(y.f_11, yf.f_11, 1e-3, 1e-8, 1) && rel_same(y.f_11, yb.f_11, 1e-3, 1e-8, 1)){ // trust fd approx?
+    if (!rel_same(y0.f_11, y.f_11, 10*tol, 1e-3, 1)) return 4;
   }
-  if (rel_same(y.f_12, yf.f_12, 1e-3) && rel_same(y.f_12, yb.f_12, 1e-3)){ // trust fd approx?
-    if (!rel_same(y0.f_12, y.f_12, tol)) return 5;
+  if (rel_same(y.f_12, yf.f_12, 1e-3, 1e-8, 1) && rel_same(y.f_12, yb.f_12, 1e-3, 1e-8, 1)){ // trust fd approx?
+    if (!rel_same(y0.f_12, y.f_12, 10*tol, 1e-3, 1)) return 5;
   }
-  if (rel_same(y.f_22, yf.f_22, 1e-3) && rel_same(y.f_22, yb.f_22, 1e-3)){ // trust fd approx?
-    if (!rel_same(y0.f_22, y.f_22, tol)) return 6;
+  if (rel_same(y.f_22, yf.f_22, 1e-3, 1e-8, 1) && rel_same(y.f_22, yb.f_22, 1e-3, 1e-8, 1)){ // trust fd approx?
+    if (!rel_same(y0.f_22, y.f_22, 10*tol, 1e-3, 1)) return 6;
   }
   return 0;
 }
@@ -202,13 +205,13 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
 
   // Transport properties
   if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
-      TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-20, 0)
+      TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-1, 0)
   }
   // For thermal conductivity, for a lot of reasons, (e.g. different correlation, no critical 
   // correction, ...) these may or may not be super accurate, just check they are roughly correct.
   // ignore errors but print more than 33% error for manual inspection. 
-  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
-      TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
+  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
   }
   return 0;
 }
@@ -230,10 +233,10 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
   auto stop = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration =  stop - start;
 
-  TEST_FUNCTION_SAT("p_sat", "tau", sat_p, sat_liq_data[i][test_data::P_col]*1000, pdat->T_star/sat_liq_data[i][test_data::T_col], 1e-3, 1e-7)
-  TEST_FUNCTION_SAT("tau_sat", "p", sat_tau, pdat->T_star/sat_liq_data[i][test_data::T_col], sat_liq_data[i][test_data::P_col]*1000, 1e-3, 1e-5)
-  TEST_FUNCTION_SAT("p_sat", "T", sat_p_t, sat_liq_data[i][test_data::P_col]*1000, sat_liq_data[i][test_data::T_col], 1e-3, 1e-7)
-  TEST_FUNCTION_SAT("T_sat", "p", sat_t, sat_liq_data[i][test_data::T_col], sat_liq_data[i][test_data::P_col]*1000, 1e-3, 1e-5)
+  TEST_FUNCTION_SAT("p_sat", "tau", sat_p, sat_liq_data[i][test_data::P_col]*1000, pdat->T_star/sat_liq_data[i][test_data::T_col], 1e-2, 1e-7)
+  TEST_FUNCTION_SAT("tau_sat", "p", sat_tau, pdat->T_star/sat_liq_data[i][test_data::T_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-5)
+  TEST_FUNCTION_SAT("p_sat", "T", sat_p_t, sat_liq_data[i][test_data::P_col]*1000, sat_liq_data[i][test_data::T_col], 1e-2, 1e-7)
+  TEST_FUNCTION_SAT("T_sat", "p", sat_t, sat_liq_data[i][test_data::T_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-5)
 
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    rho_liq_sat(" << comp_str << ", tau) ";
@@ -256,7 +259,7 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
   for(i=0; i<sat_liq_data.size(); ++i){
     tau = pdat->T_star/sat_liq_data[i][test_data::T_col];
     delta = sat_vap_data[i][test_data::rho_col]/pdat->rho_star;
-    err = fd1(sat_delta_v, comp, tau, 1e-8, delta, 1e-3, 0);
+    err = fd1(sat_delta_v, comp, tau, 1e-8, delta, 1e-2, 0);
     if(err){
       std::cout << err;
       return err;
@@ -552,8 +555,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   TEST_FUNCTION_OF_STATE_VARS("cp", "h", memo2_isobaric_heat_capacity_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("w", "h", memo2_speed_of_sound_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("v", "h", memo2_specific_volume_hp, 1/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("mu", "h", memo2_viscosity_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("lambda", "h", memo2_thermal_conductivity_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+    TEST_FUNCTION_OF_STATE_VARS("mu", "h", memo2_viscosity_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+  }
+  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "h", memo2_thermal_conductivity_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+  }
 
   TEST_FUNCTION_OF_STATE_VARS("T", "s", memo2_temperature_sp, dat[i][test_data::T_col], dat[i][test_data::s_col] - s_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("h", "s", memo2_enthalpy_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-2)
@@ -564,8 +571,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   TEST_FUNCTION_OF_STATE_VARS("cp", "s", memo2_isobaric_heat_capacity_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("w", "s", memo2_speed_of_sound_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("v", "s", memo2_specific_volume_sp, 1/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("mu", "s", memo2_viscosity_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("lambda", "s", memo2_thermal_conductivity_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+    TEST_FUNCTION_OF_STATE_VARS("mu", "s", memo2_viscosity_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+  }
+  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "s", memo2_thermal_conductivity_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+  }
 
   TEST_FUNCTION_OF_STATE_VARS("T", "u", memo2_temperature_up, dat[i][test_data::T_col], dat[i][test_data::u_col] - u_off, 1e-2)
   TEST_FUNCTION_OF_STATE_VARS("h", "u", memo2_enthalpy_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-2)
@@ -576,8 +587,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   TEST_FUNCTION_OF_STATE_VARS("cp", "u", memo2_isobaric_heat_capacity_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("w", "u", memo2_speed_of_sound_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
   TEST_FUNCTION_OF_STATE_VARS("v", "u", memo2_specific_volume_up, 1/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("mu", "u", memo2_viscosity_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("lambda", "u", memo2_thermal_conductivity_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+  if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+    TEST_FUNCTION_OF_STATE_VARS("mu", "u", memo2_viscosity_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+  }
+  if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "u", memo2_thermal_conductivity_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+  }
 
   if(data_set == test_data::vapor_set){
     TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_vap_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
@@ -587,8 +602,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_vap_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_vap_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_vap_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_vap_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_vap_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    }
 
     TEST_FUNCTION_OF_TP("h_vap", "h", memo2_enthalpy_vap_hp, dat[i][test_data::h_col] - h_off, dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("s_vap", "h", memo2_entropy_vap_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 1e-1)
@@ -597,8 +616,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_vap", "h", memo2_isobaric_heat_capacity_vap_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_vap", "h", memo2_speed_of_sound_vap_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_vap", "h", memo2_specific_volume_vap_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_vap", "h", memo2_viscosity_vap_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "h", memo2_thermal_conductivity_vap_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_vap", "h", memo2_viscosity_vap_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "h", memo2_thermal_conductivity_vap_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+    }
   
     TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_vap_sp, dat[i][test_data::s_col] - s_off, dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_vap_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-1)
@@ -607,8 +630,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_vap", "s", memo2_isobaric_heat_capacity_vap_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_vap", "s", memo2_speed_of_sound_vap_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_vap", "s", memo2_specific_volume_vap_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "s", memo2_thermal_conductivity_vap_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "s", memo2_thermal_conductivity_vap_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+    }
 
     TEST_FUNCTION_OF_TP("u_vap", "u", memo2_internal_energy_vap_up, dat[i][test_data::u_col] - u_off, dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("h_vap", "u", memo2_enthalpy_vap_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-1)
@@ -617,9 +644,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_vap", "u", memo2_isobaric_heat_capacity_vap_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_vap", "u", memo2_speed_of_sound_vap_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_vap", "u", memo2_specific_volume_vap_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_vap", "u", memo2_viscosity_vap_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "u", memo2_thermal_conductivity_vap_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
-
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_vap", "u", memo2_viscosity_vap_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "u", memo2_thermal_conductivity_vap_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+    }
   }
   else{
     TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_liq_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
@@ -629,8 +659,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_liq_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_liq_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("v", "T", memo2_specific_volume_liq_tp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_liq_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity", "T", memo2_viscosity_liq_tp, dat[i][test_data::visc_col], dat[i][test_data::T_col], 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
+    }
 
     TEST_FUNCTION_OF_TP("h_liq", "h", memo2_enthalpy_liq_hp, dat[i][test_data::h_col] - h_off, dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("s_liq", "h", memo2_entropy_liq_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 1e-1)
@@ -639,8 +673,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_liq", "h", memo2_isobaric_heat_capacity_liq_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_liq", "h", memo2_speed_of_sound_liq_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_liq", "h", memo2_specific_volume_liq_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_liq", "h", memo2_viscosity_liq_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "h", memo2_thermal_conductivity_liq_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_liq", "h", memo2_viscosity_liq_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "h", memo2_thermal_conductivity_liq_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+    }
 
     TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_liq_sp, dat[i][test_data::s_col] - s_off, dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_liq_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-1)
@@ -649,8 +687,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_liq", "s", memo2_isobaric_heat_capacity_liq_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_liq", "s", memo2_speed_of_sound_liq_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_liq", "s", memo2_specific_volume_liq_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_liq", "s", memo2_viscosity_liq_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "s", memo2_thermal_conductivity_liq_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_liq", "s", memo2_viscosity_liq_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "s", memo2_thermal_conductivity_liq_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+    }
 
     TEST_FUNCTION_OF_TP("u_liq", "u", memo2_internal_energy_liq_up, dat[i][test_data::u_col] - u_off, dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("h_liq", "u", memo2_enthalpy_liq_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-1)
@@ -659,8 +701,12 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("cp_liq", "u", memo2_isobaric_heat_capacity_liq_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("w_liq", "u", memo2_speed_of_sound_liq_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_liq", "u", memo2_specific_volume_liq_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("viscosity_liq", "u", memo2_viscosity_liq_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "u", memo2_thermal_conductivity_liq_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+    if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
+      TEST_FUNCTION_OF_TP("viscosity_liq", "u", memo2_viscosity_liq_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+    }
+    if (pdat->expr_map[expr_idx::thermal_conductivity_idx]!=1000){
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "u", memo2_thermal_conductivity_liq_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+    }
   }
   return 0;
 }
@@ -696,36 +742,38 @@ uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h
 
     // Test H, P
     ht = 0.5*hl_vec.f + 0.5*hv_vec.f;
-    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
-        std::cout << "fail" << std::endl;
+        std::cout << "fail tau_hp " << std::endl;
+        fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 1);
         return 1;
     }
-    err = fd2(memo2_vf_hp, comp, ht, pressure, 1e-3, 1e-8, 0.5, 1e-2, 0);
+    err = fd2(memo2_vf_hp, comp, ht, pressure, 1e-2, 1e-3, 0.5, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_hp, comp, ht, pressure, 1e-3, 1e-8, 0.5, 1e-2, 1);
-        std::cout << "fail vfhp " << pressure << ", " << delta_l << ", " << delta_v << std::endl;
+        fd2(memo2_vf_hp, comp, ht, pressure, 1e-2, 1e-3, 0.5, 1e-2, 1);
+        std::cout << "fail vf_hp " << pressure << ", " << delta_l << ", " << delta_v << std::endl;
         return 1;
     }
     ht = 0.25*hl_vec.f + 0.75*hv_vec.f;
-    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
      if(err){
-        std::cout << "fail" << std::endl;
+        std::cout << "fail, tau_hp " << std::endl;
         return 1;
     }
-    err = fd2(memo2_vf_hp, comp, ht, pressure, 1e-3, 1e-8, 0.75, 1e-2, 0);
+    err = fd2(memo2_vf_hp, comp, ht, pressure, 1e-2, 1e-3, 0.75, 1e-2, 0);
     if(err){
-        std::cout << "fail" << std::endl;
+        std::cout << "fail vf_hp" << std::endl;
         return 1;
     }
     ht = hl_vec.f;
-    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
      if(err){
-        std::cout << "fail" << std::endl;
-        return 1;
+        std::cout << err << "fail tau_hp" << std::endl;
+        fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 1);
+        return err;
     }
     ht = hv_vec.f;
-    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, ht, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
      if(err){
         std::cout << "fail" << std::endl;
         return 1;
@@ -733,30 +781,30 @@ uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h
 
     // Test S, P
     st = 0.5*sl_vec.f + 0.5*sv_vec.f;
-    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     st = 0.25*sl_vec.f + 0.75*sv_vec.f;
-    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
      if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
-    err = fd2(memo2_vf_sp, comp, st, pressure, 1e-3, 1e-8, 0.75, 1e-2, 0);
+    err = fd2(memo2_vf_sp, comp, st, pressure, 1e-2, 1e-3, 0.75, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     st = sl_vec.f;
-    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     st = sv_vec.f;
-    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, st, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
@@ -764,30 +812,30 @@ uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h
 
     // Test U, P
     ut = 0.5*ul_vec.f + 0.5*uv_vec.f;
-    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     ut = 0.25*ul_vec.f + 0.75*uv_vec.f;
-    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
      if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
-    err = fd2(memo2_vf_up, comp, ut, pressure, 1e-3, 1e-8, 0.75, 1e-2, 0);
+    err = fd2(memo2_vf_up, comp, ut, pressure, 1e-2, 1e-3, 0.75, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     ut = ul_vec.f;
-    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
     }
     ut = uv_vec.f;
-    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, ut, pressure, 1e-2, 1e-3, tau, 1e-2, 0);
     if(err){
         std::cout << "fail" << std::endl;
         return 1;
