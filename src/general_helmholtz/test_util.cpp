@@ -183,8 +183,8 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   TEST_FUNCTION_OF_DELTA_TAU("cv", memo2_isochoric_heat_capacity, dat[i][test_data::cv_col], 1e-1, 0)
   TEST_FUNCTION_OF_DELTA_TAU("cp", memo2_isobaric_heat_capacity, dat[i][test_data::cp_col], 1e-1, 1)
   TEST_FUNCTION_OF_DELTA_TAU("w", memo2_speed_of_sound, dat[i][test_data::w_col], 1e-1, 0)
-  TEST_FUNCTION_OF_DELTA_TAU("g", memo2_gibbs, dat[i][test_data::h_col] - h_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), 1e-1, 1)
-  TEST_FUNCTION_OF_DELTA_TAU("f", memo2_helmholtz, dat[i][test_data::u_col] - u_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), 1e-1, 1)
+  TEST_FUNCTION_OF_DELTA_TAU("g", memo2_gibbs, dat[i][test_data::h_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 1)
+  TEST_FUNCTION_OF_DELTA_TAU("f", memo2_helmholtz, dat[i][test_data::u_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 1)
 
   // If the properties are right phis are right, just check derivatives.
   TEST_FUNCTION_OF_DELTA_TAU("phii", memo2_phi_ideal, nan("no check"), 1e-2, 0)
@@ -202,7 +202,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
 
   // Transport properties
   if (pdat->expr_map[expr_idx::viscosity_idx]!=1000){
-      TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-2, 0)
+      TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-20, 0)
   }
   // For thermal conductivity, for a lot of reasons, (e.g. different correlation, no critical 
   // correction, ...) these may or may not be super accurate, just check they are roughly correct.
@@ -814,6 +814,14 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     uint err = 0;
 
     std::cout << std::endl;
+    std::cout << "Test basic " << comp_str << " liquid properties" << std::endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    err = test_basic_properties(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    if(err){
+        return err;
+    }
+
+    std::cout << std::endl;
     std::cout << "Test basic " << comp_str << " vapor properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
     err = test_basic_properties(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
@@ -825,14 +833,6 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << "Test basic " << comp_str << " supercritical properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
     err = test_basic_properties(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
-    if(err){
-        return err;
-    }
-
-    std::cout << std::endl;
-    std::cout << "Test basic " << comp_str << " liquid properties" << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
     if(err){
         return err;
     }

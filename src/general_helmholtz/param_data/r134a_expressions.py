@@ -86,7 +86,7 @@ def viscosity_rule(m):
         3.163695636,
     ]
     T = m.T_star / m.tau
-    rho = m.delta * m.rho_star
+    rho = m.delta * m.rho_star / m.MW * 1000
     M = 102.031
     sigma = 0.46893
     eok = 299.363
