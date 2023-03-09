@@ -21,7 +21,7 @@ typedef f12_struct (*test_fptr1)(uint comp, double x);
 typedef f22_struct (*test_fptr2)(uint comp, double x1, double x2);
 
 int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, bool dbg);
-int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg);
+int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg, double scale=1);
 
 uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
 uint test_sat_curve(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
@@ -92,7 +92,7 @@ for(i=0; i<dat.size(); ++i){ \
     if (fabs(P - pdat->Pc) < 1000){ \
         continue; \
     } \
-    err = fd2(FUNC, comp, DATS1, P, 1e-3, 1e-8, DATP, TOL, 0); \
+    err = fd2(FUNC, comp, DATS1, P, 1e-4, 1e-3, DATP, TOL, 0); \
     if(err){ \
         std::cout << std::endl; \
         std::cout << "-------------------------ERROR--" << err << "------------------------" << std::endl; \
