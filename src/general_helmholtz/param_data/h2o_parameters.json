@@ -1,12 +1,12 @@
 {
-    "nl_file": "h2o_expressions.nl",
+    "nl_file": "h2o_expressions_eos.nl",
     "expr_map": [
         0,
         1,
         2,
         3,
         4,
-        15,
+        13,
         5,
         6,
         7,
@@ -14,15 +14,7 @@
         9,
         10,
         11,
-        12,
-        13,
-        14,
-        16
-    ],
-    "var_map": [
-        0,
-        1,
-        1000
+        12
     ],
     "param": {
         "R": 0.46151805,
@@ -41,5 +33,11 @@
         "rho_max": 1250.0,
         "T_min": 235,
         "T_max": 1300
-    }
+    },
+    "nl_file_tcx": "h2o_expressions_tcx.nl",
+    "have_tcx": true,
+    "nl_file_st": "none",
+    "have_st": false,
+    "nl_file_visc": "h2o_expressions_visc.nl",
+    "have_visc": true
 }

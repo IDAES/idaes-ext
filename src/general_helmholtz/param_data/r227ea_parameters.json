@@ -1,5 +1,5 @@
 {
-    "nl_file": "r227ea_expressions.nl",
+    "nl_file": "r227ea_expressions_eos.nl",
     "expr_map": [
         0,
         1,
@@ -14,15 +14,7 @@
         9,
         10,
         11,
-        12,
-        1000,
-        1000,
-        1000
-    ],
-    "var_map": [
-        0,
-        1,
-        1000
+        12
     ],
     "param": {
         "R": 0.04890029904335064,
@@ -41,5 +33,11 @@
         "rho_max": 2500.0,
         "T_min": 145,
         "T_max": 500
-    }
+    },
+    "nl_file_tcx": "none",
+    "have_tcx": false,
+    "nl_file_st": "none",
+    "have_st": false,
+    "nl_file_visc": "none",
+    "have_visc": false
 }

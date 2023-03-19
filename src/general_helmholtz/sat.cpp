@@ -105,7 +105,7 @@ int sat(uint comp, double tau, double *delta_l, double *delta_v){
       detla_l_step = sat_gamma*(Kdiff*dJv - Jdiff*dKv)/det;
       detla_v_step = sat_gamma*(Kdiff*dJl - Jdiff*dKl)/det;
       if(detla_l_step + *delta_l <= delta_c(comp) || detla_v_step + *delta_v >= delta_c(comp)){
-        // unfortunatly it seems these things can happen near the critical temperature
+        // unfortunately it seems these things can happen near the critical temperature
         // the derivatives blow up and it gets really hard to solve.  This should only
         // catch the cases right near the critical point, but it is possible that
         // it could hide other problems
@@ -132,9 +132,9 @@ Calculate grad and hes for and memoize
 
  To calculate the derivatives use the phase-equilibrium condition and the
  fact that the pressures are equal to implicitly calculate the derivatives. Tau
- is a constant.  There are a lot of intermediate varaibles here to hopfully
+ is a constant.  There are a lot of intermediate variables here to hopefully
  break down the derivative calculations into easy(ish) to understand parts. The
- compiler optimization will hopfully take care of the inefficincy of the
+ compiler optimization will hopefully take care of the inefficiency of the
  excessive number of variables.
 
 */
@@ -183,7 +183,7 @@ Calculate grad and hes for and memoize
 
     delta_l * AL = delta_v * AV
 
-  we can differntiate with respect to tau and get:
+  we can differentiate with respect to tau and get:
 
     delta_l_t = delta_v_t * BV/BL + (CV - CL)/BL
 
@@ -195,7 +195,7 @@ Calculate grad and hes for and memoize
   double CV = delta_v * AV_t;
 
   /*
-  From the equlibrum condition we get
+  From the equilibrium condition we get
 
     AV - AL + ln(delta_v) - ln(delta_l) = phir_l - phir_v
 
@@ -475,7 +475,6 @@ f12_struct sat_tau(uint comp, double pr){
   return *res_ptr;
 }
 
-// Solve for tau sat, calculate derivatives and cache results.
 f12_struct sat_t(uint comp, double pr){
   f12_struct res, tau = sat_tau(comp, pr);
   double Tc = cdata[comp].T_star;
@@ -485,12 +484,54 @@ f12_struct sat_t(uint comp, double pr){
   return res;
 }
 
-// Solve for tau sat, calculate derivatives and cache results.
-f12_struct sat_p_t(uint comp, double t){
-  double Tc = cdata[comp].T_star;
-  f12_struct res, p_res = sat_p(comp, Tc/t);
-  res.f = p_res.f;
-  res.f_1 = -p_res.f_1 * Tc / t / t;
-  res.f_11 = p_res.f_11 * Tc / t / t * Tc / t / t + 2*p_res.f_1 * Tc / t / t / t;
+f12_struct sat_v_liq(uint comp, double tau){
+  f12_struct res, delta = sat_delta_l(comp, tau);
+  double rsi = 1.0/cdata[comp].rho_star;
+  res.f = rsi/delta.f;
+  res.f_1 = -rsi*delta.f_1/delta.f/delta.f;
+  res.f_11 = -rsi*delta.f_11/delta.f/delta.f + 2*rsi*delta.f_1*delta.f_1/delta.f/delta.f/delta.f;
   return res;
 }
+
+f12_struct sat_v_vap(uint comp, double tau){
+  f12_struct res, delta = sat_delta_v(comp, tau);
+  double rsi = 1.0/cdata[comp].rho_star;
+  res.f = rsi/delta.f;
+  res.f_1 = -rsi*delta.f_1/delta.f/delta.f;
+  res.f_11 = -rsi*delta.f_11/delta.f/delta.f + 2*rsi*delta.f_1*delta.f_1/delta.f/delta.f/delta.f;
+  return res;
+}
+
+SAT_FUNCTION_OF_TAU(sat_h_liq, memo2_enthalpy, sat_delta_l)
+SAT_FUNCTION_OF_TAU(sat_h_vap, memo2_enthalpy, sat_delta_v)
+SAT_FUNCTION_OF_TAU(sat_s_liq, memo2_entropy, sat_delta_l)
+SAT_FUNCTION_OF_TAU(sat_s_vap, memo2_entropy, sat_delta_v)
+SAT_FUNCTION_OF_TAU(sat_u_liq, memo2_internal_energy, sat_delta_l)
+SAT_FUNCTION_OF_TAU(sat_u_vap, memo2_internal_energy, sat_delta_v)
+
+//
+// Sat properties as a function of temperature
+//
+
+SAT_PROP_FUNCTION_OF_T(sat_p_t, sat_p)
+SAT_PROP_FUNCTION_OF_T(sat_v_liq_t, sat_v_liq)
+SAT_PROP_FUNCTION_OF_T(sat_v_vap_t, sat_v_vap)
+SAT_PROP_FUNCTION_OF_T(sat_h_vap_t, sat_h_vap)
+SAT_PROP_FUNCTION_OF_T(sat_h_liq_t, sat_h_liq)
+SAT_PROP_FUNCTION_OF_T(sat_s_vap_t, sat_s_vap)
+SAT_PROP_FUNCTION_OF_T(sat_s_liq_t, sat_s_liq)
+SAT_PROP_FUNCTION_OF_T(sat_u_vap_t, sat_u_vap)
+SAT_PROP_FUNCTION_OF_T(sat_u_liq_t, sat_u_liq)
+
+//
+// Sat properties as a function of pressure
+//
+
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_v_liq_p, sat_v_liq)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_v_vap_p, sat_v_vap)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_h_vap_p, sat_h_vap)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_h_liq_p, sat_h_liq)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_s_vap_p, sat_s_vap)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_s_liq_p, sat_s_liq)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_u_vap_p, sat_u_vap)
+SAT_PROP_FUNCTION_OF_PRESSURE(sat_u_liq_p, sat_u_liq)

@@ -39,6 +39,7 @@ ASL_WRAP_FUNC_2ARG(cv, memo2_isochoric_heat_capacity)    // cv(comp, delta, tau)
 ASL_WRAP_FUNC_2ARG(cp, memo2_isobaric_heat_capacity)     // cp(comp, delta, tau) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w, memo2_speed_of_sound)              // w(comp, delta, tau) [m/s]
 ASL_WRAP_FUNC_2ARG(v, memo2_specific_volume)             // v(comp, delta, tau) [m3/kg]
+ASL_WRAP_FUNC_2ARG(itc, memo2_isothermal_compressibility)  // isothermal compressibility(comp, delta, tau) [1/MPa]
 ASL_WRAP_FUNC_2ARG(hvpt, memo2_enthalpy_vapor)           // hv(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(hlpt, memo2_enthalpy_liquid)          // hl(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(svpt, memo2_entropy_vapor)            // sv(comp, pressure, tau) [kJ/kg/K]
@@ -53,6 +54,9 @@ ASL_WRAP_FUNC_2ARG(vfs, memo2_vf_sp)                     // vf(comp, entropy, pr
 ASL_WRAP_FUNC_2ARG(vfu, memo2_vf_up)                     // vf(comp, internal energy, pressure) [none]
 ASL_WRAP_FUNC_2ARG(delta_liq, memo2_delta_liquid)        // delta_liq(comp, pressure, tau) [none]
 ASL_WRAP_FUNC_2ARG(delta_vap, memo2_delta_vapor)         // delta_vap(comp, pressure, tau) [none]
+
+ASL_WRAP_FUNC_2ARG(mu, memo2_viscosity)                  // mu(comp, delta, tau) [uPa*s]
+ASL_WRAP_FUNC_2ARG(lambda, memo2_thermal_conductivity)   // lambda(comp, delta, tau) [mW/K/m]
 
 ASL_WRAP_FUNC_2ARG(phi0, memo2_phi_ideal)                // phi0(comp, delta, tau) [none]
 ASL_WRAP_FUNC_2ARG(phir, memo2_phi_resi)                 // phir(comp, delta, tau) [none]
@@ -72,8 +76,27 @@ ASL_WRAP_FUNC_1ARG(tau_sat, sat_tau)                     // tau_sat(comp, p [kPa
 ASL_WRAP_FUNC_1ARG(p_sat, sat_p)                         // p_sat(comp, tau) [kPa]
 ASL_WRAP_FUNC_1ARG(delta_sat_v, sat_delta_v)             // delta_sat_v(comp, tau) [none]
 ASL_WRAP_FUNC_1ARG(delta_sat_l, sat_delta_l)             // delta_sat_l(comp, tau) [none]
-ASL_WRAP_FUNC_1ARG(p_sat_t, sat_p_t)                     // p_sat_t(comp, T [K]) [kPa]
 ASL_WRAP_FUNC_1ARG(T_sat, sat_t)                         // T_sat(comp, p [kPa]) [K]
+
+ASL_WRAP_FUNC_1ARG(p_sat_t, sat_p_t)                     // p_sat_t(comp, T [K]) [kPa]
+ASL_WRAP_FUNC_1ARG(h_liq_sat_t, sat_h_liq_t)             // h_liq_sat(comp, T [K]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(h_vap_sat_t, sat_h_vap_t)             // h_vap_sat(comp, T [K]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(s_liq_sat_t, sat_s_liq_t)             // s_liq_sat(comp, T [K]) [kJ/kg/K]
+ASL_WRAP_FUNC_1ARG(s_vap_sat_t, sat_s_vap_t)             // s_vap_sat(comp, T [K]) [kJ/kg/K]
+ASL_WRAP_FUNC_1ARG(u_liq_sat_t, sat_u_liq_t)             // u_liq_sat(comp, T [K]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(u_vap_sat_t, sat_u_vap_t)             // u_vap_sat(comp, T [K]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(v_liq_sat_t, sat_v_liq_t)             // v_liq_sat(comp, T [K]) [m3/kg]
+ASL_WRAP_FUNC_1ARG(v_vap_sat_t, sat_v_vap_t)             // v_vap_sat(comp, T [K]) [m3/kg]
+
+ASL_WRAP_FUNC_1ARG(h_liq_sat_p, sat_h_liq_p)             // h_liq_sat(comp, p [kPa]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(h_vap_sat_p, sat_h_vap_p)             // h_vap_sat(comp, p [kPa]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(s_liq_sat_p, sat_s_liq_p)             // s_liq_sat(comp, p [kPa]) [kJ/kg/K]
+ASL_WRAP_FUNC_1ARG(s_vap_sat_p, sat_s_vap_p)             // s_vap_sat(comp, p [kPa]) [kJ/kg/K]
+ASL_WRAP_FUNC_1ARG(u_liq_sat_p, sat_u_liq_p)             // u_liq_sat(comp, p [kPa]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(u_vap_sat_p, sat_u_vap_p)             // u_vap_sat(comp, p [kPa]) [kJ/kg]
+ASL_WRAP_FUNC_1ARG(v_liq_sat_p, sat_v_liq_p)             // v_liq_sat(comp, p [kPa]) [m3/kg]
+ASL_WRAP_FUNC_1ARG(v_vap_sat_p, sat_v_vap_p)             // v_vap_sat(comp, p [kPa]) [m3/kg]
+
 
 // General (liquid, vapor, two-phase) property functions of (h [kJ/kg], p [kPa])
 ASL_WRAP_FUNC_2ARG(T_hp, memo2_temperature_hp)               // T(comp, h, p) [K]
@@ -264,6 +287,9 @@ void funcadd(AmplExports *ae){
     addfunc("cp", (rfunc)cp, typ, -4, NULL);
     addfunc("w", (rfunc)w, typ, -4, NULL);
     addfunc("v", (rfunc)v, typ, -4, NULL);
+    addfunc("itc", (rfunc)itc, typ, -4, NULL);
+    addfunc("mu", (rfunc)mu, typ, -4, NULL);
+    addfunc("lambda", (rfunc)lambda, typ, -4, NULL);
 
     addfunc("T_hp", (rfunc)T_hp, typ, -4, NULL);
     addfunc("tau_hp", (rfunc)tau_hp, typ, -4, NULL);
@@ -365,7 +391,7 @@ void funcadd(AmplExports *ae){
     addfunc("u_vap_up", (rfunc)u_vap_up, typ, -4, NULL);
     addfunc("s_vap_up", (rfunc)s_vap_up, typ, -4, NULL);
     addfunc("h_vap_up", (rfunc)h_vap_up, typ, -4, NULL);
-    addfunc("g_up", (rfunc)g_vap_up, typ, -4, NULL);
+    addfunc("g_vap_up", (rfunc)g_vap_up, typ, -4, NULL);
     addfunc("f_vap_up", (rfunc)f_vap_up, typ, -4, NULL);
     addfunc("cv_vap_up", (rfunc)cv_vap_up, typ, -4, NULL);
     addfunc("cp_vap_up", (rfunc)cp_vap_up, typ, -4, NULL);
@@ -378,7 +404,7 @@ void funcadd(AmplExports *ae){
     addfunc("u_liq_up", (rfunc)u_liq_up, typ, -4, NULL);
     addfunc("s_liq_up", (rfunc)s_liq_up, typ, -4, NULL);
     addfunc("h_liq_up", (rfunc)h_liq_up, typ, -4, NULL);
-    addfunc("g_up", (rfunc)g_liq_up, typ, -4, NULL);
+    addfunc("g_liq_up", (rfunc)g_liq_up, typ, -4, NULL);
     addfunc("f_liq_up", (rfunc)f_liq_up, typ, -4, NULL);
     addfunc("cv_liq_up", (rfunc)cv_liq_up, typ, -4, NULL);
     addfunc("cp_liq_up", (rfunc)cp_liq_up, typ, -4, NULL);
@@ -448,6 +474,21 @@ void funcadd(AmplExports *ae){
     addfunc("tau_sat", (rfunc)tau_sat, typ, -3, NULL);
     addfunc("T_sat", (rfunc)T_sat, typ, -3, NULL);
     addfunc("p_sat_t", (rfunc)p_sat_t, typ, -3, NULL);
+    addfunc("h_liq_sat_t", (rfunc)h_liq_sat_t, typ, -3, NULL);
+    addfunc("h_vap_sat_t", (rfunc)h_vap_sat_t, typ, -3, NULL);
+    addfunc("s_liq_sat_t", (rfunc)s_liq_sat_t, typ, -3, NULL);
+    addfunc("s_vap_sat_t", (rfunc)s_vap_sat_t, typ, -3, NULL);
+    addfunc("u_liq_sat_t", (rfunc)u_liq_sat_t, typ, -3, NULL);
+    addfunc("u_vap_sat_t", (rfunc)u_vap_sat_t, typ, -3, NULL);
+    addfunc("v_liq_sat_t", (rfunc)v_liq_sat_t, typ, -3, NULL);
+    addfunc("v_vap_sat_t", (rfunc)v_vap_sat_t, typ, -3, NULL);
+    addfunc("h_vap_sat_p", (rfunc)h_vap_sat_p, typ, -3, NULL);
+    addfunc("s_liq_sat_p", (rfunc)s_liq_sat_p, typ, -3, NULL);
+    addfunc("s_vap_sat_p", (rfunc)s_vap_sat_p, typ, -3, NULL);
+    addfunc("u_liq_sat_p", (rfunc)u_liq_sat_p, typ, -3, NULL);
+    addfunc("u_vap_sat_p", (rfunc)u_vap_sat_p, typ, -3, NULL);
+    addfunc("v_liq_sat_p", (rfunc)v_liq_sat_p, typ, -3, NULL);
+    addfunc("v_vap_sat_p", (rfunc)v_vap_sat_p, typ, -3, NULL);
     // Parameters
     addfunc("mw", (rfunc)mw, typ, -2, NULL);
     addfunc("t_star", (rfunc)t_star, typ, -2, NULL);

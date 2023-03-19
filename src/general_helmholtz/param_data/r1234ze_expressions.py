@@ -5,10 +5,12 @@
 # Monika Thol and Eric W. Lemmon. "Equation of State for the Thermodynamic             #
 #   Properties of trans-1,3,3,3-Tetrafluoropropene [R-1234ze(E)]." Int. J.             #
 #   Thermophys, 37(3):1–16, 2016. doi:10.1007/s10765-016-2040-6.                       #
+#                                                                                      #
 # Richard A. Perkins and Marcia L. Huber. Measurement and Correlation of the Thermal   #
 #   Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and                        #
 #   trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)). J. Chem. Eng. Data, 56:4868–4874,   #
 #   2011. doi:10.1021/je200811n.                                                       #
+#                                                                                      #
 # Huber ML, Assael MJ. Correlations for the Viscosity of 2,3,3,3-Tetrafluoroprop-1-ene # 
 #   (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)). Int J Refrig.         #
 #   2016; 71:39-45. doi:10.1016/j.ijrefrig.2016.08.007                                 #
@@ -42,7 +44,7 @@ def thermal_conductivity_rule(m):
     l0 = sum(ai * Tred**i for i, ai in enumerate(a))
     lr = sum(m.delta**i * (b[i, 1] + b[i, 2] * Tred) for i in range(1, 6))
     lc = 0
-    return (l0 + lr + lc)
+    return 1000*(l0 + lr + lc)
 
 def viscosity_rule(m):
     a = [
@@ -109,7 +111,7 @@ def viscosity_rule(m):
             / (c[7] * Tr + c[8] * m.delta * Tr)
         )
     )
-    return (eta0 + eta1 * rho + etar) / 1e6 
+    return (eta0 + eta1 * rho + etar)
 
 
 def main():

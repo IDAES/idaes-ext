@@ -44,7 +44,7 @@ void isochoric_heat_capacity2(uint comp, double delta, double tau, f22_struct *o
 void isobaric_heat_capacity2(uint comp, double delta, double tau, f22_struct *out);
 void speed_of_sound2(uint comp, double delta, double tau, f22_struct *out);
 void specific_volume2(uint comp, double delta, double tau, f22_struct *out);
-
+void isothermal_compressibility2(uint comp, double delta, double tau, f22_struct *out);
 
 // Rather than calculate all the properties here, provide the terms needed to caluclate
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out);
@@ -70,8 +70,9 @@ f22_struct memo2_isochoric_heat_capacity(uint comp, double delta, double tau);
 f22_struct memo2_isobaric_heat_capacity(uint comp, double delta, double tau);
 f22_struct memo2_speed_of_sound(uint comp, double delta, double tau);
 f22_struct memo2_specific_volume(uint comp, double delta, double tau);
+f22_struct memo2_isothermal_compressibility(uint comp, double delta, double tau);
 
-// Rather than calculate all the properties here, provide the terms needed to caluclate
+// Rather than calculate all the properties here, provide the terms needed to calculate
 f22_struct memo2_phi_ideal(uint comp, double delta, double tau);
 f22_struct memo2_phi_ideal_d(uint comp, double delta, double tau);
 f22_struct memo2_phi_ideal_t(uint comp, double delta, double tau);

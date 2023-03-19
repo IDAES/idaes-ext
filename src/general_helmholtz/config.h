@@ -48,11 +48,8 @@ namespace expr_idx{
   const long phir_dt = 11;
   const long delta_v_sat_approx = 12;
   const long delta_l_sat_approx = 13;
-  const long viscosity_idx = 14;
-  const long thermal_conductivity_idx = 15;
-  const long surface_tension_idx = 16;
 }
-const long expr_map_size = 17;
+const long expr_map_size = 14;
 
 // Structure for unary function value and 1st order derivatives
 struct f11_struct {
@@ -119,25 +116,31 @@ struct f24_struct {
 
 // Structure for parameters and expressions for specific component
 struct parameters_struct {
-  void *asl = nullptr;// expressions in ASL (cast to ASL*)
-  long expr_map[expr_map_size];  // index of expressions in NL file
-  long var_map[3];    // index of variables in NL file
-  double R;           // specific ideal gas constant [kJ/kg/K]
-  double MW;          // molecular weight [g/mol]
-  double T_star;      // for calculating tau = T_star/T [K]
-  double rho_star;    // for calculating delta = rho_star/rho [kg/m3]
-  double Tc;          // critical temperature [K]
-  double rhoc;        // critical density [kg/m3]
-  double Pc;          // critical pressure [kPa]
-  double Tt;          // triple point temperature [K]
-  double Pt;          // triple point pressure [K]
-  double rhot_l;      // liquid triple point density [kg/m3]
-  double rhot_v;      // vapor triple point density [kg/m3]
-  double P_min;       // minimum pressure [kPa]
-  double P_max;       // maximum pressure [kPa]
-  double rho_max;     // maximum density [kg/m3]
-  double T_min;       // minimum temperature [kPa]
-  double T_max;       // maximum temperature [kPa]
+  void *asl = nullptr;      // expressions in ASL (cast to ASL*)
+  void *asl_tcx = nullptr;  // expressions in ASL (cast to ASL*)
+  void *asl_visc = nullptr; // expressions in ASL (cast to ASL*)
+  void *asl_st = nullptr;   // expressions in ASL (cast to ASL*)
+  bool have_tcx;            // have a model for thermal conductivity [mW/m/K]
+  bool have_visc;           // have a model for viscosity [uPa*s]
+  bool have_st;             // have a model for surface tension [mN/m]
+  double R;                 // specific ideal gas constant [kJ/kg/K]
+  double MW;                // molecular weight [g/mol]
+  double T_star;            // for calculating tau = T_star/T [K]
+  double rho_star;          // for calculating delta = rho_star/rho [kg/m3]
+  double Tc;                // critical temperature [K]
+  double rhoc;              // critical density [kg/m3]
+  double Pc;                // critical pressure [kPa]
+  double Tt;                // triple point temperature [K]
+  double Pt;                // triple point pressure [K]
+  double rhot_l;            // liquid triple point density [kg/m3]
+  double rhot_v;            // vapor triple point density [kg/m3]
+  double P_min;             // minimum pressure [kPa]
+  double P_max;             // maximum pressure [kPa]
+  double rho_max;           // maximum density [kg/m3]
+  double T_min;             // minimum temperature [kPa]
+  double T_max;             // maximum temperature [kPa]
+  long expr_map[expr_map_size]; // index of expressions in NL file
+
 };
 
 // AMPL models for a component

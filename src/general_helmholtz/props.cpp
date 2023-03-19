@@ -36,6 +36,7 @@ prop_memo_table22 memo_table_isochoric_heat_capacity2;
 prop_memo_table22 memo_table_isobaric_heat_capacity2;
 prop_memo_table22 memo_table_speed_of_sound2;
 prop_memo_table22 memo_table_specific_volume2;
+prop_memo_table22 memo_table_isothermal_compressibility2;
 
 prop_memo_table22 memo_table_phi_ideal2;
 prop_memo_table22 memo_table_phi_resi2;
@@ -75,8 +76,8 @@ void pressure1(uint comp, double delta, double tau, f21_struct *out){
 void pressure2(uint comp, double delta, double tau, f22_struct *out){
   f23_struct y = phi_resi(comp, delta, tau);
   parameters_struct *dat = &cdata[comp];
-  // while the intermediate varaibles look inefficent the copiler optimization
-  // should fix it, and hopfully .
+  // while the intermediate variables look inefficient the compiler optimization
+  // should fix it.
   double c = dat->rho_star*dat->T_star*dat->R;
   double phir_d = y.f_1;
   double phir_dd = y.f_11;
@@ -453,6 +454,35 @@ void specific_volume2(uint comp, double delta, double tau, f22_struct *out){
   out->f_22 = 0.0;
 }
 
+void isothermal_compressibility2(uint comp, double delta, double tau, f22_struct *out){
+  f24_struct y = phi_resi4(comp, delta, tau);
+  parameters_struct *dat = &cdata[comp];
+  double c = dat->rho_star*dat->T_star*dat->R;
+  double phir_d = y.f_1;
+  double phir_dd = y.f_11;
+  double phir_ddd = y.f_111;
+  double phir_dddd = y.f_1111;
+  double phir_dt = y.f_12;
+  double phir_ddt = y.f_112;
+  double phir_dddt = y.f_1112;
+  double phir_dtt = y.f_122;
+  double phir_ddtt = y.f_1122;
+
+  double X = delta + 2*delta*delta*phir_d + delta*delta*delta*phir_dd;
+  double X_d = 1 + 4*delta*phir_d + 5*delta*delta*phir_dd + delta*delta*delta*phir_ddd;
+  double X_dd = 4*phir_d + 14*delta*phir_dd + 8*delta*delta*phir_ddd + delta*delta*delta*phir_dddd;
+  double X_t = 2*delta*delta*phir_dt + delta*delta*delta*phir_ddt;
+  double X_tt = 2*delta*delta*phir_dtt + delta*delta*delta*phir_ddtt;
+  double X_dt = 4*delta*phir_dt + 5*delta*delta*phir_ddt + delta*delta*delta*phir_dddt;
+
+  out->f = 1000*tau/c/X; // pressure
+  out->f_1 = -1000*tau*X_d/c/X/X;
+  out->f_11 = 1000*(2.0*tau*X_d*X_d/c/X/X/X - tau*X_dd/c/X/X);
+  out->f_2 = 1000*(1.0/c/X - tau*X_t/c/X/X);
+  out->f_12 = 1000*(-X_d/c/X/X             + 2.0*tau*X_d*X_t/c/X/X/X - tau*X_dt/c/X/X);
+  out->f_22 = 1000*(-X_t/c/X/X - X_t/c/X/X + 2.0*tau*X_t*X_t/c/X/X/X - tau*X_tt/c/X/X);
+}
+
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out){
   f23_struct y = phi_ideal(comp, delta, tau);
   out->f = y.f;
@@ -583,6 +613,7 @@ MEMO2_FUNCTION(memo2_isochoric_heat_capacity, isochoric_heat_capacity2, memo_tab
 MEMO2_FUNCTION(memo2_isobaric_heat_capacity, isobaric_heat_capacity2, memo_table_isobaric_heat_capacity2)
 MEMO2_FUNCTION(memo2_speed_of_sound, speed_of_sound2, memo_table_speed_of_sound2)
 MEMO2_FUNCTION(memo2_specific_volume, specific_volume2, memo_table_specific_volume2)
+MEMO2_FUNCTION(memo2_isothermal_compressibility, isothermal_compressibility2, memo_table_isothermal_compressibility2)
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
 MEMO2_FUNCTION(memo2_phi_ideal_d, phi_ideal_d2, memo_table_phi_ideal_d2)
