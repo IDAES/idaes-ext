@@ -27,9 +27,9 @@ MKDIR = mkdir
 LINK = g++
 
 ifeq ($(ASL),)
-    CFLAGS = -Wall -Wextra -O2 -static -fPIC
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC
 else
-    CFLAGS = -Wall -Wextra -O2 -static -fPIC -I$(ASL)
+    CFLAGS = -Wall -Wextra -O3 -static -fPIC -I$(ASL)
 endif
 
 LDFLAGS = -shared

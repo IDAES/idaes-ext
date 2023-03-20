@@ -18,30 +18,25 @@ uint read_params(std::string comp, std::string data_path){
     catch(std::out_of_range const&){
     } // not read yet
     ASL *asl;
-    std::ostringstream nl_file_path, json_file_path, except_string;
-
+    std::ostringstream 
+        nl_file_path, 
+        nl_file_tcx_path, 
+        nl_file_visc_path, 
+        nl_file_st_path, 
+        json_file_path, 
+        except_string;
     if(data_path == ""){
         if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
             data_path = env_data_path;
         }
     }
-    
-    // IDAES component naming standards are not clear on case.  I'll assume you
-    // won't have two different components who's name differs only by case. Some
-    // file systems aren't case sensitive anyway.  This setup requires the file
-    // names for the components to be lower case, but the component name can be
-    // upper, lower, or mixed case.  Like I could have "h2o" and/or "H2O", but
-    // both components would use the "h2o" parameter set.
-
-    //Get the lower case component name for file names.
+    // I'll assume component names are not case sensitive, so get lower case name.
     std::string lower_comp = comp;
     for(uint i = 0; i < comp.length(); i++){
         lower_comp[i] = tolower(comp[i]);
     }
-
     // parameter file other parameters
     json_file_path << data_path << lower_comp << "_parameters.json";
-   
     // Read the json parameter file
     std::ifstream jp_file_stream(json_file_path.str());
     if(!jp_file_stream.good()){
@@ -74,26 +69,55 @@ uint read_params(std::string comp, std::string data_path){
     cdata[comp_idx].rho_max = boost::json::value_to<double>(jp.at("param").at("rho_max"));
     cdata[comp_idx].T_min = boost::json::value_to<double>(jp.at("param").at("T_min"));
     cdata[comp_idx].T_max = boost::json::value_to<double>(jp.at("param").at("T_max"));
-
     for(uint i=0; i<expr_map_size; i++){
         cdata[comp_idx].expr_map[i] = boost::json::value_to<long>(jp.at("expr_map").at(i));
     }
-    for(uint i=0; i<3; i++){
+    for(uint i=0; i<var_map_size; i++){
         cdata[comp_idx].var_map[i] = boost::json::value_to<long>(jp.at("var_map").at(i));
     }
-
+    cdata[comp_idx].have_tcx = boost::json::value_to<bool>(jp.at("have_tcx"));
+    cdata[comp_idx].have_visc = boost::json::value_to<bool>(jp.at("have_visc"));
+    cdata[comp_idx].have_st = boost::json::value_to<bool>(jp.at("have_st"));
     nl_file_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file"));
     std::string nl_file_string = nl_file_path.str();
-    std::ifstream nl_file_stream(nl_file_path.str());
-    if(!nl_file_stream.good()){
-        except_string << "Data file not found: " << nl_file_path.str();
-        std::cout << except_string.str() << std::endl;
-        return MISSING_DATA;
-    }
     // Read the NL-file
     asl = ASL_alloc(ASL_read_pfgh);
     pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
     cdata[comp_idx].asl = (void*)asl;
+
+    if(cdata[comp_idx].have_tcx){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_tcx[i] = boost::json::value_to<long>(jp.at("var_map_tcx").at(i));
+        }
+        nl_file_path.clear();
+        nl_file_tcx_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_tcx"));
+        nl_file_string = nl_file_tcx_path.str();
+        asl = ASL_alloc(ASL_read_pfgh);
+        pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
+        cdata[comp_idx].asl_tcx = (void*)asl;
+    }
+    if(cdata[comp_idx].have_visc){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_visc[i] = boost::json::value_to<long>(jp.at("var_map_visc").at(i));
+        }
+        nl_file_path.clear();
+        nl_file_visc_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_visc"));
+        nl_file_string = nl_file_visc_path.str();
+        asl = ASL_alloc(ASL_read_pfgh);
+        pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
+        cdata[comp_idx].asl_visc = (void*)asl;
+    }
+    if(cdata[comp_idx].have_st){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_st[i] = boost::json::value_to<long>(jp.at("var_map_st").at(i));
+        }
+        nl_file_path.clear();
+        nl_file_st_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_st"));
+        nl_file_string = nl_file_st_path.str();
+        asl = ASL_alloc(ASL_read_pfgh);
+        pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
+        cdata[comp_idx].asl_st = (void*)asl;
+    }
     return comp_idx;
 }
 

@@ -37,10 +37,10 @@ def thermal_conductivity_rule(m):
         5: -1.940558,
     }
     d = {
-        1: 2.447164e-2,
-        2: 8.705605e-5,
-        3: -6.547950e-8,
-        4: 6.594919e-11,
+        1: 24.47164,
+        2: 8.705605e-2,
+        3: -6.547950e-5,
+        4: 6.594919e-8,
     }
     T = m.T_star / m.tau
     Ts = T / 251.196
@@ -51,7 +51,7 @@ def thermal_conductivity_rule(m):
     )
     return (
         (
-            0.475598 * pyo.sqrt(T) * (1 + 2.0 / 5.0 * cint_over_k) / G
+            475.598 * pyo.sqrt(T) * (1 + 2.0 / 5.0 * cint_over_k) / G
             + d[1] * rho
             + d[2] * rho**2
             + d[3] * rho**3
@@ -69,25 +69,25 @@ def viscosity_rule(m):
         4: -1.537102e-2,
     }
     d = {
-        1: 0.4071119e-8 * pyo.value(m.rho_star),
-        2: 0.7198037e-10 * pyo.value(m.rho_star) ** 2,
-        3: 0.2411697e-22 * pyo.value(m.rho_star) ** 6,
-        4: 0.2971072e-28 * pyo.value(m.rho_star) ** 8,
-        5: -0.1627888e-28 * pyo.value(m.rho_star) ** 8,
+        1: 0.4071119e-2,
+        2: 0.7198037e-4,
+        3: 0.2411697e-16,
+        4: 0.2971072e-22,
+        5: -0.1627888e-22,
     }
     T = m.T_star / m.tau
+    rho = m.delta * m.rho_star
     Ts = T / 251.196
     return (
         (
             1.00697
             * pyo.sqrt(T)
             / pyo.exp(sum(a[i] * pyo.log(Ts) ** i for i in a))
-            / 1e6
-            + d[1] * m.delta
-            + d[2] * m.delta**2
-            + d[3] * m.delta**6 / Ts**3
-            + d[4] * m.delta**8
-            + d[5] * m.delta**8 / Ts
+            + d[1] * rho
+            + d[2] * rho**2
+            + d[3] * rho**6 / Ts**3
+            + d[4] * rho**8
+            + d[5] * rho**8 / Ts
         )
     )
 
@@ -496,7 +496,6 @@ def main():
             "thermal_conductivity": thermal_conductivity_rule, 
         }
     )
-    #print(we.m.thermal_conductivity.expr)
     we.write()
 
 

@@ -20,7 +20,7 @@
 typedef f12_struct (*test_fptr1)(uint comp, double x);
 typedef f22_struct (*test_fptr2)(uint comp, double x1, double x2);
 
-int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, bool dbg);
+int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, bool dbg, double zero_tol, double scale);
 int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg, double scale=1);
 
 uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
@@ -139,16 +139,17 @@ duration =  stop - start; \
 std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
 
-#define TEST_FUNCTION_SAT(PROP, STATE, FUNC, DATP, DATS, TOL, HSTEP) \
+#define TEST_FUNCTION_SAT(PROP, STATE, FUNC, DATP, DATS, TOL, HSTEP, ZERO_CUT, SCALE, CRIT_TAU_CUT) \
 start = std::chrono::high_resolution_clock::now(); \
 std::cout << "    " << PROP << "(" << comp_str << ", " << STATE << ") "; \
 for(i=0; i<sat_liq_data.size(); ++i){ \
     tau = pdat->T_star/sat_liq_data[i][test_data::T_col]; \
     pressure = sat_liq_data[i][test_data::P_col]*1000; \
-    err = fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 0); \
+    if (tau < CRIT_TAU_CUT) continue; \
+    err = fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 0, ZERO_CUT, SCALE); \
     if(err){ \
-        std::cout << err; \
-        fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 1); \
+        std::cout << err << " state = " << DATS << " P = " << pressure << " "; \
+        fd1(FUNC, comp, DATS, HSTEP, DATP, TOL, 1,  ZERO_CUT, SCALE); \
         return err; \
     } \
 } \

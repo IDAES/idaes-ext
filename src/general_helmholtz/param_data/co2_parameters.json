@@ -1,12 +1,12 @@
 {
-    "nl_file": "co2_expressions.nl",
+    "nl_file": "co2_expressions_eos.nl",
     "expr_map": [
         0,
         1,
         2,
         3,
         4,
-        15,
+        13,
         5,
         6,
         7,
@@ -14,14 +14,12 @@
         9,
         10,
         11,
-        12,
-        13,
-        14,
-        1000
+        12
     ],
     "var_map": [
         0,
         1,
+        1000,
         1000
     ],
     "param": {
@@ -41,5 +39,22 @@
         "rho_max": 1600.0,
         "T_min": 216,
         "T_max": 1400
-    }
+    },
+    "nl_file_tcx": "co2_expressions_tcx.nl",
+    "var_map_tcx": [
+        1,
+        0,
+        1000,
+        1000
+    ],
+    "have_tcx": true,
+    "have_st": false,
+    "nl_file_visc": "co2_expressions_visc.nl",
+    "var_map_visc": [
+        1,
+        0,
+        1000,
+        1000
+    ],
+    "have_visc": true
 }
