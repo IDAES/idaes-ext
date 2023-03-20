@@ -56,6 +56,10 @@ int main(){
     std::cout << " co2 mu = " << res.f << std::endl;
     res = memo2_viscosity(comp, 1.773/pdat->rho_star, pdat->T_star/300.0);
     std::cout << " co2 mu = " << res.f << std::endl;
+    res = memo2_viscosity(comp, 1.773/pdat->rho_star, pdat->T_star/300.0);
+    std::cout << " co2 mu = " << res.f << std::endl;
+    res = memo2_thermal_conductivity(comp, 1.773/pdat->rho_star, pdat->T_star/300.0);
+    std::cout << " co2 lambda = " << res.f << std::endl;
 
     comp = read_params("h2o");
     pdat = &cdata[comp];
@@ -76,7 +80,7 @@ int main(){
     res = memo2_isothermal_compressibility(comp, 995.6/pdat->rho_star, pdat->T_star/303.15);
     std::cout << " h2o beta_T= " << res.f << std::endl;
 
-    return 0;
+    //return 0;
     for (auto t = tests.begin(); t != tests.end(); ++t){
         std::cout << t->comp_str << std::endl;
         comp = read_params(t->comp_str);

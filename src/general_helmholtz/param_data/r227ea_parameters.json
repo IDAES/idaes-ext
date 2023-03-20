@@ -16,6 +16,12 @@
         11,
         12
     ],
+    "var_map": [
+        0,
+        1,
+        1000,
+        1000
+    ],
     "param": {
         "R": 0.04890029904335064,
         "MW": 170.02886,
@@ -34,10 +40,7 @@
         "T_min": 145,
         "T_max": 500
     },
-    "nl_file_tcx": "none",
     "have_tcx": false,
-    "nl_file_st": "none",
     "have_st": false,
-    "nl_file_visc": "none",
     "have_visc": false
 }

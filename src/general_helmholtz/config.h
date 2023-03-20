@@ -28,7 +28,7 @@
 #define _INCLUDE_CONFIG_H_
 
 #define MAX_MEMO_PHI 300000
-#define MAX_MEMO_PROP 600000
+#define MAX_MEMO_PROP 300000
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -49,7 +49,14 @@ namespace expr_idx{
   const long delta_v_sat_approx = 12;
   const long delta_l_sat_approx = 13;
 }
+namespace var_idx{
+  const long delta = 0;
+  const long tau = 1;
+  const long p = 2;
+  const long T = 3;
+}
 const long expr_map_size = 14;
+const long var_map_size = 4;
 
 // Structure for unary function value and 1st order derivatives
 struct f11_struct {
@@ -140,7 +147,10 @@ struct parameters_struct {
   double T_min;             // minimum temperature [kPa]
   double T_max;             // maximum temperature [kPa]
   long expr_map[expr_map_size]; // index of expressions in NL file
-
+  long var_map[var_map_size]; // index of vars in NL file
+  long var_map_tcx[var_map_size]; // index of vars in NL file
+  long var_map_visc[var_map_size]; // index of vars in NL file
+  long var_map_st[var_map_size]; // index of vars in NL file
 };
 
 // AMPL models for a component

@@ -72,6 +72,9 @@ uint read_params(std::string comp, std::string data_path){
     for(uint i=0; i<expr_map_size; i++){
         cdata[comp_idx].expr_map[i] = boost::json::value_to<long>(jp.at("expr_map").at(i));
     }
+    for(uint i=0; i<var_map_size; i++){
+        cdata[comp_idx].var_map[i] = boost::json::value_to<long>(jp.at("var_map").at(i));
+    }
     cdata[comp_idx].have_tcx = boost::json::value_to<bool>(jp.at("have_tcx"));
     cdata[comp_idx].have_visc = boost::json::value_to<bool>(jp.at("have_visc"));
     cdata[comp_idx].have_st = boost::json::value_to<bool>(jp.at("have_st"));
@@ -83,6 +86,9 @@ uint read_params(std::string comp, std::string data_path){
     cdata[comp_idx].asl = (void*)asl;
 
     if(cdata[comp_idx].have_tcx){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_tcx[i] = boost::json::value_to<long>(jp.at("var_map_tcx").at(i));
+        }
         nl_file_path.clear();
         nl_file_tcx_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_tcx"));
         nl_file_string = nl_file_tcx_path.str();
@@ -91,6 +97,9 @@ uint read_params(std::string comp, std::string data_path){
         cdata[comp_idx].asl_tcx = (void*)asl;
     }
     if(cdata[comp_idx].have_visc){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_visc[i] = boost::json::value_to<long>(jp.at("var_map_visc").at(i));
+        }
         nl_file_path.clear();
         nl_file_visc_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_visc"));
         nl_file_string = nl_file_visc_path.str();
@@ -99,6 +108,9 @@ uint read_params(std::string comp, std::string data_path){
         cdata[comp_idx].asl_visc = (void*)asl;
     }
     if(cdata[comp_idx].have_st){
+        for(uint i=0; i<var_map_size; i++){
+            cdata[comp_idx].var_map_st[i] = boost::json::value_to<long>(jp.at("var_map_st").at(i));
+        }
         nl_file_path.clear();
         nl_file_st_path << data_path << boost::json::value_to<std::string>(jp.at("nl_file_st"));
         nl_file_string = nl_file_st_path.str();
@@ -106,7 +118,6 @@ uint read_params(std::string comp, std::string data_path){
         pfgh_read(jac0dim(nl_file_string.c_str(), nl_file_string.length()), 0);
         cdata[comp_idx].asl_st = (void*)asl;
     }
-
     return comp_idx;
 }
 

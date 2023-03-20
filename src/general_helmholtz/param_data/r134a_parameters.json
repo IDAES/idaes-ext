@@ -16,6 +16,12 @@
         11,
         12
     ],
+    "var_map": [
+        0,
+        1,
+        1000,
+        1000
+    ],
     "param": {
         "R": 0.0814888564372,
         "MW": 102.032,
@@ -35,9 +41,27 @@
         "T_max": 460
     },
     "nl_file_tcx": "r134a_expressions_tcx.nl",
+    "var_map_tcx": [
+        1,
+        0,
+        1000,
+        1000
+    ],
     "have_tcx": true,
     "nl_file_st": "r134a_expressions_st.nl",
+    "var_map_st": [
+        1,
+        1000,
+        1000,
+        1000
+    ],
     "have_st": true,
     "nl_file_visc": "r134a_expressions_visc.nl",
+    "var_map_visc": [
+        0,
+        1,
+        1000,
+        1000
+    ],
     "have_visc": true
 }

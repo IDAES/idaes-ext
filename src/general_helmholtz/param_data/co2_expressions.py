@@ -496,7 +496,6 @@ def main():
             "thermal_conductivity": thermal_conductivity_rule, 
         }
     )
-    #print(we.m.thermal_conductivity.expr)
     we.write()
 
 

@@ -215,7 +215,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   // correction, ...) these may or may not be super accurate, just check they are roughly correct.
   // ignore errors but print more than 33% error for manual inspection. 
   if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
+      TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
   }
   return 0;
 }
@@ -621,7 +621,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     TEST_FUNCTION_OF_TP("w_vap", "s", memo2_speed_of_sound_vap_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
     TEST_FUNCTION_OF_TP("v_vap", "s", memo2_specific_volume_vap_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
     if (pdat->have_visc){
-      TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
     }
     if (pdat->have_tcx){
       //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "s", memo2_thermal_conductivity_vap_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)

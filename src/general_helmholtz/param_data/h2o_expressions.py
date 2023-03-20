@@ -84,7 +84,7 @@ def thermal_conductivity_rule(m):
     m.cv = pyo.ExternalFunction(library="", function="cv")
     m.mu = pyo.ExternalFunction(library="", function="mu")
     m.itc = pyo.ExternalFunction(library="", function="itc") # isothermal compressibility [1/MPa]
-    deltchi = smooth_max(delta**2*(m.itc("h2o", delta, tau) - m.itc("h2o", delta, 1/Tbr)*Tbr/Tb) * m.Pc / 1000, 0, eps=1e-7)
+    deltchi = smooth_max(delta**2*(m.itc("h2o", delta, tau) - m.itc("h2o", delta, 1/Tbr)*Tbr/Tb) * m.Pc / 1000, 0, eps=1e-8)
     xi = xi0*(deltchi/big_gam0)**(nu/gamma)
     y = qdb*xi
     kappa = m.cp("h2o", delta, tau)/m.cv("h2o", delta, tau)
@@ -449,6 +449,7 @@ def main():
         T_max=1300,
     )
     m = we.model
+    mvisc = we.model_visc
     we.add(
         {
             "phii": pyo.log(m.delta)
@@ -621,13 +622,13 @@ def main():
             ),
             "viscosity": (
                 1e2
-                * pyo.sqrt(1.0 / m.tau)
-                / sum(H0[i] * m.tau**i for i in H0)
+                * pyo.sqrt(1.0 / mvisc.tau)
+                / sum(H0[i] * mvisc.tau**i for i in H0)
                 * pyo.exp(
-                    m.delta
+                    mvisc.delta
                     * sum(
-                        (m.tau - 1) ** i
-                        * sum(H1[i, j] * (m.delta - 1) ** j for j in range(0, 7))
+                        (mvisc.tau - 1) ** i
+                        * sum(H1[i, j] * (mvisc.delta - 1) ** j for j in range(0, 7))
                         for i in range(0, 6)
                     )
                 )

@@ -6,6 +6,14 @@ import logging
 _log = logging.getLogger("idaes.helmholtz_parameters")
 
 class WriteParameters(object):
+
+    variables = {
+        "delta": 0,
+        "tau": 1,
+        "p": 2,
+        "T": 3,
+    }
+
     expressions = { # these are expressions in the thermo model. Other models 
         # are separate 
         # phi is dimensionless Helmholtz free energy
@@ -106,8 +114,7 @@ class WriteParameters(object):
         return m
 
     def add(self, expressions):
-        for name in expressions:
-            expr = expressions[name]
+        for name, expr in expressions.items():
             if name in self.expressions: # check if in thermo model
                 m = self.model
             elif name == "thermal_conductivity":
@@ -127,6 +134,11 @@ class WriteParameters(object):
     def write_model(self, model, model_name, expressions=None):
         nl_file, smap_id = model.write(f"{self.comp}_expressions_{model_name}.nl")
         smap = model.solutions.symbol_map[smap_id]
+        var_map = [1000]*4
+        for s, c in smap.bySymbol.items():
+            if s.startswith("v"):
+                j = int(s[1:])
+                var_map[j] = self.variables[c().name]
         if expressions is not None:
             expr_map = [0] * len(expressions)
             for s, c in smap.bySymbol.items():
@@ -134,17 +146,18 @@ class WriteParameters(object):
                     i = expressions[c().name]
                     j = int(s[1:])
                     expr_map[i] = j
-            return nl_file, expr_map
-        return nl_file
+            return nl_file, expr_map, var_map
+        return nl_file, var_map
 
     def write(self):
         for name in self.expressions:
             if name not in self.has_expression:
                 raise RuntimeError(f"Required expression {name} not provided.")
-        nl_file, expr_map = self.write_model(self.model, "eos", self.expressions)
+        nl_file, expr_map, var_map = self.write_model(self.model, "eos", self.expressions)
         param_dict = {
             "nl_file": nl_file,
             "expr_map": expr_map,
+            "var_map": var_map,
             "param": {
                 "R": self.R,
                 "MW": self.MW,
@@ -169,12 +182,12 @@ class WriteParameters(object):
         for name, short_name in self.optional_expressions.items():
             if name in self.has_expression:
                 model = getattr(self, f"model_{short_name}")
-                nl_file = self.write_model(model, short_name)
+                nl_file, var_map = self.write_model(model, short_name)
                 param_dict[f"nl_file_{short_name}"] = nl_file
+                param_dict[f"var_map_{short_name}"] = var_map
                 param_dict[f"have_{short_name}"] = True
             else:
                 _log.warning(f"Missing optional expression {name}")
-                param_dict[f"nl_file_{short_name}"] = "none"
                 param_dict[f"have_{short_name}"] = False
 
         with open(f"{self.comp}_parameters.json", "w") as f:

@@ -16,6 +16,12 @@
         11,
         12
     ],
+    "var_map": [
+        0,
+        1,
+        1000,
+        1000
+    ],
     "param": {
         "R": 0.46151805,
         "MW": 18.015268,
@@ -35,9 +41,20 @@
         "T_max": 1300
     },
     "nl_file_tcx": "h2o_expressions_tcx.nl",
+    "var_map_tcx": [
+        0,
+        1,
+        1000,
+        1000
+    ],
     "have_tcx": true,
-    "nl_file_st": "none",
     "have_st": false,
     "nl_file_visc": "h2o_expressions_visc.nl",
+    "var_map_visc": [
+        1,
+        0,
+        1000,
+        1000
+    ],
     "have_visc": true
 }
