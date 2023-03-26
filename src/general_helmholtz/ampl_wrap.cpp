@@ -482,6 +482,7 @@ void funcadd(AmplExports *ae){
     addfunc("u_vap_sat_t", (rfunc)u_vap_sat_t, typ, -3, NULL);
     addfunc("v_liq_sat_t", (rfunc)v_liq_sat_t, typ, -3, NULL);
     addfunc("v_vap_sat_t", (rfunc)v_vap_sat_t, typ, -3, NULL);
+    addfunc("h_liq_sat_p", (rfunc)h_liq_sat_p, typ, -3, NULL);
     addfunc("h_vap_sat_p", (rfunc)h_vap_sat_p, typ, -3, NULL);
     addfunc("s_liq_sat_p", (rfunc)s_liq_sat_p, typ, -3, NULL);
     addfunc("s_vap_sat_p", (rfunc)s_vap_sat_p, typ, -3, NULL);

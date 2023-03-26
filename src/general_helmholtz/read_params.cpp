@@ -29,6 +29,13 @@ uint read_params(std::string comp, std::string data_path){
         if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
             data_path = env_data_path;
         }
+    } else{
+        // For now at least I have to assume all the data files are in the same place, since
+        // some expressions defined in NL files may call functions in the property library
+        // and this may spawn another process, I need to transfer the data path set in the
+        // function call to the environment variable to ensure that the data files can be
+        // located by the new process.
+        setenv("IDAES_HELMHOLTZ_DATA_PATH", data_path.c_str(), 1);
     }
     // I'll assume component names are not case sensitive, so get lower case name.
     std::string lower_comp = comp;
@@ -151,15 +158,6 @@ std::vector<tests_struct> read_run_tests(void){
     std::cout << i << ": " << it->key() << std::endl;
     test_data.at(i).comp_str = boost::json::value_to<std::string>(it->value().at("component"));
     test_data.at(i).test_set = boost::json::value_to<std::string>(it->value().at("tests"));
-    if (it->value().as_object().contains("u_off")){
-        test_data.at(i).u_off = boost::json::value_to<double>(it->value().at("u_off"));
-    }
-    if (it->value().as_object().contains("h_off")){
-        test_data.at(i).h_off = boost::json::value_to<double>(it->value().at("h_off"));
-    }
-    if (it->value().as_object().contains("s_off")){
-        test_data.at(i).s_off = boost::json::value_to<double>(it->value().at("s_off"));
-    }
     ++i;
   }
 

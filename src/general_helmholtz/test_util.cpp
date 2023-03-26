@@ -170,12 +170,12 @@ int fd2(
 // Check basic property function values and derivatives
 //
 //
-uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
+uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set){
   int err = 0;
   unsigned long i;
-  double tau, delta;
+  double tau, delta, P;
   parameters_struct *pdat = &cdata[comp];
-  std::vector< std::vector<double> > dat = read_data(comp_str, data_set, u_off, h_off, s_off);
+  std::vector< std::vector<double> > dat = read_data(comp_str, data_set);
     
   auto start = std::chrono::high_resolution_clock::now();
   auto stop = std::chrono::high_resolution_clock::now();
@@ -211,11 +211,8 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   if (pdat->have_visc){
       TEST_FUNCTION_OF_DELTA_TAU("viscosity", memo2_viscosity, dat[i][test_data::visc_col], 1e-1, 1)
   }
-  // For thermal conductivity, for a lot of reasons, (e.g. different correlation, no critical 
-  // correction, ...) these may or may not be super accurate, just check they are roughly correct.
-  // ignore errors but print more than 33% error for manual inspection. 
   if (pdat->have_tcx){
-      TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 0.33, 1)
+      TEST_FUNCTION_OF_DELTA_TAU("thermal conductivity", memo2_thermal_conductivity, dat[i][test_data::tc_col], 1e-1, 1)
   }
   return 0;
 }
@@ -226,12 +223,12 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
 // Check saturation curve values and derivatives
 //
 //
-uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+uint test_sat_curve(uint comp, std::string comp_str){
   std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
   sort_sat(comp_str, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
   uint err = 0;
   unsigned long i;
-  double tau, pressure, delta;
+  double tau, pressure, delta_v, delta_l;
   parameters_struct *pdat = &cdata[comp];
   auto start = std::chrono::high_resolution_clock::now();
   auto stop = std::chrono::high_resolution_clock::now();
@@ -243,22 +240,44 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
 
   TEST_FUNCTION_SAT("p_sat", "T", sat_p_t, sat_liq_data[i][test_data::P_col]*1000, sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1)
   TEST_FUNCTION_SAT("v_sat_vap", "T", sat_v_vap_t, 1.0/sat_vap_data[i][test_data::rho_col], sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 10000, 1)
-  TEST_FUNCTION_SAT("h_sat_vap", "T", sat_h_vap_t, sat_vap_data[i][test_data::h_col] - h_off, sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1)
-  TEST_FUNCTION_SAT("s_sat_vap", "T", sat_s_vap_t, sat_vap_data[i][test_data::s_col] - s_off, sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 10, 1)
-  TEST_FUNCTION_SAT("u_sat_vap", "T", sat_u_vap_t, sat_vap_data[i][test_data::u_col] - u_off, sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1)
+  TEST_FUNCTION_SAT("h_sat_vap", "T", sat_h_vap_t, sat_vap_data[i][test_data::h_col], sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1)
+  TEST_FUNCTION_SAT("s_sat_vap", "T", sat_s_vap_t, sat_vap_data[i][test_data::s_col], sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 10, 1)
+  TEST_FUNCTION_SAT("u_sat_vap", "T", sat_u_vap_t, sat_vap_data[i][test_data::u_col], sat_vap_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1)
   TEST_FUNCTION_SAT("v_sat_liq", "T", sat_v_liq_t, 1.0/sat_liq_data[i][test_data::rho_col], sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 100, 1.05)
-  TEST_FUNCTION_SAT("h_sat_liq", "T", sat_h_liq_t, sat_liq_data[i][test_data::h_col] - h_off, sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1.05)
-  TEST_FUNCTION_SAT("s_sat_liq", "T", sat_s_liq_t, sat_liq_data[i][test_data::s_col] - s_off, sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 10, 1.05)
-  TEST_FUNCTION_SAT("u_sat_liq", "T", sat_u_liq_t, sat_liq_data[i][test_data::u_col] - u_off, sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1.05)
+  TEST_FUNCTION_SAT("h_sat_liq", "T", sat_h_liq_t, sat_liq_data[i][test_data::h_col], sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1.05)
+  TEST_FUNCTION_SAT("s_sat_liq", "T", sat_s_liq_t, sat_liq_data[i][test_data::s_col], sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 10, 1.05)
+  TEST_FUNCTION_SAT("u_sat_liq", "T", sat_u_liq_t, sat_liq_data[i][test_data::u_col], sat_liq_data[i][test_data::T_col], 1e-2, 1e-4, 1e-3, 0.1, 1.05)
 
   TEST_FUNCTION_SAT("v_sat_vap", "P", sat_v_vap_p, 1.0/sat_vap_data[i][test_data::rho_col], sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 10000, 1)
-  TEST_FUNCTION_SAT("h_sat_vap", "P", sat_h_vap_p, sat_vap_data[i][test_data::h_col] - h_off, sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1)
-  TEST_FUNCTION_SAT("s_sat_vap", "P", sat_s_vap_p, sat_vap_data[i][test_data::s_col] - s_off, sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 10, 1)
-  TEST_FUNCTION_SAT("u_sat_vap", "P", sat_u_vap_p, sat_vap_data[i][test_data::u_col] - u_off, sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1)
+  TEST_FUNCTION_SAT("h_sat_vap", "P", sat_h_vap_p, sat_vap_data[i][test_data::h_col], sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1)
+  TEST_FUNCTION_SAT("s_sat_vap", "P", sat_s_vap_p, sat_vap_data[i][test_data::s_col], sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 10, 1)
+  TEST_FUNCTION_SAT("u_sat_vap", "P", sat_u_vap_p, sat_vap_data[i][test_data::u_col], sat_vap_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1)
   TEST_FUNCTION_SAT("v_sat_liq", "P", sat_v_liq_p, 1.0/sat_liq_data[i][test_data::rho_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 100, 1.05)
-  TEST_FUNCTION_SAT("h_sat_liq", "P", sat_h_liq_p, sat_liq_data[i][test_data::h_col] - h_off, sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1.05)
-  TEST_FUNCTION_SAT("s_sat_liq", "P", sat_s_liq_p, sat_liq_data[i][test_data::s_col] - s_off, sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 10, 1.05)
-  TEST_FUNCTION_SAT("u_sat_liq", "P", sat_u_liq_p, sat_liq_data[i][test_data::u_col] - u_off, sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1.05)
+  TEST_FUNCTION_SAT("h_sat_liq", "P", sat_h_liq_p, sat_liq_data[i][test_data::h_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1.05)
+  TEST_FUNCTION_SAT("s_sat_liq", "P", sat_s_liq_p, sat_liq_data[i][test_data::s_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 10, 1.05)
+  TEST_FUNCTION_SAT("u_sat_liq", "P", sat_u_liq_p, sat_liq_data[i][test_data::u_col], sat_liq_data[i][test_data::P_col]*1000, 1e-2, 1e-4, 1e-3, 0.1, 1.05)
+
+  for(i=0; i<sat_vap_data.size(); ++i){
+    tau = pdat->T_star/sat_liq_data[i][test_data::T_col];
+    delta_l = sat_liq_data[i][test_data::rho_col]/pdat->rho_star;
+    delta_v = sat_vap_data[i][test_data::rho_col]/pdat->rho_star;
+    pressure = sat_liq_data[i][test_data::P_col]*1000.0;
+    if (tau < 1.01){
+      continue;
+    }
+    if (delta_l - delta_liquid(comp, pressure, tau) > 0.001){
+      std::cout << "liq delta on sat fail " << delta_l << " " << delta_liquid(comp, pressure, tau) << " " << pressure << " " << tau << std::endl;
+      return 1;
+    }
+    if (delta_v - delta_vapor(comp, pressure, tau) > 0.001){
+      std::cout << "vap delta on sat fail " << delta_v << " " << delta_vapor(comp, pressure, tau) << " " << pressure << " " << tau << std::endl;
+      return 1;
+    }
+  }
+  stop = std::chrono::high_resolution_clock::now();
+  duration =  stop - start;
+  std::cout << "Passed " << std::endl;
+
 
   return 0;
 }
@@ -268,7 +287,7 @@ uint test_sat_curve(uint comp, std::string comp_str, double u_off, double h_off,
 // Check delta(P, tau) functions and derivatives
 //
 //
-uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
+uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set){
   int err = 0;
   unsigned long i;
   double tau, delta, P, Psat;
@@ -295,7 +314,7 @@ uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_en
 // Check state var change 
 //
 //
-uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
+uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set){
   int err = 0;
   unsigned long i;
   double tau, delta, P, Psat, enth, entr, inte, tv;
@@ -325,11 +344,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
         if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
-        err = fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth - h_off, 1e-2, 0);
+        err = fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth, 1e-2, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth - h_off, 1e-2, 1);
+            fd2(h_func, comp, P, tau, 1e-3, 1e-8, enth, 1e-2, 1);
             return err;
         }
     }
@@ -354,11 +373,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     Psat = sat_p(comp, tau).f;
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
-        err = fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 0);
+        err = fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr, 1e-1, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << " tau = " << tau << std::endl;
-            fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr - s_off, 1e-1, 1);
+            fd2(s_func, comp, P, tau, 1e-2, 1e-6, entr, 1e-1, 1);
             return err;
         }
     }
@@ -384,11 +403,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     if((P >= Psat && h_func == memo2_enthalpy_liquid) || (P <= Psat && h_func == memo2_enthalpy_vapor)){ 
         // make sure the phase is correct, this can be a little off due to lack of sig figs.
         if(fabs(P - pdat->Pc) < 0.1 && fabs(tau - tau_c(comp)) < 0.001) continue;
-        err = fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte - u_off, 1e-2, 0);
+        err = fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte, 1e-2, 0);
         if(err){
             std::cout << err;
             std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-            fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte - u_off, 1e-2, 1);
+            fd2(u_func, comp, P, tau, 1e-3, 1e-8, inte, 1e-2, 1);
             return err;
         }
     }
@@ -406,11 +425,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     enth = dat[i][test_data::h_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_hp, comp, enth, P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << " tau = " << tau << std::endl;
-        fd2(memo2_tau_hp, comp, enth - h_off, P, 1e-3, 1e-8, tau, 1e-2, 1);
+        fd2(memo2_tau_hp, comp, enth, P, 1e-3, 1e-8, tau, 1e-2, 1);
         return err;
     }
   }
@@ -427,11 +446,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     entr = dat[i][test_data::s_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_sp, comp, entr  - s_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_sp, comp, entr , P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-        fd2(memo2_tau_sp, comp, entr  - s_off, P, 1e-2, 1e-7, tau, 1e-2, 1);
+        fd2(memo2_tau_sp, comp, entr , P, 1e-2, 1e-7, tau, 1e-2, 1);
         return err;
     }
   }
@@ -448,11 +467,11 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     inte = dat[i][test_data::u_col];
     P = dat[i][test_data::P_col]*1000.0;
     Psat = sat_p(comp, tau).f;
-    err = fd2(memo2_tau_up, comp, inte  - u_off, P, 1e-3, 1e-8, tau, 1e-2, 0);
+    err = fd2(memo2_tau_up, comp, inte , P, 1e-3, 1e-8, tau, 1e-2, 0);
     if(err){
         std::cout << err;
         std::cout << " rho = " << delta*pdat->rho_star << ", P = " << P << " T = " << pdat->T_star/tau << std::endl;
-        fd2(memo2_tau_up, comp, inte  - u_off, P, 1e-3, 1e-8, tau, 1e-2, 1);
+        fd2(memo2_tau_up, comp, inte , P, 1e-3, 1e-8, tau, 1e-2, 1);
         return err;
     }
   }
@@ -475,9 +494,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_hp, comp, enth, P, 1e-3, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_hp, comp, enth - h_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_hp, comp, enth, P, 1e-3, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -500,9 +519,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_sp, comp, entr, P, 1e-3, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_sp, comp, entr - s_off, P, 1e-3, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_sp, comp, entr, P, 1e-3, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -525,9 +544,9 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     else{
         tv = 0.0;
     }
-    err = fd2(memo2_vf_up, comp, inte - u_off, P, 1e-2, 1e-8, tv, 1e-2, 0);
+    err = fd2(memo2_vf_up, comp, inte, P, 1e-2, 1e-8, tv, 1e-2, 0);
     if(err){
-        fd2(memo2_vf_up, comp, inte - u_off, P, 1e-2, 1e-8, tv, 1e-2, 1);
+        fd2(memo2_vf_up, comp, inte, P, 1e-2, 1e-8, tv, 1e-2, 1);
         return err;
     }
   }
@@ -536,58 +555,58 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
-  TEST_FUNCTION_OF_STATE_VARS("T", "h", memo2_temperature_hp, dat[i][test_data::T_col], dat[i][test_data::h_col] - h_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("u", "h", memo2_internal_energy_hp, dat[i][test_data::u_col] - u_off, dat[i][test_data::h_col] - h_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("s", "h", memo2_entropy_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 5e-2)
-  TEST_FUNCTION_OF_STATE_VARS("f", "h", memo2_helmholtz_hp, dat[i][test_data::u_col] - u_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("g", "h", memo2_gibbs_hp, dat[i][test_data::h_col] - h_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cv", "h", memo2_isochoric_heat_capacity_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cp", "h", memo2_isobaric_heat_capacity_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("w", "h", memo2_speed_of_sound_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("v", "h", memo2_specific_volume_hp, 1/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("T", "h", memo2_temperature_hp, dat[i][test_data::T_col], dat[i][test_data::h_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("u", "h", memo2_internal_energy_hp, dat[i][test_data::u_col], dat[i][test_data::h_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("s", "h", memo2_entropy_hp, dat[i][test_data::s_col], dat[i][test_data::h_col], 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("f", "h", memo2_helmholtz_hp, dat[i][test_data::u_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::h_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("g", "h", memo2_gibbs_hp, dat[i][test_data::h_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::h_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "h", memo2_isochoric_heat_capacity_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "h", memo2_isobaric_heat_capacity_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "h", memo2_speed_of_sound_hp, dat[i][test_data::w_col], dat[i][test_data::h_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "h", memo2_specific_volume_hp, 1/dat[i][test_data::rho_col], dat[i][test_data::h_col], 1e-1)
   if (pdat->have_visc){
-    //TEST_FUNCTION_OF_STATE_VARS("mu", "h", memo2_viscosity_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+    //TEST_FUNCTION_OF_STATE_VARS("mu", "h", memo2_viscosity_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col], 1e-1)
   }
   if (pdat->have_tcx){
-    //TEST_FUNCTION_OF_STATE_VARS("lambda", "h", memo2_thermal_conductivity_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "h", memo2_thermal_conductivity_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col], 0.33)
   }
 
-  TEST_FUNCTION_OF_STATE_VARS("T", "s", memo2_temperature_sp, dat[i][test_data::T_col], dat[i][test_data::s_col] - s_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("h", "s", memo2_enthalpy_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("u", "s", memo2_internal_energy_sp, dat[i][test_data::u_col] - u_off, dat[i][test_data::s_col] - s_off, 5e-2)
-  TEST_FUNCTION_OF_STATE_VARS("f", "s", memo2_helmholtz_sp, dat[i][test_data::u_col] - u_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("g", "s", memo2_gibbs_sp, dat[i][test_data::h_col] - h_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cv", "s", memo2_isochoric_heat_capacity_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cp", "s", memo2_isobaric_heat_capacity_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("w", "s", memo2_speed_of_sound_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("v", "s", memo2_specific_volume_sp, 1/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("T", "s", memo2_temperature_sp, dat[i][test_data::T_col], dat[i][test_data::s_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("h", "s", memo2_enthalpy_sp, dat[i][test_data::h_col], dat[i][test_data::s_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("u", "s", memo2_internal_energy_sp, dat[i][test_data::u_col], dat[i][test_data::s_col], 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("f", "s", memo2_helmholtz_sp, dat[i][test_data::u_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::s_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("g", "s", memo2_gibbs_sp, dat[i][test_data::h_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::s_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "s", memo2_isochoric_heat_capacity_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "s", memo2_isobaric_heat_capacity_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "s", memo2_speed_of_sound_sp, dat[i][test_data::w_col], dat[i][test_data::s_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "s", memo2_specific_volume_sp, 1/dat[i][test_data::rho_col], dat[i][test_data::s_col], 1e-1)
   if (pdat->have_visc){
-    //TEST_FUNCTION_OF_STATE_VARS("mu", "s", memo2_viscosity_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+    //TEST_FUNCTION_OF_STATE_VARS("mu", "s", memo2_viscosity_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col], 1e-1)
   }
   if (pdat->have_tcx){
-    //TEST_FUNCTION_OF_STATE_VARS("lambda", "s", memo2_thermal_conductivity_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "s", memo2_thermal_conductivity_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col], 0.33)
   }
 
-  TEST_FUNCTION_OF_STATE_VARS("T", "u", memo2_temperature_up, dat[i][test_data::T_col], dat[i][test_data::u_col] - u_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("h", "u", memo2_enthalpy_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-2)
-  TEST_FUNCTION_OF_STATE_VARS("s", "u", memo2_entropy_up, dat[i][test_data::s_col] - s_off, dat[i][test_data::u_col] - u_off, 5e-2)
-  TEST_FUNCTION_OF_STATE_VARS("f", "u", memo2_helmholtz_up, dat[i][test_data::u_col] - u_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("g", "u", memo2_gibbs_up, dat[i][test_data::h_col] - h_off - dat[i][test_data::T_col]*(dat[i][test_data::s_col] - s_off), dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cv", "u", memo2_isochoric_heat_capacity_up, dat[i][test_data::cv_col], dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("cp", "u", memo2_isobaric_heat_capacity_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("w", "u", memo2_speed_of_sound_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
-  TEST_FUNCTION_OF_STATE_VARS("v", "u", memo2_specific_volume_up, 1/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("T", "u", memo2_temperature_up, dat[i][test_data::T_col], dat[i][test_data::u_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("h", "u", memo2_enthalpy_up, dat[i][test_data::h_col], dat[i][test_data::u_col], 1e-2)
+  TEST_FUNCTION_OF_STATE_VARS("s", "u", memo2_entropy_up, dat[i][test_data::s_col], dat[i][test_data::u_col], 5e-2)
+  TEST_FUNCTION_OF_STATE_VARS("f", "u", memo2_helmholtz_up, dat[i][test_data::u_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::u_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("g", "u", memo2_gibbs_up, dat[i][test_data::h_col] - dat[i][test_data::T_col]*(dat[i][test_data::s_col]), dat[i][test_data::u_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cv", "u", memo2_isochoric_heat_capacity_up, dat[i][test_data::cv_col], dat[i][test_data::u_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("cp", "u", memo2_isobaric_heat_capacity_up, dat[i][test_data::cp_col], dat[i][test_data::u_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("w", "u", memo2_speed_of_sound_up, dat[i][test_data::w_col], dat[i][test_data::u_col], 1e-1)
+  TEST_FUNCTION_OF_STATE_VARS("v", "u", memo2_specific_volume_up, 1/dat[i][test_data::rho_col], dat[i][test_data::u_col], 1e-1)
   if (pdat->have_visc){
-    //TEST_FUNCTION_OF_STATE_VARS("mu", "u", memo2_viscosity_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+    //TEST_FUNCTION_OF_STATE_VARS("mu", "u", memo2_viscosity_up, dat[i][test_data::visc_col], dat[i][test_data::u_col], 1e-1)
   }
   if (pdat->have_tcx){
-    //TEST_FUNCTION_OF_STATE_VARS("lambda", "u", memo2_thermal_conductivity_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+    //TEST_FUNCTION_OF_STATE_VARS("lambda", "u", memo2_thermal_conductivity_up, dat[i][test_data::tc_col], dat[i][test_data::u_col], 0.33)
   }
 
   if(data_set == test_data::vapor_set){
-    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_vap_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_vap_tp, dat[i][test_data::s_col] - s_off, dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_vap_tp, dat[i][test_data::u_col] - u_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_vap_tp, dat[i][test_data::h_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_vap_tp, dat[i][test_data::s_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_vap_tp, dat[i][test_data::u_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("cv", "T", memo2_isochoric_heat_capacity_vap_tp, dat[i][test_data::cv_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_vap_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_vap_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
@@ -599,52 +618,52 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
       //TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_vap_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
     }
 
-    TEST_FUNCTION_OF_TP("h_vap", "h", memo2_enthalpy_vap_hp, dat[i][test_data::h_col] - h_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("s_vap", "h", memo2_entropy_vap_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("u_vap", "h", memo2_internal_energy_vap_hp, dat[i][test_data::u_col] - u_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_vap", "h", memo2_isochoric_heat_capacity_vap_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_vap", "h", memo2_isobaric_heat_capacity_vap_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_vap", "h", memo2_speed_of_sound_vap_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_vap", "h", memo2_specific_volume_vap_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
+    TEST_FUNCTION_OF_TP("h_vap", "h", memo2_enthalpy_vap_hp, dat[i][test_data::h_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s_vap", "h", memo2_entropy_vap_hp, dat[i][test_data::s_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u_vap", "h", memo2_internal_energy_vap_hp, dat[i][test_data::u_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_vap", "h", memo2_isochoric_heat_capacity_vap_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_vap", "h", memo2_isobaric_heat_capacity_vap_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_vap", "h", memo2_speed_of_sound_vap_hp, dat[i][test_data::w_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_vap", "h", memo2_specific_volume_vap_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_vap", "h", memo2_viscosity_vap_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_vap", "h", memo2_viscosity_vap_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "h", memo2_thermal_conductivity_vap_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "h", memo2_thermal_conductivity_vap_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col], 0.33)
     }
   
-    TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_vap_sp, dat[i][test_data::s_col] - s_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_vap_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("u_vap", "s", memo2_internal_energy_vap_sp, dat[i][test_data::u_col] - u_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_vap", "s", memo2_isochoric_heat_capacity_vap_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_vap", "s", memo2_isobaric_heat_capacity_vap_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_vap", "s", memo2_speed_of_sound_vap_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_vap", "s", memo2_specific_volume_vap_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
+    TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_vap_sp, dat[i][test_data::s_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_vap_sp, dat[i][test_data::h_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u_vap", "s", memo2_internal_energy_vap_sp, dat[i][test_data::u_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_vap", "s", memo2_isochoric_heat_capacity_vap_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_vap", "s", memo2_isobaric_heat_capacity_vap_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_vap", "s", memo2_speed_of_sound_vap_sp, dat[i][test_data::w_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_vap", "s", memo2_specific_volume_vap_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_vap", "s", memo2_viscosity_vap_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "s", memo2_thermal_conductivity_vap_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "s", memo2_thermal_conductivity_vap_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col], 0.33)
     }
 
-    TEST_FUNCTION_OF_TP("u_vap", "u", memo2_internal_energy_vap_up, dat[i][test_data::u_col] - u_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("h_vap", "u", memo2_enthalpy_vap_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("s_vap", "u", memo2_entropy_vap_up, dat[i][test_data::s_col] - s_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_vap", "u", memo2_isochoric_heat_capacity_vap_up, dat[i][test_data::cv_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_vap", "u", memo2_isobaric_heat_capacity_vap_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_vap", "u", memo2_speed_of_sound_vap_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_vap", "u", memo2_specific_volume_vap_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
+    TEST_FUNCTION_OF_TP("u_vap", "u", memo2_internal_energy_vap_up, dat[i][test_data::u_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h_vap", "u", memo2_enthalpy_vap_up, dat[i][test_data::h_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s_vap", "u", memo2_entropy_vap_up, dat[i][test_data::s_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_vap", "u", memo2_isochoric_heat_capacity_vap_up, dat[i][test_data::cv_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_vap", "u", memo2_isobaric_heat_capacity_vap_up, dat[i][test_data::cp_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_vap", "u", memo2_speed_of_sound_vap_up, dat[i][test_data::w_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_vap", "u", memo2_specific_volume_vap_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_vap", "u", memo2_viscosity_vap_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_vap", "u", memo2_viscosity_vap_up, dat[i][test_data::visc_col], dat[i][test_data::u_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "u", memo2_thermal_conductivity_vap_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_vap", "u", memo2_thermal_conductivity_vap_up, dat[i][test_data::tc_col], dat[i][test_data::u_col], 0.33)
     }
   }
   else{
-    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_liq_tp, dat[i][test_data::h_col] - h_off, dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_liq_tp, dat[i][test_data::s_col] - s_off, dat[i][test_data::T_col], 1e-1)
-    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_liq_tp, dat[i][test_data::u_col] - u_off, dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h", "T", memo2_enthalpy_liq_tp, dat[i][test_data::h_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s", "T", memo2_entropy_liq_tp, dat[i][test_data::s_col], dat[i][test_data::T_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u", "T", memo2_internal_energy_liq_tp, dat[i][test_data::u_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("cv", "T", memo2_isochoric_heat_capacity_liq_tp, dat[i][test_data::cv_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("cp", "T", memo2_isobaric_heat_capacity_liq_tp, dat[i][test_data::cp_col], dat[i][test_data::T_col], 1e-1)
     TEST_FUNCTION_OF_TP("w", "T", memo2_speed_of_sound_liq_tp, dat[i][test_data::w_col], dat[i][test_data::T_col], 1e-1)
@@ -656,46 +675,46 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
       //TEST_FUNCTION_OF_TP("thermal_conductivity", "T", memo2_thermal_conductivity_liq_tp, dat[i][test_data::tc_col], dat[i][test_data::T_col], 0.33)
     }
 
-    TEST_FUNCTION_OF_TP("h_liq", "h", memo2_enthalpy_liq_hp, dat[i][test_data::h_col] - h_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("s_liq", "h", memo2_entropy_liq_hp, dat[i][test_data::s_col] - s_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("u_liq", "h", memo2_internal_energy_liq_hp, dat[i][test_data::u_col] - u_off, dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_liq", "h", memo2_isochoric_heat_capacity_liq_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_liq", "h", memo2_isobaric_heat_capacity_liq_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_liq", "h", memo2_speed_of_sound_liq_hp, dat[i][test_data::w_col], dat[i][test_data::h_col] - h_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_liq", "h", memo2_specific_volume_liq_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col] - h_off, 1e-1)
+    TEST_FUNCTION_OF_TP("h_liq", "h", memo2_enthalpy_liq_hp, dat[i][test_data::h_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s_liq", "h", memo2_entropy_liq_hp, dat[i][test_data::s_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u_liq", "h", memo2_internal_energy_liq_hp, dat[i][test_data::u_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_liq", "h", memo2_isochoric_heat_capacity_liq_hp, dat[i][test_data::cv_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_liq", "h", memo2_isobaric_heat_capacity_liq_hp, dat[i][test_data::cp_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_liq", "h", memo2_speed_of_sound_liq_hp, dat[i][test_data::w_col], dat[i][test_data::h_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_liq", "h", memo2_specific_volume_liq_hp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::h_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_liq", "h", memo2_viscosity_liq_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col] - h_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_liq", "h", memo2_viscosity_liq_hp, dat[i][test_data::visc_col], dat[i][test_data::h_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "h", memo2_thermal_conductivity_liq_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col] - h_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "h", memo2_thermal_conductivity_liq_hp, dat[i][test_data::tc_col], dat[i][test_data::h_col], 0.33)
     }
 
-    TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_liq_sp, dat[i][test_data::s_col] - s_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_liq_sp, dat[i][test_data::h_col] - h_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("u_liq", "s", memo2_internal_energy_liq_sp, dat[i][test_data::u_col] - u_off, dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_liq", "s", memo2_isochoric_heat_capacity_liq_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_liq", "s", memo2_isobaric_heat_capacity_liq_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_liq", "s", memo2_speed_of_sound_liq_sp, dat[i][test_data::w_col], dat[i][test_data::s_col] - s_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_liq", "s", memo2_specific_volume_liq_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col] - s_off, 1e-1)
+    TEST_FUNCTION_OF_TP("s_vap", "s", memo2_entropy_liq_sp, dat[i][test_data::s_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h_vap", "s", memo2_enthalpy_liq_sp, dat[i][test_data::h_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("u_liq", "s", memo2_internal_energy_liq_sp, dat[i][test_data::u_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_liq", "s", memo2_isochoric_heat_capacity_liq_sp, dat[i][test_data::cv_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_liq", "s", memo2_isobaric_heat_capacity_liq_sp, dat[i][test_data::cp_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_liq", "s", memo2_speed_of_sound_liq_sp, dat[i][test_data::w_col], dat[i][test_data::s_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_liq", "s", memo2_specific_volume_liq_sp, 1.0/dat[i][test_data::rho_col], dat[i][test_data::s_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_liq", "s", memo2_viscosity_liq_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col] - s_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_liq", "s", memo2_viscosity_liq_sp, dat[i][test_data::visc_col], dat[i][test_data::s_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "s", memo2_thermal_conductivity_liq_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col] - s_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "s", memo2_thermal_conductivity_liq_sp, dat[i][test_data::tc_col], dat[i][test_data::s_col], 0.33)
     }
 
-    TEST_FUNCTION_OF_TP("u_liq", "u", memo2_internal_energy_liq_up, dat[i][test_data::u_col] - u_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("h_liq", "u", memo2_enthalpy_liq_up, dat[i][test_data::h_col] - h_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("s_liq", "u", memo2_entropy_liq_up, dat[i][test_data::s_col] - s_off, dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cv_liq", "u", memo2_isochoric_heat_capacity_liq_up, dat[i][test_data::cv_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("cp_liq", "u", memo2_isobaric_heat_capacity_liq_up, dat[i][test_data::cp_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("w_liq", "u", memo2_speed_of_sound_liq_up, dat[i][test_data::w_col], dat[i][test_data::u_col] - u_off, 1e-1)
-    TEST_FUNCTION_OF_TP("v_liq", "u", memo2_specific_volume_liq_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col] - u_off, 1e-1)
+    TEST_FUNCTION_OF_TP("u_liq", "u", memo2_internal_energy_liq_up, dat[i][test_data::u_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("h_liq", "u", memo2_enthalpy_liq_up, dat[i][test_data::h_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("s_liq", "u", memo2_entropy_liq_up, dat[i][test_data::s_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cv_liq", "u", memo2_isochoric_heat_capacity_liq_up, dat[i][test_data::cv_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("cp_liq", "u", memo2_isobaric_heat_capacity_liq_up, dat[i][test_data::cp_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("w_liq", "u", memo2_speed_of_sound_liq_up, dat[i][test_data::w_col], dat[i][test_data::u_col], 1e-1)
+    TEST_FUNCTION_OF_TP("v_liq", "u", memo2_specific_volume_liq_up, 1.0/dat[i][test_data::rho_col], dat[i][test_data::u_col], 1e-1)
     if (pdat->have_visc){
-      //TEST_FUNCTION_OF_TP("viscosity_liq", "u", memo2_viscosity_liq_up, dat[i][test_data::visc_col], dat[i][test_data::u_col] - u_off, 1e-1)
+      //TEST_FUNCTION_OF_TP("viscosity_liq", "u", memo2_viscosity_liq_up, dat[i][test_data::visc_col], dat[i][test_data::u_col], 1e-1)
     }
     if (pdat->have_tcx){
-      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "u", memo2_thermal_conductivity_liq_up, dat[i][test_data::tc_col], dat[i][test_data::u_col] - u_off, 0.33)
+      //TEST_FUNCTION_OF_TP("thermal_conductivity_liq", "u", memo2_thermal_conductivity_liq_up, dat[i][test_data::tc_col], dat[i][test_data::u_col], 0.33)
     }
   }
   return 0;
@@ -706,7 +725,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
 // Check vapor fractions and other functions along sat curve
 //
 //
-uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+uint test_sat_curve_more(uint comp, std::string comp_str){
   std::vector< std::vector<double> > sat_liq_data, sat_vap_data;
   sort_sat(comp_str, test_data::saturated_set, &sat_liq_data, &sat_vap_data);
   uint err = 0;
@@ -835,26 +854,26 @@ uint test_sat_curve_more(uint comp, std::string comp_str, double u_off, double h
   return 0;
 }
 
-uint run_set_mixed(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+uint run_set_mixed(uint comp, std::string comp_str){
     uint err = 0;
 
     std::cout << std::endl;
     std::cout << "Test basic " << comp_str << " mixed properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::mixed_set, u_off, h_off, s_off);
+    err = test_basic_properties(comp, comp_str, test_data::mixed_set);
     if(err){
         return err;
     }
     return 0;
 }
 
-uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, double s_off){
+uint run_set_all(uint comp, std::string comp_str){
     uint err = 0;
 
     std::cout << std::endl;
     std::cout << "Test basic " << comp_str << " liquid properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    err = test_basic_properties(comp, comp_str, test_data::liquid_set);
     if(err){
         return err;
     }
@@ -862,7 +881,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test basic " << comp_str << " vapor properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    err = test_basic_properties(comp, comp_str, test_data::vapor_set);
     if(err){
         return err;
     }
@@ -870,7 +889,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test basic " << comp_str << " supercritical properties" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_basic_properties(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    err = test_basic_properties(comp, comp_str, test_data::supercritical_set);
     if(err){
         return err;
     }
@@ -878,7 +897,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " sat. curve" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_sat_curve(comp, comp_str, u_off, h_off, s_off);
+    err = test_sat_curve(comp, comp_str);
     if(err){
         return err;
     }
@@ -886,7 +905,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " liquid delta" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    err = test_delta_function(comp, comp_str, test_data::liquid_set);
     if(err){
         return err;
     }
@@ -894,7 +913,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " vapor delta" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    err = test_delta_function(comp, comp_str, test_data::vapor_set);
     if(err){
         return err;
     }
@@ -902,7 +921,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " supercritical delta" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_delta_function(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    err = test_delta_function(comp, comp_str, test_data::supercritical_set);
     if(err){
         return err;
     }
@@ -910,7 +929,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " functions for state var change on liquid data" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::liquid_set, u_off, h_off, s_off);
+    err = test_state(comp, comp_str, test_data::liquid_set);
     if(err){
        return err;
     }
@@ -918,7 +937,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " functions for state var change on vapor data" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::vapor_set, u_off, h_off, s_off);
+    err = test_state(comp, comp_str, test_data::vapor_set);
     if(err){
         return err;
     }
@@ -926,7 +945,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " functions for state var change on sc data" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_state(comp, comp_str, test_data::supercritical_set, u_off, h_off, s_off);
+    err = test_state(comp, comp_str, test_data::supercritical_set);
     if(err){
         return err;
     }
@@ -934,7 +953,7 @@ uint run_set_all(uint comp, std::string comp_str, double u_off, double h_off, do
     std::cout << std::endl;
     std::cout << "Test " << comp_str << " two phase" << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
-    err = test_sat_curve_more(comp, comp_str, u_off, h_off, s_off);
+    err = test_sat_curve_more(comp, comp_str);
     if(err){
         return err;
     }

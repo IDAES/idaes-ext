@@ -13,8 +13,8 @@
         8,
         9,
         10,
-        11,
-        12
+        12,
+        11
     ],
     "var_map": [
         0,
@@ -48,7 +48,14 @@
         1000
     ],
     "have_tcx": true,
-    "have_st": false,
+    "nl_file_st": "r1234ze_expressions_st.nl",
+    "var_map_st": [
+        1,
+        1000,
+        1000,
+        1000
+    ],
+    "have_st": true,
     "nl_file_visc": "r1234ze_expressions_visc.nl",
     "var_map_visc": [
         1,

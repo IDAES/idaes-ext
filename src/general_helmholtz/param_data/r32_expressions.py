@@ -2,7 +2,7 @@ from helmholtz_parameters import WriteParameters
 
 
 def main():
-    we = WriteParameters(parameters="r227ea.json")
+    we = WriteParameters(parameters="r32.json")
     we.write()
 
 
