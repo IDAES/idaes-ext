@@ -8,9 +8,6 @@
 
 struct tests_struct{
     std::string comp_str;
-    double u_off = 0;
-    double h_off = 0;
-    double s_off = 0;
     std::string test_set;
 };
 

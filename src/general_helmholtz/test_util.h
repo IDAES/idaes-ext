@@ -23,14 +23,14 @@ typedef f22_struct (*test_fptr2)(uint comp, double x1, double x2);
 int fd1(test_fptr1 func, uint comp, double x, double h, double tv, double tol, bool dbg, double zero_tol, double scale);
 int fd2(test_fptr2 func, uint comp, double x1, double x2, double h1, double h2, double tv, double tol, bool dbg, double scale=1);
 
-uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
-uint test_sat_curve(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
-uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
-uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set, double u_off=0, double h_off=0, double s_off=0);
-uint test_sat_curve_more(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
+uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_enum data_set);
+uint test_sat_curve(uint comp, std::string comp_str);
+uint test_delta_function(uint comp, std::string comp_str, test_data::data_set_enum data_set);
+uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_set);
+uint test_sat_curve_more(uint comp, std::string comp_str);
 
-uint run_set_all(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
-uint run_set_mixed(uint comp, std::string comp_str, double u_off=0, double h_off=0, double s_off=0);
+uint run_set_all(uint comp, std::string comp_str);
+uint run_set_mixed(uint comp, std::string comp_str);
 
 #define TEST_FUNCTION_OF_DELTA_TAU(PROP, FUNC, DAT, TOL, IGNORE_ERROR) \
 start = std::chrono::high_resolution_clock::now(); \

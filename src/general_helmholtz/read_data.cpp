@@ -4,7 +4,7 @@
 #include<fstream>
 #undef filename
 
-std::vector< std::vector<double> > read_data(std::string comp_str, test_data::data_set_enum data_set, double u_off, double h_off, double s_off){
+std::vector< std::vector<double> > read_data(std::string comp_str, test_data::data_set_enum data_set){
   std::string data_set_str, nd_str = "ND";
   std::ostringstream file_name_stream;
   std::istringstream row_stream;
@@ -57,13 +57,13 @@ std::vector< std::vector<double> > read_data(std::string comp_str, test_data::da
         rows[r][c] = nan("no data");
       }
       else if (c == test_data::col_enum::h_col){
-        rows[r][c] = std::stod(col_buf) - h_off;
+        rows[r][c] = std::stod(col_buf);
       }
       else if (c == test_data::col_enum::u_col){
-        rows[r][c] = std::stod(col_buf) - u_off;
+        rows[r][c] = std::stod(col_buf);
       }
       else if (c == test_data::col_enum::s_col){
-        rows[r][c] = std::stod(col_buf) - s_off;
+        rows[r][c] = std::stod(col_buf);
       }
       else{
         rows[r][c] = std::stod(col_buf);

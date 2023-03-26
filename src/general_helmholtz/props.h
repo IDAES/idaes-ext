@@ -46,7 +46,7 @@ void speed_of_sound2(uint comp, double delta, double tau, f22_struct *out);
 void specific_volume2(uint comp, double delta, double tau, f22_struct *out);
 void isothermal_compressibility2(uint comp, double delta, double tau, f22_struct *out);
 
-// Rather than calculate all the properties here, provide the terms needed to caluclate
+// Rather than calculate all the properties here, provide the terms needed to calculate
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out);
 void phi_ideal_d2(uint comp, double delta, double tau, f22_struct *out);
 void phi_ideal_t2(uint comp, double delta, double tau, f22_struct *out);
