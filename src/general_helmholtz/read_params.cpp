@@ -76,6 +76,14 @@ uint read_params(std::string comp, std::string data_path){
     cdata[comp_idx].rho_max = boost::json::value_to<double>(jp.at("param").at("rho_max"));
     cdata[comp_idx].T_min = boost::json::value_to<double>(jp.at("param").at("T_min"));
     cdata[comp_idx].T_max = boost::json::value_to<double>(jp.at("param").at("T_max"));
+    try{
+        cdata[comp_idx].rs_offset1 = boost::json::value_to<double>(jp.at("param").at("reference_state_offset").at(0));
+        cdata[comp_idx].rs_offset2 = boost::json::value_to<double>(jp.at("param").at("reference_state_offset").at(1));
+    }
+    catch(std::out_of_range const&){
+        cdata[comp_idx].rs_offset1 = 0;
+        cdata[comp_idx].rs_offset2 = 0;
+    }
     for(uint i=0; i<expr_map_size; i++){
         cdata[comp_idx].expr_map[i] = boost::json::value_to<long>(jp.at("expr_map").at(i));
     }
@@ -160,6 +168,11 @@ std::vector<tests_struct> read_run_tests(void){
     test_data.at(i).test_set = boost::json::value_to<std::string>(it->value().at("tests"));
     ++i;
   }
-
   return test_data;
 }
+
+void set_reference_state_offset(uint comp_idx, double n1, double n2){
+    cdata[comp_idx].rs_offset1 = n1;
+    cdata[comp_idx].rs_offset2 = n2;
+}
+

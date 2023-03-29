@@ -38,7 +38,11 @@
         "P_max": 1100000.0,
         "rho_max": 1250.0,
         "T_min": 235,
-        "T_max": 1300
+        "T_max": 1300,
+        "reference_state_offset": [
+            0.0,
+            0.0
+        ]
     },
     "nl_file_tcx": "h2o_expressions_tcx.nl",
     "var_map_tcx": [

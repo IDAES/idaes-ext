@@ -127,6 +127,8 @@ def main():
     )
     we.write()
 
+    print("ASHRAE Offset")
+    print(we.calculate_reference_offset(2.7584034882, 1.64063049539, 0, 0))
 
 if __name__ == "__main__":
     main()

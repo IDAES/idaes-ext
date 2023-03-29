@@ -38,7 +38,11 @@
         "P_max": 70000.0,
         "rho_max": 2500.0,
         "T_min": 168,
-        "T_max": 460
+        "T_max": 460,
+        "reference_state_offset": [
+            0.0,
+            0.0
+        ]
     },
     "nl_file_tcx": "r134a_expressions_tcx.nl",
     "var_map_tcx": [

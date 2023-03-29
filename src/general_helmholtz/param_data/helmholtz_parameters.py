@@ -82,6 +82,10 @@ class WriteParameters(object):
         self.rho_max = parameters["basic"]["rho_max"]
         self.T_min = parameters["basic"]["T_min"]
         self.T_max = parameters["basic"]["T_max"]
+        try:
+            self.reference_state_offset = parameters["eos"]["reference_state_offset"]
+        except KeyError:
+            self.reference_state_offset = [0.0, 0.0]
 
         # Main thermo model
         self.model = self.make_model("delta", "tau")
@@ -92,21 +96,27 @@ class WriteParameters(object):
         self.model_tcx = self.make_model("delta", "tau")
         self.model_visc = self.make_model("delta", "tau")
         self.model_st = self.make_model("tau")
-
         self.has_expression = []
 
-        phi_ideal_type = parameters["eos"].get("phi_ideal_type", 0)
-        if phi_ideal_type > 0:
-            self.add(
-                phi_ideal_types[phi_ideal_type](model=self.model, parameters=parameters)
-            )
-        phi_residual_type = parameters["eos"].get("phi_residual_type", 0)
-        if phi_residual_type > 0:
-            self.add(
-                phi_residual_types[phi_residual_type](
-                    model=self.model, parameters=parameters
+        try:
+            phi_ideal_type = parameters["eos"].get("phi_ideal_type", 0)
+            if phi_ideal_type > 0:
+                self.add(
+                    phi_ideal_types[phi_ideal_type](model=self.model, parameters=parameters)
                 )
-            )
+        except KeyError:
+            pass
+    
+        try:
+            phi_residual_type = parameters["eos"].get("phi_residual_type", 0)
+            if phi_residual_type > 0:
+                self.add(
+                    phi_residual_types[phi_residual_type](
+                        model=self.model, parameters=parameters
+                    )
+                )
+        except KeyError:
+            pass
 
         aux_parameters = parameters.get("aux", None)
         if aux_parameters is not None:
@@ -203,12 +213,12 @@ class WriteParameters(object):
         )
         print("---------------------------------------------------------------------")
         for T in trange:
-            self.model.tau.fix(self.model.T_star / (T + off))
+            self.model.tau = self.model.T_star / (T + off)
             delta_l = pyo.value(self.model.delta_l_sat_approx)
             delta_v = pyo.value(self.model.delta_v_sat_approx)
             rho_l = delta_l * self.model.rho_star
             rho_v = delta_v * self.model.rho_star
-            self.model.delta.fix(delta_v)
+            self.model.delta = delta_v
             P_v = pyo.value(
                 rho_v * self.R * (T + off) * (1 + self.model.delta * self.model.phir_d)
             )
@@ -217,8 +227,19 @@ class WriteParameters(object):
             )
         print("=====================================================================\n")
 
+    def calculate_reference_offset(self, delta, tau, s0, h0):
+        self.model.tau = tau
+        self.model.delta = delta
+        s1 = pyo.value(self.model.tau * (self.model.phii_t + self.model.phir_t) - self.model.phii - self.model.phir)
+        n1_off = s1 - s0
+        h1 = pyo.value(1.0 / self.model.tau * (1 + self.model.tau*(self.model.phii_t + self.model.phir_t) + self.model.delta*self.model.phir_d))
+        n2_off = h0 - h1
+        return (n1_off, n2_off)
+
     def write_model(self, model, model_name, expressions=None):
         nl_file, smap_id = model.write(f"{self.comp}_expressions_{model_name}.nl")
+        for v in model.component_data_objects(pyo.Var):
+            v.unfix()
         smap = model.solutions.symbol_map[smap_id]
         var_map = [1000] * 4
         for s, c in smap.bySymbol.items():
@@ -268,6 +289,7 @@ class WriteParameters(object):
                 "rho_max": self.rho_max,
                 "T_min": self.T_min,
                 "T_max": self.T_max,
+                "reference_state_offset": self.reference_state_offset,
             },
         }
 
@@ -301,6 +323,9 @@ def surface_tension_type01(model, parameters):
     tc = parameters["transport"]["surface_tension"]["Tc"]
     return sum(s[i] * (1 - model.T_star / model.tau / tc) ** n[i] for i in s)
 
+def sat_delta_from_parameters(model, name, parameters):
+    etype = parameters["aux"][name]["type"]
+    return delta_sat_types[etype](model, name, parameters)
 
 def sat_delta_type01(model, name, parameters):
     c = parameters["aux"][name]["c"]
@@ -315,23 +340,23 @@ def sat_delta_type02(model, name, parameters):
     t = parameters["aux"][name]["t"]
     return c * pyo.exp(sum(n[i] * (1 - 1 / model.tau) ** t[i] for i in n))
 
+def phi_ideal_expressions_from_parameters(model, parameters):
+    return phi_ideal_types[parameters["eos"]["phi_ideal_type"]](model, parameters)
 
 def phi_ideal_expressions_type01(model, parameters):
     last_term = parameters["eos"]["last_term_ideal"]
     n0 = parameters["eos"]["n0"]
     g0 = parameters["eos"]["g0"]
-    offset = parameters["eos"].get("reference_state_offset", {1:0.0, 2:0.0})
-    print(offset)
     rng = range(4, last_term + 1)
     return {
         "phii": pyo.log(model.delta)
-        + (n0[1] + offset[1])
-        + (n0[2] + offset[2]) * model.tau
+        + n0[1]
+        + n0[2] * model.tau
         + n0[3] * pyo.log(model.tau)
         + sum(n0[i] * pyo.log(1 - pyo.exp(-g0[i] * model.tau)) for i in rng),
         "phii_d": 1.0 / model.delta,
         "phii_dd": -1.0 / model.delta**2,
-        "phii_t": (n0[2] + offset[2])
+        "phii_t": n0[2]
         + n0[3] / model.tau
         + sum(n0[i] * g0[i] / (pyo.exp(g0[i] * model.tau) - 1) for i in rng),
         "phii_tt": -n0[3] / model.tau**2
@@ -350,19 +375,18 @@ def phi_ideal_expressions_type02(model, parameters):
     last_term = parameters["eos"]["last_term_ideal"]
     n0 = parameters["eos"]["n0"]
     g0 = parameters["eos"]["g0"]
-    offset = parameters["eos"].get("reference_state_offset", {1:0.0, 2:0.0})
     rng1 = range(4, last_term[0] + 1)
     rng2 = range(last_term[0] + 1, last_term[1] + 1)
     return {
         "phii": pyo.log(model.delta)
-        + n0[1] + offset[1]
-        + (n0[2] + offset[2]) * model.tau
+        + n0[1]
+        + n0[2] * model.tau
         + n0[3] * pyo.log(model.tau)
         + sum(n0[i] * model.tau ** g0[i] for i in rng1)
         + sum(n0[i] * pyo.log(1 - pyo.exp(-g0[i] * model.tau)) for i in rng2),
         "phii_d": 1.0 / model.delta,
         "phii_dd": -1.0 / model.delta**2,
-        "phii_t": (n0[2] + offset[2])
+        "phii_t": n0[2]
         + n0[3] / model.tau
         + sum(n0[i] * g0[i] * model.tau ** (g0[i] - 1) for i in rng1)
         + sum(n0[i] * g0[i] / (pyo.exp(g0[i] * model.tau) - 1) for i in rng2),
@@ -383,17 +407,16 @@ def phi_ideal_expressions_type03(model, parameters):
     last_term = parameters["eos"]["last_term_ideal"]
     n0 = parameters["eos"]["n0"]
     g0 = parameters["eos"]["g0"]
-    offset = parameters["eos"].get("reference_state_offset", {1:0.0, 2:0.0})
     rng1 = range(4, last_term + 1)
     return {
         "phii": pyo.log(model.delta)
-        + n0[1] + offset[1]
-        + (n0[2] + offset[2]) * model.tau
+        + n0[1]
+        + n0[2] * model.tau
         + n0[3] * pyo.log(model.tau)
         + sum(n0[i] * model.tau ** g0[i] for i in rng1),
         "phii_d": 1.0 / model.delta,
         "phii_dd": -1.0 / model.delta**2,
-        "phii_t": (n0[2] + offset[2])
+        "phii_t": n0[2]
         + n0[3] / model.tau
         + sum(n0[i] * g0[i] * model.tau ** (g0[i] - 1) for i in rng1),
         "phii_tt": -n0[3] / model.tau**2
@@ -401,6 +424,8 @@ def phi_ideal_expressions_type03(model, parameters):
         "phii_dt": 0,
     }
 
+def phi_residual_expressions_from_parameters(model, parameters):
+    return phi_residual_types[parameters["eos"]["phi_residual_type"]](model, parameters)
 
 def phi_residual_expressions_type01(model, parameters):
     last_term = parameters["eos"]["last_term_residual"]

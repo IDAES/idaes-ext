@@ -190,10 +190,10 @@ f23_struct phi_ideal(uint comp, double delta, double tau){
   if(memo_table_phi_ideal.size() > MAX_MEMO_PHI) memo_table_phi_ideal.clear();
   res_ptr = &memo_table_phi_ideal[std::make_tuple(comp, delta, tau)];
   asl = (ASL*)(dat->asl);
-  res_ptr->f = (double)objval(dat->expr_map[phii], x, &err);
+  res_ptr->f = (double)objval(dat->expr_map[phii], x, &err) + dat->rs_offset1 + tau * dat->rs_offset2;
   res_ptr->f_1 = (double)objval(dat->expr_map[phii_d], x, &err);
   res_ptr->f_11 = (double)objval(dat->expr_map[phii_dd], x, &err);
-  res_ptr->f_2 = (double)objval(dat->expr_map[phii_t], x, &err);
+  res_ptr->f_2 = (double)objval(dat->expr_map[phii_t], x, &err) + dat->rs_offset2;
   res_ptr->f_22 = (double)objval(dat->expr_map[phii_tt], x, &err);
   res_ptr->f_12 = (double)objval(dat->expr_map[phii_dt], x, &err);
 
@@ -241,10 +241,10 @@ f24_struct phi_ideal4(uint comp, double delta, double tau){
   if(memo_table_phi_ideal4.size() > MAX_MEMO_PHI) memo_table_phi_ideal4.clear();
   res_ptr = &memo_table_phi_ideal4[std::make_tuple(comp, delta, tau)];
   asl = (ASL*)(dat->asl);
-  res_ptr->f = (double)objval(dat->expr_map[phii], x, &err);
+  res_ptr->f = (double)objval(dat->expr_map[phii], x, &err) + dat->rs_offset1 + tau * dat->rs_offset2;
   res_ptr->f_1 = (double)objval(dat->expr_map[phii_d], x, &err);
   res_ptr->f_11 = (double)objval(dat->expr_map[phii_dd], x, &err);
-  res_ptr->f_2 = (double)objval(dat->expr_map[phii_t], x, &err);
+  res_ptr->f_2 = (double)objval(dat->expr_map[phii_t], x, &err) + dat->rs_offset2;
   res_ptr->f_22 = (double)objval(dat->expr_map[phii_tt], x, &err);
   res_ptr->f_12 = (double)objval(dat->expr_map[phii_dt], x, &err);
 

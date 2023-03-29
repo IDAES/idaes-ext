@@ -38,7 +38,11 @@
         "P_max": 500000.0,
         "rho_max": 2500.0,
         "T_min": 150,
-        "T_max": 1300
+        "T_max": 1300,
+        "reference_state_offset": [
+            0.0,
+            0.0
+        ]
     },
     "nl_file_tcx": "r1234ze_expressions_tcx.nl",
     "var_map_tcx": [
