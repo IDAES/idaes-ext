@@ -38,7 +38,11 @@
         "P_max": 500000.0,
         "rho_max": 1600.0,
         "T_min": 216,
-        "T_max": 1400
+        "T_max": 1400,
+        "reference_state_offset": [
+            -14.4979156224319,
+            8.82013935801453
+        ]
     },
     "nl_file_tcx": "co2_expressions_tcx.nl",
     "var_map_tcx": [

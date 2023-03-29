@@ -38,7 +38,11 @@
         "P_max": 500000.0,
         "rho_max": 2500.0,
         "T_min": 145,
-        "T_max": 500
+        "T_max": 500,
+        "reference_state_offset": [
+            0.0,
+            0.0
+        ]
     },
     "have_tcx": false,
     "nl_file_st": "r227ea_expressions_st.nl",

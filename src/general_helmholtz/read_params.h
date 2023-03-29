@@ -14,4 +14,6 @@ struct tests_struct{
 uint read_params(std::string comp, std::string data_path="");
 std::vector<tests_struct> read_run_tests(void);
 
+void set_reference_state_offset(uint comp_idx, double n1, double n2);
+
 #endif

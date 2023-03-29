@@ -15,6 +15,7 @@
 int main(){
     uint comp, err;
     f22_struct res;
+    f12_struct res1;
     std::vector<tests_struct> tests;
     tests = read_run_tests();
 
@@ -44,12 +45,7 @@ int main(){
     res = memo2_isochoric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " cv = " << res.f << std::endl;
     res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
-    std::cout << " cp = " << res.f << std::endl;
-
-    std::cout << "check phi ideal derivatives" << std::endl;
-    fd2(memo2_phi_ideal, comp, rho/pdat->rho_star, pdat->T_star/T, 1e-4, 1e-4, nan("skip"), 1e-5, 1);
-    std::cout << "check phi residual derivatives" << std::endl;
-    fd2(memo2_phi_resi, comp, rho/pdat->rho_star, pdat->T_star/T, 1e-4, 1e-4, nan("skip"), 1e-5, 1);
+    std::cout << " cp = " << res.f << std::endl; 
 
     comp = read_params("r125");
     pdat = &cdata[comp];
@@ -65,12 +61,6 @@ int main(){
     std::cout << " cv = " << res.f << std::endl;
     res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " cp = " << res.f << std::endl;
-
-    std::cout << "check phi ideal derivatives" << std::endl;
-    fd2(memo2_phi_ideal, comp, rho/pdat->rho_star, pdat->T_star/T, 1e-4, 1e-4, nan("skip"), 1e-5, 1);
-    std::cout << "check phi residual derivatives" << std::endl;
-    fd2(memo2_phi_resi, comp, rho/pdat->rho_star, pdat->T_star/T, 1e-4, 1e-4, nan("skip"), 1e-5, 1);
-
     rho=42.070, T=273.15;
     std::cout << "r125 properties for rho = " << rho << " T = " << T << std::endl;
     res = memo2_pressure(comp, rho/pdat->rho_star, pdat->T_star/T);
@@ -87,7 +77,9 @@ int main(){
     comp = read_params("r134a");
     pdat = &cdata[comp];
     //double rho=915.15, T=360.00; // P = pc
-    rho=1516.8, T=200.00; // P = pc
+    //rho=1516.8, T=200.00; // P = pc
+    rho=1417.7, T=233.15; // P = pc
+    set_reference_state_offset(comp, 9.763426918083415, -4.858535799600055);
     //double rho=143.64, T=440.00; // P = pc
     // double rho=33.034, T=400.00; // P = 1 MPa
     // double rho=1512.1, T=200.00;
@@ -115,6 +107,18 @@ int main(){
     std::cout << " lambda = " << res.f << std::endl;
     res = memo2_surface_tension(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " surface_tension = " << res.f << std::endl;
+    set_reference_state_offset(comp, 0.0, 0.0);
+
+    T=273.15 - 40.0;
+    res1 = sat_delta_l(comp, pdat->T_star/T);
+    std::cout.precision(12);
+    std::cout << "r134a delta and tau for sat liquid at -40 C " << res1.f << " " << pdat->T_star/T << std::endl;
+
+    comp = read_params("r1234ze");
+    pdat = &cdata[comp];
+    T=273.15 - 40.0;
+    res1 = sat_delta_l(comp, pdat->T_star/T);
+    std::cout << "r1234ze(e) delta and tau for sat liquid at -40 C " << res1.f << " " << pdat->T_star/T << std::endl;
 
 
     comp = read_params("co2");

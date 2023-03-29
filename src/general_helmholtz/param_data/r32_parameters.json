@@ -38,7 +38,11 @@
         "P_max": 70000.0,
         "rho_max": 2500.0,
         "T_min": 130,
-        "T_max": 450
+        "T_max": 450,
+        "reference_state_offset": [
+            0.0,
+            0.0
+        ]
     },
     "have_tcx": false,
     "nl_file_st": "r32_expressions_st.nl",

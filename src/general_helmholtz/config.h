@@ -151,6 +151,8 @@ struct parameters_struct {
   long var_map_tcx[var_map_size]; // index of vars in NL file
   long var_map_visc[var_map_size]; // index of vars in NL file
   long var_map_st[var_map_size]; // index of vars in NL file
+  double rs_offset1;
+  double rs_offset2;
 };
 
 // AMPL models for a component
