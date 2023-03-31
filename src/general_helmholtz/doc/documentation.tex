@@ -1,4 +1,5 @@
 \documentclass[oneside]{book}
+\usepackage{pythonhighlight}
 \usepackage{amsmath}
 \usepackage{geometry}
  \geometry{
@@ -622,20 +623,124 @@ function & units \\
 
 \chapter{AMPL Wrapper Functions}
 
-\chapter{Parameter File}
+The property functions are available as AMPL user-defined functions, which can be used in AMPL solvers and with Pyomo.  This documentation is a work-in-progress.
 
-\section{Equation of State}
+\chapter{Parameter Files}
 
-The Helmholtz equation of state uses the Helmholtz free energy as a function of density and temperature (Equation \ref{eqn:hfe}) split into an ideal
-and residual part to calculate vapor and liquid thermodynamic properties of a pure substance.  Thermodynamic properties can be calculated from the 
-ideal and residual parts of the Helmholtz free energy and their derivatives.
+Components can be added or modified by creating or changing parameter files.  The expressions for the equation of state and transport properties are not assumed to have a standard fixed form, so AMPL NL files are used to define them.  One NL file is required for the equation of state and optional NL files can be provided for transport properties.  Other basic parameters are provided as a json file.  Pyomo \cite{bynum2021pyomo} and IDAES are used to generate parameter files, so you should install IDAES from https://github.com/IDAES/idaes-pse.
 
-Phase equilibrium is calculated by the method of Akasaka \cite{akasaka2008reliable}. To improve performance of saturation state calculation, auxiliary curves for the approximate saturated liquid and vapor density as a function or of temperature are required.  These curves are usually provided in literature along with the equation of state.
+There is a python module \texttt{helmholtz\_paramters.py} in the \texttt{param\_data} directory which can be used to generate parameter files.  Common forms of the Helmholtz free energy correlation are also built into the \texttt{helmholtz\_paramters.py} so often the expression for the equation of state do not need to be written out.  Basic parameters fed into the parameter file generation class can be provided as a python dictionary or json file.  In this section we'll focus on the json file option.
 
-The expressions required to be provided to define the equation of state for a component are summarized in Table \ref{table:eos_expressions}. All expressions and variables for the equation of state are dimensionless, and all expression use only the variables $\tau$ and $\delta$. 
+To generate parameter files, typically a python script is used.  The script below shows the simplest script which reads parameters form \texttt{r32.json} to generate the parameter files needed by the shared library to calculate properties for R32 as listed in Table \ref{table:parameter_files}.
+
+\begin{python}
+from helmholtz_parameters import WriteParameters
+
+def main():
+    we = WriteParameters(parameters="r32.json")
+    we.write()
+
+if __name__ == "__main__":
+    main()
+\end{python}
+
+For examples, see the \texttt{\{comp\}.json} and \texttt{\{comp\}.py} files in the \texttt{param\_data} directory. 
+
+\section{Basic Parameter JSON File}
+
+The structure of the most basic parameter file for CO2 is shown below.  The \texttt{eos}, \texttt{aux}, and \texttt{transport} sections are omitted from the example for now and will be discussed later.  Those sections are optional and can be used to add parameters for the equation of state or transport models.  The example show the minimum required parameters.
+
+\begin{verbatim}
+{
+    "comp": "co2",
+    "basic": {
+        "R": 0.1889241,
+        "MW": 44.0098,
+        "T_star": 304.1282,
+        "rho_star": 467.6,
+        "Tc": 304.1282,
+        "rhoc": 467.6,
+        "Pc": 7377.3,
+        "Tt": 216.592,
+        "Pt": 517.95,
+        "rhot_l": 1178.46,
+        "rhot_v": 13.761,
+        "P_min": 1e-9,
+        "P_max": 5e5,
+        "rho_max": 1600.0,
+        "T_min": 216,
+        "T_max": 1400
+    },
+    "eos":{},
+    "aux":{},
+    "transport":{},
+}
+\end{verbatim}
+
+The \texttt{comp} field is the name which will be used to read in data for a component. Table \ref{table:basic_params} shows the required parameters in the \texttt{basic} section of the json file. As noted in the table some parameters are just used to define approximate bounds for equation solving so exact values are not needed. 
 
 \begin{table}[h!]
 \centering
+\caption{Basic Parameters}
+\begin{tabular}{ l l l }
+\hline
+quantity & description & units\\
+\hline
+\hline
+R & specific gas constant (ideal gas constant/molecular weight) & kJ/kg/K \\[1ex]
+MW &molecular weight & g/mol \\[1ex] 
+T\_star & reducing temperature & K \\[1ex] 
+rho\_star & reducing density & kg/m$^3$ \\[1ex] 
+Tc & critical temperature & K \\[1ex]
+rhoc & critical density & kg/m$^3$ \\[1ex]
+Pc & critical pressure (recalculated to match Tc and rhoc in generating parameter files) & kPa \\[1ex]
+Tt & triple point temperature (can be approximate) & K \\[1ex]
+Pt & triple point pressure (can be approximate) & kPa \\[1ex]
+rhot\_l & triple point liquid density (can be approximate) & kg/m$^3$ \\[1ex]
+rhot\_v & triple point vapor density (can be approximate) & kg/m$^3$ \\[1ex]
+P\_min & minimum pressure & kPa \\[1ex]
+P\_max & maximum pressure & kPa \\[1ex]
+rho\_max & maximum density & kg/m$^3$ \\[1ex]
+T\_min & minimum temperature & K \\[1ex]
+T\_max & maximum temperature & K \\[1ex]
+ \hline    
+\end{tabular}
+\label{table:basic_params}
+\end{table}
+
+\section{Expressions}
+
+Once the basic parameters are entered expressions for the equation of state are required and transport property expressions can optionally be defined.  These expressions are written using Pyomo, but the most common expression for the equation of state and surface tension are prepackaged in the \texttt{WriteParameters} class. Prepackaged expressions are not yet available for viscosity and thermal conductivity, so they must be written out as Pyomo expressions if needed. 
+
+The \texttt{WriteParameters} contains four Pyomo models used to generate expressions.  Each model has the \texttt{delta} and \texttt{tau} variables, along with all of the basic parameters as parameters.  These models are attributes of a \texttt{WriteExpression} object are are shown in Table \ref{table:pyomo_models}. Currently all expressions must contain only the delta and tau variables.  For transport properties, the expressions may call ample functions for properties, so it (for example) heat capacity is used in the thermal conductivity correlation, the head capacity ASL user-defined function an be called. 
+
+\begin{table}[h!]
+\centering
+\caption{WriteParameter Object Pyomo Models For Expression}
+\begin{tabular}{ l l }
+\hline
+model & description  \\
+\hline
+\hline
+\texttt{model} & model for dimensionless Helmholtz free energy and aux sat density curves  \\[1ex]
+\texttt{model\_visc} & model viscosity  \\[1ex]
+\texttt{model\_tcx} & model thermal conductivity  \\[1ex]
+\texttt{model\_st} & model surface tension \\[1ex]
+ \hline    
+\end{tabular}
+\label{table:pyomo_models}
+\end{table}
+
+\texttt{WriteParameters} have an \texttt{add} method that takes a dictionary of pyomo expressions where the expression name is the key.  The required expressions are detailed in the next sections.  Some expressions are prepackaged and can be generated directly from parameters.
+
+
+\subsection{Equation of State}
+
+The Helmholtz equation of state uses the Helmholtz free energy as a function of density and temperature (Equation \ref{eqn:hfe}) split into an ideal and residual part and it derivatives to calculate vapor and liquid thermodynamic properties of a pure substance. To assist with the saturated properties calculation auxiliary curves for saturated liquid and vapor density are also required.  Table \ref{table:eos_expressions} provides a summary of required equation of state expressions.  
+
+\begin{table}[h!]
+\centering
+\caption{EoS Expressions}
 \begin{tabular}{ l l l }
 \hline
 quantity & expression name & description \\
@@ -657,13 +762,232 @@ $\delta^\text{liq}_\text{sat}(\delta, \tau)$ & \texttt{delta\_l\_sat\_approx} & 
 $\delta_{\text{sat}}^{\text{vap}}(\tau)$ & \texttt{delta\_v\_sat\_approx} & approximate saturated vapor $\delta$ as a function of $\tau$  \\[1ex]
  \hline    
 \end{tabular}
-\caption{EoS Expressions}
 \label{table:eos_expressions}
 \end{table}
 
-$\frac{\partial \phi^\circ}{\partial \delta}$
+Likely every form of these expressions are already available prepackaged, so it is unlikely that you will need to type out the expressions explicitly.  The next sections summarize the available expressions and required parameters.  Expression parameters for the equation of state are defined in the \texttt{eos} section of the JSON file.  The 
 
-\section{Transport Properties}
+\subsubsection{Ideal Helmholtz Free Energy} 
+
+Several canned expressions for the ideal part of the Helmholtz free energy.  For the purpose, of the parameter module and not having, better names each
+expression is just assigned a type number.  To select the form to use, add the \texttt{phi\_ideal\_type} to the \texttt{eos} section of the JSON file.  See below for a truncated example.
+
+\begin{verbatim}
+...
+"eos":{
+        "phi_ideal_type": 2,
+        "phi_residual_type": 3,
+...
+\end{verbatim}
+
+The parameters for the expressions are also included in the \texttt{eos} section of the parameter file, but the required parameters may differ depending on the expression chosen.
+
+\subsubsection{Type 01}
+
+The type 1 form of the ideal portion of the Helmholtz free energy is shown in Equation \ref{eqn:phii_type_01}.  This form of the expression requires a dictionary of the $n^\circ_i$ terms as \texttt{n0} and the $\gamma^\circ$ as \texttt{g0}.  The last term index in the sum ($h$) is provided as \texttt{last\_term\_ideal}.  
+
+\begin{equation}\label{eqn:phii_type_01}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau + \sum_{i = 4}^h n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
+\end{equation}
+
+A truncated example of the parameters for this is shown below.
+
+\begin{verbatim}
+"eos":{
+        "n0": {
+            "1": -8.258096,
+            "2": 6.353098,
+            "3": 3.004486,
+            "4": 1.160761,
+            "5": 2.645151,
+            "6": 5.794987,
+            "7": 1.129475
+        },
+        "g0": {
+            "4": 2.2718538,
+            "5": 11.9144210,
+            "6": 5.1415638,
+            "7": 32.7682170
+        },
+        "last_term_ideal": 7,
+        "phi_ideal_type": 1,
+...
+\end{verbatim} 
+
+\subsubsection{Type 02}
+
+The type 2 form of the ideal part of Helmholtz free energy is given in \ref{eqn:phii_type_02}.  The parameters for this are basically the same as type 1 but the \texttt{last\_term\_ideal} is a list with two elements [$h_1$, $h_2$].
+
+\begin{equation}\label{eqn:phii_type_02}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h_1} n^\circ_i  \tau^{\gamma^\circ_i} + \sum_{i = h_1 + 1}^{h_2} n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
+\end{equation}
+
+\subsubsection{Type 03}
+
+The type 2 form of the ideal part of Helmholtz free energy is given in \ref{eqn:phii_type_03}. The parameters are the same as for type 1.
+
+\begin{equation}\label{eqn:phii_type_03}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h} n^\circ_i  \tau^{\gamma^\circ_i} 
+\end{equation}
+
+
+
+\subsection{Residual Helmholtz Free Energy Forms} 
+
+\subsubsection{Type 01}
+ 
+Equation \ref{phir_type01} shows the type 1 form.  This form requires the parameters $n_i$ as dictionary $n$, $d_i$ as dictionary \texttt{d}, $t_i$ as dictionary \texttt{t}, $c_i$ as dictionary \texttt{c}, and \texttt{last\_term\_residual} as a list. 
+
+\begin{equation}\label{phir_type01}
+	\phi^r(\delta, \tau) = \sum^{h_1}_1 n_i \delta^{d_i} \tau^{t_i} + \sum_{h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_i} \exp(-\delta^{c_i})
+\end{equation}
+
+An example of the EOS is shown below using the type 1 ideal and type 1 residual expressions.  Most off the coefficients have been removed for brevity.   
+
+\begin{verbatim}
+    "eos": {
+        "reference": [
+            "Tillner-Roth, R., A. Yokozeki. An International Standard Equation of State for",
+            "    Difluoromethane (R-32) for Temperatures from the Triple Point at 136.34 K to",
+            "    435 K and Pressures up to 70 MPa, Journal of Physical and Chemical Reference",
+            "    Data 26, 1273 (1997); https://doi.org/10.1063/1.556002"
+        ],
+        "c": {
+            "9": 4,
+	   ...
+            "19": 1
+        },
+        "d": {
+            "1": 1.00,
+            ...
+            "19": 3.00
+        },
+        "t": {
+            "1": 0.250,
+            ... 
+            "19": 0.500
+        },
+        "n": {
+            "1": 0.1046634e1,
+	   ...
+            "19": 0.8263017
+        },
+        "n0": {
+            "1": -8.258096,
+            ...
+            "7": 1.129475
+        },
+        "g0": {
+            "4": 2.2718538,
+            ...
+            "7": 32.7682170
+        },
+        "last_term_ideal": 7,
+        "last_term_residual": [8, 19],
+        "phi_ideal_type": 1,
+        "phi_residual_type": 1
+    },
+\end{verbatim}
+
+\subsubsection{Type 02}
+
+Equation \ref{phir_type02} shows the type 2 form \cite{osti_402357}.  This expression takes the same paramters as type 1 plus \texttt{g} for $\gamma_i$, \texttt{e} for $\varepsilon_i$, \texttt{a} for $\alpha_i$ and \texttt{b} for $\beta_i$.
+
+\begin{equation}\label{phir_type02}
+	\phi^r(\delta, \tau) = \sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum_{i =h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) + 
+	\sum_{i = h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp\left[-\alpha_i(\delta - \varepsilon_i)^2 - \beta_i(\tau - \gamma_i)^2 \right]
+\end{equation}
+
+\subsubsection{Type 03}
+
+Equation \ref{phir_type03} shows the type 3 form.  This expression uses the same parameters as type 1 plus \texttt{b} for $b_i$.
+
+\begin{equation}\label{phir_type03}
+	\phi^r(\delta, \tau) = 
+	\sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum_{i=h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i})
+	\sum_{i=h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) \exp(-\tau^{b_i})
+\end{equation}
+
+\subsubsection{Type 04}
+
+Equation \ref{phir_type04} shows the type 4 form. This expression uses the same parameters as type 1.
+
+\begin{equation}\label{phir_type04}
+	\phi^r(\delta, \tau) = 
+	\sum^{h_0}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum^m_{j=1} \left[ \exp(-\delta^j) \sum^{h_j}_{i = h_{j-1} + 1} n_i \delta^{d_i} \tau^{t_1} \right]
+\end{equation}
+
+\subsection{Auxiliary Saturated Density}
+
+The auxiliary saturated density equations are approximate, and provide a good initial guess when solving the phase equilibrium equations.  These expressions go in the \texttt{aux} section of the parameter JSON file. The there are two types of expressions used for the approximate saturated density curves.
+
+\subsubsection{Type 01}
+
+The first type of saturated density expression is given by Equation \ref{eqn:aux_1}.
+
+\begin{equation}\label{eqn:aux_1}
+	\delta = c + \sum_{i=1}^h n_i  \left(1 - \frac{T}{T_c} \right)^{t_i}
+\end{equation}
+
+\subsubsection{Type 02}
+
+The first type of saturated density expression is given by Equation \ref{eqn:aux_2}.
+
+\begin{equation}\label{eqn:aux_2}
+	\delta = c \exp \left[ \sum_{i=0}^h \left(1 - \frac{T}{T_c} \right)^{t_i} \right] 
+\end{equation}
+
+\subsubsection{Aux Parameter Example}
+
+An example "aux" section for R32 is shown below.  This shows both types of auxiliary curves.
+
+\begin{verbatim}
+    "aux": {
+        "reference": [
+            "Tillner-Roth, R., A. Yokozeki. An International Standard Equation of State for",
+            "    Difluoromethane (R-32) for Temperatures from the Triple Point at 136.34 K to",
+            "    435 K and Pressures up to 70 MPa, Journal of Physical and Chemical Reference",
+            "    Data 26, 1273 (1997); https://doi.org/10.1063/1.556002"
+        ],
+        "delta_l_sat_approx": {
+            "c": 1,
+            "n": {
+                "1": 1.024882075471698,
+                "2": 3.0578537735849056,
+                "3": -1.8337028301886793,
+                "4": 0.865188679245283
+            },
+            "t": {
+                "1": 0.25,
+                "2": 0.6666666666666666,
+                "3": 1.0,
+                "4": 1.6666666666666667
+            },
+            "type": 1
+        },
+        "delta_v_sat_approx": {
+            "c": 1,
+            "n": {
+                "1": -1.969,
+                "2": -2.0222,
+                "3": -6.7409,
+                "4": -27.479
+            },
+            "t": {
+                "1": 0.3333333333333333,
+                "2": 0.6666666666666666,
+                "3": 1.3333333333333333,
+                "4": 3.6666666666666665
+            },
+            "type": 2
+        }
+    },
+\end{verbatim}
+
+\subsection{Transport Properties}
 
 The IDAES Helmholtz equation of state functions also support calculation of the transport properties thermal conductivity, viscosity, and surface tension. The transport properties must be expressions of $\tau$ and $\delta$.  Transport property expressions can call property functions, so if for example you need to use heat capacity in the thermal conductivity calculation, you can call the heat capacity function. 
 
@@ -671,6 +995,7 @@ The expected units of measure for the transport properties are given in Table \r
 
 \begin{table}[h!]
 \centering
+\caption{Units of Measure for Transport Properties}
 \begin{tabular}{ l l l }
 \hline
 property & expression name & units  \\
@@ -681,102 +1006,232 @@ property & expression name & units  \\
  surface tension & \texttt{surface\_tension} &  mN/m   \\
  \hline    
 \end{tabular}
-\caption{Units of Measure for Transport Properties}
 \label{table:transport_units}
 \end{table}
 
-\section{Creating Parameter Files}
-
-Expressions 
-
-\subsection{Ideal Helmholtz Free Energy} 
-
-Several canned expressions for the ideal part of the Helmholtz free energy.  For the purpose, of the parameter module and not having, better names each
-expression is just assigned a type number.  
-
-\subsubsection{Type 01}
-
-\begin{equation}
-	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau + \sum_{i = 4}^h n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
-\end{equation}
-
-\subsubsection{Type 02}
-
-\begin{equation}
-	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h_1} n^\circ_i  \tau^{\gamma^\circ_i} + \sum_{i = h_1 + 1}^{h_2} n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
-\end{equation}
-
-\subsubsection{Type 03}
-
-\begin{equation}
-	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h} n^\circ_i  \tau^{\gamma^\circ_i} 
-\end{equation}
-
-\subsection{Residual Helmholtz Free Energy Forms} 
-
-The dimensionless residual Helmholtz free energy expressions are required along with their fist and second derivatives with respect to $\delta$ and $\tau$.  
-A user can provide expressions in any form they like as Pyomo expressions, but to make things easier a number of standard forms for these expressions are
-provided. 
- 
-Equation \ref{phir_type01} shows the Type01 form.
-
-\begin{equation}\label{phir_type01}
-	\phi^r(\delta, \tau) = \sum^{h_1}_1 n_i \delta^{d_i} \tau^{t_1} + \sum_{h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i})
-\end{equation}
-
-Equation \ref{phir_type02} shows the Type02 form \cite{osti_402357}.
-
-\begin{equation}\label{phir_type02}
-	\phi^r(\delta, \tau) = \sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
-	\sum_{i =h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) + 
-	\sum_{i = h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp\left[-\alpha_i(\delta - \varepsilon_i)^2 - \beta_i(\tau - \gamma_i)^2 \right]
-\end{equation}
-
-Equation \ref{phir_type03} shows the Type03 form.
-
-\begin{equation}\label{phir_type03}
-	\phi^r(\delta, \tau) = 
-	\sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
-	\sum_{i=h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i})
-	\sum_{i=h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) \exp(-\tau^{b_i})
-\end{equation}
-
-Equation \ref{phir_type04} shows the Type04 form.
-
-\begin{equation}\label{phir_type04}
-	\phi^r(\delta, \tau) = 
-	\sum^{h_0}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
-	\sum^m_{j=1} \left[ \exp(-\delta^j) \sum^{h_j}_{i = h_{j-1} + 1} n_i \delta^{d_i} \tau^{t_1} \right]
-\end{equation}
-
-\subsection{Auxiliary Saturated Density}
-
-The auxiliary saturated density equations are approximate, and provide a good initial guess when solving the phase equilibrium equations.
-
-\begin{equation}
-	\delta = c + \sum_{i=1}^h n_i  \left(1 - \frac{T}{T_c} \right)^{t_i}
-\end{equation}
+The built in surface tension surface tension expression should cover most substances, but for viscosity and thermal conductivity general prepackaged expressions are not yet provided.  Viscosity and thermal conductivity are usually provided as functions that take a Pyomo model are return an expression.
 
 
-\begin{equation}
-	\delta = c \exp \left[ \sum_{i=0}^h \left(1 - \frac{T}{T_c} \right)^{t_i} \right] 
-\end{equation}
+
+\subsubsection{Viscosity and Thermal Conductivity}
+
+The example below for r134a, shows the complete Python for generating R134a parameters.  This provides complete examples for viscosity and thermal conductivity.
+
+\begin{python}
+######################################################################################
+#                                                                                    #
+# R134A EOS Expressions and Parameters:                                              #
+#                                                                                    #
+# Tillner-Roth, R.; Baehr, H.D., An International Standard Formulation for the       #
+#    Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for            #
+#    Temperatures from 170 K to 455 K and Pressures up to 70 MPa, J. Phys. Chem.     #
+#    Ref. Data, 1994, 23, 5, 657-729, https://doi.org/10.1063/1.555958               #
+#                                                                                    #
+# Perkins, R.A.; Laesecke, A.; Howley, J.; Ramires, M.L.V.; Gurova, A.N.; Cusco, L., #
+#    Experimental thermal conductivity values for the IUPAC round-robin sample of    #
+#    1,1,1,2-tetrafluoroethane (R134a), NIST Interagency/Internal Report (NISTIR)    #
+#    - 6605, 2000, https://doi.org/10.6028/NIST.IR.6605.                             #
+#                                                                                    #
+# Huber, M.L.; Laesecke, A.; Perkins, R.A., Model for the Viscosity and Thermal      #
+#    Conductivity of Refrigerants, Including a New Correlation for the Viscosity     #
+#    of R134a, Ind. Eng. Chem. Res., 2003, 42, 13, 3163-3178,                        #
+#    https://doi.org/10.1021/ie0300880.                                              #
+#                                                                                    #
+# Thermal conductivity parameter errata correction from CoolProp parameter file.     #
+# lambda^d.g. a1: 8.00982 -> 8.00982e-5                                              #
+#                                                                                    #
+# Mulero, A., I. Cachadina, Parra, M., "Recommended Correlations for the             #
+#     Surface Tension of Common Fluids," J. Phys. Chem. Ref. Data 41, 043105         #
+#     (2012).                                                                        #
+#                                                                                    #
+######################################################################################
+
+import math
+import pyomo.environ as pyo
+from idaes.core.util.math import smooth_max
+from helmholtz_parameters import WriteParameters
 
 
-\section{Transport Properties}
+def thermal_conductivity_rule(m):
+    a = [
+        -1.05248e-2,
+        8.00982e-5,
+    ]
+    b = {
+        1: 1.836526,
+        2: 5.126143,
+        3: -1.436883,
+        4: 6.261441e-1,
+    }
 
-\subsection{Viscosity}
+    T = m.T_star / m.tau
+    MW = m.MW / 1000.0  # kg/mol
+    rho_star = m.rho_star / MW
+    rho = m.delta * rho_star  # mol/m^3
+    tau = m.tau
+    delta = m.delta
+    rho_crit = 5049.886  # mol/m^3
+    lamb_red = 2.055e-3  # reducing tc W/m/K
+    Tref = 561.411  # reference T K
+    k = 1.380649e-23
+    Pc = 4.05928  # MPa
+    big_gam = 0.0496
+    R0 = 1.03
+    gamma = 1.239
+    qd = 1892020000.0
+    xi0 = 1.94e-10  # m
+    nu = 0.63
+
+    m.cp = pyo.ExternalFunction(library="", function="cp")
+    m.cv = pyo.ExternalFunction(library="", function="cv")
+    m.mu = pyo.ExternalFunction(library="", function="mu")
+    m.itc = pyo.ExternalFunction(library="", function="itc")
+
+    drho_dp = m.itc("r134a", delta, m.T_star / T) * rho_star * m.delta
+    drho_dp_ref = m.itc("r134a", delta, m.T_star / Tref) * rho_star * m.delta
+
+    deltchi = smooth_max(
+        Pc * rho / rho_crit**2 * (drho_dp - drho_dp_ref * Tref / T), 0, eps=1e-8
+    )
+    xi = xi0 * (deltchi / big_gam) ** (nu / gamma)
+
+    cp = m.cp("r134a", delta, tau)
+    cv = m.cv("r134a", delta, tau)
+    mu = m.mu("r134a", delta, tau) / 1e6
+    y = qd * xi
+    kappa_inv = cv / cp
+    pi = math.pi
+    Omega = 2.0 / pi * ((1.0 - kappa_inv) * pyo.atan(y) + kappa_inv * y)
+    Omega0 = (
+        2.0
+        / pi
+        * (1.0 - pyo.exp(-1.0 / (1.0 / y + 1.0 / 3.0 * (y * rho_crit / rho) ** 2)))
+    )
+    lambda_c = (
+        1000 * MW * cp * rho * R0 * k * T / 6.0 / math.pi / mu / xi * (Omega - Omega0)
+    )
+    lambda_dg = a[0] + a[1] * T
+    lambda_r = lamb_red * sum(bi * (rho / rho_crit) ** i for i, bi in b.items())
+    return 1000 * (lambda_dg + lambda_r + lambda_c)
 
 
-\subsection{Thermal Conductivity}
+def viscosity_rule(m):
+    a = [
+        0.355404,
+        -0.464337,
+        0.257353e-1,
+    ]
+    b = [
+        -19.572881,
+        219.73999,
+        -1015.3226,
+        2471.01251,
+        -3375.1717,
+        2491.6597,
+        -787.26086,
+        14.085455,
+        -0.34664158,
+    ]
+    te = [
+        0.0,
+        -0.25,
+        -0.50,
+        -0.75,
+        -1.00,
+        -1.25,
+        -1.50,
+        -2.50,
+        -5.50,
+    ]
+    c = {
+        1: -20.6900719,
+        2: 0.356029549,
+        3: 2.11101816,
+        4: 13.9601415,
+        5: -4.5643502,
+        6: -3.51593275,
+        7: 214.76332,
+        8: -0.890173375e-1,
+        9: 0.100035295,
+        10: 3.163695636,
+    }
+    T = m.T_star / m.tau
+    rho = m.delta * m.rho_star / m.MW * 1000
+    M = 102.031
+    sigma = 0.46893
+    eok = 299.363
+    NA = 6.0221408e23
+    Ts = T / eok
+    vs = pyo.exp(sum(ai * pyo.log(Ts) ** i for i, ai in enumerate(a)))
+    Bs = sum(bi * Ts**ti for bi, ti in zip(b, te))
+    B = NA * sigma**3 * Bs / 1e9**3
+    etas = 0.021357 * pyo.sqrt(M * T) / (sigma**2 * vs)
+    tau = T / m.Tc
+    delta0 = c[10] / (1 + c[8] * tau + c[9] * tau**2)
+    delta = rho / 5017.053
+    eta = (
+        c[1] * delta
+        + (c[2] / tau**6 + c[3] / tau**2 + c[4] / tau**0.5 + c[5] * tau**2)
+        * delta**2
+        + c[6] * delta**3
+        + c[7] / (delta0 - delta)
+        - c[7] / delta0
+    )
+    return etas * (1 + B * rho) + eta
 
-\subsection{Surface Tension} 
+
+def main():
+    we = WriteParameters("r134a.json")
+    we.add(
+        {
+            "viscosity": viscosity_rule,
+            "thermal_conductivity": thermal_conductivity_rule,
+        }
+    )
+    we.write()
+    
+    print("ASHRAE Offset")
+    print(we.calculate_reference_offset(2.79075439914, 1.60488955608, 0, 0))
+
+if __name__ == "__main__":
+    main()
+\end{python} 
+
+\subsubsection{Surface Tension} 
 
 There is currently only one built in expression for surface tension.
 
 \begin{equation}
 	\sigma = \sum_{i = 0}^h s_i \max\left(1 - \frac{T}{T_c}, 0 \right)^{n_i}
 \end{equation}
+
+An example surface tension section for R32 is given below.
+
+\begin{verbatim}
+    "transport": {
+        "thermal_conductivity": {
+
+        },
+        "viscosity": {
+
+        },
+        "surface_tension": {
+            "reference": [
+                "Mulero, A., I. Cachadina, Parra, M., Recommended Correlations for the",
+                "    Surface Tension of Common Fluids, J. Phys. Chem. Ref. Data 41, 043105",
+                "     (2012)."
+            ],
+            "Tc": 351.255,
+            "s": {
+                "0": 71.47
+            },
+            "n": {
+                "0": 1.246
+            },
+            "type": 1
+        }
+    }
+\end{verbatim}
 
 \bibliography{refs} 
 
