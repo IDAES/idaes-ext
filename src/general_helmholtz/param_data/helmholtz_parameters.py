@@ -160,6 +160,13 @@ class WriteParameters(object):
                 }
             )
 
+    def calculate_pressure(self, rho, T):
+        tau = self.T_star/T
+        delta = rho/self.rho_star
+        self.model.delta = delta
+        self.model.tau = tau
+        return pyo.value(rho * self.R * T * (1 + self.model.delta * self.model.phir_d))
+
     def make_model(self, *args):
         m = pyo.ConcreteModel()
         for a in args:
@@ -262,6 +269,11 @@ class WriteParameters(object):
         )
         print(f" Writing expressions for {self.comp}")
         print("=======================================================================")
+        pc = self.calculate_pressure(self.rhoc, self.Tc)
+        print(f"Calculated Pc = {pc}, Pc given {self.Pc}")
+        print(f"Tc = {self.Tc}, T^* = {self.T_star}")
+        print(f"rhoc = {self.rhoc}, rho^* = {self.rho_star}")
+        self.Pc = pc
         for name in self.expressions:
             if name not in self.has_expression:
                 raise RuntimeError(f"Required expression {name} not provided.")
@@ -315,7 +327,6 @@ class WriteParameters(object):
                 t = round(t, 3)
             trng.append(t)
         self.approx_sat_curves(trng)
-
 
 def surface_tension_type01(model, parameters):
     s = parameters["transport"]["surface_tension"]["s"]

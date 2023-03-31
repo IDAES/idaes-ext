@@ -1,0 +1,752 @@
+\documentclass[oneside]{book}
+\usepackage{amsmath}
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ total={7.5in, 9in},
+ left=0.5in,
+ top=1in,
+ }
+\setlength\parindent{0pt}
+\setlength{\parskip}{1em}
+
+\begin{document}
+
+\bibliographystyle{ieeetr}
+\renewcommand{\bibname}{References}
+
+\title{IDAES Helmholtz Equation of State Functions}
+\author{John Eslick}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\chapter{Introduction}
+
+IDAES \cite{lee2021} is a process modeling framework based on Pyomo \cite{bynum2021pyomo} that enables advanced process optimization. Optimization solvers often require accurate first and second derivative information, which may not be fully available from standard property packages. Thermodynamic cycles using a pure component working fluid are common in power generation and heating and cooling; therefore, high accuracy thermodynamically consistent properties of pure fluids are needed.  The IDAES general Helmholtz equation of state (HEoS) functions can be used to calculate high accuracy fluid properties of pure components or mixtures as pseudo-pure components.  Azeotropic, nearly azeotropic  or single phase fixed composition mixtures can be models as pure components. Future work may extend the functions to general mixtures, but general non-azeotropic mixtures are not currently supported.
+
+Complex property models pose a challenge when solving equation oriented models. Some equation solving is involved in calculating phase equilibrium and changing state variables. Implementing the property calculations as external functions provides problem decomposition where specialized techniques can be used to ensure that the property models solve reliably and correctly, while reducing the complexity of the process model in which they are used.
+
+\section{Helmholtz Equation of State}
+
+The HEoS uses a Helmholtz free energy correlation to predict thermodynamic properties of pure components. The dimensionless Helmholtz free energy can split into an ideal part and real part and written as Equation \ref{eqn:hfe}. Thermodynamic properties can be calculated from the two parts of the Helmholtz free energy and their first and second derivatives with respect to $\delta$ and $\tau$.
+
+\begin{equation}\label{eqn:hfe}
+	\frac{f(\delta, \tau)}{RT} = \phi^\circ(\delta, \tau) + \phi^r(\delta, \tau)
+\end{equation}  
+
+Where:
+ \begin{itemize}
+ 	\item $f$ = Specific Helmholtz free energy [kJ/kg]
+	\item $\phi^\circ$ = Ideal dimensionless Helmholtz free energy 
+	\item $\phi^r$ = Residual dimensionless Helmholtz free energy
+ 	\item $\delta$ = $\rho/\rho^*$
+	\item $\tau$ = $T^*/T$
+	\item $R$ = Specific gas constant, ideal gas constant/molecular weight [kJ/kg/K] 
+	\item $T$ = Temperature [K]
+	\item $T^*$ = Reducing temperature, usually critical temperature [K]
+	\item $\rho$ = Mass density [kg/m$^3$]
+	\item $\rho^*$ = Reducing mass density, usually critical density [kg/m$^3$]
+ \end{itemize}
+
+ \section{State Variables}
+ 
+State variables define the state of a system.  Usually two thermodynamic quantities define the state for example enthalpy and pressure; however, for temperature and pressure the vapor fraction is also required due to temperature being constant at a given pressure in the two-phase region. The HEoS provides properties as a direct function of density and temperature, but they are not usually the most convenient set of state variables, so the HEoS functions provide properties as a function of several other sets of state variables. Supported state variable sets are listed in Table \ref{table:state_variable_sets}.
+ 
+ \begin{table}[h!]
+\centering
+\caption{Supported state variable sets}
+\begin{tabular}{ l l l }
+\hline
+symbols & description  \\
+\hline
+\hline
+$(\delta, \tau)$ & reduced density, 1/reduced temperature \\ [1ex]
+ $(h, p)$ &  enthalpy [kJ/kg], pressure [kPa]  \\  [1ex]
+ $(s, p)$ &  entropy [kJ/kg/K], pressure [kPa]  \\  [1ex]
+ $(u, p)$ &  internal energy [kJ/kg], pressure [kPa]  \\  [1ex]
+  $(T, p, x)$ & temperature [K], pressure [kPa], vapor fraction  \\  [1ex]
+ \hline    
+\end{tabular}
+\label{table:state_variable_sets}
+\end{table}
+
+\section{Thermodynamic Properties}
+ 
+The basic set of properties that can be calculated are listed in Table \ref{table:supported_properties}.  For each property there are corresponding functions for other sets of state variables shown in Table \ref{table:state_variable_sets} In addition to the properties listed the components of the dimensions Helmholtz free energy and up to there fourth derivatives are provided. The allows calculation of most thermodynamic properties and their first and second derivatives, as required by optimization solvers.  
+ 
+\begin{table}[h!]
+\centering
+\caption{Supported thermodynamic properties}
+\begin{tabular}{ l l l }
+\hline
+property & description  \\
+\hline
+\hline
+$p(\delta, \tau)$ & pressure [kPa] \\ [1ex]
+$u(\delta, \tau)$ & internal energy [kJ/kg] \\ [1ex]
+$s(\delta, \tau)$ & entropy [kJ/kg/K] \\ [1ex]
+$h(\delta, \tau)$ & enthalpy [kJ/kg] \\ [1ex]
+$g(\delta, \tau)$ & Gibbs free energy [kJ/kg] \\ [1ex]
+$f(\delta, \tau)$ & Helmholtz free energy [kJ/kg] \\ [1ex]
+$c_v(\delta, \tau)$ & isochoric heat capacity [kJ/kg/K] \\ [1ex]
+$c_p(\delta, \tau)$ & isobaric heat capacity [kJ/kg/K] \\ [1ex]
+$w(\delta, \tau)$ & speed of sound [m/s] \\ [1ex]
+$\kappa_T(\delta, \tau)$ & isothermal compressibility [1/MPa] \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:supported_properties}
+\end{table}
+
+\clearpage
+
+\section{Transport Properties}
+ 
+Transport properties can also be calculated, but their models are separate from the equation of state, so they may not be available for all components.  Transport properties are listed in Table \ref{table:supported_transport_properties}.
+\begin{table}[h!]
+\centering
+\caption{Supported transport properties}
+\begin{tabular}{ l l l }
+\hline
+property & description  \\
+\hline
+\hline
+$\mu(\delta, \tau)$ & viscosity [$\mu \text{Pa} \cdot \text{s}$] \\ [1ex]
+$\lambda(\delta, \tau)$ & thermal conductivity [mW/m/K] \\ [1ex]
+$\sigma(\delta, \tau)$ & surface tension [mN/M] \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:supported_transport_properties}
+\end{table}
+
+\section{Saturation Properties}
+
+The saturated liquid and vapor properties are calculated by solving the Equations \ref{eqn:equil1} and \ref{eqn:equil2} for a given temperature for the liquid and vapor density.  Once the liquid and vapor densities are found, all other properties of saturated liquid and vapor can be found.  The method proposed by Akasaka \cite{akasaka2008reliable} is used to calculate the saturated phase densities at a given temperature.
+
+\begin{equation}\label{eqn:equil1}
+	g(\delta_{\text{liq}}, \tau) = g(\delta_{\text{vap}}, \tau)
+\end{equation} 
+
+\begin{equation}\label{eqn:equil2}
+	p(\delta_{\text{liq}}, \tau) = p(\delta_{\text{vap}}, \tau)
+\end{equation} 
+
+With the saturation pressure as a function of temperature, the reverse problem can be solved to calculate saturation temperature from pressure, and this allows all saturation properties to be calculated as either a function of temperature or pressure. Saturation density may not be unique for other state variables, so saturated properties are only available as functions of temperature or pressure.
+
+\section{Deviation from Literature}
+
+The Helmholtz free energy correlation for water \cite{doi:10.1063/1.1461829} and CO$_2$ \cite{osti_402357} omit the non-analytic terms.  The non-analytic terms improve accuracy near the critical point, but they can cause numerical difficulties since there is a singularity at the critical point.  It is possible to add these terms, but the effect of omitting them is minimal.
+
+\chapter{Building the Library}
+
+This section provides information about compiling the shared library for the HEoS functions. A fully automated build system has not yet be implemented.
+
+
+\chapter{Property Functions}
+
+This section describes the most used property functions.  Currently functions return a single property value. Since expressions for the Helmholtz free energy are complex having a large number of parameters and calculation of saturation properties and state variable changes involve iterative solutions to equations, the HEoS functions use a system to cache results.  If you call the same function with the same inputs the stored result is returned.  This goes for most of the complex intermediate calculations as well.  This reduces the computational overhead when calculating multiple properties for the same state variable values.
+
+\section{Parameter Files}
+
+Adding new components or adjusting component parameters is discussed later in this document.  For now, an overview of the required parameter files and how they are located is provided.  All parameter files must be stored in the same directory.  Files for a component are read in based on the component string.  The directory to search is set by either the \texttt{IDAES\_HELMHOLTZ\_DATA\_PATH} environment variable, which should be set to the directory containing parameter files and should end in a file path separator (i.e. \textbackslash \hspace{1ex}or /), or passed to the function call to read in data.  
+
+\begin{table}[h!]
+\centering
+\caption{Parameter Files}
+\begin{tabular}{ l l l }
+\hline
+file & description  \\
+\hline
+\hline
+\texttt{\{comp\}\_parameters.json} &  Basic parameters and expression mappings\\ [1ex]
+\texttt{\{comp\}\_expressions\_eos.json} &  Equation of state expressions \\ [1ex]
+\texttt{\{comp\}\_expressions\_tcx.json} &  Optional, thermal conductivity model \\ [1ex]
+\texttt{\{comp\}\_expressions\_visc.json} &  Optional, viscosity model \\ [1ex]
+\texttt{\{comp\}\_expressions\_st.json} &  Optional, surface tension model \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:parameter_files}
+\end{table}
+
+To read in data for a component, use the \texttt{read\_params} function prototyped in the \texttt{read\_params.h} file.
+
+\begin{verbatim}
+uint read_params(std::string comp, std::string data_path="")
+\end{verbatim}
+
+The fist argument (\texttt{comp}) is a string identifying a component.  This is the first part of the parameter files.  The second argument is optional, but can provide the search path for parameter files instead of using the environment variable.  The function returns an integer, which is an index pointing to parameter data.  In all other functions when identifying a component the integer index should be used rather than the component string.  Component strings are not case sensitive, and are all converted to lower case, since no all file systems are case sensitive. 
+
+\section{Reference State}
+
+Some properties (i.e. enthalpy, entropy, and internal energy) don't have absolute values and are reported relative to a reference state. The Helmholtz free energy correlation parameters directly from the literature are used for the equation of state, and may not use the desired reference state.  A reference state is defined from a given reference enthalpy and entropy at a particular state. The reference state can be adjusted by modifying parameters in the ideal component of the dimensionless Helmholtz free energy.  Ideal dimensionless Helmholtz free energy correlation can have different forms but they all contain the terms shown in Equation \ref{eqn:cip}
+
+\begin{equation}\label{eqn:cip}
+	\phi^\circ(\delta, \tau) = \log_e \delta + n_1^\circ + \tau n_2^\circ + ...
+\end{equation}
+
+The reference state can be set by adding an offset to the $n_1^\circ$ and $n_2^\circ$ constants, as in Equation \ref{eqn:cip_off}.
+
+\begin{equation}\label{eqn:cip_off}
+	\phi^\circ(\delta, \tau) = \log_e \delta + n_1^\circ + n^\circ_{1, \text{off}} + \tau n_2^\circ + \tau n^\circ_{2, \text{off}} +  ...
+\end{equation}
+
+To calculate the offsets for a reference state, first calculate the temperature, density, enthalpy, and entropy for the reference state with no offset. The $n^\circ_{1, \text{off}}$ value can be calculated by Equation \ref{eqn:n1off} and  $n^\circ_{2, \text{off}}$ can be calculated by Equation \ref{eqn:n2off}. The non-offset properties, density and temperature can be calculated with property functions with the offset set to (0, 0).
+
+\begin{equation}\label{eqn:n1off}
+	n^\circ_{1, \text{off}} = \frac{s_1(\delta^{\text{ref}}, \tau^{\text{ref}}) - s^{\text{ref}}}{R}
+\end{equation}
+
+\begin{equation}\label{eqn:n2off}
+	n^\circ_{2, \text{off}} = \frac{h^{\text{ref}} - h_1(\delta^{\text{ref}}, \tau^{\text{ref}})}{RT^{\text{ref}}}
+\end{equation}
+
+Where:
+\begin{itemize}
+	\item $\delta^{\text{ref}}$: reduced density at the reference point
+	\item $\tau^{\text{ref}}$: 1/reduced temperature at the reference point
+	\item $s_1(\delta^{\text{ref}}, \tau^{\text{ref}})$: no-offset entropy at the reference point
+	\item $h_1(\delta^{\text{ref}}, \tau^{\text{ref}})$: no-offset enthalpy at the reference point
+	\item $s^{\text{ref}}$: specified entropy at the reference point
+	\item $h^{\text{ref}}$: specified enthalpy at the reference point
+	\item $T^{\text{ref}}$: temperature at the reference state [K]
+	\item $R$: specific gas constant [kJ/kg/K]
+\end{itemize}
+
+There are two ways to set the reference state offset for a component, (1) edit the \texttt{\{comp\}\_parameters.json} file to change the \texttt{reference\_state\_offset} field or (2) call the   
+\texttt{void set\_reference\_state\_offset(uint comp\_idx, double n1, double n2)} function prototyped in \texttt{read\_param.h}, where \texttt{n1} and \texttt{n2}.
+
+\section{Return Structure}
+
+The C++ property functions return a structure that contains a property value along with first and second derivatives.  Most functions take two state variables, but saturation properties only take one.  The structures are defined in the \texttt{config.h} file. The most commonly needed structures are \texttt{f12\_struct} and \texttt{f22\_struct} given below.
+
+\begin{verbatim}
+struct f12_struct { // return structure for unary functions
+  double f;    // Function value
+  double f_1;  // First derivative with respect to the argument
+  double f_11; // Second derivative with respect to the argument
+};
+
+struct f22_struct { // return structure for binary functions
+  double f;    // Function value
+  double f_1;  // First derivative with respect to the first argument
+  double f_11; // Second derivative with respect to the first argument
+  double f_2;  // First derivative with respect to the second argument
+  double f_12; // Second derivative with respect to the first and second argument
+  double f_22; // Second derivative with respect to the second argument
+};
+\end{verbatim}
+
+\section{Functions of $\delta$ and $\tau$}
+
+The fundamental property functions are functions of $\delta$ and $\tau$.  These function prototypes are in the \texttt{props.h} file and listed in Table \ref{table:props_dt}.  These property functions are valid for a single phase density phase not a mixed phase. The transport properties (thermal conductivity, viscosity, and surface tension) are optional and not necessarily provided for every component.  They are not derived from the equation of state and require supplemental correlations.  
+
+\begin{table}[h!]
+\centering
+\caption{Property Functions of $\delta$ and $\tau$}
+\begin{tabular}{ l l l }
+\hline
+symbol & function & units \\
+\hline
+\hline
+$p(\delta, \tau)$ & \texttt{f22\_struct memo2\_pressure(uint comp, double delta, double tau)} & kPa \\ [1ex]
+$u(\delta, \tau)$ & \texttt{f22\_struct memo2\_internal\_energy(uint comp, double delta, double tau)} &  kJ/kg \\ [1ex]
+$s(\delta, \tau)$ & \texttt{f22\_struct memo2\_entropy(uint comp, double delta, double tau)} &  kJ/kg/K \\ [1ex]
+$h(\delta, \tau)$ & \texttt{f22\_struct memo2\_enthalpy(uint comp, double delta, double tau)} &  kJ/kg \\ [1ex]
+$g(\delta, \tau)$ & \texttt{f22\_struct memo2\_gibbs(uint comp, double delta, double tau)} &  kJ/kg \\ [1ex]
+$f(\delta, \tau)$ & \texttt{f22\_struct memo2\_helmholtz(uint comp, double delta, double tau)} &  kJ/kg \\ [1ex]
+$c_v(\delta, \tau)$ & \texttt{f22\_struct memo2\_isochoric\_heat\_capacity(uint comp, double delta, double tau)} &  kJ/kg/K \\ [1ex]
+$c_p(\delta, \tau)$ & \texttt{f22\_struct memo2\_isobaric\_heat\_capacity(uint comp, double delta, double tau)} &  kJ/kg/K \\ [1ex]
+$w(\delta, \tau)$ & \texttt{f22\_struct memo2\_speed\_of\_sound(uint comp, double delta, double tau)} &  m/s \\ [1ex]
+$v(\delta, \tau)$ & \texttt{f22\_struct memo2\_specific\_volume(uint comp, double delta, double tau)} &  m$^3$/kg \\ [1ex]
+$\kappa_T(\delta, \tau)$ & \texttt{f22\_struct memo2\_isothermal\_compressibility(uint comp, double delta, double tau)} &  1/MPa \\ [1ex]
+$\lambda(\delta, \tau)$ & \texttt{f22\_struct memo2\_thermal\_conductivity(uint comp, double delta, double tau)} &  mW/M/K \\ [1ex]
+$\mu(\delta, \tau)$ & \texttt{f22\_struct memo2\_viscosity(uint comp, double delta, double tau)} &  $\mu$Pa$\cdot$s \\ [1ex]
+$\sigma(\delta, \tau)$ & \texttt{f22\_struct memo2\_surface\_tension(uint comp, double delta, double tau)} &  mN/m \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:props_dt}
+\end{table}
+
+If a thermodynamic property function is not available, the Helmholtz free energy and derivative functions can be used to calculate it.  These functions are listed in Table \ref{table:props_dt_phi}.
+
+\begin{table}[h!]
+\centering
+\caption{Dimensionless Helmholtz Free Energy and Derivative Functions of $\delta$ and $\tau$}
+\begin{tabular}{ l l }
+\hline
+file & description \\
+\hline
+\hline
+$\phi^\circ(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^\circ_\delta(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal\_d(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^\circ_\tau(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal\_t(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^\circ_{\delta\delta}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal\_dd(uint comp, double delta, double tau))}  \\ [1ex]
+$\phi^\circ_{\delta\tau}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal\_dt(uint comp, double delta, double tau)}   \\ [1ex]
+$\phi^\circ_{\tau\tau}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_ideal\_tt(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^r(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^r_\delta(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi\_d(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^r_\tau(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi\_t(uint comp, double delta, double tau)}  \\ [1ex]
+$\phi^r_{\delta\delta}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi\_dd(uint comp, double delta, double tau))}  \\ [1ex]
+$\phi^r_{\delta\tau}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi\_dt(uint comp, double delta, double tau)}   \\ [1ex]
+$\phi^r_{\tau\tau}(\delta, \tau)$ & \texttt{f22\_struct memo2\_phi\_resi\_tt(uint comp, double delta, double tau)}  \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:props_dt_phi}
+\end{table}
+
+\section{Property Functions of $h, p$}
+
+Property functions of enthalpy and pressure are available and prototyped in \texttt{props\_hp.h}.  These functions are available in single and mixed phase form.  The enthalpy argument is the mixed phase enthalpy given in Equation \ref{eqn:mix_enthalpy}, where $h$ is enthalpy and $x$ is vapor fraction. 
+
+\begin{equation}\label{eqn:mix_enthalpy}
+	h = x h_{\text{vap}} + (1 - x) h_{\text{liq}}
+\end{equation}
+
+Mixed phase property functions of enthalpy and pressure are provided in Table \ref{table:mix_hp_props}. Pressure has units of kPa and enthalpy has units of kJ/kg.  The mixed phase properties $w$, $\kappa_T$, $\lambda$, and $\mu$ are not physically meaningful for mixtures of two phases, but are provided for convenience, since they will be valid for whatever phase exists in the single phase region.  While there is only a surface tension in the two-phase region, the function will provide a smooth and continuous result even in the single phase region. As much as possible an effort is made to extend functions smoothly even in regions where they are not valid to minimize difficulty with equation solving.  This means post solve checks should be implemented to ensure the final results are valid.  In the supercritical region there is only one supercritical phase, so liquid and vapor properties are the same.  The vapor fraction in the supercritical region for the purpose of the vapor fraction function is defined to be 0.
+
+\begin{table}[h!]
+\centering
+\caption{Mixed Phase Property Functions of $h$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_temperature\_hp(uint comp, double h, double p)} & K  \\ [1ex]
+\texttt{f22\_struct memo2\_vapor\_fraction\_hp(uint comp, double h, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_hp(uint comp, double h, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_hp(uint comp, double h, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_hp(uint comp, double h, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_hp(uint comp, double h, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_hp(uint comp, double h, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_hp(uint comp, double h, double p)} &  mN/m \\ [1ex]
+\hline    
+\end{tabular}
+\label{table:mix_hp_props}
+\end{table}
+
+Single phase property functions are given in Table \ref{table:single_hp_props}, where \texttt{\{phase\}} is either \texttt{vap} or \texttt{liq}. In the two-phase region these functions return the single phase properties. For liquid in the vapor region, the functions try to solve for liquid density in the vapor region, this extends the functions smoothly to the critical temperature.  Above the critical temperature, the liquid property functions return vapor/supercritical properties. The vapor properties in the liquid region attempt to solve for vapor density extending the properties to the critical pressure. Above the critical pressure, the vapor functions return liquid/supercritical properties.
+
+\begin{table}[h!]
+\centering
+\caption{Single Phase Property Functions of $h$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_enthalpy\_\{phase\}\_hp(uint comp, double h, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_\{phase\}\_hp(uint comp, double h, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_\{phase\}\_hp(uint comp, double h, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_\{phase\}\_hp(uint comp, double h, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_\{phase\}\_hp(uint comp, double h, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_\{phase\}\_hp(uint comp, double h, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_\{phase\}\_hp(uint comp, double h, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_\{phase\}\_hp(uint comp, double h, double p)} &  mN/m \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:single_hp_props}
+\end{table}
+
+\section{Property Functions of $s, p$}
+
+Property functions of entropy and pressure are available and prototyped in \texttt{props\_sp.h}.  These functions are available in single and mixed phase form.  The entropy argument is the mixed phase entropy given in Equation \ref{eqn:mix_entropy}, where $s$ is entropy and $x$ is vapor fraction. 
+
+\begin{equation}\label{eqn:mix_entropy}
+	s = x s_{\text{vap}} + (1 - x) s_{\text{liq}}
+\end{equation}
+
+Mixed phase property functions of entropy and pressure are provided in Table \ref{table:mix_sp_props}. Pressure has units of kPa and entropy has units of kJ/kg/K.  The mixed phase properties $w$, $\kappa_T$, $\lambda$, and $\mu$ are not physically meaningful for mixtures of two phases, but are provided for convenience, since they will be valid for whatever phase exists in the single phase region.  While there is only a surface tension in the two-phase region, the function will provide a smooth and continuous result even in the single phase region. As much as possible an effort is made to extend functions smoothly even in regions where they are not valid to minimize difficulty with equation solving.  This means post solve checks should be implemented to ensure the final results are valid.  In the supercritical region there is only one supercritical phase, so liquid and vapor properties are the same.  The vapor fraction in the supercritical region for the purpose of the vapor fraction function is defined to be 0.
+
+\begin{table}[h!]
+\centering
+\caption{Mixed Phase Property Functions of $s$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_temperature\_sp(uint comp, double s, double p)} & K  \\ [1ex]
+\texttt{f22\_struct memo2\_vapor\_fraction\_sp(uint comp, double s, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_enthalpy\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_sp(uint comp, double s, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_sp(uint comp, double s, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_sp(uint comp, double s, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_sp(uint comp, double s, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_sp(uint comp, double s, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_sp(uint comp, double s, double p)} &  mN/m \\ [1ex]
+\hline    
+\end{tabular}
+\label{table:mix_sp_props}
+\end{table}
+
+Single phase property functions are given in Table \ref{table:single_sp_props}, where \texttt{\{phase\}} is either \texttt{vap} or \texttt{liq}. In the two-phase region these functions return the single phase properties. For liquid in the vapor region, the functions try to solve for liquid density in the vapor region, this extends the functions smoothly to the critical temperature.  Above the critical temperature, the liquid property functions return vapor/supercritical properties. The vapor properties in the liquid region attempt to solve for vapor density extending the properties to the critical pressure. Above the critical pressure, the vapor functions return liquid/supercritical properties.
+
+\begin{table}[h!]
+\centering
+\caption{Single Phase Property Functions of $s$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_enthalpy\_\{phase\}\_sp(uint comp, double s, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_\{phase\}\_sp(uint comp, double s, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_\{phase\}\_sp(uint comp, double s, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_\{phase\}\_sp(uint comp, double s, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_\{phase\}\_sp(uint comp, double s, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_\{phase\}\_sp(uint comp, double s, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_\{phase\}\_sp(uint comp, double s, double p)} &  mN/m \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:single_sp_props}
+\end{table}
+
+\section{Property Functions of $u, p$}
+
+Property functions of internal energy and pressure are available and prototyped in \texttt{props\_up.h}.  These functions are available in single and mixed phase form.  The internal energy argument is the mixed phase internal energy given in Equation \ref{eqn:mix_int_energy}, where $u$ is internal energy and $x$ is vapor fraction. 
+
+\begin{equation}\label{eqn:mix_int_energy}
+	u = x u_{\text{vap}} + (1 - x) u_{\text{liq}}
+\end{equation}
+
+Mixed phase property functions of internal energy and pressure are provided in Table \ref{table:mix_up_props}. Pressure has units of kPa and internal energy has units of kJ/kg.  The mixed phase properties $w$, $\kappa_T$, $\lambda$, and $\mu$ are not physically meaningful for mixtures of two phases, but are provided for convenience, since they will be valid for whatever phase exists in the single phase region.  While there is only a surface tension in the two-phase region, the function will provide a smooth and continuous result even in the single phase region. As much as possible an effort is made to extend functions smoothly even in regions where they are not valid to minimize difficulty with equation solving.  This means post solve checks should be implemented to ensure the final results are valid.  In the supercritical region there is only one supercritical phase, so liquid and vapor properties are the same.  The vapor fraction in the supercritical region for the purpose of the vapor fraction function is defined to be 0.
+
+\begin{table}[h!]
+\centering
+\caption{Mixed Phase Property Functions of $u$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_temperature\_up(uint comp, double u, double p)} & K  \\ [1ex]
+\texttt{f22\_struct memo2\_vapor\_fraction\_up(uint comp, double u, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_up(uint comp, double u, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_enthalpy\_up(uint comp, double u, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_up(uint comp, double u, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_up(uint comp, double u, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_up(uint comp, double u, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_up(uint comp, double u, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_up(uint comp, double u, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_up(uint comp, double u, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_up(uint comp, double u, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_up(uint comp, double u, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_up(uint comp, double u, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_up(uint comp, double u, double p)} &  mN/m \\ [1ex]
+\hline    
+\end{tabular}
+\label{table:mix_up_props}
+\end{table}
+
+Single phase property functions are given in Table \ref{table:single_up_props}, where \texttt{\{phase\}} is either \texttt{vap} or \texttt{liq}. In the two-phase region these functions return the single phase properties. For liquid in the vapor region, the functions try to solve for liquid density in the vapor region, this extends the functions smoothly to the critical temperature.  Above the critical temperature, the liquid property functions return vapor/supercritical properties. The vapor properties in the liquid region attempt to solve for vapor density extending the properties to the critical pressure. Above the critical pressure, the vapor functions return liquid/supercritical properties.
+
+\begin{table}[h!]
+\centering
+\caption{Single Phase Property Functions of $u$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_enthalpy\_\{phase\}\_sp(uint comp, double s, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_\{phase\}\_sp(uint comp, double s, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_\{phase\}\_sp(uint comp, double s, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_\{phase\}\_sp(uint comp, double s, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_\{phase\}\_sp(uint comp, double s, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_\{phase\}\_sp(uint comp, double s, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_\{phase\}\_sp(uint comp, double s, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_\{phase\}\_sp(uint comp, double s, double p)} &  mN/m \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:single_up_props}
+\end{table}
+
+\section{Property Functions of $T, p$}
+
+Properties as a function of temperature with units of K and pressure with units of kPa are only available for single phases, since vapor fraction cannot be determined from temperature and pressure.  These function are prototyped in \texttt{props\_tp.h}.  These functions are extended past the saturation curve by solving for liquid density in the vapor region or vapor density in the liquid region as a smooth continuation past the saturation curve.  For liquid, past the critical temperature vapor properties are returned for the liquid functions.  For vapor past the critical pressure, liquid properties are returned. Available functions are given in Table \ref{table:single_tp_props} where \texttt{\{phase\}} is either \texttt{liq} or \texttt{vap}.  In the supercritical region, both functions return the same result corresponding to the supercritical fluid.
+
+\begin{table}[h!]
+\centering
+\caption{Single Phase Property Functions of $T$ and $p$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f22\_struct memo2\_enthalpy\_\{phase\}\_tp(uint comp, double T, double p)} & -- \\ [1ex]
+\texttt{f22\_struct memo2\_internal\_energy\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_entropy\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_gibbs\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_helmholtz\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isochoric\_heat\_capacity\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_isobaric\_heat\_capacity\_\{phase\}\_tp(uint comp, double T, double p)} &  kJ/kg/K \\ [1ex]
+\texttt{f22\_struct memo2\_speed\_of\_sound\_\{phase\}\_tp(uint comp, double T, double p)} &  m/s \\ [1ex]
+\texttt{f22\_struct memo2\_specific\_volume\_\{phase\}\_tp(uint comp, double T, double p)} &  m$^3$/kg \\ [1ex]
+\texttt{f22\_struct memo2\_isothermal\_compressibility\_\{phase\}\_tp(uint comp, double T, double p)} &  1/MPa \\ [1ex]
+\texttt{f22\_struct memo2\_thermal\_conductivity\_\{phase\}\_tp(uint comp, double T, double p)} &  mW/M/K \\ [1ex]
+\texttt{f22\_struct memo2\_viscosity\_\{phase\}\_tp(uint comp, double T, double p)} &  $\mu$Pa$\cdot$s \\ [1ex]
+\texttt{f22\_struct memo2\_surface\_tension\_\{phase\}\_tp(uint comp, double T, double p)} &  mN/m \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:single_tp_props}
+\end{table}
+
+\clearpage
+
+\section{Saturated Property Functions}
+
+Saturated properties are available as unary functions of temperature or pressure.  The saturated property function are prototyped in \texttt{sat.h}.  The basic saturation curve functions are a function of $\tau$ these functions are listed in Table \ref{table:sat_props_tau}, where the delta functions return  density of liquid or vapor.  
+\begin{table}[h!]
+\centering
+\caption{Saturated Property Functions of $\tau$}\label{table:sat_props_tau}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f12\_struct sat\_p(uint comp, double tau)} & kPa \\ [1ex]
+\texttt{f12\_struct sat\_delta\_v(uint comp, double tau)} & -- \\ [1ex]
+\texttt{f12\_struct sat\_delta\_l(uint comp, double tau)} & -- \\ [1ex]
+ \hline    
+\end{tabular}
+\end{table}
+
+Saturation property function of temperature in K are given in Table \ref{table:sat_props_t}.
+
+\begin{table}[h!]
+\centering
+\caption{Saturated Property Functions of $T$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f12\_struct sat\_p\_t(uint comp, double T)} & -- \\ [1ex]
+\texttt{f12\_struct sat\_h\_liq\_t(uint comp, double T)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_h\_vap\_t(uint comp, double T)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_s\_liq\_t(uint comp, double T)} & kJ/kg/K \\ [1ex]
+\texttt{f12\_struct sat\_s\_vap\_t(uint comp, double T)} & kJ/kg/K \\ [1ex]
+\texttt{f12\_struct sat\_u\_liq\_t(uint comp, double T)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_u\_vap\_t(uint comp, double T)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_v\_liq\_t(uint comp, double T)} & m$^3$/kg \\ [1ex]
+\texttt{f12\_struct sat\_v\_vap\_t(uint comp, double T)} & m$^3$/kg \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:sat_props_t}
+\end{table}
+
+Saturation property function of pressure in kPa are given in Table \ref{table:sat_props_p}.
+
+\begin{table}[h!]
+\centering
+\caption{Saturated Property Functions of $P$}
+\begin{tabular}{ l l l }
+\hline
+function & units \\
+\hline
+\hline
+\texttt{f12\_struct sat\_tau(uint comp, double p)} & -- \\ [1ex]
+\texttt{f12\_struct sat\_t(uint comp, double p)} & K \\ [1ex]
+\texttt{f12\_struct sat\_h\_liq\_p(uint comp, double p)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_h\_vap\_p(uint comp, double p)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_s\_liq\_p(uint comp, double p)} & kJ/kg/K \\ [1ex]
+\texttt{f12\_struct sat\_s\_vap\_p(uint comp, double p)} & kJ/kg/K \\ [1ex]
+\texttt{f12\_struct sat\_u\_liq\_p(uint comp, double p)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_u\_vap\_p(uint comp, double p)} & kJ/kg \\ [1ex]
+\texttt{f12\_struct sat\_v\_liq\_p(uint comp, double p)} & m$^3$/kg \\ [1ex]
+\texttt{f12\_struct sat\_v\_vap\_p(uint comp, double p)} & m$^3$/kg \\ [1ex]
+ \hline    
+\end{tabular}
+\label{table:sat_props_p}
+\end{table}
+
+\chapter{AMPL Wrapper Functions}
+
+\chapter{Parameter File}
+
+\section{Equation of State}
+
+The Helmholtz equation of state uses the Helmholtz free energy as a function of density and temperature (Equation \ref{eqn:hfe}) split into an ideal
+and residual part to calculate vapor and liquid thermodynamic properties of a pure substance.  Thermodynamic properties can be calculated from the 
+ideal and residual parts of the Helmholtz free energy and their derivatives.
+
+Phase equilibrium is calculated by the method of Akasaka \cite{akasaka2008reliable}. To improve performance of saturation state calculation, auxiliary curves for the approximate saturated liquid and vapor density as a function or of temperature are required.  These curves are usually provided in literature along with the equation of state.
+
+The expressions required to be provided to define the equation of state for a component are summarized in Table \ref{table:eos_expressions}. All expressions and variables for the equation of state are dimensionless, and all expression use only the variables $\tau$ and $\delta$. 
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ l l l }
+\hline
+quantity & expression name & description \\
+\hline
+\hline
+$\phi^\circ(\delta, \tau)$ &  \texttt{phii} & ideal part of the Helmholtz free energy \\[1ex]  
+$\phi_\delta^\circ(\delta, \tau)$ & \texttt{phii\_d} & $\frac{\partial}{\partial \delta} \phi^\circ(\delta, \tau) $ \\[1ex] 
+$\phi_{\delta\delta}^\circ(\delta, \tau)$ & \texttt{phii\_dd} & $\frac{\partial^2}{\partial \delta^2} \phi^\circ(\delta, \tau) $ \\[1ex] 
+$\phi_\tau^\circ(\delta, \tau)$ & \texttt{phii\_t} & $\frac{\partial}{\partial \tau} \phi^\circ(\delta, \tau) $ \\[1ex] 
+$\phi_{\tau\tau}^\circ(\delta, \tau)$ & \texttt{phii\_tt} & $\frac{\partial^2}{\partial \tau^2} \phi^\circ(\delta, \tau) $ \\[1ex]
+$\phi_{\delta\tau}^\circ(\delta, \tau)$ & \texttt{phii\_dt} & $\frac{\partial^2}{\partial \delta \partial \tau} \phi^\circ(\delta, \tau) $ \\[1ex]
+$\phi^r(\delta, \tau)$ &  \texttt{phir} & residual part of the Helmholtz free energy \\[1ex]  
+$\phi_\delta^r\delta, \tau)$ & \texttt{phir\_d} & $\frac{\partial}{\partial \delta} \phi^r(\delta, \tau) $ \\[1ex] 
+$\phi_{\delta\delta}^r(\delta, \tau)$ & \texttt{phir\_dd} & $\frac{\partial^2}{\partial \delta^2} \phi^r(\delta, \tau) $ \\[1ex] 
+$\phi_\tau^r(\delta, \tau)$ & \texttt{phir\_t} & $\frac{\partial}{\partial \tau} \phi^r(\delta, \tau) $ \\[1ex] 
+$\phi_{\tau\tau}^r(\delta, \tau)$ & \texttt{phir\_tt} & $\frac{\partial^2}{\partial \tau^2} \phi^r(\delta, \tau) $ \\[1ex]
+$\phi_{\delta\tau}^r(\delta, \tau)$ & \texttt{phir\_dt} & $\frac{\partial^2}{\partial \delta \partial \tau} \phi^r(\delta, \tau) $ \\[1ex]
+$\delta^\text{liq}_\text{sat}(\delta, \tau)$ & \texttt{delta\_l\_sat\_approx} & approximate saturated liquid $\delta$ as a function of $\tau$  \\[1ex]
+$\delta_{\text{sat}}^{\text{vap}}(\tau)$ & \texttt{delta\_v\_sat\_approx} & approximate saturated vapor $\delta$ as a function of $\tau$  \\[1ex]
+ \hline    
+\end{tabular}
+\caption{EoS Expressions}
+\label{table:eos_expressions}
+\end{table}
+
+$\frac{\partial \phi^\circ}{\partial \delta}$
+
+\section{Transport Properties}
+
+The IDAES Helmholtz equation of state functions also support calculation of the transport properties thermal conductivity, viscosity, and surface tension. The transport properties must be expressions of $\tau$ and $\delta$.  Transport property expressions can call property functions, so if for example you need to use heat capacity in the thermal conductivity calculation, you can call the heat capacity function. 
+
+The expected units of measure for the transport properties are given in Table \ref{table:transport_units}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ l l l }
+\hline
+property & expression name & units  \\
+\hline
+\hline
+ thermal conductivity &  \texttt{thermal\_conductivity} & mW/m/K  \\  
+ viscosity & \texttt{viscosity} & $ \mu \text{Pa} \cdot \text{s} $  \\
+ surface tension & \texttt{surface\_tension} &  mN/m   \\
+ \hline    
+\end{tabular}
+\caption{Units of Measure for Transport Properties}
+\label{table:transport_units}
+\end{table}
+
+\section{Creating Parameter Files}
+
+Expressions 
+
+\subsection{Ideal Helmholtz Free Energy} 
+
+Several canned expressions for the ideal part of the Helmholtz free energy.  For the purpose, of the parameter module and not having, better names each
+expression is just assigned a type number.  
+
+\subsubsection{Type 01}
+
+\begin{equation}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau + \sum_{i = 4}^h n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
+\end{equation}
+
+\subsubsection{Type 02}
+
+\begin{equation}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h_1} n^\circ_i  \tau^{\gamma^\circ_i} + \sum_{i = h_1 + 1}^{h_2} n^\circ_i \log_e \left[ 1 - \exp(-\gamma^\circ_i  \tau)\right]
+\end{equation}
+
+\subsubsection{Type 03}
+
+\begin{equation}
+	\log_e \delta + n^\circ_1 + n^\circ_2 \tau + n^\circ_3 \log_e \tau  + \sum_{i = 4}^{h} n^\circ_i  \tau^{\gamma^\circ_i} 
+\end{equation}
+
+\subsection{Residual Helmholtz Free Energy Forms} 
+
+The dimensionless residual Helmholtz free energy expressions are required along with their fist and second derivatives with respect to $\delta$ and $\tau$.  
+A user can provide expressions in any form they like as Pyomo expressions, but to make things easier a number of standard forms for these expressions are
+provided. 
+ 
+Equation \ref{phir_type01} shows the Type01 form.
+
+\begin{equation}\label{phir_type01}
+	\phi^r(\delta, \tau) = \sum^{h_1}_1 n_i \delta^{d_i} \tau^{t_1} + \sum_{h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i})
+\end{equation}
+
+Equation \ref{phir_type02} shows the Type02 form \cite{osti_402357}.
+
+\begin{equation}\label{phir_type02}
+	\phi^r(\delta, \tau) = \sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum_{i =h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) + 
+	\sum_{i = h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp\left[-\alpha_i(\delta - \varepsilon_i)^2 - \beta_i(\tau - \gamma_i)^2 \right]
+\end{equation}
+
+Equation \ref{phir_type03} shows the Type03 form.
+
+\begin{equation}\label{phir_type03}
+	\phi^r(\delta, \tau) = 
+	\sum^{h_1}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum_{i=h_1 + 1}^{h_2} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i})
+	\sum_{i=h_2 + 1}^{h_3} n_i \delta^{d_i} \tau^{t_1} \exp(-\delta^{c_i}) \exp(-\tau^{b_i})
+\end{equation}
+
+Equation \ref{phir_type04} shows the Type04 form.
+
+\begin{equation}\label{phir_type04}
+	\phi^r(\delta, \tau) = 
+	\sum^{h_0}_{i=1} n_i \delta^{d_i} \tau^{t_1} + 
+	\sum^m_{j=1} \left[ \exp(-\delta^j) \sum^{h_j}_{i = h_{j-1} + 1} n_i \delta^{d_i} \tau^{t_1} \right]
+\end{equation}
+
+\subsection{Auxiliary Saturated Density}
+
+The auxiliary saturated density equations are approximate, and provide a good initial guess when solving the phase equilibrium equations.
+
+\begin{equation}
+	\delta = c + \sum_{i=1}^h n_i  \left(1 - \frac{T}{T_c} \right)^{t_i}
+\end{equation}
+
+
+\begin{equation}
+	\delta = c \exp \left[ \sum_{i=0}^h \left(1 - \frac{T}{T_c} \right)^{t_i} \right] 
+\end{equation}
+
+
+\section{Transport Properties}
+
+\subsection{Viscosity}
+
+
+\subsection{Thermal Conductivity}
+
+\subsection{Surface Tension} 
+
+There is currently only one built in expression for surface tension.
+
+\begin{equation}
+	\sigma = \sum_{i = 0}^h s_i \max\left(1 - \frac{T}{T_c}, 0 \right)^{n_i}
+\end{equation}
+
+\bibliography{refs} 
+
+\end{document}

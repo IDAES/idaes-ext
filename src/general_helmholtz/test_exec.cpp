@@ -74,6 +74,21 @@ int main(){
     res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " cp = " << res.f << std::endl;
 
+    comp = read_params("r410a");
+    pdat = &cdata[comp];
+    rho=26.384, T=273.15+82.647;
+    std::cout << "r410a properties for rho = " << rho << " T = " << T << std::endl;
+    res = memo2_pressure(comp, rho/pdat->rho_star, pdat->T_star/T);
+    std::cout << " p = " << res.f << std::endl;
+    res = memo2_enthalpy(comp, rho/pdat->rho_star, pdat->T_star/T);
+    std::cout << " h = " << res.f << std::endl;
+    res = memo2_entropy(comp, rho/pdat->rho_star, pdat->T_star/T);
+    std::cout << " s = " << res.f << std::endl;
+    res = memo2_isochoric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
+    std::cout << " cv = " << res.f << std::endl;
+    res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
+    std::cout << " cp = " << res.f << std::endl;
+
     comp = read_params("r134a");
     pdat = &cdata[comp];
     //double rho=915.15, T=360.00; // P = pc
