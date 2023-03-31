@@ -140,8 +140,39 @@ The Helmholtz free energy correlation for water \cite{doi:10.1063/1.1461829} and
 
 \chapter{Building the Library}
 
-This section provides information about compiling the shared library for the HEoS functions. A fully automated build system has not yet be implemented.
+This section provides information about compiling the shared library for the HEoS functions. A fully automated build system has not yet be implemented, since the IDAES team uses specialized scripts for binary releases.  The HEoS shared library can still be done independently.
 
+\section{Prerequisites}
+
+A C++ compiler is required. There are many option and the suggestions given are not hard requirements, just what the IDAES team uses and find convenient. 
+\begin{itemize}
+\item Linux: GCC can be installed using the systems package manager.
+\item Windows: MinGW-w64 (https://www.mingw-w64.org) and MSYS2 (https://www.msys2.org)
+\item macOS: Xcode command-line tools (https://developer.apple.com/xcode/)
+\end{itemize}
+
+Boost is used for equation solvers, hashing tuples, and reading json.  Below are suggestions for installing 
+\begin{itemize}
+\item Linux: Boost can be obtained via package manager
+\item Windows: Boost can be installed via the MSYS2 package manger, if you use it to run MinGW
+\item macOS: Boost can be installed via Hombrew (https://brew.sh)
+\end{itemize}
+
+AMPL Solver Library (ASL) is required. The ASL is used to read arbitrary expressions into the C++ functions, and to make functions callable from AMPL solvers.  The ASL is available on GitHub (https://github.com/ampl/asl).
+
+\section{Build}
+
+In the \texttt{general\_helmholtz} directory, edit the make file.  There are a few commented out variables \texttt{BOOST}, \texttt{ASL}, and \texttt{ASL\_LIB}.  Depending on the specific setup, these may or may not be needed.  If the build does not find ASL or BOOST the problem can most likely be fixed by setting these.
+
+Run \texttt{make} in the \texttt{general\_helmholtz} directory and the \texttt{general\_helmholtz.so} file should be built.  If there is a problem try setting the variables in the previous paragraph.
+
+\section{Test}
+
+To test the build, set the \texttt{IDAES\_HELMHOLTZ\_DATA\_PATH} and \texttt{IDAES\_HELMHOLTZ\_TEST\_DATA\_PATH} variables to the \texttt{param\_data} and \texttt{param\_data} directories. Be sure to end the path in a file separator.
+
+Run \texttt{make test}.
+
+The command should run without returning an error code, even though it may generate a small number of error messages.  The test data may not contain enough significant figures to calculate pressure from density accurately, and in the neighborhood of the critical point, rapid changes in properties may make matching the test data difficult. 
 
 \chapter{Property Functions}
 
