@@ -480,6 +480,7 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
   // The dat size is multiplied by 5 since there are 4 extra points evaluated for finite difference tests.
   std::cout << "Passed " << 5*dat.size() << " points in " << duration.count() << "s" << std::endl;
 
+
   start = std::chrono::high_resolution_clock::now();
   std::cout << "    vf(" << comp_str << ", h, P) ";
   for(i=0; i<dat.size(); ++i){
@@ -487,6 +488,8 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     enth = dat[i][test_data::h_col];
     P = dat[i][test_data::P_col]*1000.0;
+    // if it's a vapor right on the edge of SC sudden VF change
+    if(fabs(P - pdat->Pc) < 0.01) continue;
     Psat = sat_p(comp, tau).f;
     if(data_set == test_data::vapor_set){
         tv = 1.0;
@@ -512,6 +515,8 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     entr = dat[i][test_data::s_col];
     P = dat[i][test_data::P_col]*1000.0;
+    // if it's a vapor right on the edge of SC sudden VF change
+    if(fabs(P - pdat->Pc) < 0.01) continue;
     Psat = sat_p(comp, tau).f;
     if(data_set == test_data::vapor_set){
         tv = 1.0;
@@ -537,6 +542,8 @@ uint test_state(uint comp, std::string comp_str, test_data::data_set_enum data_s
     delta = dat[i][test_data::rho_col]/pdat->rho_star;
     inte = dat[i][test_data::u_col];
     P = dat[i][test_data::P_col]*1000.0;
+    // if it's a vapor right on the edge of SC sudden VF change
+    if(fabs(P - pdat->Pc) < 0.01) continue;
     Psat = sat_p(comp, tau).f;
     if(data_set == test_data::vapor_set){
         tv = 1.0;
