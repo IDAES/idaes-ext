@@ -2,6 +2,7 @@
 #include"config.h"
 #include"phi.h"
 #include"props.h"
+#include"props_hp.h"
 #include"sat.h"
 #include"delta.h"
 #include"read_params.h"
@@ -103,6 +104,12 @@ int main(){
     // double rho=458.75, T=400.00; // P = 6 MPa
     // double rho=1519.8, T=200.00;
     // double rho=1022.3, T=350.00;
+    std::cout << "r134a properties" << std::endl;
+    res = memo2_entropy_hp(comp, 221.21, 4200);
+    std::cout << " s = " << res.f << std::endl;
+    res = memo2_temperature_hp(comp, 221.21, 4200);
+    std::cout << " s = " << res.f << std::endl;
+    //return 0;
     std::cout << "r134a properties for rho = " << rho << " T = " << T << std::endl;
     res = memo2_pressure(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " p = " << res.f << std::endl;
