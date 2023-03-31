@@ -25,6 +25,7 @@ uint read_params(std::string comp, std::string data_path){
         nl_file_st_path, 
         json_file_path, 
         except_string;
+    std::string env_data_path_put;
     if(data_path == ""){
         if(const char* env_data_path = getenv("IDAES_HELMHOLTZ_DATA_PATH")){
             data_path = env_data_path;
@@ -35,7 +36,12 @@ uint read_params(std::string comp, std::string data_path){
         // and this may spawn another process, I need to transfer the data path set in the
         // function call to the environment variable to ensure that the data files can be
         // located by the new process.
+        #ifndef __MINGW64__ 
         setenv("IDAES_HELMHOLTZ_DATA_PATH", data_path.c_str(), 1);
+        #else
+        env_data_path_put = "IDAES_HELMHOLTZ_DATA_PATH=" + data_path;
+        putenv(env_data_path_put.c_str());
+        #endif
     }
     // I'll assume component names are not case sensitive, so get lower case name.
     std::string lower_comp = comp;
