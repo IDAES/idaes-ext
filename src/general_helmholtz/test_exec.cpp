@@ -74,6 +74,7 @@ int main(){
     res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " cp = " << res.f << std::endl;
 
+    /*
     comp = read_params("r410a");
     pdat = &cdata[comp];
     rho=26.384, T=273.15+82.647;
@@ -88,6 +89,7 @@ int main(){
     std::cout << " cv = " << res.f << std::endl;
     res = memo2_isobaric_heat_capacity(comp, rho/pdat->rho_star, pdat->T_star/T);
     std::cout << " cp = " << res.f << std::endl;
+    */
 
     comp = read_params("r134a");
     pdat = &cdata[comp];
