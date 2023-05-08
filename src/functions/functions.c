@@ -11,6 +11,7 @@ void funcadd(AmplExports *ae){
      * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info */
     addfunc("cbrt", (rfunc)scbrt, FUNCADD_REAL_VALUED, 1, NULL);
+    addfunc("x_over_exp_x_minus_one", (rfunc)x_over_exp_x_minus_one, FUNCADD_REAL_VALUED, 1, NULL);
 }
 
 extern real scbrt(arglist *al){
@@ -43,4 +44,31 @@ extern real scbrt(arglist *al){
       }
     }
     return cbrt(x);
+}
+
+extern real x_over_exp_x_minus_one(arglist *al){
+    real x = al->ra[al->at[0]];
+
+    if(al->derivs!=NULL){
+      if(fabs(x) < 0.01){
+        al->derivs[0] = -0.5 + x/6.0 + x*x*x/180.0;
+      } 
+      else {
+        al->derivs[0] = 1.0/(exp(x) - 1) - x*exp(x)/(exp(x) - 1)/(exp(x) - 1);
+      }
+
+      if(al->hes!=NULL){
+        if(fabs(x) < 0.01){
+          al->hes[0] = 1.0/6.0 + x*x/60;
+        }
+        else{
+          al->hes[0] = exp(x)*(exp(x)*(x - 2) + x + 2) /
+            (exp(x) - 1)/(exp(x) - 1)/(exp(x) - 1);
+        }
+      }
+    }
+    if(fabs(x) < 0.01){
+      return  1 - x/2.0 + x*x/12.0 + x*x*x*x/720.0;
+    }
+    return x/(exp(x) - 1);
 }
