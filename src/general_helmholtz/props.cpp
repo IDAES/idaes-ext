@@ -492,13 +492,13 @@ void log_fugacity_coefficient2(uint comp, double delta, double tau, f22_struct *
   double phir_dd = y.f_11;
   double phir_ddd = y.f_111;
   double phir_t = y.f_2;
-  double phir_tt = y.f_2;
+  double phir_tt = y.f_22;
   double phir_dt = y.f_12;
   double phir_ddt = y.f_112;
   double phir_dtt = y.f_122;
 
   out->f = delta * phir_d + phir; 
-  out->f_1 = 2 * phir_d + delta + phir_dd;
+  out->f_1 = 2 * phir_d + delta * phir_dd;
   out->f_11 = 3 * phir_dd + delta * phir_ddd;
   out->f_2 = delta * phir_dt + phir_t;
   out->f_12 = 2 * phir_dt + delta * phir_ddt;
