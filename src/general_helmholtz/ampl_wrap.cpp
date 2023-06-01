@@ -40,6 +40,7 @@ ASL_WRAP_FUNC_2ARG(cp, memo2_isobaric_heat_capacity)     // cp(comp, delta, tau)
 ASL_WRAP_FUNC_2ARG(w, memo2_speed_of_sound)              // w(comp, delta, tau) [m/s]
 ASL_WRAP_FUNC_2ARG(v, memo2_specific_volume)             // v(comp, delta, tau) [m3/kg]
 ASL_WRAP_FUNC_2ARG(itc, memo2_isothermal_compressibility)  // isothermal compressibility(comp, delta, tau) [1/MPa]
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient, memo2_log_fugacity_coefficient)  // log_fugacity coefficient(comp, delta, tau) [dimensionless]
 ASL_WRAP_FUNC_2ARG(hvpt, memo2_enthalpy_vapor)           // hv(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(hlpt, memo2_enthalpy_liquid)          // hl(comp, pressure, tau) [kJ/kg]
 ASL_WRAP_FUNC_2ARG(svpt, memo2_entropy_vapor)            // sv(comp, pressure, tau) [kJ/kg/K]
@@ -109,6 +110,8 @@ ASL_WRAP_FUNC_2ARG(f_hp, memo2_helmholtz_hp)                 // f(comp, h, p) [k
 ASL_WRAP_FUNC_2ARG(cv_hp, memo2_isochoric_heat_capacity_hp)  // cv(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_hp, memo2_isobaric_heat_capacity_hp)   // cp(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_hp, memo2_speed_of_sound_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_hp, memo2_isothermal_compressibility_hp)  // isothermal compressibility(comp, h, p) [1/MPa]
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_hp, memo2_log_fugacity_coefficient_hp)  // log_fugacity coefficient(comp, h, p) [dimensionless]
 ASL_WRAP_FUNC_2ARG(v_hp, memo2_specific_volume_hp)           // v(comp, h, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_hp, memo2_viscosity_hp)                // viscosity(comp, h, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_hp, memo2_thermal_conductivity_hp) // thermal_conductivity(comp, h, p) [W/m/K]
@@ -122,6 +125,8 @@ ASL_WRAP_FUNC_2ARG(f_vap_hp, memo2_helmholtz_vap_hp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_vap_hp, memo2_isochoric_heat_capacity_vap_hp)  // cv(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_vap_hp, memo2_isobaric_heat_capacity_vap_hp)   // cp(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_vap_hp, memo2_speed_of_sound_vap_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_vap_hp, memo2_isothermal_compressibility_vap_hp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_vap_hp, memo2_log_fugacity_coefficient_vap_hp)
 ASL_WRAP_FUNC_2ARG(v_vap_hp, memo2_specific_volume_vap_hp)           // v(comp, h, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_vap_hp, memo2_viscosity_vap_hp)                // viscosity(comp, h, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_vap_hp, memo2_thermal_conductivity_vap_hp) // thermal_conductivity(comp, h, p) [W/m/K]
@@ -135,6 +140,8 @@ ASL_WRAP_FUNC_2ARG(f_liq_hp, memo2_helmholtz_liq_hp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_liq_hp, memo2_isochoric_heat_capacity_liq_hp)  // cv(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_liq_hp, memo2_isobaric_heat_capacity_liq_hp)   // cp(comp, h, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_liq_hp, memo2_speed_of_sound_liq_hp)            // w(comp, h, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_liq_hp, memo2_isothermal_compressibility_liq_hp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_liq_hp, memo2_log_fugacity_coefficient_liq_hp)
 ASL_WRAP_FUNC_2ARG(v_liq_hp, memo2_specific_volume_liq_hp)           // v(comp, h, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_liq_hp, memo2_viscosity_liq_hp)                // viscosity(comp, h, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_liq_hp, memo2_thermal_conductivity_liq_hp) // thermal_conductivity(comp, h, p) [W/m/K]
@@ -151,6 +158,8 @@ ASL_WRAP_FUNC_2ARG(f_sp, memo2_helmholtz_sp)                 // f(comp, s, p) [k
 ASL_WRAP_FUNC_2ARG(cv_sp, memo2_isochoric_heat_capacity_sp)  // cv(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_sp, memo2_isobaric_heat_capacity_sp)   // cp(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_sp, memo2_speed_of_sound_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_sp, memo2_isothermal_compressibility_sp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_sp, memo2_log_fugacity_coefficient_sp)
 ASL_WRAP_FUNC_2ARG(v_sp, memo2_specific_volume_sp)           // v(comp, s, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_sp, memo2_viscosity_sp)                // viscosity(comp, s, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_sp, memo2_thermal_conductivity_sp) // thermal_conductivity(comp, s, p) [W/m/K]
@@ -164,6 +173,8 @@ ASL_WRAP_FUNC_2ARG(f_vap_sp, memo2_helmholtz_vap_sp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_vap_sp, memo2_isochoric_heat_capacity_vap_sp)  // cv(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_vap_sp, memo2_isobaric_heat_capacity_vap_sp)   // cp(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_vap_sp, memo2_speed_of_sound_vap_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_vap_sp, memo2_isothermal_compressibility_vap_sp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_vap_sp, memo2_log_fugacity_coefficient_vap_sp)
 ASL_WRAP_FUNC_2ARG(v_vap_sp, memo2_specific_volume_vap_sp)           // v(comp, s, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_vap_sp, memo2_viscosity_vap_sp)                // viscosity(comp, s, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_vap_sp, memo2_thermal_conductivity_vap_sp) // thermal_conductivity(comp, s, p) [W/m/K]
@@ -177,6 +188,8 @@ ASL_WRAP_FUNC_2ARG(f_liq_sp, memo2_helmholtz_liq_sp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_liq_sp, memo2_isochoric_heat_capacity_liq_sp)  // cv(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_liq_sp, memo2_isobaric_heat_capacity_liq_sp)   // cp(comp, s, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_liq_sp, memo2_speed_of_sound_liq_sp)            // w(comp, s, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_liq_sp, memo2_isothermal_compressibility_liq_sp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_liq_sp, memo2_log_fugacity_coefficient_liq_sp)
 ASL_WRAP_FUNC_2ARG(v_liq_sp, memo2_specific_volume_liq_sp)           // v(comp, s, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_liq_sp, memo2_viscosity_liq_sp)                // viscosity(comp, s, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_liq_sp, memo2_thermal_conductivity_liq_sp) // thermal_conductivity(comp, s, p) [W/m/K]
@@ -193,6 +206,8 @@ ASL_WRAP_FUNC_2ARG(f_up, memo2_helmholtz_up)                 // f(comp, u, p) [k
 ASL_WRAP_FUNC_2ARG(cv_up, memo2_isochoric_heat_capacity_up)  // cv(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_up, memo2_isobaric_heat_capacity_up)   // cp(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_up, memo2_speed_of_sound_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_up, memo2_isothermal_compressibility_up)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_up, memo2_log_fugacity_coefficient_up)
 ASL_WRAP_FUNC_2ARG(v_up, memo2_specific_volume_up)           // v(comp, u, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_up, memo2_viscosity_up)                // viscosity(comp, u, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_up, memo2_thermal_conductivity_up) // thermal_conductivity(comp, u, p) [W/m/K]
@@ -206,6 +221,8 @@ ASL_WRAP_FUNC_2ARG(f_vap_up, memo2_helmholtz_vap_up)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_vap_up, memo2_isochoric_heat_capacity_vap_up)  // cv(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_vap_up, memo2_isobaric_heat_capacity_vap_up)   // cp(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_vap_up, memo2_speed_of_sound_vap_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_vap_up, memo2_isothermal_compressibility_vap_up)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_vap_up, memo2_log_fugacity_coefficient_vap_up)
 ASL_WRAP_FUNC_2ARG(v_vap_up, memo2_specific_volume_vap_up)           // v(comp, u, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_vap_up, memo2_viscosity_vap_up)                // viscosity(comp, u, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_vap_up, memo2_thermal_conductivity_vap_up) // thermal_conductivity(comp, u, p) [W/m/K]
@@ -219,6 +236,8 @@ ASL_WRAP_FUNC_2ARG(f_liq_up, memo2_helmholtz_liq_up)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_liq_up, memo2_isochoric_heat_capacity_liq_up)  // cv(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_liq_up, memo2_isobaric_heat_capacity_liq_up)   // cp(comp, u, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_liq_up, memo2_speed_of_sound_liq_up)            // w(comp, u, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_liq_up, memo2_isothermal_compressibility_liq_up)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_liq_up, memo2_log_fugacity_coefficient_liq_up)
 ASL_WRAP_FUNC_2ARG(v_liq_up, memo2_specific_volume_liq_up)           // v(comp, u, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_liq_up, memo2_viscosity_liq_up)                // viscosity(comp, u, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_liq_up, memo2_thermal_conductivity_liq_up) // thermal_conductivity(comp, u, p) [W/m/K]
@@ -233,6 +252,8 @@ ASL_WRAP_FUNC_2ARG(f_vap_tp, memo2_helmholtz_vap_tp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_vap_tp, memo2_isochoric_heat_capacity_vap_tp)  // cv(comp, T, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_vap_tp, memo2_isobaric_heat_capacity_vap_tp)   // cp(comp, T, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_vap_tp, memo2_speed_of_sound_vap_tp)            // w(comp, T, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_vap_tp, memo2_isothermal_compressibility_vap_tp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_vap_tp, memo2_log_fugacity_coefficient_vap_tp)
 ASL_WRAP_FUNC_2ARG(v_vap_tp, memo2_specific_volume_vap_tp)           // v(comp, T, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_vap_tp, memo2_viscosity_vap_tp)                // viscosity(comp, T, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_vap_tp, memo2_thermal_conductivity_vap_tp) // thermal_conductivity(comp, T, p) [W/m/K]
@@ -246,6 +267,8 @@ ASL_WRAP_FUNC_2ARG(f_liq_tp, memo2_helmholtz_liq_tp)                 // f(comp, 
 ASL_WRAP_FUNC_2ARG(cv_liq_tp, memo2_isochoric_heat_capacity_liq_tp)  // cv(comp, T, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(cp_liq_tp, memo2_isobaric_heat_capacity_liq_tp)   // cp(comp, T, p) [kJ/kg/K]
 ASL_WRAP_FUNC_2ARG(w_liq_tp, memo2_speed_of_sound_liq_tp)            // w(comp, T, p) [m/s]
+ASL_WRAP_FUNC_2ARG(itc_liq_tp, memo2_isothermal_compressibility_liq_tp)
+ASL_WRAP_FUNC_2ARG(log_fugacity_coefficient_liq_tp, memo2_log_fugacity_coefficient_liq_tp)
 ASL_WRAP_FUNC_2ARG(v_liq_tp, memo2_specific_volume_liq_tp)           // v(comp, T, p) [m3/kg]
 ASL_WRAP_FUNC_2ARG(mu_liq_tp, memo2_viscosity_liq_tp)                // viscosity(comp, T, p) [Pa*s]
 ASL_WRAP_FUNC_2ARG(lambda_liq_tp, memo2_thermal_conductivity_liq_tp) // thermal_conductivity(comp, T, p) [W/m/K]
