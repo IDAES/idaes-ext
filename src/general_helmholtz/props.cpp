@@ -497,12 +497,20 @@ void log_fugacity_coefficient2(uint comp, double delta, double tau, f22_struct *
   double phir_ddt = y.f_112;
   double phir_dtt = y.f_122;
 
-  out->f = delta * phir_d + phir; 
-  out->f_1 = 2 * phir_d + delta * phir_dd;
-  out->f_11 = 3 * phir_dd + delta * phir_ddd;
-  out->f_2 = delta * phir_dt + phir_t;
-  out->f_12 = 2 * phir_dt + delta * phir_ddt;
-  out->f_22 = delta * phir_dtt + phir_tt;
+  out->f = phir + delta * phir_d - log(1 + delta * phir_d);
+  out->f_1 = 2 * phir_d + delta * phir_dd 
+    - 1.0/(1 + delta * phir_d) * (phir_d + delta * phir_dd);
+  out->f_11 = 3 * phir_dd + delta * phir_ddd
+    + 1.0/(1 + delta * phir_d)/(1 + delta * phir_d) * (phir_d + delta * phir_dd) * (phir_d + delta * phir_dd)
+    - 1.0/(1 + delta * phir_d) * (2 * phir_dd + delta * phir_ddd);
+  out->f_2 = delta * phir_dt + phir_t
+    - 1.0/(1 + delta * phir_d) * (delta * phir_dt);
+  out->f_12 = 2 * phir_dt + delta * phir_ddt
+    + 1.0/(1 + delta * phir_d) / (1 + delta * phir_d) * (phir_d + delta * phir_dd) * (delta * phir_dt)
+    - 1.0/(1 + delta * phir_d) * (delta * phir_ddt + phir_dt);
+  out->f_22 = delta * phir_dtt + phir_tt
+    + 1.0/(1 + delta * phir_d) / (1 + delta * phir_d) * (delta * phir_dt) * (delta * phir_dt)
+    - 1.0/(1 + delta * phir_d) * (delta * phir_dtt);
 }
 
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out){

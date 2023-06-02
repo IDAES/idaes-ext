@@ -311,6 +311,7 @@ void funcadd(AmplExports *ae){
     addfunc("w", (rfunc)w, typ, -4, NULL);
     addfunc("v", (rfunc)v, typ, -4, NULL);
     addfunc("itc", (rfunc)itc, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient", (rfunc)log_fugacity_coefficient, typ, -4, NULL);
     addfunc("mu", (rfunc)mu, typ, -4, NULL);
     addfunc("lambda", (rfunc)lambda, typ, -4, NULL);
 
@@ -324,6 +325,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_hp", (rfunc)cv_hp, typ, -4, NULL);
     addfunc("cp_hp", (rfunc)cp_hp, typ, -4, NULL);
     addfunc("w_hp", (rfunc)w_hp, typ, -4, NULL);
+    addfunc("itc_hp", (rfunc)itc_hp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_hp", (rfunc)log_fugacity_coefficient_hp, typ, -4, NULL);
     addfunc("v_hp", (rfunc)v_hp, typ, -4, NULL);
     addfunc("mu_hp", (rfunc)mu_hp, typ, -4, NULL);
     addfunc("lambda_hp", (rfunc)lambda_hp, typ, -4, NULL);
@@ -337,6 +340,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_vap_hp", (rfunc)cv_vap_hp, typ, -4, NULL);
     addfunc("cp_vap_hp", (rfunc)cp_vap_hp, typ, -4, NULL);
     addfunc("w_vap_hp", (rfunc)w_vap_hp, typ, -4, NULL);
+    addfunc("itc_vap_hp", (rfunc)itc_vap_hp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_vap_hp", (rfunc)log_fugacity_coefficient_vap_hp, typ, -4, NULL);
     addfunc("v_vap_hp", (rfunc)v_vap_hp, typ, -4, NULL);
     addfunc("mu_vap_hp", (rfunc)mu_vap_hp, typ, -4, NULL);
     addfunc("lambda_vap_hp", (rfunc)lambda_vap_hp, typ, -4, NULL);
@@ -350,6 +355,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_liq_hp", (rfunc)cv_liq_hp, typ, -4, NULL);
     addfunc("cp_liq_hp", (rfunc)cp_liq_hp, typ, -4, NULL);
     addfunc("w_liq_hp", (rfunc)w_liq_hp, typ, -4, NULL);
+    addfunc("itc_liq_hp", (rfunc)itc_liq_hp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_liq_hp", (rfunc)log_fugacity_coefficient_liq_hp, typ, -4, NULL);
     addfunc("v_liq_hp", (rfunc)v_liq_hp, typ, -4, NULL);
     addfunc("mu_liq_hp", (rfunc)mu_liq_hp, typ, -4, NULL);
     addfunc("lambda_liq_hp", (rfunc)lambda_liq_hp, typ, -4, NULL);
@@ -365,6 +372,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_sp", (rfunc)cv_sp, typ, -4, NULL);
     addfunc("cp_sp", (rfunc)cp_sp, typ, -4, NULL);
     addfunc("w_sp", (rfunc)w_sp, typ, -4, NULL);
+    addfunc("itc_sp", (rfunc)itc_sp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_sp", (rfunc)log_fugacity_coefficient_sp, typ, -4, NULL);
     addfunc("v_sp", (rfunc)v_sp, typ, -4, NULL);
     addfunc("mu_sp", (rfunc)mu_sp, typ, -4, NULL);
     addfunc("lambda_sp", (rfunc)lambda_sp, typ, -4, NULL);
@@ -378,6 +387,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_vap_sp", (rfunc)cv_vap_sp, typ, -4, NULL);
     addfunc("cp_vap_sp", (rfunc)cp_vap_sp, typ, -4, NULL);
     addfunc("w_vap_sp", (rfunc)w_vap_sp, typ, -4, NULL);
+    addfunc("itc_vap_sp", (rfunc)itc_vap_sp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_vap_sp", (rfunc)log_fugacity_coefficient_vap_sp, typ, -4, NULL);
     addfunc("v_vap_sp", (rfunc)v_vap_sp, typ, -4, NULL);
     addfunc("mu_vap_sp", (rfunc)mu_vap_sp, typ, -4, NULL);
     addfunc("lambda_vap_sp", (rfunc)lambda_vap_sp, typ, -4, NULL);
@@ -391,6 +402,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_liq_sp", (rfunc)cv_liq_sp, typ, -4, NULL);
     addfunc("cp_liq_sp", (rfunc)cp_liq_sp, typ, -4, NULL);
     addfunc("w_liq_sp", (rfunc)w_liq_sp, typ, -4, NULL);
+    addfunc("itc_liq_sp", (rfunc)itc_liq_sp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_liq_sp", (rfunc)log_fugacity_coefficient_liq_sp, typ, -4, NULL);
     addfunc("v_liq_sp", (rfunc)v_liq_sp, typ, -4, NULL);
     addfunc("mu_liq_sp", (rfunc)mu_liq_sp, typ, -4, NULL);
     addfunc("lambda_liq_sp", (rfunc)lambda_liq_sp, typ, -4, NULL);
@@ -406,6 +419,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_up", (rfunc)cv_up, typ, -4, NULL);
     addfunc("cp_up", (rfunc)cp_up, typ, -4, NULL);
     addfunc("w_up", (rfunc)w_up, typ, -4, NULL);
+    addfunc("itc_up", (rfunc)itc_up, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_up", (rfunc)log_fugacity_coefficient_up, typ, -4, NULL);
     addfunc("v_up", (rfunc)v_up, typ, -4, NULL);
     addfunc("mu_up", (rfunc)mu_up, typ, -4, NULL);
     addfunc("lambda_up", (rfunc)lambda_up, typ, -4, NULL);
@@ -419,6 +434,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_vap_up", (rfunc)cv_vap_up, typ, -4, NULL);
     addfunc("cp_vap_up", (rfunc)cp_vap_up, typ, -4, NULL);
     addfunc("w_vap_up", (rfunc)w_vap_up, typ, -4, NULL);
+    addfunc("itc_vap_up", (rfunc)itc_vap_up, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_vap_up", (rfunc)log_fugacity_coefficient_vap_up, typ, -4, NULL);    
     addfunc("v_vap_up", (rfunc)v_vap_up, typ, -4, NULL);
     addfunc("mu_vap_up", (rfunc)mu_vap_up, typ, -4, NULL);
     addfunc("lambda_vap_up", (rfunc)lambda_vap_up, typ, -4, NULL);
@@ -432,6 +449,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_liq_up", (rfunc)cv_liq_up, typ, -4, NULL);
     addfunc("cp_liq_up", (rfunc)cp_liq_up, typ, -4, NULL);
     addfunc("w_liq_up", (rfunc)w_liq_up, typ, -4, NULL);
+    addfunc("itc_liq_up", (rfunc)itc_liq_up, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_liq_up", (rfunc)log_fugacity_coefficient_liq_up, typ, -4, NULL);
     addfunc("v_liq_up", (rfunc)v_liq_up, typ, -4, NULL);
     addfunc("mu_liq_up", (rfunc)mu_liq_up, typ, -4, NULL);
     addfunc("lambda_liq_up", (rfunc)lambda_liq_up, typ, -4, NULL);
@@ -445,6 +464,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_vap_tp", (rfunc)cv_vap_tp, typ, -4, NULL);
     addfunc("cp_vap_tp", (rfunc)cp_vap_tp, typ, -4, NULL);
     addfunc("w_vap_tp", (rfunc)w_vap_tp, typ, -4, NULL);
+    addfunc("itc_vap_tp", (rfunc)itc_vap_tp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_vap_tp", (rfunc)log_fugacity_coefficient_vap_tp, typ, -4, NULL);
     addfunc("v_vap_tp", (rfunc)v_vap_tp, typ, -4, NULL);
     addfunc("mu_vap_tp", (rfunc)mu_vap_tp, typ, -4, NULL);
     addfunc("lambda_vap_tp", (rfunc)lambda_vap_tp, typ, -4, NULL);
@@ -458,6 +479,8 @@ void funcadd(AmplExports *ae){
     addfunc("cv_liq_tp", (rfunc)cv_liq_tp, typ, -4, NULL);
     addfunc("cp_liq_tp", (rfunc)cp_liq_tp, typ, -4, NULL);
     addfunc("w_liq_tp", (rfunc)w_liq_tp, typ, -4, NULL);
+    addfunc("itc_liq_tp", (rfunc)itc_liq_tp, typ, -4, NULL);
+    addfunc("log_fugacity_coefficient_liq_tp", (rfunc)log_fugacity_coefficient_liq_tp, typ, -4, NULL);
     addfunc("v_liq_tp", (rfunc)v_liq_tp, typ, -4, NULL);
     addfunc("mu_liq_tp", (rfunc)mu_liq_tp, typ, -4, NULL);
     addfunc("lambda_liq_tp", (rfunc)lambda_liq_tp, typ, -4, NULL);

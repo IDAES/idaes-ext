@@ -3,6 +3,10 @@
 #include"phi.h"
 #include"props.h"
 #include"props_hp.h"
+#include"props_sp.h"
+#include"props_up.h"
+#include"props_tp.h"
+
 #include"sat.h"
 #include"delta.h"
 #include"read_params.h"
@@ -176,6 +180,19 @@ int main(){
     std::cout << " h2o lambda = " << res.f << std::endl;
     res = memo2_isothermal_compressibility(comp, 995.6/pdat->rho_star, pdat->T_star/303.15);
     std::cout << " h2o beta_T= " << res.f << std::endl;
+    res = memo2_log_fugacity_coefficient(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o fugacity coefficient = " << exp(res.f) << std::endl;
+    res = memo2_log_fugacity_coefficient(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o fugacity coefficient = " << exp(res.f) << std::endl;
+    res = memo2_pressure(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o pressure = " << res.f << std::endl;
+    res = memo2_pressure(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o pressure = " << res.f << std::endl;
+    res = memo2_phi_ideal(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o pressure = " << res.f << std::endl;
+    res = memo2_phi_ideal(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
+    std::cout << " h2o pressure = " << res.f << std::endl;
+
 
     for (auto t = tests.begin(); t != tests.end(); ++t){
         std::cout << t->comp_str << std::endl;
