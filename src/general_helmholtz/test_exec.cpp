@@ -178,21 +178,76 @@ int main(){
     std::cout << " h2o lambda = " << res.f << std::endl;
     res = memo2_thermal_conductivity(comp, 750/pdat->rho_star, pdat->T_star/647.35);
     std::cout << " h2o lambda = " << res.f << std::endl;
-    res = memo2_isothermal_compressibility(comp, 995.6/pdat->rho_star, pdat->T_star/303.15);
-    std::cout << " h2o beta_T= " << res.f << std::endl;
-    res = memo2_log_fugacity_coefficient(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o fugacity coefficient = " << exp(res.f) << std::endl;
-    res = memo2_log_fugacity_coefficient(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o fugacity coefficient = " << exp(res.f) << std::endl;
-    res = memo2_pressure(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o pressure = " << res.f << std::endl;
-    res = memo2_pressure(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o pressure = " << res.f << std::endl;
-    res = memo2_phi_ideal(comp, 958.3674968154652/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o pressure = " << res.f << std::endl;
-    res = memo2_phi_ideal(comp, 0.5976567696510958/pdat->rho_star, pdat->T_star/373.1242958476844);
-    std::cout << " h2o pressure = " << res.f << std::endl;
 
+    //
+    // Use water to spot check some less used functions fugacity coefficient and isothermal compressibility
+    // 
+    // Use T=350K on sat curve, and verification data from CoolProp
+    std::cout << "Test fugacity coefficient and isothermal compressibility at sat. 350K" << std::endl;
+    res = memo2_isothermal_compressibility(comp, 973.70183931/pdat->rho_star, pdat->T_star/350.0);
+    std::cout << " h2o liquid beta_T(rho, T) = " << res.f << std::endl;
+    if(fabs(res.f - 0.000458) > 1e-6) exit(1);
+    res = memo2_log_fugacity_coefficient(comp, 973.70183931/pdat->rho_star, pdat->T_star/350.0);
+    std::cout << " h2o liquid phi(rho, T) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+    res = memo2_isothermal_compressibility(comp, 0.26028866607/pdat->rho_star, pdat->T_star/350.0);
+    std::cout << " h2o vapor beta_T(rho, T) = " << res.f << std::endl;
+    if(fabs(res.f - 24.20789) > 1e-4) exit(1);
+    res = memo2_log_fugacity_coefficient(comp, 0.26028866607/pdat->rho_star, pdat->T_star/350.0);
+    std::cout << " h2o vapor phi(rho, T) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+
+    res = memo2_isothermal_compressibility_liq_tp(comp, 350.0, 41.681729737);
+    std::cout << " h2o liquid beta_T(T, p) = " << res.f << std::endl;
+    if(fabs(res.f - 0.000458) > 1e-6) exit(1);
+    res = memo2_log_fugacity_coefficient_liq_tp(comp, 350.0, 41.681729737);
+    std::cout << " h2o liquid phi(T, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+    res = memo2_isothermal_compressibility_vap_tp(comp, 350.0, 41.681729737);
+    std::cout << " h2o vapor beta_T(T, p) = " << res.f << std::endl;
+    if(fabs(res.f - 24.20789) > 1e-4) exit(1);
+    res = memo2_log_fugacity_coefficient_vap_tp(comp, 350.0, 41.681729737);
+    std::cout << " h2o vapor phi(T, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+
+    res = memo2_isothermal_compressibility_hp(comp, 321.7912518, 41.681729737);
+    std::cout << " h2o liquid beta_T(h, p) = " << res.f << std::endl;
+    if(fabs(res.f - 0.000458) > 1e-6) exit(1);
+    res = memo2_log_fugacity_coefficient_hp(comp, 321.7912518, 41.681729737);
+    std::cout << " h2o liquid phi(h, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+    res = memo2_isothermal_compressibility_hp(comp, 2637.7268989, 41.681729737);
+    std::cout << " h2o vapor beta_T(h, p) = " << res.f << std::endl;
+    if(fabs(res.f - 24.20789) > 1e-4) exit(1);
+    res = memo2_log_fugacity_coefficient_hp(comp, 2637.7268989, 41.681729737);
+    std::cout << " h2o vapor phi(h, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+
+    res = memo2_isothermal_compressibility_sp(comp, 1.0379896, 41.681729737);
+    std::cout << " h2o liquid beta_T(s, p) = " << res.f << std::endl;
+    if(fabs(res.f - 0.000458) > 1e-6) exit(1);
+    res = memo2_log_fugacity_coefficient_sp(comp, 1.0379896, 41.681729737);
+    std::cout << " h2o liquid phi(s, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+    res = memo2_isothermal_compressibility_sp(comp, 7.654948518, 41.681729737);
+    std::cout << " h2o vapor beta_T(s, p) = " << res.f << std::endl;
+    if(fabs(res.f - 24.20789) > 1e-4) exit(1);
+    res = memo2_log_fugacity_coefficient_sp(comp, 7.654948518, 41.681729737);
+    std::cout << " h2o vapor phi(s, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+
+    res = memo2_isothermal_compressibility_up(comp, 321.7484443, 41.681729737);
+    std::cout << " h2o liquid beta_T(u, p) = " << res.f << std::endl;
+    if(fabs(res.f - 0.000458) > 1e-6) exit(1);
+    res = memo2_log_fugacity_coefficient_up(comp, 321.7484443, 41.681729737);
+    std::cout << " h2o liquid phi(u, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
+    res = memo2_isothermal_compressibility_up(comp, 2477.590317, 41.681729737);
+    std::cout << " h2o vapor beta_T(u, p) = " << res.f << std::endl;
+    if(fabs(res.f - 24.20789) > 1e-4) exit(1);
+    res = memo2_log_fugacity_coefficient_up(comp, 2477.590317, 41.681729737);
+    std::cout << " h2o vapor phi(u, p) = " << exp(res.f) << std::endl;
+    if(fabs(exp(res.f) - 0.99154396) > 1e-5) exit(1);
 
     for (auto t = tests.begin(); t != tests.end(); ++t){
         std::cout << t->comp_str << std::endl;

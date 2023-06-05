@@ -497,6 +497,16 @@ void log_fugacity_coefficient2(uint comp, double delta, double tau, f22_struct *
   double phir_ddt = y.f_112;
   double phir_dtt = y.f_122;
 
+  if(delta * phir_d <= 1){
+    out->f = nan("log fugacity coefficient error, log eval");
+    out->f_1 = nan("log fugacity coefficient error, log eval");
+    out->f_11 = nan("log fugacity coefficient error, log eval");
+    out->f_2 = nan("log fugacity coefficient error, log eval");
+    out->f_12 = nan("log fugacity coefficient error, log eval");
+    out->f_22 = nan("log fugacity coefficient error, log eval");
+    return;
+  }
+
   out->f = phir + delta * phir_d - log(1 + delta * phir_d);
   out->f_1 = 2 * phir_d + delta * phir_dd 
     - 1.0/(1 + delta * phir_d) * (phir_d + delta * phir_dd);
