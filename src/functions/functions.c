@@ -51,7 +51,7 @@ extern real x_over_exp_x_minus_one(arglist *al){
 
     if(al->derivs!=NULL){
       if(fabs(x) < 0.01){
-        al->derivs[0] = -0.5 + x/6.0 + x*x*x/180.0;
+        al->derivs[0] = -0.5 + x/6.0 + x*x*x/180.0 - x*x*x*x*x/5040.0;
       } 
       else {
         al->derivs[0] = 1.0/(exp(x) - 1) - x*exp(x)/(exp(x) - 1)/(exp(x) - 1);
@@ -59,7 +59,7 @@ extern real x_over_exp_x_minus_one(arglist *al){
 
       if(al->hes!=NULL){
         if(fabs(x) < 0.01){
-          al->hes[0] = 1.0/6.0 + x*x/60;
+          al->hes[0] = 1.0/6.0 + x*x/60 - x*x*x*x/1008.0;
         }
         else{
           al->hes[0] = exp(x)*(exp(x)*(x - 2) + x + 2) /
@@ -68,7 +68,7 @@ extern real x_over_exp_x_minus_one(arglist *al){
       }
     }
     if(fabs(x) < 0.01){
-      return  1 - x/2.0 + x*x/12.0 + x*x*x*x/720.0;
+      return  1 - x/2.0 + x*x/12.0 + x*x*x*x/720.0 - x*x*x*x*x*x/30240.0;
     }
     return x/(exp(x) - 1);
 }
