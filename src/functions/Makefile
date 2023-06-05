@@ -1,6 +1,6 @@
 include ../Makefile.in
 
-#ASL=/Users/john/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+#ASL=/Users/johneslick/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
 
 ALL: functions.so
 
