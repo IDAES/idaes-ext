@@ -66,8 +66,8 @@ cd coinbrew
 
 if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  export CC="gcc-12"
-  export CXX="g++-12"
+  export CC="gcc-13"
+  export CXX="g++-13"
 else
   wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi

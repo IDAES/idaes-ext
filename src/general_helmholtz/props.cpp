@@ -37,6 +37,7 @@ prop_memo_table22 memo_table_isobaric_heat_capacity2;
 prop_memo_table22 memo_table_speed_of_sound2;
 prop_memo_table22 memo_table_specific_volume2;
 prop_memo_table22 memo_table_isothermal_compressibility2;
+prop_memo_table22 memo_table_log_fugacity_coefficient2;
 
 prop_memo_table22 memo_table_phi_ideal2;
 prop_memo_table22 memo_table_phi_resi2;
@@ -483,6 +484,45 @@ void isothermal_compressibility2(uint comp, double delta, double tau, f22_struct
   out->f_22 = 1000*(-X_t/c/X/X - X_t/c/X/X + 2.0*tau*X_t*X_t/c/X/X/X - tau*X_tt/c/X/X);
 }
 
+void log_fugacity_coefficient2(uint comp, double delta, double tau, f22_struct *out){
+  f24_struct y = phi_resi4(comp, delta, tau);
+  parameters_struct *dat = &cdata[comp];
+  double phir = y.f;
+  double phir_d = y.f_1;
+  double phir_dd = y.f_11;
+  double phir_ddd = y.f_111;
+  double phir_t = y.f_2;
+  double phir_tt = y.f_22;
+  double phir_dt = y.f_12;
+  double phir_ddt = y.f_112;
+  double phir_dtt = y.f_122;
+
+  if(delta * phir_d <= -1.0){
+    out->f = nan("log fugacity coefficient error, log eval");
+    out->f_1 = nan("log fugacity coefficient error, log eval");
+    out->f_11 = nan("log fugacity coefficient error, log eval");
+    out->f_2 = nan("log fugacity coefficient error, log eval");
+    out->f_12 = nan("log fugacity coefficient error, log eval");
+    out->f_22 = nan("log fugacity coefficient error, log eval");
+    return;
+  }
+
+  out->f = phir + delta * phir_d - log(1 + delta * phir_d);
+  out->f_1 = 2 * phir_d + delta * phir_dd 
+    - 1.0/(1 + delta * phir_d) * (phir_d + delta * phir_dd);
+  out->f_11 = 3 * phir_dd + delta * phir_ddd
+    + 1.0/(1 + delta * phir_d)/(1 + delta * phir_d) * (phir_d + delta * phir_dd) * (phir_d + delta * phir_dd)
+    - 1.0/(1 + delta * phir_d) * (2 * phir_dd + delta * phir_ddd);
+  out->f_2 = delta * phir_dt + phir_t
+    - 1.0/(1 + delta * phir_d) * (delta * phir_dt);
+  out->f_12 = 2 * phir_dt + delta * phir_ddt
+    + 1.0/(1 + delta * phir_d) / (1 + delta * phir_d) * (phir_d + delta * phir_dd) * (delta * phir_dt)
+    - 1.0/(1 + delta * phir_d) * (delta * phir_ddt + phir_dt);
+  out->f_22 = delta * phir_dtt + phir_tt
+    + 1.0/(1 + delta * phir_d) / (1 + delta * phir_d) * (delta * phir_dt) * (delta * phir_dt)
+    - 1.0/(1 + delta * phir_d) * (delta * phir_dtt);
+}
+
 void phi_ideal2(uint comp, double delta, double tau, f22_struct *out){
   f23_struct y = phi_ideal(comp, delta, tau);
   out->f = y.f;
@@ -614,6 +654,7 @@ MEMO2_FUNCTION(memo2_isobaric_heat_capacity, isobaric_heat_capacity2, memo_table
 MEMO2_FUNCTION(memo2_speed_of_sound, speed_of_sound2, memo_table_speed_of_sound2)
 MEMO2_FUNCTION(memo2_specific_volume, specific_volume2, memo_table_specific_volume2)
 MEMO2_FUNCTION(memo2_isothermal_compressibility, isothermal_compressibility2, memo_table_isothermal_compressibility2)
+MEMO2_FUNCTION(memo2_log_fugacity_coefficient, log_fugacity_coefficient2, memo_table_log_fugacity_coefficient2)
 
 MEMO2_FUNCTION(memo2_phi_ideal, phi_ideal2, memo_table_phi_ideal2)
 MEMO2_FUNCTION(memo2_phi_ideal_d, phi_ideal_d2, memo_table_phi_ideal_d2)

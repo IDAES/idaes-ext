@@ -192,6 +192,7 @@ uint test_basic_properties(uint comp, std::string comp_str, test_data::data_set_
   TEST_FUNCTION_OF_DELTA_TAU("f", memo2_helmholtz, dat[i][test_data::u_col] - dat[i][test_data::T_col]*dat[i][test_data::s_col], 1e-1, 1)
 
   TEST_FUNCTION_OF_DELTA_TAU("beta_T", memo2_isothermal_compressibility, nan("no check"), 1e-2, 0)
+  TEST_FUNCTION_OF_DELTA_TAU("log_fug_coeff", memo2_log_fugacity_coefficient, nan("no check"), 1e-2, 0)
 
   // If the properties are right phis are right, just check derivatives.
   TEST_FUNCTION_OF_DELTA_TAU("phii", memo2_phi_ideal, nan("no check"), 1e-2, 0)

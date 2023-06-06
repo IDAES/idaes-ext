@@ -1,9 +1,11 @@
 include ../Makefile.in
 
+#ASL=/Users/johneslick/src/idaes-ext-build/coinbrew/dist/include/coin-or/asl
+
 ALL: functions.so
 
 functions.o: functions.c
-	$(CC) -c $(CFLAGS) functions.c -o functions.o
+	$(CC) -c $(CFLAGS) functions.c -o functions.o -I$(ASL)
 
 functions.so: functions.o
 	$(LINK) $(LDFLAGS) functions.o -o functions.so

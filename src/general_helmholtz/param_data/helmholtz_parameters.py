@@ -252,12 +252,12 @@ class WriteParameters(object):
         for s, c in smap.bySymbol.items():
             if s.startswith("v"):
                 j = int(s[1:])
-                var_map[j] = self.variables[c().name]
+                var_map[j] = self.variables[c.name]
         if expressions is not None:
             expr_map = [0] * len(expressions)
             for s, c in smap.bySymbol.items():
                 if s.startswith("o"):
-                    i = expressions[c().name]
+                    i = expressions[c.name]
                     j = int(s[1:])
                     expr_map[i] = j
             return nl_file, expr_map, var_map
