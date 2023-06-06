@@ -10,8 +10,8 @@ RUN mkdir repo
 
 RUN cd repo; \
     wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.1.tar.gz; \
-    tar -zxvf petsc-3.18.1.tar.gz; \
-    mv petsc-3.18.1 petsc; \
+    tar -zxvf petsc-3.19.2.tar.gz; \
+    mv petsc-3.19.2 petsc; \
     mkdir petsc-dist; \
     cd petsc; \
     ./configure configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
