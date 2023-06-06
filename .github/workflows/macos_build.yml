@@ -17,11 +17,11 @@ jobs:
       - name: Get/Build PETSc
         run: |
           cd ~/src
-          which gfortran-12
-          ln -s /usr/local/bin/gfortran-12 /usr/local/bin/gfortran
-          wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.4.tar.gz
-          tar -zxf petsc-3.18.4.tar.gz
-          cd petsc-3.18.4
+          which gfortran-13
+          ln -s /usr/local/bin/gfortran-13 /usr/local/bin/gfortran
+          wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.2.tar.gz
+          tar -zxf petsc-3.19.2.tar.gz
+          cd petsc-3.19.2
           ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=$HOME/src/petsc-dist
           make
           make install
