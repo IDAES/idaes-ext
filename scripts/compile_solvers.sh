@@ -34,7 +34,7 @@ export IPOPT_L1_REPO="https://github.com/idaes/Ipopt"
 export PYNU_BRANCH="main"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="default"
-export K_AUG_REPO="https://github.com/dthierry/k_aug"
+export K_AUG_REPO="https://github.com/idaes/k_aug"
 export CC="gcc"
 export CXX="g++"
 
