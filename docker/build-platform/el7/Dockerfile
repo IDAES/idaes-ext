@@ -11,6 +11,7 @@ RUN yum -y remove git
 RUN yum -y remove git-*
 RUN yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
 RUN yum -y install git
+RUN yum -y install diffutils
 
 RUN mkdir repo
 
