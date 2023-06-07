@@ -7,7 +7,7 @@ RUN mkdir repo
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime;
 RUN apt-get -y update;
 RUN apt-get -y upgrade;
-Run apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
+RUN apt-get -y install ubuntu-dev-tools liblapack-dev libblas-dev unzip
 RUN apt-get -y install gfortran cmake
 RUN apt-get -y install pkg-config bison
 RUN apt-get -y install flex valgrind
