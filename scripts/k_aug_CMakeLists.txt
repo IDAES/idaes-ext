@@ -11,7 +11,9 @@ if (WITH_MINGW)
   set(USE_MINGW64 1)
 endif (WITH_MINGW)
 
-LINK_DIRECTORIES(/usr/local/gfortran/lib/) # Added to get to work on macOS
+# Added to get to work on macOS
+LINK_DIRECTORIES(/usr/local/gfortran/lib/) 
+LINK_DIRECTORIES(/opt/homebrew/opt/gcc/lib/gcc/current/)
 
 configure_file("${PROJECT_SOURCE_DIR}/src/common/config_kaug.h.in" "${PROJECT_SOURCE_DIR}/config_kaug.h")
 
