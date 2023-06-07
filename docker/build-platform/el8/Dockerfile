@@ -5,7 +5,7 @@ RUN yum -y install git make gcc gcc-c++ gcc-gfortran cmake
 RUN yum -y install wget unzip patch which file valgrind flex bison
 RUN yum -y install dnf-plugins-core
 RUN yum config-manager --set-enabled powertools
-RUN yum -y install lapack-devel python3 findutils
+RUN yum -y install lapack-devel python3 findutils diffutils
 RUN mkdir repo
 
 RUN cd repo; \
