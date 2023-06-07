@@ -13,7 +13,7 @@ RUN apt-get -y install flex valgrind
 RUN mkdir repo
 
 RUN cd repo; \
-    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.18.1.tar.gz; \
+    wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.2.tar.gz; \
     tar -zxvf petsc-3.19.2.tar.gz; \
     mv petsc-3.19.2 petsc; \
     mkdir petsc-dist; \
