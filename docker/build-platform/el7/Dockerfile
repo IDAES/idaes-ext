@@ -27,7 +27,7 @@ RUN cd repo; \
     cd ./boost_1_80_0; \
     sh bootstrap.sh --prefix=/usr/local/; \
     chmod a+x ./b2; \
-    ./b2 install;
+    ./b2 install || true;
 
 RUN cd repo/petsc; \
     ./configure CPPFLAGS="-D_POSIX_C_SOURCE=199309L" --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis --download-mumps --with-mumps-serial=1 --prefix=/repo/petsc-dist; \
