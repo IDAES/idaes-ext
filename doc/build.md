@@ -28,6 +28,8 @@ On Windows, except for one excpetion noted below the git Bash shell can be used.
 
 ### macOS
 
+#### Apple Silicon
+
 1. Install the Xcode command line tools
 2. Install cmake (cmake.org), and set it up to run from the command line
 3. Install homebrew and a few things:
@@ -49,6 +51,12 @@ we currently aren't aiming to do super computing.
       --prefix=$HOME/src/petsc-dist 
 5. make
 6. make install
+
+#### Intel
+
+There is a GitHub Action, which does the build without HSL.  If you want to
+build the IDAES extensions on an Intel Mac, the GitHub actions script may
+be a good refernce.
 
 ## Building
 
@@ -96,9 +104,15 @@ To run tests `sh docker_linux_tests.sh {platform}`. To help with debugging the
 interactively if needed.  Once done you will need to delete the container before
 running another test.
 
-### macOS (Apple Silicon Only)
+### macOS 
 
-Test on clean VM.
+#### Apple Silicon
+
+Test on clean VM for now, hopfully GitHub actions runners will be available soon.
+
+#### Intel
+
+There is a GitHub actions test.
 
 ## Release Hashes
 
