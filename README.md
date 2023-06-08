@@ -38,4 +38,10 @@ Currently Testing:
 
 ### macOS
 
+#### Intel
+
+[![macOS Test IDAES-PSE Main](https://github.com/IDAES/idaes-ext/actions/workflows/test_macos_main.yml/badge.svg)](https://github.com/IDAES/idaes-ext/actions/workflows/test_macos_main.yml)
+
+#### Apple Silicon
+
 Coming Soon.
