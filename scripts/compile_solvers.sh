@@ -335,7 +335,7 @@ echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
-  --with-mumps --with-hsl --prefix=$IDAES_EXT/coinbrew/dist-share
+  --with-mumps --with-hsl --enable-relocatable --prefix=$IDAES_EXT/coinbrew/dist-share
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -378,13 +378,12 @@ cp ../coinbrew/dist/bin/couenne ./
 #  aren't exe or libraries)
 strip --strip-unneeded *
 
+# Copy the solver libraries and header files (just ipopt and sipopt for now)
+# into ./dist-share. We will compress them and copy into ./dist-solvers later.
 cd ../
 cp -r ./coinbrew/dist-share ./dist-share
-cd $IDAES_EXT/dist-share
-tar -czvf idaes-local-${osname}-${MNAME}.tar.gz *
-
-cd $IDAES_EXT/dist-solvers/
-cp ../dist-share/idaes-local-${osname}-${MNAME}.tar.gz ./
+# Subsequent parts of this script rely on being in this directory
+cd $IDAES_EXT/dist-solvers
 
 echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
@@ -503,6 +502,10 @@ if [ ${osname} = "darwin" ]; then
     install_name_tool -change ${BREWLIB}libgomp.1.dylib @rpath/libgomp.1.dylib $1
     install_name_tool -change ${BREWLIB}libquadmath.0.dylib @rpath/libquadmath.0.dylib $1
   }
+  # Dynamic libraries also need to update their own install names
+  update_library_rpath_darwin() {
+    install_name_tool -id @rpath/$1 $1
+  }
   update_rpath_darwin ipopt
   update_rpath_darwin ipopt_sens
   update_rpath_darwin clp
@@ -516,11 +519,26 @@ if [ ${osname} = "darwin" ]; then
   update_rpath_darwin libipopt.3.dylib
   update_rpath_darwin libsipopt.3.dylib
   update_rpath_darwin libpynumero_ASL.dylib
+  update_library_rpath_darwin libipopt.dylib
+  update_library_rpath_darwin libsipopt.dylib
+  update_library_rpath_darwin libipopt.3.dylib
+  update_library_rpath_darwin libsipopt.3.dylib
+  update_library_rpath_darwin libpynumero_ASL.dylib
   # if no hsl k_aug and dot_snse won't exist
   update_rpath_darwin k_aug || true 
   update_rpath_darwin dot_sens || true
   cd $IDAES_EXT/dist-petsc
   update_rpath_darwin petsc
+  # Update rpaths in dist-share/lib
+  cd $IDAES_EXT/dist-share/lib
+  update_rpath_darwin libipopt.dylib
+  update_rpath_darwin libsipopt.dylib
+  update_rpath_darwin libipopt.3.dylib
+  update_rpath_darwin libsipopt.3.dylib
+  update_library_rpath_darwin libipopt.dylib
+  update_library_rpath_darwin libsipopt.dylib
+  update_library_rpath_darwin libipopt.3.dylib
+  update_library_rpath_darwin libsipopt.3.dylib
 fi
 
 # here you pack files
@@ -529,7 +547,10 @@ echo "# Finish                                                                #"
 echo "#########################################################################"
 cd $IDAES_EXT/dist-petsc
 tar -czvf idaes-petsc-${osname}-${MNAME}.tar.gz *
+cd $IDAES_EXT/dist-share
+tar -czvf idaes-local-${osname}-${MNAME}.tar.gz *
 cd $IDAES_EXT/dist-solvers
+cp ../dist-share/idaes-local-${osname}-${MNAME}.tar.gz ./
 tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
 echo "Done"
 echo "HSL Present: ${with_hsl}"
