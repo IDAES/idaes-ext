@@ -387,7 +387,7 @@ cp -r ./coinbrew/dist-share ./dist-share
 # Patch to remove "Requires.private: coinhsl coinmumps"
 # Note that we are patching the file *after* we copy it into the directory
 # we will distribute.
-patch ./dist-share/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
+patch dist-share/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
 # Subsequent parts of this script rely on being in this directory
 cd $IDAES_EXT/dist-solvers
 
