@@ -1,0 +1,8 @@
+--- coinbrew/dist-share/lib/pkgconfig/ipopt.pc	2023-10-03 15:21:44
++++ coinbrew/dist-share/lib/pkgconfig/ipopt.pc.fix	2023-10-06 11:38:08
+@@ -12,4 +12,4 @@
+ Libs.private:   -framework Accelerate  -ldl
+ Cflags: -I${includedir}
+ Requires:
+-Requires.private: coinhsl coinmumps 
++#Requires.private: coinhsl coinmumps 

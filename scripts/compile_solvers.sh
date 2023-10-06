@@ -17,6 +17,8 @@ fi
 export MNAME=`uname -m`
 
 # Get path of directory we're working in
+# Note that, when accessing patch files, we assume this directory
+# to be the root of the idaes-ext repository.
 export IDAES_EXT=`pwd`
 
 if [ -f $IDAES_EXT/../coinhsl.zip ]
@@ -382,6 +384,10 @@ strip --strip-unneeded *
 # into ./dist-share. We will compress them and copy into ./dist-solvers later.
 cd ../
 cp -r ./coinbrew/dist-share ./dist-share
+# Patch to remove "Requires.private: coinhsl coinmumps"
+# Note that we are patching the file *after* we copy it into the directory
+# we will distribute.
+patch ./dist-share/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
 # Subsequent parts of this script rely on being in this directory
 cd $IDAES_EXT/dist-solvers
 
