@@ -30,32 +30,32 @@ make
 cd $IDAES_EXT
 
 # Collect files
-rm -rf ./dist-lib
-mkdir dist-lib dist-lib/lib
-#cd dist-lib
-cp ./src/dist/*.so ./dist-lib/lib/
+rm -rf ./dist-functions
+mkdir dist-functions dist-functions/lib
+#cd dist-functions
+cp ./src/dist/*.so ./dist-functions/lib/
 if [ ${osname} = "windows" ]; then
-  mv dist-lib/lib/functions.so dist-lib/lib/functions.dll
-  mv dist-lib/lib/general_helmholtz_external.so dist-lib/lib/general_helmholtz_external.dll
-  mv dist-lib/lib/cubic_roots.so dist-lib/lib/cubic_roots.dll
+  mv dist-functions/lib/functions.so dist-functions/lib/functions.dll
+  mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dll
+  mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dll
 fi
 if [ ${osname} = "darwin" ]; then
-  mv dist-lib/lib/functions.so dist-lib/lib/functions.dylib
-  mv dist-lib/lib/general_helmholtz_external.so dist-lib/lib/general_helmholtz_external.dylib
-  mv dist-lib/lib/cubic_roots.so dist-lib/lib/cubic_roots.dylib
+  mv dist-functions/lib/functions.so dist-functions/lib/functions.dylib
+  mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dylib
+  mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dylib
 fi
-cp ./license.txt ./dist-lib/license_lib.txt
-cp ./version.txt ./dist-lib/version_lib.txt
-mkdir ./dist-lib/lib/helm_data
-cp ./src/dist/param_data/*.json ./dist-lib/lib/helm_data/
-cp ./src/dist/param_data/*.nl ./dist-lib/lib/helm_data/
-cp ./src/dist/param_data/*.py ./dist-lib/lib/helm_data/
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-lib/version_lib.txt > tmp
+cp ./license.txt ./dist-functions/license_lib.txt
+cp ./version.txt ./dist-functions/version_lib.txt
+mkdir ./dist-functions/lib/helm_data
+cp ./src/dist/param_data/*.json ./dist-functions/lib/helm_data/
+cp ./src/dist/param_data/*.nl ./dist-functions/lib/helm_data/
+cp ./src/dist/param_data/*.py ./dist-functions/lib/helm_data/
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-functions/version_lib.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 dist-lib/version_lib.txt
+mv tmp2 dist-functions/version_lib.txt
 rm tmp
 
 # here you pack files
-cd dist-lib
+cd dist-functions
 tar -czvf idaes-functions-${osname}-${MNAME}.tar.gz *
 cd $IDAES_EXT
