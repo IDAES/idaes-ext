@@ -546,7 +546,7 @@ echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
 cd dist
-tar -czvf idaes-extensions-${osname}-${MNAME}.tar.gz *
+tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
 cd $IDAES_EXT
 echo "Done"
 echo "HSL Present: ${with_hsl}"
