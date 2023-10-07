@@ -31,29 +31,31 @@ cd $IDAES_EXT
 
 # Collect files
 rm -rf ./dist-lib
-mkdir dist-lib
-cd dist-lib
-cp ../src/dist/*.so ./
+mkdir dist-lib dist-lib/lib
+#cd dist-lib
+cp ./src/dist/*.so ./dist-lib/lib/
 if [ ${osname} = "windows" ]; then
-  mv functions.so functions.dll
-  mv general_helmholtz_external.so general_helmholtz_external.dll
-  mv cubic_roots.so cubic_roots.dll
+  mv dist-lib/lib/functions.so dist-lib/lib/functions.dll
+  mv dist-lib/lib/general_helmholtz_external.so dist-lib/lib/general_helmholtz_external.dll
+  mv dist-lib/lib/cubic_roots.so dist-lib/lib/cubic_roots.dll
 fi
 if [ ${osname} = "darwin" ]; then
-  mv functions.so functions.dylib
-  mv general_helmholtz_external.so general_helmholtz_external.dylib
-  mv cubic_roots.so cubic_roots.dylib
+  mv dist-lib/lib/functions.so dist-lib/lib/functions.dylib
+  mv dist-lib/lib/general_helmholtz_external.so dist-lib/lib/general_helmholtz_external.dylib
+  mv dist-lib/lib/cubic_roots.so dist-lib/lib/cubic_roots.dylib
 fi
-cp ../license.txt ./license_lib.txt
-cp ../version.txt ./version_lib.txt
-mkdir ./helm_data
-cp ../src/dist/param_data/*.json ./helm_data/
-cp ../src/dist/param_data/*.nl ./helm_data/
-cp ../src/dist/param_data/*.py ./helm_data/
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
+cp ./license.txt ./dist-lib/license_lib.txt
+cp ./version.txt ./dist-lib/version_lib.txt
+mkdir ./dist-lib/lib/helm_data
+cp ./src/dist/param_data/*.json ./dist-lib/lib/helm_data/
+cp ./src/dist/param_data/*.nl ./dist-lib/lib/helm_data/
+cp ./src/dist/param_data/*.py ./dist-lib/lib/helm_data/
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-lib/version_lib.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 version_lib.txt
+mv tmp2 dist-lib/version_lib.txt
 rm tmp
 
 # here you pack files
-tar -czvf idaes-lib-${osname}-${MNAME}.tar.gz *
+cd dist-lib
+tar -czvf idaes-functions-${osname}-${MNAME}.tar.gz *
+cd $IDAES_EXT
