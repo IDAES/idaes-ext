@@ -27,7 +27,7 @@ else
 fi
 
 # Set a few basic things
-export IPOPT_BRANCH="idaes-3.13"
+export IPOPT_BRANCH="idaes-3.14"
 export IPOPT_REPO="https://github.com/idaes/Ipopt"
 export IPOPT_L1_BRANCH="restoration_mod"
 export IPOPT_L1_REPO="https://github.com/idaes/Ipopt"
