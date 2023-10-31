@@ -37,9 +37,8 @@ docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/idaes-ext && bash scr
 docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_libs.sh ${flavor}"
 docker stop "$flavor"_"$mname"_build_tmp
 
-docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-lib/idaes-lib-"$flavor"-"$mname".tar.gz .
-docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-solvers/idaes-solvers-"$flavor"-"$mname".tar.gz .
-docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-petsc/idaes-petsc-"$flavor"-"$mname".tar.gz .
+docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-functions/idaes-functions-"$flavor"-"$mname".tar.gz .
+docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist/idaes-solvers-"$flavor"-"$mname".tar.gz .
 
 docker rm "$flavor"_"$mname"_build_tmp
 
