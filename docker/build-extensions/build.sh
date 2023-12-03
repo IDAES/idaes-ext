@@ -1,8 +1,21 @@
 flavor=$1
 mname=$2
 
-repo="https://github.com/idaes/idaes-ext.git"
-branch="main"
+repo=$3
+branch=$4
+if [ ! "$repo" ]; then
+    repo="https://github.com/idaes/idaes-ext.git"
+fi
+if [ ! "$branch" ]; then
+    branch="main"
+fi
+
+echo "build.sh script arguments:
+    OS: $flavor
+    Arch: $mname
+    Repo: $repo
+    Branch: $branch
+"
 
 if [ "$flavor" = "windows" ]; then
   image="idaes-ext-windows-build:latest"
