@@ -1,8 +1,19 @@
 $flavor = $args[0]
 $buildarg_1 = $args[1]  # just use this to pass in --no-cache or some such
 
-$repo = "https://github.com/idaes/idaes-ext.git"
-$branch = "main"
+# The 3rd and 4th arguments provided will be interpreted as repo and branch.
+# (If you don't want to use buildarg_1, just pass in an empty string.)
+$repo = $args[2]
+$branch = $args[3]
+
+# If repo and branch are not provided, use default values
+IF ($repo -eq $null){
+  $repo = "https://github.com/idaes/idaes-ext.git"
+}
+IF ($branch -eq $null){
+  $branch = "main"
+}
+
 $mname = "x86_64"
 
 IF ($flavor -eq "windows"){
