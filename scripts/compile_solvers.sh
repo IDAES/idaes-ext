@@ -41,13 +41,19 @@ export CC="gcc"
 export CXX="g++"
 
 # set PETSc location
-if [ ${osname} = "windows" ]
-then
-  export PETSC_DIR=/c/repo/petsc-dist
-elif [ ${osname} = "darwin" ]; then
-  export PETSC_DIR="$HOME/src/petsc-dist"
-else
-  export PETSC_DIR=/repo/petsc-dist
+# These petsc environment variables are used by the makefile
+# in the $IDAES_EXT/petsc subdirectory.
+if [ -z $PETSC_DIR ]; then
+    # We only set PETSC_DIR if it is not already set. This is useful when
+    # running this script locally (i.e. not via Docker)
+    if [ ${osname} = "windows" ]
+    then
+      export PETSC_DIR=/c/repo/petsc-dist
+    elif [ ${osname} = "darwin" ]; then
+      export PETSC_DIR="$HOME/src/petsc-dist"
+    else
+      export PETSC_DIR=/repo/petsc-dist
+    fi
 fi
 export PETSC_ARCH=""
 
