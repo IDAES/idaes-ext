@@ -54,6 +54,8 @@ if [ -z $PETSC_DIR ]; then
     else
       export PETSC_DIR=/repo/petsc-dist
     fi
+    echo "PETSC_DIR has been set to $PETSC_DIR. If this is incorrect, set"
+    echo "the PETSC_DIR environment variable before running this script."
 fi
 export PETSC_ARCH=""
 
