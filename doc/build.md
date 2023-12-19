@@ -114,6 +114,26 @@ Test on clean VM for now, hopfully GitHub actions runners will be available soon
 
 There is a GitHub actions test.
 
+## Testing a non-default branch
+
+By default, the Docker driver scripts (`docker/build.sh` and `docker\build.ps1`)
+checkout the `main` branch of `https://github.com/idaes/idaes-ext.git` to use
+for the build process. To test a different branch, arguments can be provided
+to the Docker driver scripts. For example, to test the `ubuntu2204` build with
+a custom branch called `mybranch` on `user`'s fork, run
+```bash
+./build.sh ubuntu2204 https://github.com/user/idaes-ext.git mybranch
+```
+To test the Windows build, run
+```powershell
+.\build.ps1 windows --no-cache https://github.com/user/idaes-ext.git mybranch
+```
+Note that the second argument to `build.ps1` is interpreted as an argument
+to `docker build`, so to run with a custom branch and no such argument, run
+```powershell
+.\build.ps1 windows https://github.com/user/idaes-ext.git mybranch
+```
+
 ## Release Hashes
 
 Collect all the tar files for a release in the same directory.

@@ -30,30 +30,32 @@ make
 cd $IDAES_EXT
 
 # Collect files
-rm -rf ./dist-lib
-mkdir dist-lib
-cd dist-lib
-cp ../src/dist/*.so ./
+rm -rf ./dist-functions
+mkdir dist-functions dist-functions/lib
+#cd dist-functions
+cp ./src/dist/*.so ./dist-functions/lib/
 if [ ${osname} = "windows" ]; then
-  mv functions.so functions.dll
-  mv general_helmholtz_external.so general_helmholtz_external.dll
-  mv cubic_roots.so cubic_roots.dll
+  mv dist-functions/lib/functions.so dist-functions/lib/functions.dll
+  mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dll
+  mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dll
 fi
 if [ ${osname} = "darwin" ]; then
-  mv functions.so functions.dylib
-  mv general_helmholtz_external.so general_helmholtz_external.dylib
-  mv cubic_roots.so cubic_roots.dylib
+  mv dist-functions/lib/functions.so dist-functions/lib/functions.dylib
+  mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dylib
+  mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dylib
 fi
-cp ../license.txt ./license_lib.txt
-cp ../version.txt ./version_lib.txt
-mkdir ./helm_data
-cp ../src/dist/param_data/*.json ./helm_data/
-cp ../src/dist/param_data/*.nl ./helm_data/
-cp ../src/dist/param_data/*.py ./helm_data/
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_lib.txt > tmp
+cp ./license.txt ./dist-functions/license_lib.txt
+cp ./version.txt ./dist-functions/version_lib.txt
+mkdir ./dist-functions/lib/helm_data
+cp ./src/dist/param_data/*.json ./dist-functions/lib/helm_data/
+cp ./src/dist/param_data/*.nl ./dist-functions/lib/helm_data/
+cp ./src/dist/param_data/*.py ./dist-functions/lib/helm_data/
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-functions/version_lib.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 version_lib.txt
+mv tmp2 dist-functions/version_lib.txt
 rm tmp
 
 # here you pack files
-tar -czvf idaes-lib-${osname}-${MNAME}.tar.gz *
+cd dist-functions
+tar -czvf idaes-functions-${osname}-${MNAME}.tar.gz *
+cd $IDAES_EXT

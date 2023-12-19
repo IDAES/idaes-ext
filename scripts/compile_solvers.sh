@@ -17,6 +17,8 @@ fi
 export MNAME=`uname -m`
 
 # Get path of directory we're working in
+# Note that, when accessing patch files, we assume this directory
+# to be the root of the idaes-ext repository.
 export IDAES_EXT=`pwd`
 
 if [ -f $IDAES_EXT/../coinhsl.zip ]
@@ -39,13 +41,21 @@ export CC="gcc"
 export CXX="g++"
 
 # set PETSc location
-if [ ${osname} = "windows" ]
-then
-  export PETSC_DIR=/c/repo/petsc-dist
-elif [ ${osname} = "darwin" ]; then
-  export PETSC_DIR="$HOME/src/petsc-dist"
-else
-  export PETSC_DIR=/repo/petsc-dist
+# These petsc environment variables are used by the makefile
+# in the $IDAES_EXT/petsc subdirectory.
+if [ -z $PETSC_DIR ]; then
+    # We only set PETSC_DIR if it is not already set. This is useful when
+    # running this script locally (i.e. not via Docker)
+    if [ ${osname} = "windows" ]
+    then
+      export PETSC_DIR=/c/repo/petsc-dist
+    elif [ ${osname} = "darwin" ]; then
+      export PETSC_DIR="$HOME/src/petsc-dist"
+    else
+      export PETSC_DIR=/repo/petsc-dist
+    fi
+    echo "PETSC_DIR has been set to $PETSC_DIR. If this is incorrect, set"
+    echo "the PETSC_DIR environment variable before running this script."
 fi
 export PETSC_ARCH=""
 
@@ -335,67 +345,74 @@ echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
-  --with-mumps --with-hsl --prefix=$IDAES_EXT/coinbrew/dist-share
+  --with-mumps --with-hsl --enable-relocatable --prefix=$IDAES_EXT/coinbrew/dist-share
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
+# The above compiles and installs solvers into ./coinbrew/dist*
+# Now we will copy the files we wish to distribute into a ./dist directory,
+# with standard bin, include, and lib sub-directories.
+
 echo "#########################################################################"
-echo "# Copy Coin Solver Files to dist-solvers                                #"
+echo "# Copy Coin Solver Files to dist                                        #"
 echo "#########################################################################"
 cd $IDAES_EXT
-mkdir dist-solvers
-cd dist-solvers
+mkdir dist dist/bin dist/include dist/lib
+# I'll try to avoid cd-ing around, for now, to make this script more
+# explicit for the reader.
+# cd dist
 # Executables
 if [ ${osname} = "windows" ]; then
   # windows
-  cp ../coinbrew/dist_l1/bin/ipopt.exe ./ipopt_l1.exe
-  cp ../coinbrew/dist_l1/bin/ipopt_sens.exe ./ipopt_sens_l1.exe
+  cp ./coinbrew/dist_l1/bin/ipopt.exe ./dist/bin/ipopt_l1.exe
+  cp ./coinbrew/dist_l1/bin/ipopt_sens.exe ./dist/bin/ipopt_sens_l1.exe
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist-share/bin/libipopt*.dll ./
-  cp ../coinbrew/dist-share/bin/libsipopt*.dll ./
+  cp ./coinbrew/dist-share/bin/libipopt*.dll ./dist/lib/
+  cp ./coinbrew/dist-share/bin/libsipopt*.dll ./dist/lib/
 elif [ ${osname} = "darwin" ]; then
-  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
+  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1
+  cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist-share/lib/libipopt*.dylib ./
-  cp ../coinbrew/dist-share/lib/libsipopt*.dylib ./
+  cp ./coinbrew/dist-share/lib/libipopt*.dylib ./dist/lib/
+  cp ./coinbrew/dist-share/lib/libsipopt*.dylib ./dist/lib/
 else
   # linux
-  cp ../coinbrew/dist_l1/bin/ipopt ./ipopt_l1
-  cp ../coinbrew/dist_l1/bin/ipopt_sens ./ipopt_sens_l1
+  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1/
+  cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ../coinbrew/dist-share/lib/libipopt*.so ./
-  cp ../coinbrew/dist-share/lib/libsipopt*.so ./
+  cp ./coinbrew/dist-share/lib/libipopt*.so ./dist/lib/
+  cp ./coinbrew/dist-share/lib/libsipopt*.so ./dist/lib/
 fi
-cp ../coinbrew/dist/bin/ipopt ./
-cp ../coinbrew/dist/bin/ipopt_sens ./
-cp ../coinbrew/dist/bin/clp ./
-cp ../coinbrew/dist/bin/cbc ./
-cp ../coinbrew/dist/bin/bonmin ./
-cp ../coinbrew/dist/bin/couenne ./
+cp ./coinbrew/dist/bin/ipopt ./dist/bin/
+cp ./coinbrew/dist/bin/ipopt_sens ./dist/bin/
+cp ./coinbrew/dist/bin/clp ./dist/bin/
+cp ./coinbrew/dist/bin/cbc ./dist/bin/
+cp ./coinbrew/dist/bin/bonmin ./dist/bin/
+cp ./coinbrew/dist/bin/couenne ./dist/bin/
 # Run strip to remove unneeded symbols (it's okay that some files
 #  aren't exe or libraries)
-strip --strip-unneeded *
+strip --strip-unneeded ./dist/bin/*
 
-cd ../
-cp -r ./coinbrew/dist-share ./dist-share
-cd $IDAES_EXT/dist-share
-tar -czvf idaes-local-${osname}-${MNAME}.tar.gz *
+# Copy contents of dist-share (ipopt lib, include, and share) into dist
+cp -r ./coinbrew/dist-share/* ./dist/
 
-cd $IDAES_EXT/dist-solvers/
-cp ../dist-share/idaes-local-${osname}-${MNAME}.tar.gz ./
+# Patch to remove "Requires.private: coinhsl coinmumps"
+# Note that we are patching the file *after* we copy it into the directory
+# we will distribute.
+patch ./dist/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
 
 echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
 echo "#########################################################################"
 # Text information files include build time
-cp ../license.txt ./
-cp ../version.txt ./version_solvers.txt
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g version_solvers.txt > tmp
-sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 version_solvers.txt
-rm tmp
+cp ./license.txt ./dist/
+cp ./version.txt ./dist/version_solvers.txt
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g ./dist/version_solvers.txt > ./dist/tmp
+sed s/"(PLAT)"/${osname}-${MNAME}/g ./dist/tmp > ./dist/tmp2
+# Why do we create dist/version_solvers.txt above if we will just overwrite it?
+mv ./dist/tmp2 ./dist/version_solvers.txt
+rm ./dist/tmp*
 
 #
 # Copy some linked libraries from homebrew or mingw, covered by gcc runtime
@@ -407,25 +424,25 @@ echo "# Copy GCC/MinGW Runtime Libraries to dist-solvers                      #"
 echo "#########################################################################"
 if [ ${osname} = "windows" ]; then
     # Winodws MinGW linked redistributable libraries
-    cp /mingw64/bin/libstdc++-6.dll ./
-    cp /mingw64/bin/libgcc_s_seh-1.dll ./
-    cp /mingw64/bin/libwinpthread-1.dll ./
-    cp /mingw64/bin/libgfortran-*.dll ./
-    cp /mingw64/bin/libquadmath-0.dll ./
-    cp /mingw64/bin/libgomp-1.dll ./
-    cp /mingw64/bin/liblapack.dll ./
-    cp /mingw64/bin/libblas.dll ./
-    cp /mingw64/bin/libbz2-*.dll ./
-    cp /mingw64/bin/zlib*.dll ./
-    cp /mingw64/bin/libssp*.dll ./
+    cp /mingw64/bin/libstdc++-6.dll ./dist/lib/
+    cp /mingw64/bin/libgcc_s_seh-1.dll ./dist/lib/
+    cp /mingw64/bin/libwinpthread-1.dll ./dist/lib/
+    cp /mingw64/bin/libgfortran-*.dll ./dist/lib/
+    cp /mingw64/bin/libquadmath-0.dll ./dist/lib/
+    cp /mingw64/bin/libgomp-1.dll ./dist/lib/
+    cp /mingw64/bin/liblapack.dll ./dist/lib/
+    cp /mingw64/bin/libblas.dll ./dist/lib/
+    cp /mingw64/bin/libbz2-*.dll ./dist/lib/
+    cp /mingw64/bin/zlib*.dll ./dist/lib/
+    cp /mingw64/bin/libssp*.dll ./dist/lib/
 fi
 
 if [ ${osname} = "darwin" ]; then
-  cp ${BREWLIB}libgfortran.5.dylib ./
-  cp ${BREWLIB}libgcc_s.1.1.dylib ./
-  cp ${BREWLIB}libstdc++.6.dylib ./
-  cp ${BREWLIB}libgomp.1.dylib ./
-  cp ${BREWLIB}libquadmath.0.dylib ./
+  cp ${BREWLIB}libgfortran.5.dylib ./dist/lib/
+  cp ${BREWLIB}libgcc_s.1.1.dylib ./dist/lib/
+  cp ${BREWLIB}libstdc++.6.dylib ./dist/lib/
+  cp ${BREWLIB}libgomp.1.dylib ./dist/lib/
+  cp ${BREWLIB}libquadmath.0.dylib ./dist/lib/
 fi
 
 echo "#########################################################################"
@@ -437,7 +454,7 @@ if [ ${osname} = "darwin" ]; then
   export CXX="c++"
 fi
 
-cd $IDAES_EXT
+# We are already in this directory
 git clone $PYNU_REPO
 cd pyomo
 git checkout $PYNU_BRANCH
@@ -451,12 +468,13 @@ else
   cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
 make $PARALLEL
-cp libpynumero_ASL* $IDAES_EXT/dist-solvers
+cp libpynumero_ASL* $IDAES_EXT/dist/lib/
+# Return to root directory
+cd $IDAES_EXT
 
 echo "#########################################################################"
 echo "# k_aug, dotsens                                                        #"
 echo "#########################################################################"
-cd $IDAES_EXT
 git clone $K_AUG_REPO
 cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
 cd k_aug
@@ -468,8 +486,10 @@ else
   cmake -DCMAKE_C_COMPILER=$CC .
 fi
 make $PARALLEL
-cp bin/k_aug* $IDAES_EXT/dist-solvers
-cp dot_sens* $IDAES_EXT/dist-solvers
+cp bin/k_aug* $IDAES_EXT/dist/bin/
+cp dot_sens* $IDAES_EXT/dist/bin/
+# Return to root directory
+cd $IDAES_EXT
 
 echo "#########################################################################"
 echo "# PETSc                                                                 #"
@@ -479,23 +499,21 @@ export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
 cd $IDAES_EXT/petsc
 make $PARALLEL
 make py
-mkdir $IDAES_EXT/dist-petsc
 if [ ${osname} = "windows" ]
 then
-  cp petsc.exe $IDAES_EXT/dist-petsc
+  cp petsc.exe $IDAES_EXT/dist/bin/
 else
-  cp petsc $IDAES_EXT/dist-petsc
+  cp petsc $IDAES_EXT/dist/bin/
 fi
-cp -r petscpy $IDAES_EXT/dist-petsc
-cp ../dist-solvers/license.txt $IDAES_EXT/dist-petsc/license_petsc.txt
-cp ../dist-solvers/version_solvers.txt $IDAES_EXT/dist-petsc/version_petsc.txt
+cp -r petscpy $IDAES_EXT/dist/lib/
 
+# Return to root directory
+cd $IDAES_EXT
 
 if [ ${osname} = "darwin" ]; then
   echo "#########################################################################"
   echo "# macOS update rpaths                                                   #"
   echo "#########################################################################"
-  cd $IDAES_EXT/dist-solvers
   update_rpath_darwin() {
     install_name_tool -change ${BREWLIB}libgfortran.5.dylib @rpath/libgfortran.5.dylib $1
     install_name_tool -change ${BREWLIB}libgcc_s.1.1.dylib @rpath/libgcc_s.1.1.dylib $1
@@ -503,33 +521,40 @@ if [ ${osname} = "darwin" ]; then
     install_name_tool -change ${BREWLIB}libgomp.1.dylib @rpath/libgomp.1.dylib $1
     install_name_tool -change ${BREWLIB}libquadmath.0.dylib @rpath/libquadmath.0.dylib $1
   }
-  update_rpath_darwin ipopt
-  update_rpath_darwin ipopt_sens
-  update_rpath_darwin clp
-  update_rpath_darwin cbc
-  update_rpath_darwin bonmin
-  update_rpath_darwin couenne  
-  update_rpath_darwin ipopt_l1
-  update_rpath_darwin ipopt_sens_l1
-  update_rpath_darwin libipopt.dylib
-  update_rpath_darwin libsipopt.dylib
-  update_rpath_darwin libipopt.3.dylib
-  update_rpath_darwin libsipopt.3.dylib
-  update_rpath_darwin libpynumero_ASL.dylib
+  # Dynamic libraries also need to update their own install names
+  update_library_rpath_darwin() {
+    install_name_tool -id @rpath/$1 $1
+  }
+  update_rpath_darwin dist/bin/ipopt
+  update_rpath_darwin dist/bin/ipopt_sens
+  update_rpath_darwin dist/bin/clp
+  update_rpath_darwin dist/bin/cbc
+  update_rpath_darwin dist/bin/bonmin
+  update_rpath_darwin dist/bin/couenne  
+  update_rpath_darwin dist/bin/ipopt_l1
+  update_rpath_darwin dist/bin/ipopt_sens_l1
+  update_rpath_darwin dist/lib/libipopt.dylib
+  update_rpath_darwin dist/lib/libsipopt.dylib
+  update_rpath_darwin dist/lib/libipopt.3.dylib
+  update_rpath_darwin dist/lib/libsipopt.3.dylib
+  update_rpath_darwin dist/lib/libpynumero_ASL.dylib
+  update_library_rpath_darwin dist/lib/libipopt.dylib
+  update_library_rpath_darwin dist/lib/libsipopt.dylib
+  update_library_rpath_darwin dist/lib/libipopt.3.dylib
+  update_library_rpath_darwin dist/lib/libsipopt.3.dylib
+  update_library_rpath_darwin dist/lib/libpynumero_ASL.dylib
   # if no hsl k_aug and dot_snse won't exist
-  update_rpath_darwin k_aug || true 
-  update_rpath_darwin dot_sens || true
-  cd $IDAES_EXT/dist-petsc
-  update_rpath_darwin petsc
+  update_rpath_darwin dist/bin/k_aug || true 
+  update_rpath_darwin dist/bin/dot_sens || true
+  update_rpath_darwin dist/bin/petsc
 fi
 
 # here you pack files
 echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
-cd $IDAES_EXT/dist-petsc
-tar -czvf idaes-petsc-${osname}-${MNAME}.tar.gz *
-cd $IDAES_EXT/dist-solvers
+cd dist
 tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
+cd $IDAES_EXT
 echo "Done"
 echo "HSL Present: ${with_hsl}"

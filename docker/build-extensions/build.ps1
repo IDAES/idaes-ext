@@ -1,8 +1,19 @@
 $flavor = $args[0]
 $buildarg_1 = $args[1]  # just use this to pass in --no-cache or some such
 
-$repo = "https://github.com/idaes/idaes-ext.git"
-$branch = "main"
+# The 3rd and 4th arguments provided will be interpreted as repo and branch.
+# (If you don't want to use buildarg_1, just pass in an empty string.)
+$repo = $args[2]
+$branch = $args[3]
+
+# If repo and branch are not provided, use default values
+IF ($repo -eq $null){
+  $repo = "https://github.com/idaes/idaes-ext.git"
+}
+IF ($branch -eq $null){
+  $branch = "main"
+}
+
 $mname = "x86_64"
 
 IF ($flavor -eq "windows"){
@@ -35,18 +46,12 @@ docker build --rm ${buildarg_1} --build-arg repo=${repo} --build-arg branch=${br
 Remove-Item extras -Recurse -Force -Confirm:$false
 docker run --name ${flavor}_build_tmp -dt ${flavor}_build_itmp:latest
 docker stop ${flavor}_build_tmp
-docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-lib/idaes-lib-${flavor}-${mname}.tar.gz .
+docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-functions/idaes-functions-${flavor}-${mname}.tar.gz .
 try{
-  docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-solvers/idaes-solvers-${flavor}-${mname}.tar.gz .
+  docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist/idaes-solvers-${flavor}-${mname}.tar.gz .
 }
 catch{
   echo "Solvers were not built."
-}
-try{
-  docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-petsc/idaes-petsc-${flavor}-${mname}.tar.gz .
-}
-catch{
-  echo "PETSc was not built."
 }
 docker rm ${flavor}_build_tmp
 docker rmi ${flavor}_build_itmp
