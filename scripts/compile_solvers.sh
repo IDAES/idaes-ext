@@ -26,19 +26,19 @@ export IDAES_EXT=`pwd`
 
 arg2=$2
 if [ $arg2 = "--without-hsl" ]; then
-  echo "--without-hsl flag received. Building solvers without HSL."
+  echo "--without-hsl flag received. Building solvers without HSL." >&2
   echo "HSL: NO"
   hslflag="--without-hsl"
   with_hsl="NO"
   build_hsl="NO"
 elif [ -f $IDAES_EXT/../coinhsl.zip ]; then
-  echo "coinhsl.zip found. Building solvers with HSL."
+  echo "coinhsl.zip found. Building solvers with HSL." >&2
   echo "HSL: YES"
   hslflag="--with-hsl"
   with_hsl="YES"
   build_hsl="YES"
 else
-  echo "coinhsl.zip not found. Attempting to build with installed HSL."
+  echo "coinhsl.zip not found. Attempting to build with installed HSL." >&2
   echo "HSL: YES"
   hslflag="--with-hsl"
   with_hsl="YES"
@@ -170,13 +170,6 @@ if [ -f $IDAES_EXT/../coinhsl.zip ]; then
   cd ThirdParty/HSL/coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
-  # We have already printed a message about HSL
-  #echo "HSL is available, building with HSL"
-  #with_hsl="YES"
-#else
-#  # If the HSL isn't there, build without it.
-#  echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
-#  with_hsl="NO"
 fi
 
 echo "#########################################################################"
