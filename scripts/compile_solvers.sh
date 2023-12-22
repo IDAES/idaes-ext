@@ -507,21 +507,25 @@ cd $IDAES_EXT
 echo "#########################################################################"
 echo "# k_aug, dotsens                                                        #"
 echo "#########################################################################"
-git clone $K_AUG_REPO
-cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
-cd k_aug
-git checkout $K_AUG_BRANCH
-if [ ${osname} = "windows" ]
-then
-  cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
+if [ $with_hsl = "YES" ]; then
+  git clone $K_AUG_REPO
+  cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
+  cd k_aug
+  git checkout $K_AUG_BRANCH
+  if [ ${osname} = "windows" ]
+  then
+    cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
+  else
+    cmake -DCMAKE_C_COMPILER=$CC .
+  fi
+  make $PARALLEL
+  cp bin/k_aug* $IDAES_EXT/dist/bin/
+  cp dot_sens* $IDAES_EXT/dist/bin/
+  # Return to root directory
+  cd $IDAES_EXT
 else
-  cmake -DCMAKE_C_COMPILER=$CC .
+  echo "Skipping k_aug and dot_sens as we are not using HSL"
 fi
-make $PARALLEL
-cp bin/k_aug* $IDAES_EXT/dist/bin/
-cp dot_sens* $IDAES_EXT/dist/bin/
-# Return to root directory
-cd $IDAES_EXT
 
 echo "#########################################################################"
 echo "# PETSc                                                                 #"
