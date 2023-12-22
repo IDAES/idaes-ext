@@ -20,17 +20,16 @@ The build scripts were not designed for local use, so there are a few gotchas:
 
 - We look for patch files in a specific location relative to the original
 working directory. I.e. you must run `compile_solvers.sh` from *one level above*
-the scripts directory in order for patches (e.g. `ipopt.pc.patch`) to be
+the scripts directory in order for patches (e.g. `CouenneMatrix.hpp.patch`) to be
 correctly applied.
-- `ipopt.pc.patch` assumes that `coinmumps` and `coinhsl` are listed as
-dependencies in the `ipopt.pc` file. If either is not found (i.e. we are
-compiling without HSL), the patch application will fail.
 - By default, Petsc is assumed to be installed in hard-coded, OS-dependent
 location. If you are compiling locally, you have probably installed it
 in your own preferred location. To override the default, set the `PETSC_DIR`
 environment variable to the location where you have installed Petsc.
-- If you have your own system-installed HSL libraries that are discoverable
-by the linker (i.e. `LD_LIBRARY_PATH` is set), the COIN-OR solvers will likely
-be able to find and link against them. In this case, you will see a
-`HSL Present: NO` message (as there was no `coinhsl.zip` in the parent of the
-working directory), but will likely still build HSL-enabled solvers.
+- By default, we look for a `coinhsl.zip` file in the parent of the original
+working directory. If this file is not found, we attempt to compile Ipopt with an
+installed coinhsl library in a linker-accesible location. If no coinhsl library
+can be found (or compiled from source in `coinhsl.zip`), the `compile_solvers.sh`
+script will fail attempting to build `k_aug`, which cannot be built without HSL.
+To avoid this failure, send the `--without-hsl` argument to `compile_solvers.sh`
+after the OS name.
