@@ -4,6 +4,9 @@
 # are taylor only to specific build systems.  They may provide some
 # hints on how to build the solvers, but are limited.
 
+# Set to exit on error
+set -e
+
 # First argument is OS name provided by user when running this
 osname=$1;
 if [ -z $osname ]
