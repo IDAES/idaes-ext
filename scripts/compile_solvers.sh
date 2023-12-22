@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Exit on error.
-set -e
-
 # These scripts are not meant to be used for general builds.  They
 # are taylor only to specific build systems.  They may provide some
 # hints on how to build the solvers, but are limited.
