@@ -131,7 +131,7 @@ To test the Windows build, run
 Note that the second argument to `build.ps1` is interpreted as an argument
 to `docker build`, so to run with a custom branch and no such argument, run
 ```powershell
-.\build.ps1 windows https://github.com/user/idaes-ext.git mybranch
+.\build.ps1 windows "" https://github.com/user/idaes-ext.git mybranch
 ```
 
 ## Release Hashes

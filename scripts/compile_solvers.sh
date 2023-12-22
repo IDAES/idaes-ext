@@ -7,6 +7,9 @@ set -e
 # are taylor only to specific build systems.  They may provide some
 # hints on how to build the solvers, but are limited.
 
+# Set to exit on error
+set -e
+
 # First argument is OS name provided by user when running this
 osname=$1;
 if [ -z $osname ]
@@ -398,7 +401,7 @@ elif [ ${osname} = "darwin" ]; then
   cp ./coinbrew/dist-share/lib/libsipopt*.dylib ./dist/lib/
 else
   # linux
-  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1/
+  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1
   cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ./coinbrew/dist-share/lib/libipopt*.so ./dist/lib/
