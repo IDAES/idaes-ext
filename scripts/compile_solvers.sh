@@ -39,6 +39,7 @@ elif [ -f $IDAES_EXT/../coinhsl.zip ]; then
   build_hsl="YES"
 else
   echo "coinhsl.zip not found. Attempting to build with installed HSL." >&2
+  echo "To skip HSL-reliant build steps, send the --without-hsl argument to this script" >&2
   echo "HSL: YES"
   hslflag="--with-hsl"
   with_hsl="YES"
