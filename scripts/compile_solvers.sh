@@ -378,7 +378,7 @@ elif [ ${osname} = "darwin" ]; then
   cp ./coinbrew/dist-share/lib/libsipopt*.dylib ./dist/lib/
 else
   # linux
-  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1/
+  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1
   cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
   # Explicitly only get ipopt so we don't get anything we shouldn't
   cp ./coinbrew/dist-share/lib/libipopt*.so ./dist/lib/
