@@ -116,13 +116,14 @@ There is a GitHub actions test.
 
 ## Testing a non-default branch
 
-By default, the Docker driver scripts (`docker/build.sh` and `docker\build.ps1`)
+By default, the Docker driver scripts
+(`docker/build-extensions/build.sh` and `docker\build-extentions\build.ps1`)
 checkout the `main` branch of `https://github.com/idaes/idaes-ext.git` to use
 for the build process. To test a different branch, arguments can be provided
 to the Docker driver scripts. For example, to test the `ubuntu2204` build with
 a custom branch called `mybranch` on `user`'s fork, run
 ```bash
-./build.sh ubuntu2204 https://github.com/user/idaes-ext.git mybranch
+./build.sh ubuntu2204 x86_64 https://github.com/user/idaes-ext.git mybranch
 ```
 To test the Windows build, run
 ```powershell
@@ -141,3 +142,16 @@ Collect all the tar files for a release in the same directory.
 With IDAES installed, run ``idaes hash-extensions --path <path to tar files> --release <release>``
 A text file with the hash of all the files will be written to the directory with the
 release files.
+
+## Building without HSL
+
+For testing purposes, it may be useful to build for multiple operating systems
+(via Docker) without HSL. This may be accomplished by passing the `--without-hsl`
+argument to `docker/build-extensions/build.sh`, after the OS name, architecture name,
+repository URL, and repository branch.
+This fifth positional argument to `build.sh` is interpreted as an argument (or arguments)
+to send to `compile_solvers.sh`.
+For example:
+```bash
+./build.sh ubuntu2204 x86_64 https://github.com/IDAES/idaes-ext.git main --without-hsl
+```

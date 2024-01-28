@@ -24,11 +24,26 @@ export MNAME=`uname -m`
 # to be the root of the idaes-ext repository.
 export IDAES_EXT=`pwd`
 
-if [ -f $IDAES_EXT/../coinhsl.zip ]
-then
-  echo "HSL: YES"
-else
+arg2=$2
+if [ $arg2 = "--without-hsl" ]; then
+  echo "--without-hsl flag received. Building solvers without HSL." >&2
   echo "HSL: NO"
+  hslflag="--without-hsl"
+  with_hsl="NO"
+  build_hsl="NO"
+elif [ -f $IDAES_EXT/../coinhsl.zip ]; then
+  echo "coinhsl.zip found. Building solvers with HSL." >&2
+  echo "HSL: YES"
+  hslflag="--with-hsl"
+  with_hsl="YES"
+  build_hsl="YES"
+else
+  echo "coinhsl.zip not found. Attempting to build with installed HSL." >&2
+  echo "To skip HSL-reliant build steps, send the --without-hsl argument to this script" >&2
+  echo "HSL: YES"
+  hslflag="--with-hsl"
+  with_hsl="YES"
+  build_hsl="NO"
 fi
 
 # Set a few basic things
@@ -156,12 +171,6 @@ if [ -f $IDAES_EXT/../coinhsl.zip ]; then
   cd ThirdParty/HSL/coinhsl
   unzip coinhsl.zip
   cd $IDAES_EXT/coinbrew
-  echo "HSL is available, building with HSL"
-  with_hsl="YES"
-else
-  # If the HSL isn't there, build without it.
-  echo "HSL Not Available, BUILDING SOLVERS WITHOUT HSL" >&2
-  with_hsl="NO"
 fi
 
 echo "#########################################################################"
@@ -186,12 +195,14 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
-cd ThirdParty/HSL
-./configure --disable-shared --enable-static --with-metis \
-  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-make $PARALLEL
-make install
-cd $IDAES_EXT/coinbrew
+if [ $build_hsl = "YES" ]; then
+  cd ThirdParty/HSL
+  ./configure --disable-shared --enable-static --with-metis \
+    --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  make $PARALLEL
+  make install
+  cd $IDAES_EXT/coinbrew
+fi
 
 echo "#########################################################################"
 echo "# Thirdparty/Mumps                                                      #"
@@ -207,7 +218,7 @@ echo "#########################################################################"
 echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
-./configure --disable-shared --enable-static --with-mumps --with-hsl \
+./configure --disable-shared --enable-static --with-mumps $hslflag \
   --prefix=$IDAES_EXT/coinbrew/dist
 make $PARALLEL
 make install
@@ -218,11 +229,11 @@ echo "# Ipopt_L1 ampl executables                                             #"
 echo "#########################################################################"
 cd Ipopt_l1
 if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --with-mumps --with-hsl \
+  ./configure --disable-shared --enable-static --with-mumps $hslflag \
     ADD_CXXFLAGS="-std=c++11" \
     --prefix=$IDAES_EXT/coinbrew/dist_l1
 else
-  ./configure --disable-shared --enable-static --with-mumps --with-hsl \
+  ./configure --disable-shared --enable-static --with-mumps $hslflag \
     --prefix=$IDAES_EXT/coinbrew/dist_l1
 fi
 make $PARALLEL
@@ -348,7 +359,7 @@ echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
-  --with-mumps --with-hsl --enable-relocatable --prefix=$IDAES_EXT/coinbrew/dist-share
+  --with-mumps $hslflag --enable-relocatable --prefix=$IDAES_EXT/coinbrew/dist-share
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -395,7 +406,12 @@ cp ./coinbrew/dist/bin/bonmin ./dist/bin/
 cp ./coinbrew/dist/bin/couenne ./dist/bin/
 # Run strip to remove unneeded symbols (it's okay that some files
 #  aren't exe or libraries)
-strip --strip-unneeded ./dist/bin/*
+if [ $osname = "darwin" ]; then
+  # I'm not sure if this exactly reproduces --strip-unneeded on darwin
+  strip ./dist/bin/*
+else
+  strip --strip-unneeded ./dist/bin/*
+fi
 
 # Copy contents of dist-share (ipopt lib, include, and share) into dist
 cp -r ./coinbrew/dist-share/* ./dist/
@@ -403,7 +419,14 @@ cp -r ./coinbrew/dist-share/* ./dist/
 # Patch to remove "Requires.private: coinhsl coinmumps"
 # Note that we are patching the file *after* we copy it into the directory
 # we will distribute.
-patch ./dist/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
+#patch ./dist/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
+
+# Handle platform-dependent sed behavior...
+if [ $osname = "darwin" ]; then
+  sed -i "" "s/^Requires\.private/#Requires.private/" dist/lib/pkgconfig/ipopt.pc
+else
+  sed -i "s/^Requires\.private/#Requires.private/" dist/lib/pkgconfig/ipopt.pc
+fi
 
 echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
@@ -478,21 +501,25 @@ cd $IDAES_EXT
 echo "#########################################################################"
 echo "# k_aug, dotsens                                                        #"
 echo "#########################################################################"
-git clone $K_AUG_REPO
-cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
-cd k_aug
-git checkout $K_AUG_BRANCH
-if [ ${osname} = "windows" ]
-then
-  cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
+if [ $with_hsl = "YES" ]; then
+  git clone $K_AUG_REPO
+  cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
+  cd k_aug
+  git checkout $K_AUG_BRANCH
+  if [ ${osname} = "windows" ]
+  then
+    cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
+  else
+    cmake -DCMAKE_C_COMPILER=$CC .
+  fi
+  make $PARALLEL
+  cp bin/k_aug* $IDAES_EXT/dist/bin/
+  cp dot_sens* $IDAES_EXT/dist/bin/
+  # Return to root directory
+  cd $IDAES_EXT
 else
-  cmake -DCMAKE_C_COMPILER=$CC .
+  echo "Skipping k_aug and dot_sens as we are not using HSL"
 fi
-make $PARALLEL
-cp bin/k_aug* $IDAES_EXT/dist/bin/
-cp dot_sens* $IDAES_EXT/dist/bin/
-# Return to root directory
-cd $IDAES_EXT
 
 echo "#########################################################################"
 echo "# PETSc                                                                 #"
