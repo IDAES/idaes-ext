@@ -208,7 +208,11 @@ echo "#########################################################################"
 echo "# Thirdparty/Mumps                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Mumps
-./configure --disable-shared --enable-static --with-metis \
+# We compile without metis to get around a suspected Metis/Mumps version
+# incompatibility. See https://github.com/IDAES/idaes-ext/issues/268
+# ThirdParty/Metis uses v4.0.3, while ThirdParty/Mumps uses the latest release.
+METISFLAG="--without-metis"
+./configure --disable-shared --enable-static $METISFLAG \
  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 make $PARALLEL
 make install
