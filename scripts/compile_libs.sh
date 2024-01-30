@@ -44,15 +44,15 @@ if [ ${osname} = "darwin" ]; then
   mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dylib
   mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dylib
 fi
-cp ./license.txt ./dist-functions/license_lib.txt
-cp ./version.txt ./dist-functions/version_lib.txt
+cp ./license.txt ./dist-functions/license_functions.txt
+cp ./version.txt ./dist-functions/version_functions.txt
 mkdir ./dist-functions/lib/helm_data
 cp ./src/dist/param_data/*.json ./dist-functions/lib/helm_data/
 cp ./src/dist/param_data/*.nl ./dist-functions/lib/helm_data/
 cp ./src/dist/param_data/*.py ./dist-functions/lib/helm_data/
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-functions/version_lib.txt > tmp
+sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-functions/version_functions.txt > tmp
 sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 dist-functions/version_lib.txt
+mv tmp2 dist-functions/version_functions.txt
 rm tmp
 
 # here you pack files
