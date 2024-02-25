@@ -142,15 +142,16 @@ rm -rf ThirdParty/SCIP
 rm -rf ThirdParty/SoPlex
 rm -rf ThirdParty/Glpk
 
+echo "#########################################################################"
+echo "# Use novariadic metis 4.0.3 if available                               #"
+echo "#########################################################################"
 if [ -f $IDAES_EXT/../metis-4.0-novariadic.tar.gz ]; then
+  echo "Found metis-4.0-novariadic.tar.gz"
   rm -rf ./ThirdParty/Metis/metis-4.0/*
   cp $IDAES_EXT/../metis-4.0-novariadic.tar.gz ./ThirdParty/Metis/metis-4.0/
   cd ThirdParty/Metis/metis-4.0
   tar -zxvf metis-4.0-novariadic.tar.gz
   rm metis-4.0-novariadic.tar.gz
-  echo "#########################################################################"
-  echo "# Use novariadic metis 4.0.3                                            #"
-  echo "#########################################################################"
   make $PARALLEL
   cd $IDAES_EXT/coinbrew
 fi
@@ -165,6 +166,7 @@ echo "# Get coinhsl.zip if available                                          #"
 echo "#########################################################################"
 # If we have the HSL stuff copy and extract it in the right place
 if [ -f $IDAES_EXT/../coinhsl.zip ]; then
+  echo "Found coinhsl.zip"
   # if the HSL source zip is in place...
   mkdir ThirdParty/HSL/coinhsl
   cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
