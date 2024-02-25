@@ -25,7 +25,7 @@ export MNAME=`uname -m`
 export IDAES_EXT=`pwd`
 
 arg2=$2
-if [ $arg2 = "--without-hsl" ]; then
+if [ "$arg2" = "--without-hsl" ]; then
   echo "--without-hsl flag received. Building solvers without HSL." >&2
   echo "HSL: NO"
   hslflag="--without-hsl"
