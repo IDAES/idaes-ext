@@ -17,7 +17,7 @@ jobs:
           cd idaes-pse
           git checkout main
           pip install -r requirements-dev.txt
-          idaes get-extensions --nochecksum --url https://github.com/IDAES/idaes-ext/releases/download/test-release/ --extra petsc
+          idaes get-extensions --nochecksum --url https://github.com/IDAES/idaes-ext/releases/download/3.4.2/ --extra petsc
       - name: "Test IDAES-PSE"
         shell: cmd
         run: |
