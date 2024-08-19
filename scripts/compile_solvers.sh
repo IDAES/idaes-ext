@@ -109,7 +109,7 @@ if [ ${GFMV[0]} -ge 10 ]; then
 fi
 
 # Fetch coin-or stuff and dependencies
-SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk ThirdParty/Metis ThirdParty/Mumps'
+SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk ThirdParty/Metis ThirdParty/Mumps'
 bash coinbrew fetch Clp --no-prompt --skip "$SKIP_PKGS"
 bash coinbrew fetch Cbc --no-prompt --skip "$SKIP_PKGS"
 SKIP_PKGS="$SKIP_PKGS Cbc Clp Cgl Osi"
@@ -131,7 +131,7 @@ if [ ${osname} = "el7" ]; then
   # Looks like the only things in therd party are thing that Ipopt gets, so this should be ok.
   rm -rf ./Thirdparty/*
 fi
-bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/glpk'
+bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 cp -r Ipopt Ipopt_share
 
 # Make sure I don't include any dependencies I don't want
