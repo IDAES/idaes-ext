@@ -20,7 +20,9 @@ On Windows, except for one excpetion noted below the git Bash shell can be used.
 4. From the a bash shell run `sh build.sh {flavor}` Replace `{flavor}` with the 
   platform (el7, el8, ubuntu1804, ubuntu2004, ubuntu2204, or windows). On ARM64 
   there is no el7 or windows.
-5. Usually testing is done by GitHub actions and the testing images are built on
+  - **NOTE**: If you are behind certain corporate firewalls/proxies, you will
+    need to add lines to the beginning of the Dockerfiles for your SSL certificates.
+6. Usually testing is done by GitHub actions and the testing images are built on
   DockerHub, but ARM64 is not supported.  If you need to build testing containers,
   go to the test-platform directory and run `sh build.sh {platform}`.  The platform
   argument is slightly differnt than flavor.  For testing it indicates a specific
