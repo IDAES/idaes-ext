@@ -452,9 +452,18 @@ if [ ${osname} = "darwin" ]; then
   export CXX="c++"
 fi
 
-# We are already in this directory
-git clone $PYNU_REPO
-cd pyomo
+# Check if the directory exists
+if [ ! -d "pyomo" ]; then
+    # If it doesn't exist, clone the repository
+    git clone "$PYNU_REPO"
+    echo "Repository cloned from $PYNU_REPO."
+    cd pyomo
+else
+    # If it exists, navigate to the directory and run git clean
+    cd pyomo
+    git clean -fd
+    echo "Untracked files removed from pyomo."
+fi
 git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
 mkdir build
