@@ -189,7 +189,6 @@ echo "#########################################################################"
 if [ $build_hsl = "YES" ]; then
   cd ThirdParty/HSL
   ./configure --disable-shared --enable-static --with-metis \
-    --with-metis-lflags="-L/usr/lib64 -lmetis" --with-metis-cflags="-I/usr/include" \
     --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
   make $PARALLEL
   make install
