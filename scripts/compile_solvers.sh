@@ -107,7 +107,7 @@ if [ ${GFMV[0]} -ge 10 ]; then
 fi
 
 # Fetch coin-or stuff and dependencies
-SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk ThirdParty/Metis ThirdParty/Mumps'
+SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk ThirdParty/Mumps'
 bash coinbrew fetch Clp --no-prompt --skip "$SKIP_PKGS"
 bash coinbrew fetch Cbc --no-prompt --skip "$SKIP_PKGS"
 SKIP_PKGS="$SKIP_PKGS Cbc Clp Cgl Osi"
