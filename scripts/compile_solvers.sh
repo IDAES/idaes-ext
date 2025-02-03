@@ -483,7 +483,16 @@ echo "#########################################################################"
 echo "# k_aug, dotsens                                                        #"
 echo "#########################################################################"
 if [ $with_hsl = "YES" ]; then
-  git clone $K_AUG_REPO
+  # Check if the directory exists
+  if [ ! -d "k_aug" ]; then
+      # If it doesn't exist, clone the repository
+      git clone "$K_AUG_REPO"
+  else
+      # If it exists, navigate to the directory and run git clean
+      pushd k_aug
+      git clean -fd
+      popd
+  fi
   cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
   cd k_aug
   git checkout $K_AUG_BRANCH
