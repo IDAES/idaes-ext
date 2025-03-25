@@ -25,7 +25,7 @@
 
 #define MSG_BUF_SIZE 2000
 
-/* Define some default settings, changable through commandline options */
+/* Define some default settings, changeable through commandline options */
 #define DEFAULT_LINEAR_PACK MATSOLVERMUMPS //be sure to build petsc with mumps
 #define DEFAULT_SNES SNESNEWTONLS // newton line search
 #define DEFAULT_PC PCLU //LU decomposition direct solve
@@ -50,7 +50,7 @@ typedef enum{  //keep these under 50 and shouldn't confilict with PETSc codes
    P_EXIT_MULTIPLE_TIME = 9 //more than one time variable
 }P_EXIT_CODES;
 
-typedef struct{ // Sturcture for solver options
+typedef struct{ // Structure for solver options
   PetscMPIInt    mpi_size; //Number of processors (should be 1 for now)
   PetscBool      show_cl; //show the command line, and transformed CL
   PetscBool      ignore_scaling;
@@ -60,8 +60,8 @@ typedef struct{ // Sturcture for solver options
   PetscBool      got_stub;  // file stub was specified with -s
   PetscBool      show_con;  // Option to show initial constraint values
   PetscBool      show_init; // show initial values for x vec
-  PetscBool      show_jac;  // show jacobian at intial value
-  PetscBool      show_scale_factors;  // show jacobian at intial value
+  PetscBool      show_jac;  // show jacobian at initial value
+  PetscBool      show_scale_factors;  // show jacobian at initial value
   PetscBool      ampl_opt;  // -AMPL specified I catch it but ignore
   PetscBool      use_bounds; // give solver variable bounds
   PetscBool      scale_var; // scale the variables based on jacobian at init

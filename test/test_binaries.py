@@ -26,7 +26,7 @@ set up to run these tests:
   it needs to be removed from the pip cache with `pip cache remove cyipopt`
 - To test the Helmholtz EOS external functions, the IDAES_HELMHOLTZ_DATA_PATH environment
   variable needs to be set to $HOME/.idaes/bin/helm_data/ (Note that the trailing '/'
-  appears to be necessar)
+  appears to be necessary)
 
 """
 

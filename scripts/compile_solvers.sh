@@ -298,7 +298,7 @@ echo "#########################################################################"
 echo "# Bonmin                                                                #"
 echo "#########################################################################"
 cd Bonmin
-# Two replacemnts below are a temporary fix until I can nail the problem down better
+# Two replacements below are a temporary fix until I can nail the problem down better
 # There is a problem linking the exception class TMINLP_INVALID so replaced
 # it with a similar one from IPOPT that works
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp > atmpfile
@@ -421,7 +421,7 @@ echo "#########################################################################"
 echo "# Copy GCC/MinGW Runtime Libraries to dist-solvers                      #"
 echo "#########################################################################"
 if [ ${osname} = "windows" ]; then
-    # Winodws MinGW linked redistributable libraries
+    # Windows MinGW linked redistributable libraries
     cp /mingw64/bin/libstdc++-6.dll ./dist/lib/
     cp /mingw64/bin/libgcc_s_seh-1.dll ./dist/lib/
     cp /mingw64/bin/libwinpthread-1.dll ./dist/lib/

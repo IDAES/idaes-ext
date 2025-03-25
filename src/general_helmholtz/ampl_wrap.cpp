@@ -288,9 +288,9 @@ ASL_WRAP_FUNC_0ARG(rhot_v, rhot_v)      // Critical Density      [kg/m^3]
 ASL_WRAP_FUNC_0ARG(rhot_l, rhot_l)      // Critical Density      [kg/m^3]
 ASL_WRAP_FUNC_0ARG(sgc, R)              // Specific gas constant [kJ/kg/K] or [kPa m^3/kg/K]
 ASL_WRAP_FUNC_0ARG(pmin, P_min)         // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmin, T_min)         // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(tmin, T_min)         // Minimum Temperature  [K]
 ASL_WRAP_FUNC_0ARG(pmax, P_max)         // Minimum Pressure     [kPa]
-ASL_WRAP_FUNC_0ARG(tmax, T_max)         // Minumum Temperature  [K]
+ASL_WRAP_FUNC_0ARG(tmax, T_max)         // Minimum Temperature  [K]
 
 void funcadd(AmplExports *ae){
     /* Arguments for addfunc (this is not fully detailed see funcadd.h)

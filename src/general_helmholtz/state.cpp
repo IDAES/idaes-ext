@@ -16,16 +16,16 @@ Author: John Eslick
 File state.cpp
 
 Functions to enable change of state variables. The end goal of this section is
-given a set of state varible, calculate T, P, and vapor fraction.  From there
+given a set of state variable, calculate T, P, and vapor fraction.  From there
 you can calculate delta for each phase and then all the rest of the properties
 can be calculated.
 
-The general method for changing state varaibles is (first step is here):
+The general method for changing state variables is (first step is here):
   1) tau = tau(v1, v2), vf=vf(v1, v2), p(v1, v2); so far p is always a state
      variable but it doesn't need to be that case we can add on to support more
   2) delta_v = delta_v(p, tau), delta_l = delta_l(p, tau)
   3) property_v = f(delta_v, tau), property_l = f(delta_l, tau)
-  4) calculate mixed phase properies
+  4) calculate mixed phase properties
 ------------------------------------------------------------------------------*/
 
 #include <boost/math/tools/roots.hpp>
@@ -394,7 +394,7 @@ public:
 
   This function first checks that if at the given pressure, the enthalpy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
-  classify the region in either liquid, vapor, vapor below the tripple point,
+  classify the region in either liquid, vapor, vapor below the triple point,
   or supercritical. 
 ------------------------------------------------------------------------------*/
 
@@ -492,7 +492,7 @@ void tau_hp2(uint comp, double ht, double pr, f22_struct *out){
 
   This function first checks that if at the given pressure, the entropy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
-  classify the region in either liquid, vapor, vapor below the tripple point,
+  classify the region in either liquid, vapor, vapor below the triple point,
   or supercritical. 
 ------------------------------------------------------------------------------*/
 
@@ -589,7 +589,7 @@ void tau_sp2(uint comp, double ht, double pr, f22_struct *out){
 
   This function first checks that if at the given pressure, the int. energy is
   in the 2-phase region.  If it is, tau is just tau_sat.  If not it tries to
-  classify the region in either liquid, vapor, vapor below the tripple point,
+  classify the region in either liquid, vapor, vapor below the triple point,
   or supercritical. 
 ------------------------------------------------------------------------------*/
 

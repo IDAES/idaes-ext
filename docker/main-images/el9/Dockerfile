@@ -1,18 +1,19 @@
-FROM rockylinux:8
+FROM rockylinux:9
 
 # Install dependencies
-RUN yum -y update; yum clean all; \
-    yum -y install git make cmake wget unzip patch which file; \
-    yum -y install gcc gcc-c++ gcc-gfortran; \
-    yum -y install dnf-plugins-core; \
-    yum config-manager --set-enabled powertools; \
-    yum -y install python3 lapack-devel findutils diffutils;
+RUN dnf -y update; dnf clean all; \
+    dnf config-manager --set-enabled crb; \
+    dnf -y install git make cmake wget unzip patch which file; \
+    dnf -y install gcc gcc-c++ gcc-gfortran lapack-devel; \
+    dnf -y install python3 python-devel findutils diffutils patchelf;
+
+# Fix the symlinks: https://bugs.rockylinux.org/view.php?id=7855
+RUN cd /usr/lib64; \
+    ln -sf libblas.so.3.9.0 libblas.so.3; \
+    ln -sf liblapack.so.3.9.0 liblapack.so.3;
 
 # Create directory structure
 RUN mkdir repo
-
-# Copy the coinhsl.tar.gz file into the repo folder
-# COPY ./hsl/coinhsl.tar.gz /repo/coinhsl.tar.gz
 
 # Install PETSc
 RUN cd repo; \
@@ -33,4 +34,5 @@ RUN cd repo; \
     sh bootstrap.sh --prefix=/usr/local/; \
     chmod a+x ./b2; \
     ./b2 install || true;
+
 
