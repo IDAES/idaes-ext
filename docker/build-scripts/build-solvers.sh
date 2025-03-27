@@ -62,6 +62,6 @@ docker stop "$flavor"_"$mname"_build_tmp
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-functions/idaes-functions-"$flavor"-"$mname".tar.gz .
 docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist/idaes-solvers-"$flavor"-"$mname".tar.gz .
 
-#docker rm "$flavor"_"$mname"_build_tmp
+docker rm "$flavor"_"$mname"_build_tmp
 
-#mv *.tar.gz ./tarballs/
+mv *.tar.gz ./tarballs/
