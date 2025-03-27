@@ -15,6 +15,7 @@ if [ ! "$tag" ]; then
     tag="latest"
 fi
 
+# Most common options are `--with-hsl` and `--without-hsl`
 solver_buildargs=$6
 
 echo "build.sh script arguments:
