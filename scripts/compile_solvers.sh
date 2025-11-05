@@ -177,8 +177,14 @@ echo "#########################################################################"
 echo "# Thirdparty/Metis                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Metis
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
-  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    --build=aarch64-unknown-linux-gnu FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+fi
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -572,15 +578,20 @@ echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
 cd dist
-if [ "$osname" == "el9" ]; then
-  # There is a bug on el9 machines regarding the blas/lapack links.
-  # Fix the symlinks: https://bugs.rockylinux.org/view.php?id=7855
+if [ "$osname" = "el9" ]; then
+  # Ensure our exes look in dist/lib first
   pushd bin
   for exe in *; do
-      patchelf --replace-needed libblas.so.3 libblas.so.3.idaes $exe
-      patchelf --replace-needed liblapack.so.3 liblapack.so.3.idaes $exe
-      patchelf --set-rpath '$ORIGIN/../lib' $exe
+    patchelf --set-rpath '$ORIGIN/../lib' "$exe" 2>/dev/null || true
   done
+  popd
+
+  # Add EL9-specific absolute symlinks
+  # There is a bug on el9 machines regarding the blas/lapack links.
+  # See: https://bugs.rockylinux.org/view.php?id=7855
+  pushd lib
+  ln -sfn /usr/lib64/libblas.so.3.9.0   libblas.so.3
+  ln -sfn /usr/lib64/liblapack.so.3.9.0 liblapack.so.3
   popd
 fi
 tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
