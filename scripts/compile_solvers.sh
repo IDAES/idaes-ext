@@ -184,12 +184,12 @@ if [ "$osname" = "windows" ]; then
   COMPRESS_FILE="$METIS_DIR/compress.c"
   echo "Patching $RENAME_FILE to fix GKfree macro..."
   sed -i 's/#define GKfree __GKfree/#define GKfree GKfree/' "$RENAME_FILE"
-#  if ! grep -q "__GKfree" "$COMPRESS_FILE"; then
-#    echo "Defining __GKfree in $COMPRESS_FILE..."
-#    echo -e "\nvoid __GKfree(void **ptr, ...) {\n    if (*ptr) {\n        free(*ptr);\n        *ptr = NULL;\n    }\n}" >> "$COMPRESS_FILE"
-#  else
-#    echo "Definition of __GKfree already exists in $COMPRESS_FILE."
-#  fi
+  if ! grep -q "__GKfree" "$COMPRESS_FILE"; then
+    echo "Defining __GKfree in $COMPRESS_FILE..."
+    echo -e "\nvoid __GKfree(void **ptr, ...) {\n    if (*ptr) {\n        free(*ptr);\n        *ptr = NULL;\n    }\n}" >> "$COMPRESS_FILE"
+  else
+    echo "Definition of __GKfree already exists in $COMPRESS_FILE."
+  fi
 fi
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
