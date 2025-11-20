@@ -177,27 +177,13 @@ echo "#########################################################################"
 echo "# Thirdparty/Metis                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Metis
-if [ "$osname" = "windows" ]; then
-  PROTO_FILE="metis-4.0/Lib/proto.h"
-  if ! grep -q "__GKfree" "$PROTO_FILE"; then
-    echo "Patching $PROTO_FILE to add __GKfree prototype..."
-    cat >> "$PROTO_FILE" <<'EOF'
-
-/* Added by build script: declaration for __GKfree (needed for newer GCC). */
-void __GKfree(void **ptr1, ...);
-
-EOF
-  else
-    echo "$PROTO_FILE already contains __GKfree prototype, skipping patch."
-  fi
-fi
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
     --build=aarch64-unknown-linux-gnu FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
-    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+    FFLAGS="-fPIC" CFLAGS="-fPIC -Wno-error=implicit-function-declaration" CXXFLAGS="-fPIC"
 fi
 make $PARALLEL
 make install
