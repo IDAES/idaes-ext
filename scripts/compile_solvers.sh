@@ -526,37 +526,33 @@ cd $IDAES_EXT/petsc
 if [ ${osname} = "windows" ]
   FILES=("fg_dae.c" "fg_nl.c" "petsc.c" "printing.c")
 
-for f in "${FILES[@]}"; do
-  if [ ! -f "$f" ]; then
-    echo "Warning: $f not found, skipping"
-    continue
-  fi
+  for f in "${FILES[@]}"; do
+    if [ ! -f "$f" ]; then
+      echo "Warning: $f not found, skipping"
+      continue
+    fi
 
-  echo "Patching $f..."
-  #
-  # Replace simple declarations: int err;  int err = 0;
-  #
-  sed -i 's/\bint[[:space:]]\+err\b/fint err/g' "$f"
-  sed -i 's/\bint[[:space:]]\+err\s*=/fint err=/g' "$f"
+    echo "Patching $f..."
+    # Replace simple declarations: int err;  int err = 0;
+    sed -i 's/\bint[[:space:]]\+err\b/fint err/g' "$f"
+    sed -i 's/\bint[[:space:]]\+err\s*=/fint err=/g' "$f"
 
-  #
-  # Fix comma declarations like:
-  #      int i=0, err=0;
-  #
-  # The strategy:
-  #   - detect lines with "int ... , err"
-  #   - rewrite them into:
-  #       int i=0;
-  #       fint err=0;
-  #
-  if grep -qE '\bint\b.*,' "$f" && grep -qE ',[[:space:]]*err' "$f"; then
-    sed -i \
-      -e 's/\bint\(.*\),[[:space:]]*err[[:space:]]*=\([^;]*\);/int\1;\nfint err=\2;/g' \
-      -e 's/\bint\(.*\),[[:space:]]*err;/int\1;\nfint err;/g' \
-      "$f"
-    echo "  - Split comma declarations containing err"
-  fi
-done
+    # Fix comma declarations like:
+    #      int i=0, err=0;
+    #
+    # The strategy:
+    #   - detect lines with "int ... , err"
+    #   - rewrite them into:
+    #       int i=0;
+    #       fint err=0;
+    if grep -qE '\bint\b.*,' "$f" && grep -qE ',[[:space:]]*err' "$f"; then
+      sed -i \
+        -e 's/\bint\(.*\),[[:space:]]*err[[:space:]]*=\([^;]*\);/int\1;\nfint err=\2;/g' \
+        -e 's/\bint\(.*\),[[:space:]]*err;/int\1;\nfint err;/g' \
+        "$f"
+      echo "  - Split comma declarations containing err"
+    fi
+  done
 
   echo "ASL err patch complete."
 fi
