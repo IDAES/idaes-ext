@@ -438,7 +438,7 @@ if [ ${osname} = "windows" ]; then
     cp /mingw64/bin/libblas.dll ./dist/lib/
     cp /mingw64/bin/libbz2-*.dll ./dist/lib/
     cp /mingw64/bin/zlib*.dll ./dist/lib/
-    cp /mingw64/bin/libssp*.dll ./dist/lib/
+    cp /mingw64/bin/libssp*.dll ./dist/lib/ 2>/dev/null || true
 fi
 
 if [ ${osname} = "darwin" ]; then
