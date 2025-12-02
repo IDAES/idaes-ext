@@ -524,6 +524,7 @@ export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
 cd $IDAES_EXT/petsc
 if [ ${osname} = "windows" ]
+then
   FILES=("fg_dae.c" "fg_nl.c" "petsc.c" "printing.c")
 
   for f in "${FILES[@]}"; do
