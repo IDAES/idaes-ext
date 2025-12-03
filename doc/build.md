@@ -34,22 +34,19 @@ that it is accessible in a `coinhsl.tar.gz` format. Place it in the
 1. Install the Xcode command line tools
 2. Install cmake (cmake.org), and set it up to run from the command line
 3. Install homebrew and a few things:
-  * brew install gcc
-  * brew install pkgconfig
-  * brew install boost
-  * brew install bash
+  * brew install cmake gcc pkgconfig boost
   
 You also need to install PETSc. The newest version that works with the custom
 code in this repository is 3.20.6.
 
 1. Download https://gitlab.com/petsc/petsc/-/archive/v3.20.6/petsc-v3.20.6.tar.gz
-2. extract in ~/src
-3. Go to PETSC source directory
-4. Configure and build PETSc (-fPIC is so we can use the Metis and Mumps builds again)
+2. Extract somewhere appropriate for you (e.g., `mkdir ~/repo/` and extract there)
+4. Go to PETSC source directory
+5. Configure and build PETSc (-fPIC is so we can use the Metis and Mumps builds again)
    ```
    $ ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
-      --download-metis --download-mumps --with-mumps-serial=1 \
-      --prefix=$HOME/src/petsc-dist 
+       --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
+       --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
    $ make
    $ make install
    ```
@@ -77,14 +74,15 @@ on Windows).
 
 ### MacOS
 
-1. Checkout the idaes-ext repo.  
-2. In the idaes-ext directory run the script to copy the
+1. Checkout the idaes-ext repo.
+2. If installing with coinhsl, move that tarball to peer with the idaes-ext repo.
+3. In the idaes-ext directory run the script to copy the
   source files to a new build location (
-  `sh ./scripts/build_directory.sh ~/src/idaes-ext-build`).
-3. Go to the build directory.
-4. > bash ./scripts/compile_solvers.sh darwin
-5. > bash ./scripts/compile_libs.sh darwin
-6. > bash ./scripts/mac_collect.sh
+  `sh ./scripts/build_directory.sh ~/repo/ext-build`).
+4. Go to the build directory.
+5. > bash ./scripts/compile_solvers.sh darwin # --with-hsl if using hsl
+6. > bash ./scripts/compile_libs.sh darwin
+7. > bash ./scripts/mac_collect.sh
 
 ## Release Hashes
 
