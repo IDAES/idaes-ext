@@ -114,7 +114,7 @@ jobs:
             PETSC_TAR=${DOWNLOAD_DIR}/idaes-petsc.tar.gz
             # idaes-local*tar.gz is a file we distribute with idaes-solvers that
             # contains include and pkgconfig files that we need for linking CyIpopt.
-            if test "${{ matrix.os }}" == macos-14; then
+            if test "${{ matrix.os }}" == macos-15; then
                 # Basically a bug in the build process -- we forgot to change the name
                 # to aarch64 here.
                 IDAES_LOCAL_TAR=${IDAES_BIN_DIR}/idaes-local-darwin-arm64.tar.gz
