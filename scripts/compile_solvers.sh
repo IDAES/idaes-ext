@@ -78,9 +78,10 @@ export PETSC_ARCH=""
 # locate homebrew libs (this script is not at all for general builds)
 if [ ${osname} = "darwin" ]
 then
-  if [ -f /opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
+  
+  if [ -f $HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
   then
-    export BREWLIB=/opt/homebrew/opt/gcc/lib/gcc/current/
+    export BREWLIB=$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/
   elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
     export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
   fi
@@ -94,8 +95,8 @@ if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   # Allow dynamic version determination. Hard-coding is not future-proof.
   # Try to find a Homebrew GCC / G++
-  if command -v brew >/dev/null 2>&1; then
-    GCC_PREFIX=$(brew --prefix gcc 2>/dev/null || true)
+  if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
+    GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix gcc 2>/dev/null || true)
     if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
       # Pick the highest-version gcc-* and g++-*
       CC=$(ls "$GCC_PREFIX"/bin/gcc-* 2>/dev/null | sort -V | tail -1)
