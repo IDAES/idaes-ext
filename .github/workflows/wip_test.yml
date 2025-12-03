@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-14-large, macos-15, windows-2022, windows-2025]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
 
         include:
         - os: ubuntu-22.04
@@ -36,7 +36,7 @@ jobs:
         - os: ubuntu-24.04
           TARGET: "ubuntu2204-x86_64"
           SHORTOS: ubuntu
-        - os: macos-14-large
+        - os: macos-15-intel
           TARGET: "darwin-x86_64"
           SHORTOS: osx
         - os: macos-15
