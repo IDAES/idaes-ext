@@ -93,9 +93,17 @@ cd coinbrew
 if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   # Allow dynamic version determination. Hard-coding is not future-proof.
-  GCC_PREFIX=$(brew --prefix gcc)
-  export CC="${GCC_PREFIX}/bin/gcc"
-  export CXX="${GCC_PREFIX}/bin/g++"
+  # Try to find a Homebrew GCC / G++
+  if command -v brew >/dev/null 2>&1; then
+    GCC_PREFIX=$(brew --prefix gcc 2>/dev/null || true)
+    if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
+      # Pick the highest-version gcc-* and g++-*
+      CC=$(ls "$GCC_PREFIX"/bin/gcc-* 2>/dev/null | sort -V | tail -1)
+      CXX=$(ls "$GCC_PREFIX"/bin/g++-* 2>/dev/null | sort -V | tail -1)
+    fi
+  fi
+  echo "Using CC=$CC"
+  echo "Using CXX=$CXX"
 else
   wget --secure-protocol tlsv1 https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
