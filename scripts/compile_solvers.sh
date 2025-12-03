@@ -92,8 +92,10 @@ cd coinbrew
 
 if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  export CC="gcc-15"
-  export CXX="g++-15"
+  # Allow dynamic version determination. Hard-coding is not future-proof.
+  GCC_PREFIX=$(brew --prefix gcc)
+  export CC="${GCC_PREFIX}/bin/gcc"
+  export CXX="${GCC_PREFIX}/bin/g++"
 else
   wget --secure-protocol tlsv1 https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
