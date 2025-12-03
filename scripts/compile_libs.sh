@@ -26,6 +26,20 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_EXT/coinbrew/dist/lib64
 export IDAES_HELMHOLTZ_DATA_PATH=$IDAES_EXT/src/general_helmholtz/param_data/
 export IDAES_HELMHOLTZ_TEST_DATA_PATH=$IDAES_EXT/src/general_helmholtz/test_data/
 
+if [ ${osname} = "darwin" ]; then
+  # Prefer Homebrew Boost headers (for boost/json) over anything from Conda, etc.
+  if command -v brew >/dev/null 2>&1; then
+    BOOST_PREFIX=$(brew --prefix boost 2>/dev/null || true)
+    if [ -n "$BOOST_PREFIX" ] && [ -d "$BOOST_PREFIX/include" ]; then
+      export CFLAGS="-I${BOOST_PREFIX}/include ${CFLAGS}"
+      export CXXFLAGS="-I${BOOST_PREFIX}/include ${CXXFLAGS}"
+      export CPPFLAGS="-I${BOOST_PREFIX}/include ${CPPFLAGS}"
+      export LDFLAGS="-L${BOOST_PREFIX}/lib ${LDFLAGS}"
+      echo "Using Boost from ${BOOST_PREFIX}"
+    fi
+  fi
+fi
+
 make
 cd $IDAES_EXT
 
