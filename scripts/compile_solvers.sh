@@ -75,7 +75,6 @@ if [ -z $PETSC_DIR ]; then
 fi
 export PETSC_ARCH=""
 
-# locate homebrew libs (this script is not at all for general builds)
 if [ ${osname} = "darwin" ]
 then
   
@@ -85,14 +84,6 @@ then
   elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
     export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
   fi
-fi
-
-
-mkdir coinbrew
-cd coinbrew
-
-if [ ${osname} = "darwin" ]; then
-  curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
   # Allow dynamic version determination. Hard-coding is not future-proof.
   # Try to find a Homebrew GCC / G++
   if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
@@ -120,6 +111,13 @@ if [ ${osname} = "darwin" ]; then
       echo "  F77 = $F77"
       echo "  FC = $FC"
   fi
+fi
+
+mkdir coinbrew
+cd coinbrew
+
+if [ ${osname} = "darwin" ]; then
+  curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 else
   wget --secure-protocol tlsv1 https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
