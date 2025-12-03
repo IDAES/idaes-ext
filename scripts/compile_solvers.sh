@@ -98,9 +98,17 @@ if [ ${osname} = "darwin" ]; then
   if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
     GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix gcc 2>/dev/null || true)
     if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
-      # Pick the highest-version gcc-* and g++-*
-      CC=$(ls "$GCC_PREFIX"/bin/gcc-* 2>/dev/null | sort -V | tail -1)
-      CXX=$(ls "$GCC_PREFIX"/bin/g++-* 2>/dev/null | sort -V | tail -1)
+      # Only match gcc-NN, not gcc-ar-NN, gcc-nm-NN, gcc-ranlib-NN
+      GCC_EXE=$(ls "$GCC_PREFIX"/bin/gcc-[0-9]* 2>/dev/null \
+              | grep -E 'gcc-[0-9]+$' \
+              | sort -V \
+              | tail -1)
+
+      if [ -n "$GCC_EXE" ]; then
+        GXX_EXE=$(echo "$GCC_EXE" | sed 's/gcc-/g++-/')
+        export CC="$GCC_EXE"
+        export CXX="$GXX_EXE"
+      fi
     fi
   fi
   echo "Using CC=$CC"
