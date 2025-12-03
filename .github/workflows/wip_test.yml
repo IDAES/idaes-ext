@@ -27,35 +27,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, macos-13, macos-14, windows-2019, windows-2022]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-14-large, macos-15, windows-2022, windows-2025]
 
         include:
-        - os: ubuntu-20.04
-          TARGET: "ubuntu2004-x86_64"
-          SHORTOS: ubuntu
         - os: ubuntu-22.04
           TARGET: "ubuntu2204-x86_64"
           SHORTOS: ubuntu
-        - os: macos-13
+        - os: ubuntu-24.04
+          TARGET: "ubuntu2204-x86_64"
+          SHORTOS: ubuntu
+        - os: macos-14-large
           TARGET: "darwin-x86_64"
           SHORTOS: osx
-        - os: macos-14
+        - os: macos-15
           TARGET: "darwin-aarch64"
           SHORTOS: osx
-        - os: windows-2019
+        - os: windows-2022
           TARGET: "windows-x86_64"
           SHORTOS: win
-        - os: windows-2022
+        - os: windows-2025
           TARGET: "windows-x86_64"
           SHORTOS: win
 
     steps:
       - name: Checkout IDAES-ext source
         uses: actions/checkout@v4
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Configure curl
         run: |
           CURLRC="$(cat <<EOF
