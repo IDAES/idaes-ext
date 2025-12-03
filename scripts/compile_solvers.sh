@@ -97,22 +97,29 @@ if [ ${osname} = "darwin" ]; then
   # Try to find a Homebrew GCC / G++
   if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
     GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix gcc 2>/dev/null || true)
-    if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
-      # Only match gcc-NN, not gcc-ar-NN, gcc-nm-NN, gcc-ranlib-NN
-      GCC_EXE=$(ls "$GCC_PREFIX"/bin/gcc-[0-9]* 2>/dev/null \
+      if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
+    GCC_BIN="$GCC_PREFIX/bin"
+
+    # Find the "real" gcc-N (not gcc-ar-N, gcc-nm-N, gcc-ranlib-N)
+    GCC_EXE=$(ls "$GCC_BIN"/gcc-[0-9]* 2>/dev/null \
               | grep -E 'gcc-[0-9]+$' \
               | sort -V \
               | tail -1)
 
-      if [ -n "$GCC_EXE" ]; then
-        GXX_EXE=$(echo "$GCC_EXE" | sed 's/gcc-/g++-/')
-        export CC="$GCC_EXE"
-        export CXX="$GXX_EXE"
-      fi
-    fi
+    if [ -n "$GCC_EXE" ]; then
+      GCC_VER="${GCC_EXE##*-}"
+
+      export CC="$GCC_BIN/gcc-$GCC_VER"
+      export CXX="$GCC_BIN/g++-$GCC_VER"
+      export F77="$GCC_BIN/gfortran-$GCC_VER"
+      export FC="$GCC_BIN/gfortran-$GCC_VER"
+
+      echo "Using GCC toolchain:"
+      echo "  CC = $CC"
+      echo "  CXX = $CXX"
+      echo "  F77 = $F77"
+      echo "  FC = $FC"
   fi
-  echo "Using CC=$CC"
-  echo "Using CXX=$CXX"
 else
   wget --secure-protocol tlsv1 https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
