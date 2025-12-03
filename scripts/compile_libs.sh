@@ -28,7 +28,7 @@ export IDAES_HELMHOLTZ_TEST_DATA_PATH=$IDAES_EXT/src/general_helmholtz/test_data
 
 if [ ${osname} = "darwin" ]; then
   # Homebrew boost is required
-  export BOOST=$(brew --prefix boost)/include
+  export BOOST=$($HOMEBREW_PREFIX/bin/brew --prefix boost)/include
 fi
 
 make BOOST=$BOOST
