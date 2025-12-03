@@ -81,6 +81,9 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install pyomo pytest scipy "numpy<2" parameterized
+          if test "${{ matrix.SHORTOS }}" == "ubuntu*"; then
+            sudo apt-get install libopenblas-dev liblapack-dev
+          fi
       - name: Download Binaries
         run: |
             # Per IDAES's current convention (v2.6), we unpack binaries into IDAES_DIR/bin
