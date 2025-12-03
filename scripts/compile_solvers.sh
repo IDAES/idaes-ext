@@ -75,38 +75,42 @@ if [ -z $PETSC_DIR ]; then
 fi
 export PETSC_ARCH=""
 
-if [ ${osname} = "darwin" ]; then
-  if [ -f $HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
-    export BREWLIB=$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/
-  elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
-    export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
+if [ "$osname" = "darwin" ]; then
+  # Identify a Homebrew gcc lib directory for libgfortran
+  if [ -n "$HOMEBREW_PREFIX" ] && [ -f "$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/libgfortran.5.dylib" ]; then
+    export BREWLIB="$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/"
+  elif [ -f "/usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib" ]; then
+    export BREWLIB="/usr/local/opt/gcc/lib/gcc/current/"
   fi
+
   # Allow dynamic version determination. Hard-coding is not future-proof.
   # Try to find a Homebrew GCC / G++
   if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
     GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix gcc 2>/dev/null || true)
-      if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
-        GCC_BIN="$GCC_PREFIX/bin"
 
-        # Find the "real" gcc-N (not gcc-ar-N, gcc-nm-N, gcc-ranlib-N)
-        GCC_EXE=$(ls "$GCC_BIN"/gcc-[0-9]* 2>/dev/null \
-              | grep -E 'gcc-[0-9]+$' \
-              | sort -V \
-              | tail -1)
+    if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
+      GCC_BIN="$GCC_PREFIX/bin"
 
-        if [ -n "$GCC_EXE" ]; then
-          GCC_VER="${GCC_EXE##*-}"
+      # Find the "real" gcc-N (not gcc-ar-N, gcc-nm-N, gcc-ranlib-N)
+      GCC_EXE=$(ls "$GCC_BIN"/gcc-[0-9]* 2>/dev/null \
+                | grep -E 'gcc-[0-9]+$' \
+                | sort -V \
+                | tail -1)
 
-          export CC="$GCC_BIN/gcc-$GCC_VER"
-          export CXX="$GCC_BIN/g++-$GCC_VER"
-          export F77="$GCC_BIN/gfortran-$GCC_VER"
-          export FC="$GCC_BIN/gfortran-$GCC_VER"
+      if [ -n "$GCC_EXE" ]; then
+        GCC_VER="${GCC_EXE##*-}"
 
-          echo "Using GCC toolchain:"
-          echo "  CC = $CC"
-          echo "  CXX = $CXX"
-          echo "  F77 = $F77"
-          echo "  FC = $FC"
+        export CC="$GCC_BIN/gcc-$GCC_VER"
+        export CXX="$GCC_BIN/g++-$GCC_VER"
+        export F77="$GCC_BIN/gfortran-$GCC_VER"
+        export FC="$GCC_BIN/gfortran-$GCC_VER"
+
+        echo "Using GCC toolchain:"
+        echo "  CC = $CC"
+        echo "  CXX = $CXX"
+        echo "  F77 = $F77"
+        echo "  FC = $FC"
+      fi
     fi
   fi
 fi
