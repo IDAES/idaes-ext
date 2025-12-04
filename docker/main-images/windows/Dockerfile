@@ -1,51 +1,76 @@
-FROM mcr.microsoft.com/windows:20H2
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-ENV MSYSTEM MINGW64
-ENV CMAKE_GENERATOR "MSYS Makefiles"
+ENV MSYSTEM=MINGW64 \
+    CHERE_INVOKING=1 \
+    CMAKE_GENERATOR="MSYS Makefiles" \
+    MSYS2_PATH_TYPE=inherit
 
-WORKDIR c:/windows/temp
+WORKDIR C:/Windows/Temp
 
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-NoLogo", "-ExecutionPolicy", "Bypass", "-Command", "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue';"]
 
+# MSYS2 installation
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  Invoke-WebRequest -UseBasicParsing -uri "https://github.com/msys2/msys2-installer/releases/download/2022-05-03/msys2-base-x86_64-20220503.sfx.exe" -OutFile msys2.exe; \
-  .\msys2.exe -y -oC:\; \
-  Remove-Item msys2.exe ;
+    Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/msys2/msys2-installer/releases/download/2025-08-30/msys2-base-x86_64-20250830.sfx.exe" -OutFile msys2.exe; \
+    Start-Process -NoNewWindow -Wait -FilePath msys2.exe -ArgumentList '-y', '-oC:\'; \
+    Remove-Item msys2.exe -Force
 
+WORKDIR C:/repo
+
+# Bring in HSL tarball
+# COPY ./hsl/coinhsl.tar.gz C:/repo/coinhsl.tar.gz
+
+# Download PETsc
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'echo hi';
+    Invoke-WebRequest -UseBasicParsing -Uri "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.20.6.tar.gz" -OutFile petsc-3.20.6.tar.gz; \
+    & 'C:\msys64\usr\bin\bash.exe' -lc 'cd /c/repo && tar -zxvf petsc-3.20.6.tar.gz && mv petsc-3.20.6 petsc'
 
+# Install packages
+RUN ["C:\\msys64\\usr\\bin\\bash.exe", "-lc", "\
+set -euo pipefail; \
+pacman -Sy --noconfirm; \
+pacman -S --needed --noconfirm --noprogressbar \
+  mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-cmake \
+  mingw-w64-x86_64-make \
+  mingw-w64-x86_64-lapack \
+  mingw-w64-x86_64-boost \
+  mingw-w64-x86_64-gcc-fortran \
+  mingw-w64-x86_64-meson \
+  mingw-w64-x86_64-ninja; \
+pacman -S --needed --noconfirm --noprogressbar \
+  base-devel git wget unzip patch which file diffutils findutils python; \
+pacman --noconfirm -Scc; \
+mkdir -p /c/repo/petsc-dist /c/repo/coinhsl-dist; \
+rm -rf /c/\\$Recycle.Bin/* \
+"]
 
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'pacman --noconfirm -Syuu'; \
-  msys 'pacman --noconfirm -Syuu'; \
-  msys 'pacman --noconfirm -Scc'; \
-  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-toolchain diffutils mingw-w64-x86_64-cmake mingw-w64-x86_64-make'; \
-  msys 'pacman -S --needed --noconfirm --noprogressbar mingw-w64-x86_64-boost unzip patch make git python mingw-w64-x86_64-lapack'; \
-  msys 'mkdir /c/repo'; \
-  msys 'mkdir /c/repo/petsc-dist'; \
-  msys 'rm -rf /c/\$Recycle.Bin/*';
+# PETSc build
+RUN ["C:\\msys64\\usr\\bin\\bash.exe", "-lc", "\
+    cd /c/repo/petsc && \
+    export CPATH=/c/repo/petsc-dist/include && \
+    /usr/bin/python configure \
+      --with-debug=0 \
+      --with-shared=0 \
+      --with-mpi=0 \
+      --with-fortran-bindings=0 \
+      --download-metis \
+      --download-mumps \
+      --with-64-bit-indices \
+      --with-mumps-serial=1 \
+      --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5' \
+      --with-make-exec=mingw32-make \
+      --prefix=/c/repo/petsc-dist \
+"]
 
-WORKDIR c:/repo
+RUN ["C:\\msys64\\usr\\bin\\bash.exe", "-lc", "\
+    cd /c/repo/petsc && \
+    make PETSC_ARCH=arch-mswin-c-opt all \
+"]
 
-# The PETSc build really doesn't like MinGW on docker, so need to put extra effort in
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'cd /c/repo && wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.2.tar.gz'; \
-  msys 'cd /c/repo && tar -zxvf petsc-3.19.2.tar.gz';
-SHELL ["C:\\msys64\\usr\\bin\\bash.exe", "-l", "-c"]
-RUN 'cd /c/repo/petsc-3.19.2 && export CPATH=/c/repo/petsc-dist/include && /usr/bin/python configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 --download-metis-cmake-arguments="-G\"MSYS Makefiles\"" --download-metis --download-mumps --with-mumps-serial=1 --with-make-exec=mingw32-make --prefix=/c/repo/petsc-dist'
+RUN ["C:\\msys64\\usr\\bin\\bash.exe", "-lc", "\
+    cd /c/repo/petsc && /usr/bin/python config/install.py \
+"]
 
-# Why have I done this weird thing?  It will allow the command to fail, but keep going
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-  function msys() { C:\msys64\usr\bin\bash.exe @('-lc') + @Args; } \
-  msys 'cd /c/repo/petsc-3.19.2 && make PETSC_DIR=/c/repo/petsc-3.19.2 PETSC_ARCH=arch-mswin-c-opt all'
-
-SHELL ["C:\\msys64\\usr\\bin\\bash.exe", "-l", "-c"]
-RUN 'cd /c/repo/petsc-3.19.2 && mingw32-make PETSC_DIR=/c/repo/petsc-3.19.2 PETSC_ARCH=arch-mswin-c-opt all'
-RUN 'cd /c/repo/petsc-3.19.2 && /usr/bin/python config/install.py'
-
-RUN cmd /c 'taskkill /F /FI "MODULES eq msys-2.0.dll"'
+# Set entrypoint
+CMD ["C:\\msys64\\usr\\bin\\bash.exe", "-l"]
