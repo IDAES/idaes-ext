@@ -233,14 +233,9 @@ if [ $build_hsl = "YES" ]; then
     --with-metis-cflags="$METIS_CFLAGS" \
     --with-metis-lflags="$METIS_LFLAGS" \
     --prefix=$IDAES_EXT/coinbrew/dist \
-    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
-
-  echo ""
-  echo ""
-  ls -l $IDAES_EXT/coinbrew/ThirdParty/HSL
-  cat $IDAES_EXT/coinbrew/ThirdParty/HSL/config.log
-  echo ""
-  echo ""
+    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC" \
+  || cat $IDAES_EXT/coinbrew/ThirdParty/HSL/config.log \
+  exit 42
 
   make $PARALLEL
   make install
