@@ -235,6 +235,8 @@ if [ $build_hsl = "YES" ]; then
     --prefix=$IDAES_EXT/coinbrew/dist \
     FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 
+  less $IDAES_EXT/coinbrew/ThirdParty/HSL/config.log
+
   make $PARALLEL
   make install
   cd $IDAES_EXT/coinbrew
