@@ -215,6 +215,10 @@ make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
 
+ls -l "$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
+ls -l "$IDAES_EXT/coinbrew/dist/lib"
+find $IDAES_EXT -name ".*metis.*"
+
 echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
