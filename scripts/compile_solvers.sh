@@ -221,13 +221,13 @@ echo "#########################################################################"
 if [ $build_hsl = "YES" ]; then
   cd ThirdParty/HSL
 
-  METIS_INC="$IDAES_EXT/coinbrew/dist/include"
-  METIS_LIB="$IDAES_EXT/coinbrew/dist/lib"
+  METIS_CFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
+  METIS_LFLAGS="-L$IDAES_EXT/coinbrew/dist/lib -lcoinmetis"
 
   ./configure \
     --disable-shared --enable-static --with-metis \
-    --with-metis-cflags="-I${METIS_INC}" \
-    --with-metis-lflags="-L${METIS_LIB} -lcoinmetis" \
+    --with-metis-cflags="$METIS_CFLAGS" \
+    --with-metis-lflags="$METIS_LFLAGS" \
     --prefix=$IDAES_EXT/coinbrew/dist \
     FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
 
