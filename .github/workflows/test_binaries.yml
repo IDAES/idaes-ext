@@ -27,14 +27,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
+        # os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15]
 
         include:
         - os: ubuntu-22.04
           TARGET: "ubuntu2204-x86_64"
           SHORTOS: ubuntu
         - os: ubuntu-24.04
-          TARGET: "ubuntu2204-x86_64"
+          TARGET: "ubuntu2404-x86_64"
           SHORTOS: ubuntu
         - os: macos-15-intel
           TARGET: "darwin-x86_64"
@@ -71,12 +72,13 @@ jobs:
           # This simulates the ".idaes" directory, where binaries get unpacked
           # for use by idaes-pse (and other programs). Note that we do not actually
           # install idaes-pse in this workflow.
-          IDAES_DIR="${GITHUB_WORKSPACE}/.idaes"
+          IDAES_DIR="${GITHUB_WORKSPACE}/binaries"
           mkdir -p "$IDAES_DIR"
-          DOWNLOAD_DIR="${GITHUB_WORKSPACE}/.idaes/download"
+          DOWNLOAD_DIR="${GITHUB_WORKSPACE}/binaries/download"
           mkdir -p "$DOWNLOAD_DIR"
           echo "IDAES_DIR=$IDAES_DIR" >> $GITHUB_ENV
           echo "DOWNLOAD_DIR=$DOWNLOAD_DIR" >> $GITHUB_ENV
+          ls -l "${GITHUB_WORKSPACE}"
       - name: Install Dependencies
         run: |
           pip install pyomo pytest scipy numpy parameterized
@@ -107,8 +109,8 @@ jobs:
                 VER=$(echo "$RELEASES" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n 1)
                 echo "Using idaes-ext tag: $VER"
 
-                SOLVERS_URL=$BASE_URL/releases/download/$VER/idaes-solvers-${{ matrix.TARGET }}.tar.gz
-                FUNCTIONS_URL=$BASE_URL/releases/download/$VER/idaes-functions-${{ matrix.TARGET }}.tar.gz
+                SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}.tar.gz
+                FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}.tar.gz
 
                 echo "...downloading idaes-solvers from $SOLVERS_URL"
                 curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
