@@ -521,7 +521,7 @@ cp libpynumero_ASL* $IDAES_EXT/dist/lib/
 cd $IDAES_EXT
 
 echo "#########################################################################"
-echo "# k_aug, dotsens                                                        #"
+echo "# k_aug, dot_sens                                                       #"
 echo "#########################################################################"
 if [ $with_hsl = "YES" ]; then
   # Check if the directory exists
