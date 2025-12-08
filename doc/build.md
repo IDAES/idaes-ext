@@ -55,6 +55,8 @@ code in this repository is 3.20.6.
 
 ### Linux
 
+TODO: Redo this whole section.
+
 On Windows make sure Docker Desktop is set to Linux mode.
 
 1. Go to the `build-scripts` directory
