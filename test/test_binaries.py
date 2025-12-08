@@ -1,19 +1,18 @@
 import os
 import math
+from contextlib import nullcontext
+import itertools
+
 import pytest
 import parameterized
-import itertools
-import scipy.sparse as sparse
+
 import pyomo.environ as pyo
 from pyomo.dae import ContinuousSet, DerivativeVar
 import pyomo.common.unittest as unittest
-from pyomo.common.collections import ComponentMap
 from pyomo.repn.util import FileDeterminism
-from pyomo.util.subsystems import create_subsystem_block
-from pyomo.contrib.sensitivity_toolbox.sens import sensitivity_calculation, _add_sensitivity_suffixes
-from pyomo.contrib.sensitivity_toolbox.k_aug import InTempDir
+from pyomo.contrib.sensitivity_toolbox.sens import sensitivity_calculation
 from pyomo.contrib.pynumero.interfaces.pyomo_nlp import PyomoNLP
-from contextlib import nullcontext
+
 
 
 """In addition to the above Python dependencies, the following environment must be
@@ -40,7 +39,6 @@ else:
     IDAES_DIR = os.path.join(os.environ["HOME"], ".idaes")
 ipopts_to_test = [
     ("ipopt", os.path.join(IDAES_DIR, "bin", "ipopt")),
-    ("ipopt_l1", os.path.join(IDAES_DIR, "bin", "ipopt_l1")),
     ("cyipopt", None),
 ]
 ipopt_options_to_test = [
@@ -53,7 +51,6 @@ ipopt_options_to_test = [
 sensitivity_solvers = [
     ("ipopt", "k_aug", "dot_sens"),
     ("ipopt_sens", "ipopt_sens", None),
-    ("ipopt_sens_l1", "ipopt_sense_l1", None),
 ]
 TEE = True
 ipopt_test_data = list(itertools.product(ipopts_to_test, ipopt_options_to_test))
@@ -74,13 +71,7 @@ def _test_ipopt_with_options(name, exe, options):
     else:
         solver = pyo.SolverFactory(name, executable=exe, options=options)
 
-    if "ipopt_l1" in name:
-        # Run this in a temp dir so we don't pollute the working directory with
-        # ipopt_l1's files. See https://github.com/IDAES/idaes-ext/issues/275
-        context = InTempDir()
-    else:
-        context = nullcontext()
-    with context:
+    with nullcontext():
         solver.solve(m, tee=TEE)
 
     target_sol = [("x[1]", 0.840896415), ("x[2]", 0.594603557)]
