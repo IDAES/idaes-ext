@@ -181,16 +181,16 @@ jobs:
                   fi
               done
 
-              # Make an import library name that MSVC + cyipopt expect
+              # Make an import library name that MSVC + cyipopt can use
               if [ -f "$IPOPTWINDIR/lib/libipopt.dll.a" ]; then
-                  cp "$IPOPTWINDIR/lib/libipopt.dll.a" \
-                     "$IPOPTWINDIR/lib/libipopt.dll.a.lib"
+                cp "$IPOPTWINDIR/lib/libipopt.dll.a" \
+                   "$IPOPTWINDIR/lib/libipopt.dll.a.lib"
               fi
 
               # Ensure IPOPT DLLs are on PATH for later import
               echo "$IPOPTWINDIR/bin" >> "$GITHUB_PATH"
 
-              git clone -b master https://github.com/mrmundt/cyipopt.git
+              git clone -b idaes-ipopt https://github.com/mrmundt/cyipopt.git
               cd cyipopt
               python setup.py install
               cd ..
