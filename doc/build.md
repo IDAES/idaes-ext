@@ -74,9 +74,10 @@ in your toolchain.
 2. Create a new terminal and activate an x86_64 environment: `arch -x86_64 /bin/bash `
 3. Install Homebrew for x86_64: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
    This will install brew in `/usr/local/bin/brew`.
-4. Manually set the HOMEBREW_PREFIX: `export HOMEBREW_PREFIX=$(/usr/local/bin/brew --prefix)`
-5. Install required packages using the new `brew`: `/usr/local/bin/brew install gcc pkgconfig boost`
-6. Download and install PETSc using the steps above.
+4. Update the PATH: `export PATH=/usr/local/bin:$PATH`. This allows the correct `brew` to be found first.
+5. Manually set the HOMEBREW_PREFIX: `export HOMEBREW_PREFIX=$(/usr/local/bin/brew --prefix)`
+6. Install required packages using the new `brew`: `brew install gcc pkgconfig boost`
+7. Download and install PETSc using the steps above.
    **NOTE**: You may need to manually set `CC`, `CCX`, `FC`, and `F77` and use the following:
    ```
    ./configure CC=$CC CXX=$CXX FC=$FC F77=$F77 --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
