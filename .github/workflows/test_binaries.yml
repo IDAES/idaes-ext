@@ -190,7 +190,7 @@ jobs:
               # Ensure IPOPT DLLs are on PATH for later import
               echo "$IPOPTWINDIR/bin" >> "$GITHUB_PATH"
 
-              git clone -b idaes-ipopt https://github.com/Robbybp/cyipopt.git
+              git clone -b master https://github.com/mrmundt/cyipopt.git
               cd cyipopt
               python setup.py install
               cd ..
