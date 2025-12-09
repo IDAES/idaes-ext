@@ -27,8 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
 
         include:
         - os: ubuntu-22.04
@@ -43,12 +42,12 @@ jobs:
         - os: macos-15
           TARGET: "darwin-arm64"
           SHORTOS: osx
-        # - os: windows-2022
-        #   TARGET: "windows-x86_64"
-        #   SHORTOS: win
-        # - os: windows-2025
-        #   TARGET: "windows-x86_64"
-        #   SHORTOS: win
+        - os: windows-2022
+          TARGET: "windows-x86_64"
+          SHORTOS: win
+        - os: windows-2025
+          TARGET: "windows-x86_64"
+          SHORTOS: win
 
     steps:
       - name: Checkout IDAES-ext source
