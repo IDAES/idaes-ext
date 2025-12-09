@@ -196,16 +196,10 @@ jobs:
               python setup.py install
               cd ..
               echo "Importing CyIpopt:"
-              python - << 'PY'
-import cyipopt
-from pyomo.contrib.pynumero import asl
-print("cyipopt imported from:", cyipopt.__file__)
-print("AmplInterface.available():", asl.AmplInterface.available())
-PY
+              python -c "import cyipopt, sys, os; print('cyipopt file =', cyipopt.__file__); print('Python =', sys.version); print('PATH =', os.environ.get('PATH', '')[:500])"
           else
               pip install -v cyipopt
           fi
-
       - name: Run tests
         run: |
           pytest -v -rs `pwd`/test
