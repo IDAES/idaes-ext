@@ -89,6 +89,8 @@ jobs:
         run: |
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> $GITHUB_ENV
             echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> $GITHUB_ENV
+            # Add IDAES solver binaries to PATH so k_aug, dot_sens, ipopt_sens are found
+            echo "PATH=$IDAES_DIR/bin:$PATH" >> $GITHUB_ENV
             # idaes-solvers now includes the pkgconfig direction. CyIpopt
             # needs to know where this is located
             IDAES_PC_DIR=$IDAES_DIR/lib/pkgconfig

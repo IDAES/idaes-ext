@@ -153,6 +153,9 @@ def _test_sensitivity(
     else:
         solver = pyo.SolverFactory(solver_name, executable=solver_exe)
     solver.solve(m, tee=TEE, keepfiles=True)
+    # NOTE: The k_aug and ipopt_sens binaries need to be on the
+    # official PATH. This is a problem in sensitivity_toolbox
+    # that it makes this assumption and doesn't allow any changes.
     if sens_name == "k_aug":
         sensitivity_executable = (sens_exe, update_exe)
     else:
@@ -164,8 +167,6 @@ def _test_sensitivity(
         [0.7],
         cloneModel=False,
         tee=TEE,
-        sensitivity_executable=sensitivity_executable,
-        solver_executable=solver_exe,
     )
     solution = {"x[1]": 0.95, "x[2]": 0.75}
     if sens_name == "sipopt":
