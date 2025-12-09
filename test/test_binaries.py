@@ -14,7 +14,6 @@ from pyomo.contrib.sensitivity_toolbox.sens import sensitivity_calculation
 from pyomo.contrib.pynumero.interfaces.pyomo_nlp import PyomoNLP
 
 
-
 """In addition to the above Python dependencies, the following environment must be
 set up to run these tests:
 - IDAES binaries have been downloaded to $HOME/.idaes/bin
@@ -46,7 +45,10 @@ ipopt_options_to_test = [
     ("mumps", {"print_user_options": "yes", "linear_solver": "mumps"}),
     ("ma27", {"print_user_options": "yes", "linear_solver": "ma27"}),
     ("ma57", {"print_user_options": "yes", "linear_solver": "ma57"}),
-    ("ma57_metis", {"print_user_options": "yes", "linear_solver": "ma57", "ma57_pivot_order": 4}),
+    (
+        "ma57_metis",
+        {"print_user_options": "yes", "linear_solver": "ma57", "ma57_pivot_order": 4},
+    ),
 ]
 sensitivity_solvers = [
     ("ipopt", "k_aug", "dot_sens"),
@@ -62,9 +64,9 @@ ipopt_test_data = [
 
 def _test_ipopt_with_options(name, exe, options):
     m = pyo.ConcreteModel()
-    m.x = pyo.Var([1,2], initialize=1.5)
-    m.con = pyo.Constraint(expr=m.x[1]*m.x[2] == 0.5)
-    m.obj = pyo.Objective(expr=m.x[1]**2 + 2*m.x[2]**2)
+    m.x = pyo.Var([1, 2], initialize=1.5)
+    m.con = pyo.Constraint(expr=m.x[1] * m.x[2] == 0.5)
+    m.obj = pyo.Objective(expr=m.x[1] ** 2 + 2 * m.x[2] ** 2)
 
     if exe is None:
         solver = pyo.SolverFactory(name, options=options)
@@ -96,8 +98,8 @@ class TestBonmin:
         m = pyo.ConcreteModel()
         m.x = pyo.Var([1, 2], initialize=1.5)
         m.y = pyo.Var(domain=pyo.PositiveIntegers)
-        m.con = pyo.Constraint(expr=m.x[1]*m.x[2] == m.y)
-        m.obj = pyo.Objective(expr=m.x[1]**2 + 2*m.x[2]**2)
+        m.con = pyo.Constraint(expr=m.x[1] * m.x[2] == m.y)
+        m.obj = pyo.Objective(expr=m.x[1] ** 2 + 2 * m.x[2] ** 2)
         return m
 
     def test_bonmin_default(self):
@@ -118,8 +120,8 @@ class TestCouenne:
         m = pyo.ConcreteModel()
         m.x = pyo.Var([1, 2], initialize=1.5)
         m.y = pyo.Var(domain=pyo.PositiveIntegers)
-        m.con = pyo.Constraint(expr=m.x[1]*m.x[2] == m.y)
-        m.obj = pyo.Objective(expr=(m.x[1] + 0.01)**2 + 2*(m.x[2] + 0.01)**2)
+        m.con = pyo.Constraint(expr=m.x[1] * m.x[2] == m.y)
+        m.obj = pyo.Objective(expr=(m.x[1] + 0.01) ** 2 + 2 * (m.x[2] + 0.01) ** 2)
         return m
 
     def test_couenne_default(self):
@@ -141,10 +143,10 @@ def _test_sensitivity(
     update_exe,
 ):
     m = pyo.ConcreteModel()
-    m.x = pyo.Var([1,2], initialize=1.5)
+    m.x = pyo.Var([1, 2], initialize=1.5)
     m.p = pyo.Param(mutable=True, initialize=0.5)
-    m.con = pyo.Constraint(expr=m.x[1]*m.x[2] == m.p)
-    m.obj = pyo.Objective(expr=m.x[1]**2 + 2*m.x[2]**2)
+    m.con = pyo.Constraint(expr=m.x[1] * m.x[2] == m.p)
+    m.obj = pyo.Objective(expr=m.x[1] ** 2 + 2 * m.x[2] ** 2)
 
     if solver_exe is None:
         solver = pyo.SolverFactory(solver_name)
@@ -162,8 +164,8 @@ def _test_sensitivity(
         [0.7],
         cloneModel=False,
         tee=TEE,
-        #sensitivity_executable=sensitivity_executable,
-        #solver_executable=solver_exe,
+        sensitivity_executable=sensitivity_executable,
+        solver_executable=solver_exe,
     )
     solution = {"x[1]": 0.95, "x[2]": 0.75}
     if sens_name == "sipopt":
@@ -209,8 +211,8 @@ class TestPyNumeroASL:
         m = pyo.ConcreteModel()
         m.x = pyo.Var([1, 2], initialize=0.0, bounds=(0, 10))
         m.ineq = pyo.Constraint(pyo.PositiveIntegers)
-        m.ineq[1] = m.x[1] + 3*m.x[2] <= 7
-        m.ineq[2] = 5*m.x[1] + m.x[2] <= 10
+        m.ineq[1] = m.x[1] + 3 * m.x[2] <= 7
+        m.ineq[2] = 5 * m.x[1] + m.x[2] <= 10
         m.obj = pyo.Objective(expr=m.x[1] + m.x[2], sense=pyo.maximize)
         return m
 
@@ -221,7 +223,8 @@ class TestPyNumeroASL:
         nlp = PyomoNLP(
             # Explicitly sort variables and constraints so we know where in Jacobian
             # each coefficient will be.
-            m, nl_file_options=dict(file_determinism=FileDeterminism.SORT_SYMBOLS)
+            m,
+            nl_file_options=dict(file_determinism=FileDeterminism.SORT_SYMBOLS),
         )
         jac = nlp.evaluate_jacobian()
         row = [0, 0, 1, 1]
@@ -240,13 +243,13 @@ class TestCLP:
         m = pyo.ConcreteModel()
         m.x = pyo.Var([1, 2], initialize=0.0, bounds=(0, 10))
         m.ineq = pyo.Constraint(pyo.PositiveIntegers)
-        m.ineq[1] = m.x[1] + 3*m.x[2] <= 7
-        m.ineq[2] = 5*m.x[1] + m.x[2] <= 10
+        m.ineq[1] = m.x[1] + 3 * m.x[2] <= 7
+        m.ineq[2] = 5 * m.x[1] + m.x[2] <= 10
         m.obj = pyo.Objective(expr=m.x[1] + m.x[2], sense=pyo.maximize)
         return m
 
     def test_clp(self):
-        solution = {"x[1]": 7-15/2.8, "x[2]": 5/2.8}
+        solution = {"x[1]": 7 - 15 / 2.8, "x[2]": 5 / 2.8}
         m = self._make_model()
         solver = pyo.SolverFactory("clp", executable=self.exe)
         solver.solve(m, tee=TEE)
@@ -263,14 +266,14 @@ class TestCBC:
         m.x = pyo.Var([1, 2], initialize=0.0, bounds=(0, 10))
         m.y = pyo.Var(domain=pyo.Binary)
         m.ineq = pyo.Constraint(pyo.PositiveIntegers)
-        m.ineq[1] = m.x[1] + 3*m.x[2] <= 7
-        m.ineq[2] = 5*m.x[1] + m.x[2] <= 10
+        m.ineq[1] = m.x[1] + 3 * m.x[2] <= 7
+        m.ineq[2] = 5 * m.x[1] + m.x[2] <= 10
         m.ineq[3] = m.y + 1 >= m.x[1]
         m.obj = pyo.Objective(expr=m.x[1] + m.x[2], sense=pyo.maximize)
         return m
 
     def test_cbc(self):
-        solution = {"x[1]": 7-15/2.8, "x[2]": 5/2.8, "y": 1.0}
+        solution = {"x[1]": 7 - 15 / 2.8, "x[2]": 5 / 2.8, "y": 1.0}
         m = self._make_model()
         solver = pyo.SolverFactory("cbc", executable=self.exe)
         solver.solve(m, tee=TEE)
@@ -295,13 +298,13 @@ class TestExternalFunctions:
         )
         m.eq = pyo.Constraint(pyo.PositiveIntegers)
         m.eq[1] = m.x[1] == m.cubic_root_low(-1, 2, m.x[2])
-        m.obj = pyo.Objective(expr=m.x[1]**2 + m.x[2]**2)
+        m.obj = pyo.Objective(expr=m.x[1] ** 2 + m.x[2] ** 2)
         return m
 
     def test_cubic_roots(self):
         m = self._make_model()
         cbrt = pyo.value(m.cubic_root_low(-1.0, 2.0, -3.0))
-        assert math.isclose(cbrt**3 - cbrt**2 + 2*cbrt - 3.0, 0.0, abs_tol=1e-8)
+        assert math.isclose(cbrt**3 - cbrt**2 + 2 * cbrt - 3.0, 0.0, abs_tol=1e-8)
 
     def test_functions(self):
         m = self._make_model()
@@ -329,8 +332,8 @@ class TestPetsc:
         m = pyo.ConcreteModel()
         m.x = pyo.Var([1, 2], initialize=1.0)
         m.eq = pyo.Constraint(pyo.PositiveIntegers)
-        m.eq[1] = m.x[1] - 2*pyo.log(m.x[2]) == 3
-        m.eq[2] = m.x[1] * m.x[2]**1.5 == 1
+        m.eq[1] = m.x[1] - 2 * pyo.log(m.x[2]) == 3
+        m.eq[2] = m.x[1] * m.x[2] ** 1.5 == 1
 
         solver = pyo.SolverFactory("petsc", executable=self.exe)
         res = solver.solve(m, tee=True)
