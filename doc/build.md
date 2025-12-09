@@ -26,8 +26,13 @@ that it is accessible in a `coinhsl.tar.gz` format. Place it in the
   platform (el9, el8, ubuntu2404, ubuntu2004, ubuntu2204, or windows).
   - **NOTE**: If you are behind certain corporate firewalls/proxies, you will
     need to add lines to the beginning of the Dockerfiles for your SSL certificates.
+  - **NOTE**: You can only build the Windows image if you are on a Windows machine.
+    See [the official documentation](https://learn.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon).
 
 ### macOS
+
+There is logic in the `compile_solvers.sh` script to choose the correct
+gcc, g++, etc., for Mac, based on `HOMEBREW_PREFIX`.
 
 #### Apple Silicon
 
@@ -40,7 +45,8 @@ You also need to install PETSc. The newest version that works with the custom
 code in this repository is 3.20.6.
 
 1. Download https://gitlab.com/petsc/petsc/-/archive/v3.20.6/petsc-v3.20.6.tar.gz
-2. Extract somewhere appropriate for you (e.g., `mkdir ~/repo/` and extract there)
+2. Extract somewhere appropriate for you (e.g., `mkdir ~/repo/` and extract there).
+   **NOTE**: It is recommended rename the untarred directory to just `petsc`.
 4. Go to PETSC source directory
 5. Configure and build PETSc (-fPIC is so we can use the Metis and Mumps builds again)
    ```
@@ -49,6 +55,33 @@ code in this repository is 3.20.6.
        --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
    $ make
    $ make install
+   ```
+   **NOTE**: If the configure is having difficulty downloading MUMPS for some reason,
+   you can download it locally and point to it in the configure line instead using
+   `--download-mumps=../MUMPS_5.6.1.tar.gz`
+
+#### Apple Intel
+
+Apple has introduced a tool called [Rosetta](https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment)
+to assist with the transition from Intel -> Silicon. We use this, while it's still available, for
+building Apple Intel solvers.
+Ensure to complete the steps below either in a different directory than from
+Apple Silicon above **OR** delete old content from the Apple Silicon build.
+The most common build issues occur when arm64 and x86_64 are mixed together
+in your toolchain.
+
+1. Install rosetta using `sudo softwareupdate --install-rosetta`
+2. Create a new terminal and activate an x86_64 environment: `arch -x86_64 /bin/bash `
+3. Install Homebrew for x86_64: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
+   This will install brew in `/usr/local/bin/brew`.
+4. Manually set the HOMEBREW_PREFIX: `export HOMEBREW_PREFIX=$(/usr/local/bin/brew --prefix)`
+5. Install required packages using the new `brew`: `/usr/local/bin/brew install gcc pkgconfig boost`
+6. Download and install PETSc using the steps above.
+   **NOTE**: You may need to manually set `CC`, `CCX`, `FC`, and `F77` and use the following:
+   ```
+   ./configure CC=$CC CXX=$CXX FC=$FC F77=$F77 --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
+       --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
+       --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5' 
    ```
 
 ## Building
