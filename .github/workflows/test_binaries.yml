@@ -152,7 +152,53 @@ jobs:
       - name: Configure and Install cyipopt
         run: |
           echo "$PKG_CONFIG_PATH"
-          pip install -v cyipopt
+          if test "${{ matrix.SHORTOS }}" == win; then
+              echo "IPOPTWINDIR = $IPOPTWINDIR"
+              echo "IPOPTWINDIR contents:"
+              ls -l "$IPOPTWINDIR"
+              echo "IPOPTWINDIR/lib contents:"
+              ls -l "$IPOPTWINDIR/lib"
+
+              echo "Copying extra DLLs from lib -> bin"
+              for dll in \
+                  libblas.dll \
+                  libbz2-1.dll \
+                  libgcc_s_seh-1.dll \
+                  libgfortran-5.dll \
+                  libgomp-1.dll \
+                  libipopt-3.dll \
+                  liblapack.dll \
+                  libquadmath-0.dll \
+                  libsipopt-3.dll \
+                  libstdc++-6.dll \
+                  libwinpthread-1.dll \
+                  zlib1.dll; do
+                  if [ -f "$IPOPTWINDIR/lib/$dll" ]; then
+                      echo "  copying $dll"
+                      cp "$IPOPTWINDIR/lib/$dll" "$IPOPTWINDIR/bin/"
+                  else
+                      echo "  WARNING: $IPOPTWINDIR/lib/$dll not found, skipping"
+                  fi
+              done
+
+              # Make an import library name that MSVC + cyipopt expect
+              if [ -f "$IPOPTWINDIR/lib/libipopt.dll.a" ]; then
+                  cp "$IPOPTWINDIR/lib/libipopt.dll.a" \
+                     "$IPOPTWINDIR/lib/libipopt.dll.a.lib"
+              fi
+
+              # Ensure IPOPT DLLs are on PATH for later import
+              echo "$IPOPTWINDIR/bin" >> "$GITHUB_PATH"
+
+              git clone -b idaes-ipopt https://github.com/Robbybp/cyipopt.git
+              cd cyipopt
+              python setup.py install
+              cd ..
+              echo "Importing CyIpopt:"
+              python -c "import cyipopt"
+          else
+              pip install -v cyipopt
+          fi
       - name: Run tests
         run: |
           pytest -v -rs `pwd`/test
