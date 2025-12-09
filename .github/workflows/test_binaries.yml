@@ -172,6 +172,7 @@ jobs:
                   libsipopt-3.dll \
                   libstdc++-6.dll \
                   libwinpthread-1.dll \
+                  libpynumero_ASL.dll \
                   zlib1.dll; do
                   if [ -f "$IPOPTWINDIR/lib/$dll" ]; then
                       echo "  copying $dll"
@@ -195,10 +196,16 @@ jobs:
               python setup.py install
               cd ..
               echo "Importing CyIpopt:"
-              python -c "import cyipopt"
+              python - << 'PY'
+import cyipopt
+from pyomo.contrib.pynumero import asl
+print("cyipopt imported from:", cyipopt.__file__)
+print("AmplInterface.available():", asl.AmplInterface.available())
+PY
           else
               pip install -v cyipopt
           fi
+
       - name: Run tests
         run: |
           pytest -v -rs `pwd`/test
