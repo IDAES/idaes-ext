@@ -55,7 +55,7 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: 3.11
       - name: Configure curl
         run: |
           CURLRC="$(cat <<EOF
@@ -215,7 +215,7 @@ jobs:
   #   strategy:
   #     fail-fast: false
   #     matrix:
-  #       container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12"]
+  #       container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12", "debian:13"]
   #       include:
   #         - container: "rockylinux:8"
   #           TARGET: "el8"
@@ -228,6 +228,9 @@ jobs:
   #           SHORTOS: deb
   #         - container: "debian:12"
   #           TARGET: "ubuntu2204"
+  #           SHORTOS: deb
+  #         - container: "debian:13"
+  #           TARGET: "ubuntu2404"
   #           SHORTOS: deb
   #   steps:
   #   - name: Check out source
