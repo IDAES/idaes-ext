@@ -59,6 +59,7 @@ code in this repository is 3.20.6.
    **NOTE**: If the configure is having difficulty downloading MUMPS for some reason,
    you can download it locally and point to it in the configure line instead using
    `--download-mumps=../MUMPS_5.6.1.tar.gz`
+6. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
 #### Apple Intel
 
@@ -84,6 +85,7 @@ in your toolchain.
        --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
        --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5' 
    ```
+8. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
 ## Building
 
