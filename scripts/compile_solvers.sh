@@ -220,8 +220,17 @@ echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
 if [ $build_hsl = "YES" ]; then
   cd ThirdParty/HSL
-  ./configure --disable-shared --enable-static --with-metis \
-    --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+
+  METIS_CFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
+  METIS_LFLAGS="-L$IDAES_EXT/coinbrew/dist/lib -lcoinmetis -lm"
+
+  ./configure \
+    --disable-shared --enable-static --with-metis \
+    --with-metis-cflags="$METIS_CFLAGS" \
+    --with-metis-lflags="$METIS_LFLAGS" \
+    --prefix=$IDAES_EXT/coinbrew/dist \
+    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+
   make $PARALLEL
   make install
   cd $IDAES_EXT/coinbrew
@@ -512,7 +521,7 @@ cp libpynumero_ASL* $IDAES_EXT/dist/lib/
 cd $IDAES_EXT
 
 echo "#########################################################################"
-echo "# k_aug, dotsens                                                        #"
+echo "# k_aug, dot_sens                                                       #"
 echo "#########################################################################"
 if [ $with_hsl = "YES" ]; then
   # Check if the directory exists
