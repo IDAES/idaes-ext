@@ -173,6 +173,9 @@ jobs:
                   libstdc++-6.dll \
                   libwinpthread-1.dll \
                   libpynumero_ASL.dll \
+                  cubic_roots.dll \
+                  functions.dll \
+                  general_helmholtz_external.dll \
                   zlib1.dll; do
                   if [ -f "$IPOPTWINDIR/lib/$dll" ]; then
                       echo "  copying $dll"
