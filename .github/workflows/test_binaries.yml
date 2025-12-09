@@ -152,47 +152,7 @@ jobs:
       - name: Configure and Install cyipopt
         run: |
           echo "$PKG_CONFIG_PATH"
-          if test "${{ matrix.SHORTOS }}" == win; then
-              echo "IPOPTWINDIR = $IPOPTWINDIR"
-              echo "IPOPTWINDIR contents:"
-              ls -l $IPOPTWINDIR
-              echo "IPOPTWINDIR/lib contents:"
-              ls -l $IPOPTWINDIR/lib
-              #echo "IPOPTWINDIR/include/coin-or contents:"
-              #ls -l $IPOPTWINDIR/include/coin-or
-              # Need to make a bin directory and put extra DLLs there
-              mkdir $IPOPTWINDIR/bin
-              echo "Made directory $IPOPTWINDIR/bin"
-              # For now, just copy all DLLs into this directory. Not all
-              # are strictly necessary.
-              echo "Copying extra DLLs to bin"
-              cp $IPOPTWINDIR/libblas.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libbz2-1.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libgcc_s_seh-1.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libgfortran-5.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libgomp-1.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libipopt-3.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/liblapack.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libquadmath-0.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libsipopt-3.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libssp-0.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libstdc++-6.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/libwinpthread-1.dll $IPOPTWINDIR/bin/
-              cp $IPOPTWINDIR/zlib1.dll $IPOPTWINDIR/bin/
-              # Does putting this on the path make the library discoverable?
-              #echo "PATH=$PATH:$IPOPTWINDIR/lib" >> $GITHUB_ENV
-              # Library must end with .lib?
-              cp $IPOPTWINDIR/lib/libipopt.dll.a $IPOPTWINDIR/lib/libipopt.dll.a.lib
-              git clone -b idaes-ipopt https://github.com/Robbybp/cyipopt.git
-              cd cyipopt
-              python setup.py install
-              cd ..
-              #pip install -v git+https://github.com/Robbybp/cyipopt.git@idaes-ipopt
-              echo "Importing CyIpopt:"
-              python -c "import cyipopt"
-          else
-              pip install -v cyipopt
-          fi
+          pip install -v cyipopt
       - name: Run tests
         run: |
           pytest -v -rs `pwd`/test
