@@ -78,19 +78,19 @@ jobs:
           echo "IDAES_DIR=$IDAES_DIR" >> $GITHUB_ENV
           echo "DOWNLOAD_DIR=$DOWNLOAD_DIR" >> $GITHUB_ENV
           ls -l "${GITHUB_WORKSPACE}"
-      # - name: Fix macOS python path
-      #   if: startsWith(matrix.os, 'macos')
-      #   run: |
-      #     echo "Using python from actions/setup-python"
-      #     echo "${{ steps.setup_py.outputs.python-path }}" >> $GITHUB_PATH
-      #     echo "PATH=$PATH"
-      #     python3 --version
-      #     which python3
-      - name: Install Dependencies
+      - name: Install Dependencies (and capture Python exe)
+        shell: bash
         run: |
-          python3 -m pip install pyomo pytest scipy numpy parameterized
+          echo "Python for this job:"
+          python -c 'import sys; print(sys.executable)'
+
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install pyomo pytest scipy numpy parameterized
+          python -c 'import sys; print("PYTHON_EXE=%s" % (sys.executable,))' >> $GITHUB_ENV
+
           if [[ "${{ matrix.SHORTOS }}" == ubuntu* ]]; then
-            sudo apt-get install libopenblas-dev liblapack-dev
+            sudo apt-get update
+            sudo apt-get -y install libopenblas-dev liblapack-dev
           fi
       - name: Download Binaries
         run: |
@@ -204,16 +204,16 @@ jobs:
 
               git clone -b idaes-ipopt https://github.com/mrmundt/cyipopt.git
               cd cyipopt
-              python setup.py install
+              $PYTHON_EXE setup.py install
               cd ..
               echo "Importing CyIpopt:"
-              python -c "import cyipopt, sys, os; print('cyipopt file =', cyipopt.__file__); print('Python =', sys.version); print('PATH =', os.environ.get('PATH', '')[:500])"
+              $PYTHON_EXE -c "import cyipopt, sys, os; print('cyipopt file =', cyipopt.__file__); print('Python =', sys.version); print('PATH =', os.environ.get('PATH', '')[:500])"
           else
-              python3 -m pip install -v cyipopt
+              $PYTHON_EXE -m pip install -v cyipopt
           fi
       - name: Run tests
         run: |
-          python3 -m pytest -v -rs `pwd`/test
+          $PYTHON_EXE -m pytest -v -rs `pwd`/test
 
   # docker:
   #   name: ${{ matrix.container }}/${{ matrix.TARGET }}
