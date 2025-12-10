@@ -146,6 +146,9 @@ cp $IDAES_EXT/scripts/CouenneProblem.hpp.patch ./
 patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
+# We don't want to coin-or Ipopt
+rm -rf Ipopt
+# We DO want the custom IDAES Ipopt
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 cp -r Ipopt Ipopt_share
 
