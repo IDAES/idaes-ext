@@ -222,18 +222,28 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
-if [ $build_hsl = "YES" ]; then
+if [ "$build_hsl" = "YES" ]; then
   cd ThirdParty/HSL
 
-  METIS_CFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
-  METIS_LFLAGS="-L$IDAES_EXT/coinbrew/dist/lib -lcoinmetis -lm"
+  if [ "$MNAME" != "arm64" ]; then
+    METIS_CFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
+    METIS_LFLAGS="-L$IDAES_EXT/coinbrew/dist/lib -lcoinmetis -lm"
 
-  ./configure \
-    --disable-shared --enable-static --with-metis \
-    --with-metis-cflags="$METIS_CFLAGS" \
-    --with-metis-lflags="$METIS_LFLAGS" \
-    --prefix=$IDAES_EXT/coinbrew/dist \
-    FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+    ./configure \
+      --disable-shared --enable-static --with-metis \
+      --with-metis-cflags="$METIS_CFLAGS" \
+      --with-metis-lflags="$METIS_LFLAGS" \
+      --prefix=$IDAES_EXT/coinbrew/dist \
+      FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  else
+    # Metis + arm64 do not play well together. We'd rather
+    # have something HSL functional than nothing at all,
+    # so at least for now, we skip metis.
+    ./configure \
+      --disable-shared --enable-static --without-metis \
+      --prefix=$IDAES_EXT/coinbrew/dist \
+      FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  fi
 
   make $PARALLEL
   make install
