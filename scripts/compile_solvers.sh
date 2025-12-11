@@ -76,27 +76,21 @@ fi
 export PETSC_ARCH=""
 
 if [ "$osname" = "darwin" ]; then
-  # Identify a Homebrew gcc lib directory for libgfortran
-  if [ -n "$HOMEBREW_PREFIX" ] && [ -f "$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/libgfortran.5.dylib" ]; then
-    export BREWLIB="$HOMEBREW_PREFIX/opt/gcc/lib/gcc/current/"
-  elif [ -f "/usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib" ]; then
-    export BREWLIB="/usr/local/opt/gcc/lib/gcc/current/"
-  fi
+  if [ -n "$HOMEBREW_PREFIX" ]; then
+    # Find a GCC formula: prefer unversioned gcc, then fall back to gcc@*
+    for formula in gcc gcc@15 gcc@14 gcc@13; do
+      GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix "$formula" 2>/dev/null || true)
+      if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
+        GCC_BIN="$GCC_PREFIX/bin"
+        break
+      fi
+    done
 
-  # Allow dynamic version determination. Hard-coding is not future-proof.
-  # Try to find a Homebrew GCC / G++
-  if command -v $HOMEBREW_PREFIX/bin/brew >/dev/null 2>&1; then
-    GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix gcc 2>/dev/null || true)
-
-    if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
-      GCC_BIN="$GCC_PREFIX/bin"
-
-      # Find the "real" gcc-N (not gcc-ar-N, gcc-nm-N, gcc-ranlib-N)
+    if [ -n "$GCC_BIN" ]; then
       GCC_EXE=$(ls "$GCC_BIN"/gcc-[0-9]* 2>/dev/null \
                 | grep -E 'gcc-[0-9]+$' \
                 | sort -V \
                 | tail -1)
-
       if [ -n "$GCC_EXE" ]; then
         GCC_VER="${GCC_EXE##*-}"
 
@@ -110,6 +104,13 @@ if [ "$osname" = "darwin" ]; then
         echo "  CXX = $CXX"
         echo "  F77 = $F77"
         echo "  FC = $FC"
+      fi
+
+      # BREWLIB: find matching libgfortran dir
+      gcc_libroot="$HOMEBREW_PREFIX/opt/$(basename "$GCC_PREFIX")/lib/gcc"
+      if [ -d "$gcc_libroot" ]; then
+        gcc_libver=$(ls "$gcc_libroot" | sort -V | tail -1)
+        export BREWLIB="$gcc_libroot/$gcc_libver/"
       fi
     fi
   fi
