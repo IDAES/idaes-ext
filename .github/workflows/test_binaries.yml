@@ -113,10 +113,6 @@ jobs:
             if test ! -e $SOLVERS_TAR; then
                 echo "...downloading idaes-solvers"
                 BASE_URL=https://github.com/mrmundt/idaes-ext
-                RELEASES=$(curl --max-time 150 --retry 8 \
-                    -L -s -H 'Accept: application/json' "$BASE_URL/releases")
-                VER=$(echo "$RELEASES" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n 1)
-                echo "Using idaes-ext tag: $VER"
 
                 SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}.tar.gz
                 FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}.tar.gz
@@ -305,13 +301,9 @@ jobs:
           if test ! -e $SOLVERS_TAR; then
               echo "...downloading idaes-solvers"
               BASE_URL=https://github.com/mrmundt/idaes-ext
-              RELEASES=$(curl --max-time 150 --retry 8 \
-                  -L -s -H 'Accept: application/json' "$BASE_URL/releases")
-              VER=$(echo "$RELEASES" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n 1)
-              echo "Using idaes-ext tag: $VER"
 
-              SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}.tar.gz
-              FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}.tar.gz
+              SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}-$DISTRO.tar.gz
+              FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}-$DISTRO.tar.gz
 
               echo "...downloading idaes-solvers from $SOLVERS_URL"
               curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
