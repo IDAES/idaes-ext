@@ -9,7 +9,6 @@ ENV TZ=America/New_York
 
 # Install dependencies
 RUN apt-get update -y \
- && apt-get upgrade -y \
  && apt-get install -y \
       ubuntu-dev-tools unzip cmake pkg-config wget \
       gfortran liblapack-dev libblas-dev libpython3-dev \
