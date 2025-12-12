@@ -203,7 +203,7 @@ jobs:
           "$PYTHON_EXE" -m pytest -v -rs "$(pwd)/test"
 
   docker:
-    name: ${{ matrix.container }}/${{ matrix.TARGET }}/${{ matrix.arch }}
+    name: docker/${{ matrix.container }}/${{ matrix.TARGET }}/${{ matrix.arch }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -228,109 +228,86 @@ jobs:
             TARGET: "ubuntu2404"
             SHORTOS: deb
 
-    container:
-      image: ${{ matrix.container }}
-      options: --platform=${{ matrix.arch == 'aarch64' && 'linux/arm64' || 'linux/amd64' }}
-
     steps:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
+      - name: Set up QEMU (host)
+        if: matrix.arch == 'aarch64'
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
-      - name: Install basic libraries
+      - name: Run tests in container
         shell: bash
         run: |
-          cat /etc/*-release
+          set -euo pipefail
 
-          DISTRO='${{ matrix.arch }}'
-          echo "DISTRO=$DISTRO" >> "$GITHUB_ENV"
-
-          if test "${{ matrix.SHORTOS }}" == el; then
-            yum -y update
-            yum -y install libgfortran blas libgomp lapack
-            yum -y install pkg-config gcc gcc-c++ git cmake file
-            yum -y install wget curl || yum -y install --allowerasing wget curl
-          else
-            apt-get update
-            apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 libc6
-            apt-get -y install wget curl pkg-config gcc g++ git cmake file
+          PLATFORM="linux/amd64"
+          if [ "${{ matrix.arch }}" = "aarch64" ]; then
+            PLATFORM="linux/arm64"
           fi
 
-          if [ "$DISTRO" = "aarch64" ]; then
-            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O "${GITHUB_WORKSPACE}/miniconda.sh"
-          else
-            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O "${GITHUB_WORKSPACE}/miniconda.sh"
-          fi
+          docker run --rm \
+            --platform "$PLATFORM" \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            -e TARGET="${{ matrix.TARGET }}" \
+            -e SHORTOS="${{ matrix.SHORTOS }}" \
+            -e DISTRO="${{ matrix.arch }}" \
+            "${{ matrix.container }}" \
+            bash -lc '
+              set -euo pipefail
+              cat /etc/*-release || true
 
-          chmod +x "${GITHUB_WORKSPACE}/miniconda.sh"
-          bash "${GITHUB_WORKSPACE}/miniconda.sh" -b -p "${GITHUB_WORKSPACE}/miniconda"
-          ls "${GITHUB_WORKSPACE}/miniconda/bin"
+              if [ "$SHORTOS" = "el" ]; then
+                yum -y update
+                yum -y install libgfortran blas libgomp lapack
+                yum -y install pkg-config gcc gcc-c++ git cmake file
+                yum -y install wget curl || yum -y install --allowerasing wget curl
+              else
+                apt-get update
+                apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 libc6
+                apt-get -y install wget curl pkg-config gcc g++ git cmake file
+              fi
 
-      - name: Setup IDAES package directories
-        shell: bash
-        run: |
-          IDAES_DIR="${GITHUB_WORKSPACE}/binaries"
-          mkdir -p "$IDAES_DIR"
-          DOWNLOAD_DIR="${GITHUB_WORKSPACE}/binaries/download"
-          mkdir -p "$DOWNLOAD_DIR"
-          echo "IDAES_DIR=$IDAES_DIR" >> "$GITHUB_ENV"
-          echo "DOWNLOAD_DIR=$DOWNLOAD_DIR" >> "$GITHUB_ENV"
+              if [ "$DISTRO" = "aarch64" ]; then
+                wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O /work/miniconda.sh
+              else
+                wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /work/miniconda.sh
+              fi
+              chmod +x /work/miniconda.sh
+              bash /work/miniconda.sh -b -p /work/miniconda
 
-      - name: Install Dependencies
-        shell: bash
-        run: |
-          eval "$(${GITHUB_WORKSPACE}/miniconda/bin/conda shell.bash hook)"
-          conda create -n idaes python=3.11 pip psutil
-          conda activate idaes
-          pip install pyomo pytest scipy numpy parameterized
+              eval "$(/work/miniconda/bin/conda shell.bash hook)"
+              conda create -n idaes python=3.11 pip psutil
+              conda activate idaes
+              pip install pyomo pytest scipy numpy parameterized
 
-      - name: Download Binaries
-        shell: bash
-        run: |
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> "$GITHUB_ENV"
-          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> "$GITHUB_ENV"
-          echo "PATH=$IDAES_DIR/bin:$PATH" >> "$GITHUB_ENV"
-          IDAES_PC_DIR="$IDAES_DIR/lib/pkgconfig"
-          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IDAES_PC_DIR" >> "$GITHUB_ENV"
+              IDAES_DIR="/work/binaries"
+              DOWNLOAD_DIR="/work/binaries/download"
+              mkdir -p "$IDAES_DIR" "$DOWNLOAD_DIR"
 
-          SOLVERS_TAR="${DOWNLOAD_DIR}/idaes-solvers.tar.gz"
-          FUNCTIONS_TAR="${DOWNLOAD_DIR}/idaes-functions.tar.gz"
+              export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:$IDAES_DIR:$IDAES_DIR/lib"
+              export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH:-}:$IDAES_DIR:$IDAES_DIR/lib"
+              export PATH="$IDAES_DIR/bin:$PATH"
+              export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}:$IDAES_DIR/lib/pkgconfig"
+              export IDAES_HELMHOLTZ_DATA_PATH="$IDAES_DIR/lib/helm_data/"
 
-          BASE_URL="https://github.com/mrmundt/idaes-ext"
-          SOLVERS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}-$DISTRO.tar.gz"
-          FUNCTIONS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}-$DISTRO.tar.gz"
+              SOLVERS_TAR="$DOWNLOAD_DIR/idaes-solvers.tar.gz"
+              FUNCTIONS_TAR="$DOWNLOAD_DIR/idaes-functions.tar.gz"
+              BASE_URL="https://github.com/mrmundt/idaes-ext"
+              SOLVERS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
+              FUNCTIONS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
 
-          echo "...downloading idaes-solvers from $SOLVERS_URL"
-          curl -fL --max-time 150 --retry 8 "$SOLVERS_URL" -o "$SOLVERS_TAR"
+              curl -fL --max-time 150 --retry 8 "$SOLVERS_URL" -o "$SOLVERS_TAR"
+              curl -fL --max-time 150 --retry 8 "$FUNCTIONS_URL" -o "$FUNCTIONS_TAR"
 
-          echo "...downloading idaes-functions from $FUNCTIONS_URL"
-          curl -fL --max-time 150 --retry 8 "$FUNCTIONS_URL" -o "$FUNCTIONS_TAR"
+              tar -C "$IDAES_DIR" -xzf "$SOLVERS_TAR"
+              tar -C "$IDAES_DIR" -xzf "$FUNCTIONS_TAR"
 
-          cd "$IDAES_DIR"
-          tar -xzf "$SOLVERS_TAR"
-          tar -xzf "$FUNCTIONS_TAR"
+              pkg-config --libs --cflags ipopt
+              pip install cyipopt
 
-          echo "IDAES_HELMHOLTZ_DATA_PATH=$IDAES_DIR/lib/helm_data/" >> "$GITHUB_ENV"
-
-          ls -l "$IDAES_DIR"
-          ls -l "$IDAES_DIR/bin"
-          ls -l "$IDAES_DIR/lib"
-
-      - name: Configure and Install cyipopt
-        shell: bash
-        run: |
-          eval "$(${GITHUB_WORKSPACE}/miniconda/bin/conda shell.bash hook)"
-          conda activate idaes
-          pkg-config --libs --cflags ipopt
-          pip install cyipopt
-
-      - name: Run tests
-        shell: bash
-        run: |
-          eval "$(${GITHUB_WORKSPACE}/miniconda/bin/conda shell.bash hook)"
-          conda activate idaes
-          pytest -v -rs "$(pwd)/test"
+              pytest -v -rs /work/test
+            '
