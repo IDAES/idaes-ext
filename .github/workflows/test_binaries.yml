@@ -129,7 +129,7 @@ jobs:
                 curl --max-time 150 --retry 8 -L "$FUNCTIONS_URL" > "$FUNCTIONS_TAR"
                 echo "Downloaded idaes functions file"
             fi
-            file $SOLVERS_TAR # Hopefully this works on Windows
+            file $SOLVERS_TAR
             cd $IDAES_DIR
             if test "${{ matrix.SHORTOS }}" == osx; then
                 echo "Unpacking $SOLVERS_TAR into $PWD"
@@ -146,7 +146,6 @@ jobs:
             # from idaes-lib (external functions) targz.
             # One way to communicate this is via the IDAES_HELMHOLTZ_DATA_PATH envvar
             # Note that the trailing '/' is necessary here
-            # TODO: How to handle on windows?
             echo "IDAES_HELMHOLTZ_DATA_PATH=$IDAES_DIR/lib/helm_data/" >> $GITHUB_ENV
             echo "Done unpacking tar files"
             echo ""
@@ -215,185 +214,157 @@ jobs:
         run: |
           $PYTHON_EXE -m pytest -v -rs `pwd`/test
 
-  # docker:
-  #   name: ${{ matrix.container }}/${{ matrix.TARGET }}
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: ${{ matrix.container }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12", "debian:13"]
-  #       include:
-  #         - container: "rockylinux:8"
-  #           TARGET: "el8"
-  #           SHORTOS: el
-  #         - container: "rockylinux:9"
-  #           TARGET: "ubuntu2204"
-  #           SHORTOS: el
-  #         - container: "debian:11"
-  #           TARGET: "ubuntu2004"
-  #           SHORTOS: deb
-  #         - container: "debian:12"
-  #           TARGET: "ubuntu2204"
-  #           SHORTOS: deb
-  #         - container: "debian:13"
-  #           TARGET: "ubuntu2404"
-  #           SHORTOS: deb
-  #   steps:
-  #   - name: Check out source
-  #     uses: actions/checkout@v4
-  #   - name: Install basic libraries
-  #     run: |
-  #       cat /etc/*-release
-  #       if test "${{ matrix.SHORTOS }}" == el; then
-  #         yum -y update
-  #         yum -y install libgfortran blas libgomp lapack
-  #         yum -y install pkg-config gcc git cmake
-  #         yum -y install g++ # This doesn't work on rhel8/rocky8?
-  #         yum -y install wget curl || yum -y install --allowerasing wget curl
-  #       else
-  #         apt-get update
-  #         apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 libc6
-  #         apt-get -y install wget curl pkg-config gcc g++ git cmake
-  #       fi
-  #       if [ `uname -m` = "aarch64" ]; then 
-  #         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O $WORKSPACE/miniconda.sh
-  #         DISTRO='aarch64'
-  #       fi
-  #       if [ `uname -m` = "x86_64" ]; then
-  #         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $WORKSPACE/miniconda.sh
-  #         DISTRO='x86_64'
-  #       fi
-  #       echo "DISTRO=$DISTRO" >> $GITHUB_ENV
-  #       chmod +x $WORKSPACE/miniconda.sh
-  #       bash $WORKSPACE/miniconda.sh -b -p $WORKSPACE/miniconda
-  #       ls $WORKSPACE/miniconda/bin
-  #   - name: Setup IDAES package directories
-  #     run: |
-  #       # This simulates the ".idaes" directory, where binaries get unpacked
-  #       # for use by idaes-pse (and other programs). Note that we do not actually
-  #       # install idaes-pse in this workflow.
-  #       IDAES_DIR="${GITHUB_WORKSPACE}/cache/tpl"
-  #       mkdir -p "$IDAES_DIR"
-  #       DOWNLOAD_DIR="${GITHUB_WORKSPACE}/cache/download"
-  #       mkdir -p "$DOWNLOAD_DIR"
-  #       # Add a global var / something that you want to exist in future steps
-  #       echo "IDAES_DIR=$IDAES_DIR" >> $GITHUB_ENV
-  #       echo "DOWNLOAD_DIR=$DOWNLOAD_DIR" >> $GITHUB_ENV
-  #   - name: Install Dependencies
-  #     run: |
-  #       eval "$(/miniconda/bin/conda shell.bash hook)"
-  #       conda --version
-  #       conda create -n idaes python=3.10 pip psutil
-  #       conda activate idaes
-  #       # Grab the most recent release of the IDAES extensions
-  #       pip install pyomo pytest scipy "numpy<2" parameterized
-  #   - name: Download Binaries
-  #     run: |
-  #         # Per IDAES's current convention (v2.6), we unpack binaries into IDAES_DIR/bin
-  #         # Note that this will need to change when new binaries are released.
-  #         IDAES_BIN_DIR=$IDAES_DIR/bin
-  #         # Add something to the path; good for executables
-  #         echo "$IDAES_BIN_DIR" >> $GITHUB_PATH
-  #         echo "IDAES_BIN_DIR=$IDAES_BIN_DIR" >> $GITHUB_ENV
-  #         # Unlike `idaes get-extensions`, we need to link against libipopt.so.
-  #         # We will unpack these libraries into IDAES_DIR/bin/lib. There is no real
-  #         # logic to this. It will have to change when new binaries are released,
-  #         # as new binaries will unpack into top-level bin, lib, include, and share
-  #         # subdirectories.
-  #         echo "PATH=$PATH:$IDAES_BIN_DIR" >> $GITHUB_ENV
-  #         echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_BIN_DIR/lib:$IDAES_BIN_DIR" >> $GITHUB_ENV
-  #         #echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_BIN_DIR" >> $GITHUB_ENV
-  #         echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$IDAES_BIN_DIR/lib" >> $GITHUB_ENV
-  #         #echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$IDAES_BIN_DIR" >> $GITHUB_ENV
-  #         # The idaes-local targz that we will unpack contains lib/pkgconfig, which
-  #         # CyIpopt will need to know about.
-  #         IDAES_PC_DIR=$IDAES_BIN_DIR/lib/pkgconfig
-  #         echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IDAES_PC_DIR" >> $GITHUB_ENV
-  #         # The binaries we unpack are *not* already in a bin subdirectory, so
-  #         # we have to make this directory here
-  #         mkdir -p $IDAES_BIN_DIR
-  #         SOLVERS_TAR=${DOWNLOAD_DIR}/idaes-solvers.tar.gz
-  #         FUNCTIONS_TAR=${DOWNLOAD_DIR}/idaes-functions.tar.gz
-  #         PETSC_TAR=${DOWNLOAD_DIR}/idaes-petsc.tar.gz
-  #         if test ! -e $SOLVERS_TAR; then
-  #             echo "...downloading idaes-solvers"
-  #             URL=https://github.com/IDAES/idaes-ext
-  #             RELEASE=$(curl --max-time 150 --retry 8 \
-  #                 -L -s -H 'Accept: application/json' ${URL}/releases/latest)
-  #             VER=$(echo $RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-  #             URL=${URL}/releases/download/3.4.2/idaes-solvers-${{ matrix.TARGET }}-$DISTRO.tar.gz
-  #             curl --max-time 150 --retry 8 \
-  #               -L $URL > $SOLVERS_TAR
-  #             echo "...downloaded idaes-solvers"
-  #         fi
-  #         echo "...downloading idaes-lib"
-  #         URL=https://github.com/IDAES/idaes-ext
-  #         RELEASE=$(curl --max-time 150 --retry 8 \
-  #             -L -s -H 'Accept: application/json' ${URL}/releases/latest)
-  #         VER=$(echo $RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-  #         URL=${URL}/releases/download/3.4.2/idaes-lib-${{ matrix.TARGET }}-$DISTRO.tar.gz
-  #         curl --max-time 150 --retry 8 \
-  #           -L $URL > $FUNCTIONS_TAR
-  #         echo "...downloaded idaes-lib"
-  #         echo "...downloading idaes-petsc"
-  #         URL=https://github.com/IDAES/idaes-ext
-  #         RELEASE=$(curl --max-time 150 --retry 8 \
-  #             -L -s -H 'Accept: application/json' ${URL}/releases/latest)
-  #         VER=$(echo $RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-  #         URL=${URL}/releases/download/3.4.2/idaes-petsc-${{ matrix.TARGET }}-$DISTRO.tar.gz
-  #         curl --max-time 150 --retry 8 \
-  #           -L $URL > $PETSC_TAR
-  #         echo "...downloaded idaes-petsc"
-  #         cd $IDAES_BIN_DIR
-  #         IDAES_LOCAL_TAR=${IDAES_BIN_DIR}/idaes-local-${{ matrix.TARGET }}-$DISTRO.tar.gz
-  #         echo "Unpacking $SOLVERS_TAR into $PWD"
-  #         tar -xzi < $SOLVERS_TAR
-  #         echo "Unpacking $FUNCTIONS_TAR into $PWD"
-  #         tar -xzi < $FUNCTIONS_TAR
-  #         echo "Unpacking $PETSC_TAR into $PWD"
-  #         tar -xzi < $PETSC_TAR
-  #         echo "Unpacking $IDAES_LOCAL_TAR"
-  #         tar -xzi < $IDAES_LOCAL_TAR
-  #         # To use the helmholtz EOS external functions, we need data that is unpacked
-  #         # from idaes-lib (external functions) targz.
-  #         # One way to communicate this is via the IDAES_HELMHOLTZ_DATA_PATH envvar
-  #         # Note that the trailing '/' is necessary here
-  #         echo "IDAES_HELMHOLTZ_DATA_PATH=$IDAES_DIR/bin/helm_data/" >> $GITHUB_ENV
-  #         echo ""
-  #         echo "$IDAES_BIN_DIR"
-  #         ls -l $IDAES_BIN_DIR
-  #         #- name: Check sipopt/k_aug
-  #         #  run: |
-  #         #    $IDAES_DIR/bin/ipopt --version
-  #         #    $IDAES_DIR/bin/ipopt_sens --version
-  #         #    $IDAES_DIR/bin/k_aug --version
-  #   - name: Configure and Install cyipopt
-  #     run: |
-  #       echo "$PKG_CONFIG_PATH"
-  #       echo "$IDAES_DIR/bin/lib/pkgconfig"
-  #       ls "$IDAES_DIR"
-  #       ls "$IDAES_DIR/bin"
-  #       ls "$IDAES_DIR/bin/lib"
-  #       ls "$IDAES_DIR/bin/lib/pkgconfig"
-  #       pkg-config --libs --cflags ipopt
-  #       eval "$(/miniconda/bin/conda shell.bash hook)"
-  #       conda activate idaes
-  #       # Building extensions here shouldn't be necessary, as we distribute
-  #       # libpynumero_ASL, but our Rocky8 tests only pass if we build from
-  #       # scratch here...
-  #       #pyomo build-extensions
-  #       pip install cyipopt
-  #       #pip install git+https://github.com/mechmotum/cyipopt.git
-  #   - name: Run tests
-  #     run: |
-  #       eval "$(/miniconda/bin/conda shell.bash hook)"
-  #       conda activate idaes
-  #       cat $GITHUB_PATH
-  #       export PATH=$PATH:$IDAES_DIR/bin
-  #       echo "PATH = $PATH"
-  #       echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-  #       echo "IDAES_DIR = $IDAES_DIR"
-  #       ls "$IDAES_BIN_DIR"
-  #       pytest -v -rs `pwd`/test
+  docker:
+    name: ${{ matrix.container }}/${{ matrix.TARGET }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12", "debian:13"]
+        include:
+          - container: "rockylinux:8"
+            TARGET: "el8"
+            SHORTOS: el
+          - container: "rockylinux:9"
+            TARGET: "el9"
+            SHORTOS: el
+          - container: "debian:11"
+            TARGET: "ubuntu2004"
+            SHORTOS: deb
+          - container: "debian:12"
+            TARGET: "ubuntu2204"
+            SHORTOS: deb
+          - container: "debian:13"
+            TARGET: "ubuntu2404"
+            SHORTOS: deb
+    steps:
+    - name: Check out source
+      uses: actions/checkout@v4
+    - name: Install basic libraries
+      run: |
+        cat /etc/*-release
+        if test "${{ matrix.SHORTOS }}" == el; then
+          yum -y update
+          yum -y install libgfortran blas libgomp lapack
+          yum -y install pkg-config gcc git cmake
+          yum -y install g++ # This doesn't work on rhel8/rocky8?
+          yum -y install wget curl || yum -y install --allowerasing wget curl
+        else
+          apt-get update
+          apt-get -y install libgfortran5 libgomp1 liblapack3 libblas3 libc6
+          apt-get -y install wget curl pkg-config gcc g++ git cmake
+        fi
+        if [ `uname -m` = "aarch64" ]; then 
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O $WORKSPACE/miniconda.sh
+          DISTRO='aarch64'
+        fi
+        if [ `uname -m` = "x86_64" ]; then
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $WORKSPACE/miniconda.sh
+          DISTRO='x86_64'
+        fi
+        echo "DISTRO=$DISTRO" >> $GITHUB_ENV
+        chmod +x $WORKSPACE/miniconda.sh
+        bash $WORKSPACE/miniconda.sh -b -p $WORKSPACE/miniconda
+        ls $WORKSPACE/miniconda/bin
+    - name: Setup IDAES package directories
+      run: |
+        # This simulates the ".idaes" directory, where binaries get unpacked
+        # for use by idaes-pse (and other programs). Note that we do not actually
+        # install idaes-pse in this workflow.
+        IDAES_DIR="${GITHUB_WORKSPACE}/binaries"
+        mkdir -p "$IDAES_DIR"
+        DOWNLOAD_DIR="${GITHUB_WORKSPACE}/binaries/download"
+        mkdir -p "$DOWNLOAD_DIR"
+        echo "IDAES_DIR=$IDAES_DIR" >> $GITHUB_ENV
+        echo "DOWNLOAD_DIR=$DOWNLOAD_DIR" >> $GITHUB_ENV
+        ls -l "${GITHUB_WORKSPACE}"
+    - name: Install Dependencies
+      run: |
+        eval "$(/miniconda/bin/conda shell.bash hook)"
+        conda --version
+        conda create -n idaes python=3.11 pip psutil
+        conda activate idaes
+        # Grab the most recent release of the IDAES extensions
+        pip install pyomo pytest scipy numpy parameterized
+    - name: Download Binaries
+      run: |
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> $GITHUB_ENV
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$IDAES_DIR:$IDAES_DIR/lib" >> $GITHUB_ENV
+          # Add IDAES solver binaries to PATH so k_aug, dot_sens, ipopt_sens are found
+          echo "PATH=$IDAES_DIR/bin:$PATH" >> $GITHUB_ENV
+          # idaes-solvers now includes the pkgconfig direction. CyIpopt
+          # needs to know where this is located
+          IDAES_PC_DIR=$IDAES_DIR/lib/pkgconfig
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IDAES_PC_DIR" >> $GITHUB_ENV
+          # This is what we will call the idaes-solvers targz file
+          SOLVERS_TAR=${DOWNLOAD_DIR}/idaes-solvers.tar.gz
+          # This is what we will call the idaes-functions (external functions) targz file
+          FUNCTIONS_TAR=${DOWNLOAD_DIR}/idaes-functions.tar.gz
+          if test ! -e $SOLVERS_TAR; then
+              echo "...downloading idaes-solvers"
+              BASE_URL=https://github.com/mrmundt/idaes-ext
+              RELEASES=$(curl --max-time 150 --retry 8 \
+                  -L -s -H 'Accept: application/json' "$BASE_URL/releases")
+              VER=$(echo "$RELEASES" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n 1)
+              echo "Using idaes-ext tag: $VER"
+
+              SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}.tar.gz
+              FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}.tar.gz
+
+              echo "...downloading idaes-solvers from $SOLVERS_URL"
+              curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
+              echo "Downloaded idaes solvers file"
+
+              echo "...downloading idaes-functions from $FUNCTIONS_URL"
+              curl --max-time 150 --retry 8 -L "$FUNCTIONS_URL" > "$FUNCTIONS_TAR"
+              echo "Downloaded idaes functions file"
+          fi
+          file $SOLVERS_TAR # Hopefully this works on Windows
+          cd $IDAES_DIR
+          if test "${{ matrix.SHORTOS }}" == osx; then
+              echo "Unpacking $SOLVERS_TAR into $PWD"
+              tar -xvf $SOLVERS_TAR
+              echo "Unpacking $FUNCTIONS_TAR into $PWD"
+              tar -xvf $FUNCTIONS_TAR
+          else
+              echo "Unpacking $SOLVERS_TAR into $PWD"
+              tar -xzi < $SOLVERS_TAR
+              echo "Unpacking $FUNCTIONS_TAR into $PWD"
+              tar -xzi < $FUNCTIONS_TAR
+          fi
+          # To use the helmholtz EOS external functions, we need data that is unpacked
+          # from idaes-lib (external functions) targz.
+          # One way to communicate this is via the IDAES_HELMHOLTZ_DATA_PATH envvar
+          # Note that the trailing '/' is necessary here
+          echo "IDAES_HELMHOLTZ_DATA_PATH=$IDAES_DIR/lib/helm_data/" >> $GITHUB_ENV
+          echo "Done unpacking tar files"
+          echo ""
+          echo "$IDAES_DIR contents..."
+          ls -l $IDAES_DIR
+          echo "$IDAES_DIR bin contents..."
+          ls -l $IDAES_DIR/bin
+          echo "$IDAES_DIR lib contents..."
+          ls -l $IDAES_DIR/lib
+    - name: Configure and Install cyipopt
+      run: |
+        ls "$IDAES_DIR"
+        ls "$IDAES_DIR/bin"
+        ls "$IDAES_DIR/lib"
+        ls "$IDAES_DIR/lib/pkgconfig"
+        pkg-config --libs --cflags ipopt
+        eval "$(/miniconda/bin/conda shell.bash hook)"
+        conda activate idaes
+        pip install cyipopt
+    - name: Run tests
+      run: |
+        eval "$(/miniconda/bin/conda shell.bash hook)"
+        conda activate idaes
+        cat $GITHUB_PATH
+        export PATH=$PATH:$IDAES_DIR/bin
+        echo "PATH = $PATH"
+        echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+        echo "IDAES_DIR = $IDAES_DIR"
+        ls "$IDAES_BIN_DIR"
+        pytest -v -rs `pwd`/test
