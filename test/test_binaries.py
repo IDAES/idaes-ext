@@ -1,4 +1,5 @@
 import os
+import platform
 import math
 from contextlib import nullcontext
 import itertools
@@ -18,19 +19,15 @@ from pyomo.contrib.pynumero.interfaces.pyomo_nlp import PyomoNLP
 set up to run these tests:
 - IDAES binaries have been downloaded to $HOME/.idaes/bin
 - This directory should be on: PATH and (DY)LD_LIBRARY_PATH
-- idaes-local-*.tar.gz is unpacked (somewhere)
-- idaes-local/lib/pkgconfig is on PKG_CONFIG_PATH
 - CyIpopt is installed with `pip install cyipopt`. If a wheel doesn't build, maybe
   it needs to be removed from the pip cache with `pip cache remove cyipopt`
 - To test the Helmholtz EOS external functions, the IDAES_HELMHOLTZ_DATA_PATH environment
   variable needs to be set to $HOME/.idaes/bin/helm_data/ (Note that the trailing '/'
   appears to be necessary)
-
+- The newest builds for MacOS arm64 do NOT include Metis within HSL/Ipopt due
+  to incompatibilities that cause massive memory-related failures
 """
 
-
-# TODO: This directory will be wherever we download the binaries that we
-# want to test, likely just in the current working directory.
 if "IDAES_DIR" in os.environ:
     IDAES_DIR = os.environ["IDAES_DIR"]
 else:
@@ -43,13 +40,19 @@ ipopts_to_test = [
 ipopt_options_to_test = [
     ("default", {}),
     ("mumps", {"print_user_options": "yes", "linear_solver": "mumps"}),
+    # Core HSL linear solvers
     ("ma27", {"print_user_options": "yes", "linear_solver": "ma27"}),
     ("ma57", {"print_user_options": "yes", "linear_solver": "ma57"}),
+    ("ma77", {"print_user_options": "yes", "linear_solver": "ma77"}),
+    ("ma86", {"print_user_options": "yes", "linear_solver": "ma86"}),
+    ("ma97", {"print_user_options": "yes", "linear_solver": "ma97"}),
+    # Metis-dependent ordering variant
     (
         "ma57_metis",
         {"print_user_options": "yes", "linear_solver": "ma57", "ma57_pivot_order": 4},
     ),
 ]
+
 sensitivity_solvers = [
     ("ipopt", "k_aug", "dot_sens"),
     ("ipopt_sens", "ipopt_sens", None),
@@ -62,7 +65,19 @@ ipopt_test_data = [
 ]
 
 
+def _is_macos_arm64():
+    return (platform.system() == "Darwin") and (
+        platform.machine() in ("arm64", "aarch64")
+    )
+
+
 def _test_ipopt_with_options(name, exe, options):
+    if _is_macos_arm64():
+        if options.get("ma57_pivot_order", None) == 4:
+            pytest.skip(
+                "Skipping Metis-dependent ipopt tests on macOS arm64 (Ipopt not built with Metis)."
+            )
+
     m = pyo.ConcreteModel()
     m.x = pyo.Var([1, 2], initialize=1.5)
     m.con = pyo.Constraint(expr=m.x[1] * m.x[2] == 0.5)
@@ -156,10 +171,6 @@ def _test_sensitivity(
     # NOTE: The k_aug and ipopt_sens binaries need to be on the
     # official PATH. This is a problem in sensitivity_toolbox
     # that it makes this assumption and doesn't allow any changes.
-    if sens_name == "k_aug":
-        sensitivity_executable = (sens_exe, update_exe)
-    else:
-        sensitivity_executable = sens_exe
     sensitivity_calculation(
         sens_name,
         m,
@@ -388,7 +399,6 @@ class TestPetsc:
             datatype=pyo.Suffix.INT,
         )
 
-        diffvar_index = 0
         t = tf
         m.dae_suffix[m.height[t]] = DIFFERENTIAL
         m.dae_suffix[m.flow[t, "out"]] = ALGEBRAIC
