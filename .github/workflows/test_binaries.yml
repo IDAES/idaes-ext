@@ -219,10 +219,6 @@ jobs:
       matrix:
         arch: [x86_64, aarch64]
         container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12", "debian:13", "ubuntu:20.04"]
-        # Deb11 is just a bit too old for aarch64
-        exclude:
-          - container: "debian:11"
-            arch: aarch64
         include:
           - container: "ubuntu:20.04"
             TARGET: "ubuntu2004"
