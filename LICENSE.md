@@ -1,204 +1,169 @@
-This file contains the license information for the third-party libraries and
-solvers included in the IDAES binary distribution: idaes-lib-<platform>.tar.gz
-and idaes-solvers-<platform>.tar.gz.  In general the idaes-lib-<platform>.tar.gz
-contains compiled IDAES code, while idaes-solvers-<platform>.tar.gz contains
-complied third-party libraries and solvers. The idaes-petsc-<platform>.tar.gz
-file contains an optional experimental AMPL solver wrapper for the PETSc solver.
-The petsc binary is only available for Linux and contains PETSc and several
-third-party solver libraries.
+# IDAES Binary Distributions — Licenses and Third‑Party Notices
 
-idaes-lib-<platform>.tar.gz
-===========================
+This document provides license and notice information for software
+distributed in the IDAES binary tarballs:
 
-  cubic_root.so, functions.so, iapws95_external.so, general_helmholtz.so,
-  and swco2_external.so
-  -----------------------------------------------------------------------
-  License: IDAES BSD 3-clause,
-           https://github.com/IDAES/idaes-pse/blob/master/LICENSE.md
-  Source: https://github.com/IDAES/idaes-ext/tree/main/src
+- `idaes-functions-<platform>.tar.gz`
+- `idaes-solvers-<platform>.tar.gz`
 
-idaes-solvers-<platform>.tar.gz
-===============================
+These tarballs are intended to be unpacked into the same installation
+prefix so their `bin/`, `lib/`, `include/`, and `share/` directories can
+be used together.
 
-  Ipopt
-  -----
-  License: Eclipse Public License 2.0,
-           https://github.com/coin-or/Ipopt/blob/master/LICENSE,
-  Source: https://github.com/coin-or/Ipopt
+## Tarball contents (high level)
 
+### `idaes-functions-<platform>.tar.gz`
+Typically contains:
+- `lib/` — IDAES "functions" shared libraries (platform extensions vary: `.so`, `.dylib`, `.dll`)
+- `lib/helm_data/` — Helmholtz/EOS data and helpers (e.g., `*.json`, `*.py`, `*.nl`)
+- `license_functions.txt` or `LICENSE.md` (this file)
+- `version_functions.txt`
 
-  liblapack.dll, libblas.dll (windows only)
-  -----------------------------------------
-  License: Lesser General Public License LGPL,
-  Source: https://www.netlib.org/lapack
+### `idaes-solvers-<platform>.tar.gz`
+Typically contains:
+- `bin/` — solver executables (e.g., `ipopt`, `bonmin`, `couenne`, `cbc`, `clp`, `petsc`, and platform variants like `.exe`)
+- `lib/` — shared libraries and runtime dependencies (e.g., `libipopt*`, `libsipopt*`, `libpynumero_ASL*`, `petscpy/`)
+- `include/` — headers (notably COIN-OR / Ipopt headers under `include/coin-or/`)
+- `lib/pkgconfig/` — pkg-config metadata (e.g., `ipopt.pc`)
+- `share/` — documentation installed by upstream projects (e.g., `share/doc/ipopt/`)
+- `license.txt` or `LICENSE.md` (this file)
+- `version_solvers.txt`
 
+> **Platform variability**: Not all components are present on all platforms; some
+> optional features (notably HSL and METIS) depend on availability, compatibility,
+> and licensing constraints.
 
-  Clp
-  ---
-  License: Eclipse Public License 2.0,
-          https://github.com/coin-or/Clp/blob/master/LICENSE
-  Source: https://github.com/coin-or/Clp
+---
 
+## IDAES components
 
-  Cbc
-  ---
-  License: Eclipse Public License 2.0,
-           https://github.com/coin-or/Cbc/blob/master/LICENSE
-  Source: https://github.com/coin-or/Cbc
+### IDAES functions libraries and data
+Examples (names vary by platform):
+- `functions.*`
+- `cubic_roots.*`
+- `general_helmholtz_external.*`
+- `lib/helm_data/*`
 
+**License**: BSD 3-Clause (IDAES)
+**IDAES license reference**: https://github.com/IDAES/idaes-pse/blob/main/LICENSE.md
+**Source / build & packaging**: https://github.com/IDAES/idaes-ext
 
-  Cgl
-  ---
-  License: Eclipse Public License 2.0,
-           https://github.com/coin-or/Cgl/blob/master/LICENSE
-  Source: https://github.com/coin-or/Cgl
+---
 
+## COIN-OR solvers and related components
 
-  Couenne
-  -------
-  License: Eclipse Public License 1.0,
-           https://github.com/coin-or/Couenne/blob/master/LICENSE
-  Source: https://github.com/coin-or/Couenne
+### Ipopt
+- **License**: Eclipse Public License 2.0 (EPL-2.0)
+- **Source**: https://github.com/coin-or/Ipopt
 
+### Bonmin
+- **License**: Eclipse Public License 1.0 (EPL-1.0)
+- **Source**: https://github.com/coin-or/Bonmin
 
-  Bonmin
-  ------
-  License: Eclipse Public License 1.0,
-           https://github.com/coin-or/Bonmin/blob/master/LICENSE
-  Source: https://github.com/coin-or/Bonmin
+### Couenne
+- **License**: Eclipse Public License 1.0 (EPL-1.0)
+- **Source**: https://github.com/coin-or/Couenne
 
+### Cbc
+- **License**: Eclipse Public License 2.0 (EPL-2.0)
+- **Source**: https://github.com/coin-or/Cbc
 
-  HSL
-  ---
-  All technical papers, sales and publicity material resulting from use of
-  the HSL codes within IPOPT must contain the following acknowledgement: HSL, a
-  collection of Fortran codes for large-scale scientific computation. See
-  http://www.hsl.rl.ac.uk.
+### Clp
+- **License**: Eclipse Public License 2.0 (EPL-2.0)
+- **Source**: https://github.com/coin-or/Clp
 
+---
 
-  MUMPS
-  -----
-  License: CeCILL-C,  https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
-  Source: http://mumps.enseeiht.fr/index.php?page=dwnld.
+## AMPL Solver Library (ASL)
 
-
-  METIS (4)
-  ---------
-  Included with permission
-
-  METIS (>5)
-  ----------
-  License: Apache 2.0, https://github.com/KarypisLab/METIS/blob/master/LICENSE
-  Source: https://github.com/KarypisLab/METIS
-
-
-  GCC Libraries
-  -------------
-
-  GCC runtime libraries are covered by the GCC runtime exception, so they can be
-  linked and distributed.  The libraries were used unmodified.
-  License:
-    https://www.gnu.org/licenses/gpl-3.0.en.html
-    https://www.gnu.org/licenses/gcc-exception-3.1-faq.en.html
-  Source: https://gcc.gnu.org/
-
-
-  MinGW
-  -----
-  For Windows, MinGW runtime libraries are included.
-  License: http://www.mingw.org/license.
-
-
-  AMPL Solver Library (ASL)
-  -------------------------
-  Source: https://ampl.com/netlib/ampl/solvers/index.html
-  License:
-
+- **Source**: https://ampl.com/netlib/ampl/solvers/index.html
+- **License**:
   Copyright (C) 2016 AMPL Optimization, Inc.; written by David M. Gay.
-
+  
   Permission to use, copy, modify, and distribute this software and its
-  documentation for any purpose and without fee is hereby granted,
-  provided that the above copyright notice appear in all copies and that
-  both that the copyright notice and this permission notice and warranty
-  disclaimer appear in supporting documentation.
-
-  The author and AMPL Optimization, Inc. disclaim all warranties with
-  regard to this software, including all implied warranties of
-  merchantability and fitness.  In no event shall the author be liable
-  for any special, indirect or consequential damages or any damages
-  whatsoever resulting from loss of use, data or profits, whether in an
-  action of contract, negligence or other tortious action, arising out
-  of or in connection with the use or performance of this software.
-
+  documentation for any purpose and without fee is hereby granted, provided
+  that the above copyright notice appear in all copies and that both that
+  the copyright notice and this permission notice and warranty disclaimer
+  appear in supporting documentation.
   
-  ADOL-C
-  ------
-  
-  Source: https://github.com/coin-or/ADOL-C
-  License: ECLIPSE PUBLIC LICENSE VERSION 1.0
-           https://github.com/coin-or/ADOL-C/blob/master/LICENSE
-           
+  The author and AMPL Optimization, Inc. disclaim all warranties with regard
+  to this software, including all implied warranties of merchantability and
+  fitness. In no event shall the author be liable for any special, indirect
+  or consequential damages or any damages whatsoever resulting from loss of
+  use, data or profits, whether in an action of contract, negligence or
+  other tortious action, arising out of or in connection with the use or
+  performance of this software.
 
-idaes-petsc-<platform>.tar.gz
-===============================
+---
 
-  PETSc
-  -----
+## Pyomo / PyNumero
 
-  Source: https://petsc.org
-  License: BSD 2-Clause
-           https://petsc.org/main/install/license/#doc-license
+- **License**: BSD 3-Clause
+- **Source**: https://github.com/Pyomo/pyomo
 
-  AMPL Solver Library (ASL)
-  -------------------------
+---
 
-  Source: https://ampl.com/netlib/ampl/solvers/index.html
-  License: See Above
+## PETSc
 
-  MPICH
-  -----
+- **License**: BSD 2-Clause
+https://petsc.org/main/install/license/#doc-license
+- **PETSc Source**: https://petsc.org/
 
-  Source: https://www.mpich.org/
-  License: https://github.com/pmodels/mpich/blob/master/COPYRIGHT
+---
 
-  MUMPS
-  -----
+## MUMPS
 
-  Source: http://mumps.enseeiht.fr/
-  License: https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+- **License**: CeCILL-C
+https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+- **Source**: http://mumps.enseeiht.fr/
 
-  Sundials
-  --------
+---
 
-  Source: https://computing.llnl.gov/projects/sundials
-  License: https://computing.llnl.gov/projects/sundials/license
+## METIS (platform-dependent)
 
-  Scalapack
-  ---------
+- **METIS 5.x License**: Apache 2.0
+https://github.com/KarypisLab/METIS/blob/master/LICENSE
+**Source**: https://github.com/KarypisLab/METIS
 
-  Source: http://www.netlib.org/scalapack/
-  License: http://www.netlib.org/scalapack/#_licensing
+> **Note**: METIS support is not included on macOS arm64 (Apple Silicon) in
+> this distribution due to compatibility issues.
 
-  PTScotch
-  --------
+---
 
-  Source: https://www.labri.fr/perso/pelegrin/scotch/
-  License: https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+## HSL
 
-  Hypre
-  -----
+- **Source**: https://www.hsl.rl.ac.uk/
+- **License**: Proprietary (HSL terms apply)
 
-  Source: https://computing.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods
-  License: https://github.com/hypre-space/hypre/blob/master/LICENSE-MIT
+**Acknowledgement required by HSL terms**:
+> All technical papers, sales and publicity material resulting from use of the HSL codes within IPOPT must contain the following acknowledgement:
+> "HSL, a collection of Fortran codes for large-scale scientific computation. See http://www.hsl.rl.ac.uk/."
 
-  SuiteSparse
-  -----------
+---
 
-  Source: https://people.engr.tamu.edu/davis/suitesparse.html
-  License: https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/master/LICENSE.txt
+## GCC Libraries
 
-  Strumpack
-  ---------
+GCC runtime libraries are covered by the GCC runtime exception, so they can
+be linked and distributed. The libraries were used unmodified.
 
-  Source: https://github.com/pghysels/STRUMPACK
-  License: https://github.com/pghysels/STRUMPACK/blob/master/LICENSE
+- **Source**: https://gcc.gnu.org/
+- **License**:
+  - https://www.gnu.org/licenses/gpl-3.0.en.html
+  - https://www.gnu.org/licenses/gcc-exception-3.1-faq.en.html
+
+---
+
+## MinGW
+
+For Windows, MinGW runtime libraries are included.
+
+**MinGW-w64**: https://www.mingw-w64.org/
+**MSYS2 (common build environment)**: https://www.msys2.org/
+
+---
+
+## Additional notes
+
+- Upstream projects may provide additional license texts and notices within the
+  distribution (for example under `share/doc/`) and/or in their source repositories.
+- This file is informational and does not replace or modify any upstream license terms.

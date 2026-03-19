@@ -459,13 +459,13 @@ echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
 echo "#########################################################################"
 # Text information files include build time
-cp ./license.txt ./dist/
-cp ./version.txt ./dist/version_solvers.txt
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g ./dist/version_solvers.txt > ./dist/tmp
-sed s/"(PLAT)"/${osname}-${MNAME}/g ./dist/tmp > ./dist/tmp2
-# Why do we create dist/version_solvers.txt above if we will just overwrite it?
-mv ./dist/tmp2 ./dist/version_solvers.txt
-rm ./dist/tmp*
+cp ./LICENSE.md ./dist/
+cp ./VERSION.md ./dist/VERSION_SOLVERS.md
+build_date="$(date +%Y%m%d-%H%M)"
+build_plat="${osname}-${MNAME}"
+sed "s/(DATE)/${build_date}/g; s/(PLAT)/${build_plat}/g" \
+  "./dist/VERSION_SOLVERS.md" > "./dist/.VERSION_SOLVERS.md.tmp"
+mv "./dist/.VERSION_SOLVERS.md.tmp" "./dist/VERSION_SOLVERS.md"
 
 #
 # Copy some linked libraries from homebrew or mingw, covered by gcc runtime
