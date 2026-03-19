@@ -411,20 +411,6 @@ mkdir dist dist/bin dist/include dist/lib
 # explicit for the reader.
 # cd dist
 # Executables
-if [ ${osname} = "windows" ]; then
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/bin/libipopt*.dll ./dist/lib/
-  cp ./coinbrew/dist-share/bin/libsipopt*.dll ./dist/lib/
-elif [ ${osname} = "darwin" ]; then
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/lib/libipopt*.dylib ./dist/lib/
-  cp ./coinbrew/dist-share/lib/libsipopt*.dylib ./dist/lib/
-else
-  # linux
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/lib/libipopt*.so ./dist/lib/
-  cp ./coinbrew/dist-share/lib/libsipopt*.so ./dist/lib/
-fi
 cp ./coinbrew/dist/bin/ipopt ./dist/bin/
 cp ./coinbrew/dist/bin/ipopt_sens ./dist/bin/
 cp ./coinbrew/dist/bin/clp ./dist/bin/
@@ -441,12 +427,18 @@ else
 fi
 
 # Copy contents of dist-share (ipopt lib, include, and share) into dist
-cp -r ./coinbrew/dist-share/* ./dist/
+if [ "${osname}" = "windows" ]; then
+  # includes, docs, pkgconfig
+  cp -R ./coinbrew/dist-share/include ./dist/
+  cp -R ./coinbrew/dist-share/share   ./dist/
+  cp -R ./coinbrew/dist-share/lib     ./dist/
 
-# Patch to remove "Requires.private: coinhsl coinmumps"
-# Note that we are patching the file *after* we copy it into the directory
-# we will distribute.
-#patch ./dist/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
+  # Move/copy Ipopt DLLs that Autotools put in dist-share/bin into dist/lib
+  cp ./coinbrew/dist-share/bin/libipopt*.dll  ./dist/lib/
+  cp ./coinbrew/dist-share/bin/libsipopt*.dll ./dist/lib/
+else
+  cp -R ./coinbrew/dist-share/* ./dist/
+fi
 
 # Handle platform-dependent sed behavior...
 if [ $osname = "darwin" ]; then
