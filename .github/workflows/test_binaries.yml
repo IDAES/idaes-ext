@@ -114,8 +114,8 @@ jobs:
                 echo "...downloading idaes-solvers"
                 BASE_URL=https://github.com/mrmundt/idaes-ext
 
-                SOLVERS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${{ matrix.TARGET }}.tar.gz
-                FUNCTIONS_URL=$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${{ matrix.TARGET }}.tar.gz
+                SOLVERS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${{ matrix.TARGET }}.tar.gz
+                FUNCTIONS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${{ matrix.TARGET }}.tar.gz
 
                 echo "...downloading idaes-solvers from $SOLVERS_URL"
                 curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
@@ -315,8 +315,8 @@ jobs:
               SOLVERS_TAR="$DOWNLOAD_DIR/idaes-solvers.tar.gz"
               FUNCTIONS_TAR="$DOWNLOAD_DIR/idaes-functions.tar.gz"
               BASE_URL="https://github.com/mrmundt/idaes-ext"
-              SOLVERS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
-              FUNCTIONS_URL="$BASE_URL/releases/download/5.0.0rc1/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
+              SOLVERS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
+              FUNCTIONS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
 
               curl -fL --max-time 150 --retry 8 "$SOLVERS_URL" -o "$SOLVERS_TAR"
               curl -fL --max-time 150 --retry 8 "$FUNCTIONS_URL" -o "$FUNCTIONS_TAR"
