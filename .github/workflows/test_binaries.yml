@@ -206,6 +206,11 @@ jobs:
           else
               $PYTHON_EXE -m pip install -v cyipopt
           fi
+      - name: Print versions
+        run: |
+          for FILE in $IDAES_DIR/bin; do
+            $FILE --version || echo "Binary did not print version correctly"
+          done
       - name: Run tests
         run: |
           $PYTHON_EXE -m pytest -v -rs `pwd`/test
