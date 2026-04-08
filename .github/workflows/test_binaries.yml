@@ -208,8 +208,10 @@ jobs:
           fi
       - name: Print versions
         run: |
-          for FILE in $IDAES_DIR/bin; do
-            $FILE --version || echo "Binary did not print version correctly"
+          for FILE in "$IDAES_DIR/bin"/*; do
+            [[ -f "$FILE" && -x "$FILE" ]] || continue
+            echo "==> $FILE"
+            "$FILE" --version || echo "Binary did not print version correctly"
           done
       - name: Run tests
         run: |
