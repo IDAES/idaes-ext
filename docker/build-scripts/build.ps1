@@ -3,8 +3,11 @@ $buildarg_1 = $args[1]  # just use this to pass in --no-cache or some such
 
 # The 3rd and 4th arguments provided will be interpreted as repo and branch.
 # (If you don't want to use buildarg_1, just pass in an empty string.)
+# The 5th argument is for the tag of the Docker image. It will default
+# to `latest` if not set
 $repo = $args[2]
 $branch = $args[3]
+$tag = $args[4]
 
 # If repo and branch are not provided, use default values
 IF ($repo -eq $null){
@@ -13,19 +16,22 @@ IF ($repo -eq $null){
 IF ($branch -eq $null){
   $branch = "main"
 }
+IF ($tag -eq $null){
+  $tag = "latest"
+}
 
 $mname = "x86_64"
 
 IF ($flavor -eq "windows"){
   $wdir = "c:/repo"
 }
-ELSEIF ($flavor -eq "el7"){
+ELSEIF ($flavor -eq "el9"){
   $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "el8"){
   $wdir = "/repo"
 }
-ELSEIF ($flavor -eq "ubuntu1804"){
+ELSEIF ($flavor -eq "ubuntu2404"){
   $wdir = "/repo"
 }
 ELSEIF ($flavor -eq "ubuntu2004"){
@@ -35,7 +41,7 @@ ELSEIF ($flavor -eq "ubuntu2204"){
   $wdir = "/repo"
 }
 ELSE{
-  echo "Specify flavor in {windows, el7, el8, ubuntu1804, ubuntu2004, ubuntu2204}."
+  echo "Specify flavor in {windows, el8, el9, ubuntu2004, ubuntu2204, ubuntu2404}."
   exit 1
 }
 
