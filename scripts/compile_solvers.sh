@@ -48,7 +48,7 @@ fi
 
 # Set a few basic things
 export IPOPT_BRANCH="stable/3.14"
-export IPOPT_REPO="https://github.com/mrmundt/Ipopt"
+export IPOPT_REPO="https://github.com/IDAES/Ipopt"
 export PYNU_BRANCH="main"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="default"

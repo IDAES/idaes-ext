@@ -112,7 +112,7 @@ jobs:
             FUNCTIONS_TAR=${DOWNLOAD_DIR}/idaes-functions.tar.gz
             if test ! -e $SOLVERS_TAR; then
                 echo "...downloading idaes-solvers"
-                BASE_URL=https://github.com/mrmundt/idaes-ext
+                BASE_URL=https://github.com/IDAES/idaes-ext
 
                 SOLVERS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${{ matrix.TARGET }}.tar.gz
                 FUNCTIONS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${{ matrix.TARGET }}.tar.gz
@@ -321,7 +321,7 @@ jobs:
 
               SOLVERS_TAR="$DOWNLOAD_DIR/idaes-solvers.tar.gz"
               FUNCTIONS_TAR="$DOWNLOAD_DIR/idaes-functions.tar.gz"
-              BASE_URL="https://github.com/mrmundt/idaes-ext"
+              BASE_URL="https://github.com/IDAES/idaes-ext"
               SOLVERS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
               FUNCTIONS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
 
