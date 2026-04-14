@@ -11,8 +11,8 @@ set -e
 osname=$1;
 if [ -z $osname ]
 then
-  echo "Must spcify plaform in {windows, darwin, el7, el8, "
-  echo "  ubuntu180, ubuntu2004, ubuntu2204}."
+  echo "Must specify platform in {windows, darwin, el8, el9, "
+  echo "  ubuntu2004, ubuntu2204, ubuntu2404}."
   exit 1
 fi
 
@@ -31,14 +31,14 @@ if [ "$arg2" = "--without-hsl" ]; then
   hslflag="--without-hsl"
   with_hsl="NO"
   build_hsl="NO"
-elif [ -f $IDAES_EXT/../coinhsl.zip ]; then
-  echo "coinhsl.zip found. Building solvers with HSL." >&2
+elif [ -f $IDAES_EXT/../coinhsl.tar.gz ]; then
+  echo "coinhsl.tar.gz found. Building solvers with HSL." >&2
   echo "HSL: YES"
   hslflag="--with-hsl"
   with_hsl="YES"
   build_hsl="YES"
 else
-  echo "coinhsl.zip not found. Attempting to build with installed HSL." >&2
+  echo "coinhsl.tar.gz not found. Attempting to build with installed HSL." >&2
   echo "To skip HSL-reliant build steps, send the --without-hsl argument to this script" >&2
   echo "HSL: YES"
   hslflag="--with-hsl"
@@ -47,10 +47,8 @@ else
 fi
 
 # Set a few basic things
-export IPOPT_BRANCH="idaes-3.13"
-export IPOPT_REPO="https://github.com/idaes/Ipopt"
-export IPOPT_L1_BRANCH="restoration_mod"
-export IPOPT_L1_REPO="https://github.com/idaes/Ipopt"
+export IPOPT_BRANCH="stable/3.14"
+export IPOPT_REPO="https://github.com/mrmundt/Ipopt"
 export PYNU_BRANCH="main"
 export PYNU_REPO="https://github.com/pyomo/pyomo"
 export K_AUG_BRANCH="default"
@@ -77,27 +75,54 @@ if [ -z $PETSC_DIR ]; then
 fi
 export PETSC_ARCH=""
 
-# locate homebrew libs (this script is not at all for general builds)
-if [ ${osname} = "darwin" ]
-then
-  if [ -f /opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]
-  then
-    export BREWLIB=/opt/homebrew/opt/gcc/lib/gcc/current/
-  elif [ -f /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib ]; then
-    export BREWLIB=/usr/local/opt/gcc/lib/gcc/current/
+if [ "$osname" = "darwin" ]; then
+  if [ -n "$HOMEBREW_PREFIX" ]; then
+    # Find a GCC formula: prefer unversioned gcc, then fall back to gcc@*
+    for formula in gcc gcc@15 gcc@14 gcc@13; do
+      GCC_PREFIX=$($HOMEBREW_PREFIX/bin/brew --prefix "$formula" 2>/dev/null || true)
+      if [ -n "$GCC_PREFIX" ] && [ -d "$GCC_PREFIX/bin" ]; then
+        GCC_BIN="$GCC_PREFIX/bin"
+        break
+      fi
+    done
+
+    if [ -n "$GCC_BIN" ]; then
+      GCC_EXE=$(ls "$GCC_BIN"/gcc-[0-9]* 2>/dev/null \
+                | grep -E 'gcc-[0-9]+$' \
+                | sort -V \
+                | tail -1)
+      if [ -n "$GCC_EXE" ]; then
+        GCC_VER="${GCC_EXE##*-}"
+
+        export CC="$GCC_BIN/gcc-$GCC_VER"
+        export CXX="$GCC_BIN/g++-$GCC_VER"
+        export F77="$GCC_BIN/gfortran-$GCC_VER"
+        export FC="$GCC_BIN/gfortran-$GCC_VER"
+
+        echo "Using GCC toolchain:"
+        echo "  CC = $CC"
+        echo "  CXX = $CXX"
+        echo "  F77 = $F77"
+        echo "  FC = $FC"
+      fi
+
+      # BREWLIB: find matching libgfortran dir
+      gcc_libroot="$HOMEBREW_PREFIX/opt/$(basename "$GCC_PREFIX")/lib/gcc"
+      if [ -d "$gcc_libroot" ]; then
+        gcc_libver=$(ls "$gcc_libroot" | sort -V | tail -1)
+        export BREWLIB="$gcc_libroot/$gcc_libver/"
+      fi
+    fi
   fi
 fi
-
 
 mkdir coinbrew
 cd coinbrew
 
 if [ ${osname} = "darwin" ]; then
   curl --output coinbrew https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
-  export CC="gcc-13"
-  export CXX="g++-13"
 else
-  wget https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
+  wget --secure-protocol tlsv1 https://raw.githubusercontent.com/coin-or/coinbrew/master/coinbrew
 fi
 
 # Work-around for mumps gcc v10 gfortran bug
@@ -109,7 +134,7 @@ if [ ${GFMV[0]} -ge 10 ]; then
 fi
 
 # Fetch coin-or stuff and dependencies
-SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk ThirdParty/Metis ThirdParty/Mumps'
+SKIP_PKGS='ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk ThirdParty/Mumps'
 bash coinbrew fetch Clp --no-prompt --skip "$SKIP_PKGS"
 bash coinbrew fetch Cbc --no-prompt --skip "$SKIP_PKGS"
 SKIP_PKGS="$SKIP_PKGS Cbc Clp Cgl Osi"
@@ -122,15 +147,9 @@ cp $IDAES_EXT/scripts/CouenneProblem.hpp.patch ./
 patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
 patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
 cd ..
-rm -rf Ipopt # Remove the version of Ipopt gotten as a dependency
-bash coinbrew fetch $IPOPT_L1_REPO@$IPOPT_L1_BRANCH --no-prompt --skip "$SKIP_PKGS"
-mv ./Ipopt ./Ipopt_l1
-rm -rf ThirdParty/ASL # Remove ASL and let Ipopt have what it wants
-if [ ${osname} = "el7" ]; then 
-  # Seems now the git autostash option is used, but not in the older git in el7. To prevent failure to get Mumps, just delete Thirdparty
-  # Looks like the only things in therd party are thing that Ipopt gets, so this should be ok.
-  rm -rf ./Thirdparty/*
-fi
+# We don't want to coin-or Ipopt
+rm -rf Ipopt
+# We DO want the custom IDAES Ipopt
 bash coinbrew fetch $IPOPT_REPO@$IPOPT_BRANCH --no-prompt --skip 'ThirdParty/Lapack ThirdParty/Blas ThirdParty/Glpk'
 cp -r Ipopt Ipopt_share
 
@@ -162,16 +181,16 @@ fi
 export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${IDAES_EXT}/coinbrew/dist/lib/pkgconfig
 
 echo "#########################################################################"
-echo "# Get coinhsl.zip if available                                          #"
+echo "# Get coinhsl.tar.gz if available                                       #"
 echo "#########################################################################"
 # If we have the HSL stuff copy and extract it in the right place
-if [ -f $IDAES_EXT/../coinhsl.zip ]; then
-  echo "Found coinhsl.zip"
-  # if the HSL source zip is in place...
-  mkdir ThirdParty/HSL/coinhsl
-  cp $IDAES_EXT/../coinhsl.zip ThirdParty/HSL/coinhsl/
-  cd ThirdParty/HSL/coinhsl
-  unzip coinhsl.zip
+if [ -f $IDAES_EXT/../coinhsl.tar.gz ]; then
+  echo "Found coinhsl.tar.gz"
+  # if the HSL source tarball is in place...
+  mkdir -p ThirdParty/HSL/
+  cp $IDAES_EXT/../coinhsl.tar.gz ThirdParty/HSL/
+  cd ThirdParty/HSL/
+  tar -xvf coinhsl.tar.gz
   cd $IDAES_EXT/coinbrew
 fi
 
@@ -188,8 +207,14 @@ echo "#########################################################################"
 echo "# Thirdparty/Metis                                                      #"
 echo "#########################################################################"
 cd ThirdParty/Metis
-./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
-  --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+if [ "$MNAME" = "aarch64" ]; then
+  # MNAME of darwin is arm64, so this is linux only
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    --build=aarch64-unknown-linux-gnu FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+else
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    FFLAGS="-fPIC" CFLAGS="-fPIC -Wno-error=implicit-function-declaration" CXXFLAGS="-fPIC"
+fi
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -197,10 +222,29 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Thirdparty/HSL                                                        #"
 echo "#########################################################################"
-if [ $build_hsl = "YES" ]; then
+if [ "$build_hsl" = "YES" ]; then
   cd ThirdParty/HSL
-  ./configure --disable-shared --enable-static --with-metis \
-    --prefix=$IDAES_EXT/coinbrew/dist FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+
+  if [ "$MNAME" != "arm64" ]; then
+    METIS_CFLAGS="-I$IDAES_EXT/coinbrew/dist/include/coin/ThirdParty"
+    METIS_LFLAGS="-L$IDAES_EXT/coinbrew/dist/lib -lcoinmetis -lm"
+
+    ./configure \
+      --disable-shared --enable-static --with-metis \
+      --with-metis-cflags="$METIS_CFLAGS" \
+      --with-metis-lflags="$METIS_LFLAGS" \
+      --prefix=$IDAES_EXT/coinbrew/dist \
+      FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  else
+    # Metis + arm64 do not play well together. We'd rather
+    # have something HSL functional than nothing at all,
+    # so at least for now, we skip metis.
+    ./configure \
+      --disable-shared --enable-static --without-metis \
+      --prefix=$IDAES_EXT/coinbrew/dist \
+      FFLAGS="-fPIC" CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+  fi
+
   make $PARALLEL
   make install
   cd $IDAES_EXT/coinbrew
@@ -226,22 +270,6 @@ echo "#########################################################################"
 cd Ipopt
 ./configure --disable-shared --enable-static --with-mumps $hslflag \
   --prefix=$IDAES_EXT/coinbrew/dist
-make $PARALLEL
-make install
-cd $IDAES_EXT/coinbrew
-
-echo "#########################################################################"
-echo "# Ipopt_L1 ampl executables                                             #"
-echo "#########################################################################"
-cd Ipopt_l1
-if [ ${osname} = "el7" ]; then
-  ./configure --disable-shared --enable-static --with-mumps $hslflag \
-    ADD_CXXFLAGS="-std=c++11" \
-    --prefix=$IDAES_EXT/coinbrew/dist_l1
-else
-  ./configure --disable-shared --enable-static --with-mumps $hslflag \
-    --prefix=$IDAES_EXT/coinbrew/dist_l1
-fi
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -325,7 +353,7 @@ echo "#########################################################################"
 echo "# Bonmin                                                                #"
 echo "#########################################################################"
 cd Bonmin
-# Two replacemnts below are a temporary fix until I can nail the problem down better
+# Two replacements below are a temporary fix until I can nail the problem down better
 # There is a problem linking the exception class TMINLP_INVALID so replaced
 # it with a similar one from IPOPT that works
 sed s/"TMINLP_INVALID"/"INVALID_TNLP"/g Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp > atmpfile
@@ -383,27 +411,6 @@ mkdir dist dist/bin dist/include dist/lib
 # explicit for the reader.
 # cd dist
 # Executables
-if [ ${osname} = "windows" ]; then
-  # windows
-  cp ./coinbrew/dist_l1/bin/ipopt.exe ./dist/bin/ipopt_l1.exe
-  cp ./coinbrew/dist_l1/bin/ipopt_sens.exe ./dist/bin/ipopt_sens_l1.exe
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/bin/libipopt*.dll ./dist/lib/
-  cp ./coinbrew/dist-share/bin/libsipopt*.dll ./dist/lib/
-elif [ ${osname} = "darwin" ]; then
-  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1
-  cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/lib/libipopt*.dylib ./dist/lib/
-  cp ./coinbrew/dist-share/lib/libsipopt*.dylib ./dist/lib/
-else
-  # linux
-  cp ./coinbrew/dist_l1/bin/ipopt ./dist/bin/ipopt_l1
-  cp ./coinbrew/dist_l1/bin/ipopt_sens ./dist/bin/ipopt_sens_l1
-  # Explicitly only get ipopt so we don't get anything we shouldn't
-  cp ./coinbrew/dist-share/lib/libipopt*.so ./dist/lib/
-  cp ./coinbrew/dist-share/lib/libsipopt*.so ./dist/lib/
-fi
 cp ./coinbrew/dist/bin/ipopt ./dist/bin/
 cp ./coinbrew/dist/bin/ipopt_sens ./dist/bin/
 cp ./coinbrew/dist/bin/clp ./dist/bin/
@@ -420,12 +427,18 @@ else
 fi
 
 # Copy contents of dist-share (ipopt lib, include, and share) into dist
-cp -r ./coinbrew/dist-share/* ./dist/
+if [ "${osname}" = "windows" ]; then
+  # includes, docs, pkgconfig
+  cp -R ./coinbrew/dist-share/include ./dist/
+  cp -R ./coinbrew/dist-share/share   ./dist/
+  cp -R ./coinbrew/dist-share/lib     ./dist/
 
-# Patch to remove "Requires.private: coinhsl coinmumps"
-# Note that we are patching the file *after* we copy it into the directory
-# we will distribute.
-#patch ./dist/lib/pkgconfig/ipopt.pc < $IDAES_EXT/scripts/ipopt.pc.patch
+  # Move/copy Ipopt DLLs that Autotools put in dist-share/bin into dist/lib
+  cp ./coinbrew/dist-share/bin/libipopt*.dll  ./dist/lib/
+  cp ./coinbrew/dist-share/bin/libsipopt*.dll ./dist/lib/
+else
+  cp -R ./coinbrew/dist-share/* ./dist/
+fi
 
 # Handle platform-dependent sed behavior...
 if [ $osname = "darwin" ]; then
@@ -438,13 +451,13 @@ echo "#########################################################################"
 echo "# Copy License and Version Files to dist-solvers                        #"
 echo "#########################################################################"
 # Text information files include build time
-cp ./license.txt ./dist/
-cp ./version.txt ./dist/version_solvers.txt
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g ./dist/version_solvers.txt > ./dist/tmp
-sed s/"(PLAT)"/${osname}-${MNAME}/g ./dist/tmp > ./dist/tmp2
-# Why do we create dist/version_solvers.txt above if we will just overwrite it?
-mv ./dist/tmp2 ./dist/version_solvers.txt
-rm ./dist/tmp*
+cp ./LICENSE.md ./dist/
+cp ./VERSION.md ./dist/VERSION_SOLVERS.md
+build_date="$(date +%Y%m%d-%H%M)"
+build_plat="${osname}-${MNAME}"
+sed "s/(DATE)/${build_date}/g; s/(PLAT)/${build_plat}/g" \
+  "./dist/VERSION_SOLVERS.md" > "./dist/.VERSION_SOLVERS.md.tmp"
+mv "./dist/.VERSION_SOLVERS.md.tmp" "./dist/VERSION_SOLVERS.md"
 
 #
 # Copy some linked libraries from homebrew or mingw, covered by gcc runtime
@@ -455,7 +468,7 @@ echo "#########################################################################"
 echo "# Copy GCC/MinGW Runtime Libraries to dist-solvers                      #"
 echo "#########################################################################"
 if [ ${osname} = "windows" ]; then
-    # Winodws MinGW linked redistributable libraries
+    # Windows MinGW linked redistributable libraries
     cp /mingw64/bin/libstdc++-6.dll ./dist/lib/
     cp /mingw64/bin/libgcc_s_seh-1.dll ./dist/lib/
     cp /mingw64/bin/libwinpthread-1.dll ./dist/lib/
@@ -466,7 +479,7 @@ if [ ${osname} = "windows" ]; then
     cp /mingw64/bin/libblas.dll ./dist/lib/
     cp /mingw64/bin/libbz2-*.dll ./dist/lib/
     cp /mingw64/bin/zlib*.dll ./dist/lib/
-    cp /mingw64/bin/libssp*.dll ./dist/lib/
+    cp /mingw64/bin/libssp*.dll ./dist/lib/ 2>/dev/null || true
 fi
 
 if [ ${osname} = "darwin" ]; then
@@ -486,9 +499,18 @@ if [ ${osname} = "darwin" ]; then
   export CXX="c++"
 fi
 
-# We are already in this directory
-git clone $PYNU_REPO
-cd pyomo
+# Check if the directory exists
+if [ ! -d "pyomo" ]; then
+    # If it doesn't exist, clone the repository
+    git clone "$PYNU_REPO"
+    echo "Repository cloned from $PYNU_REPO."
+    cd pyomo
+else
+    # If it exists, navigate to the directory and run git clean
+    cd pyomo
+    git clean -fd
+    echo "Untracked files removed from pyomo."
+fi
 git checkout $PYNU_BRANCH
 cd pyomo/contrib/pynumero/src
 mkdir build
@@ -505,10 +527,19 @@ cp libpynumero_ASL* $IDAES_EXT/dist/lib/
 cd $IDAES_EXT
 
 echo "#########################################################################"
-echo "# k_aug, dotsens                                                        #"
+echo "# k_aug, dot_sens                                                       #"
 echo "#########################################################################"
 if [ $with_hsl = "YES" ]; then
-  git clone $K_AUG_REPO
+  # Check if the directory exists
+  if [ ! -d "k_aug" ]; then
+      # If it doesn't exist, clone the repository
+      git clone "$K_AUG_REPO"
+  else
+      # If it exists, navigate to the directory and run git clean
+      pushd k_aug
+      git clean -fd
+      popd
+  fi
   cp ./scripts/k_aug_CMakeLists.txt ./k_aug/CMakeLists.txt
   cd k_aug
   git checkout $K_AUG_BRANCH
@@ -533,6 +564,40 @@ echo "#########################################################################"
 export ASL_INC=$IDAES_EXT/coinbrew/dist/include/coin-or/asl
 export ASL_LIB=$IDAES_EXT/coinbrew/dist/lib/libcoinasl.a
 cd $IDAES_EXT/petsc
+if [ ${osname} = "windows" ]
+then
+  FILES=("fg_dae.c" "fg_nl.c" "petsc.c" "printing.c")
+
+  for f in "${FILES[@]}"; do
+    if [ ! -f "$f" ]; then
+      echo "Warning: $f not found, skipping"
+      continue
+    fi
+
+    echo "Patching $f..."
+    # Replace simple declarations: int err;  int err = 0;
+    sed -i 's/\bint[[:space:]]\+err\b/fint err/g' "$f"
+    sed -i 's/\bint[[:space:]]\+err\s*=/fint err=/g' "$f"
+
+    # Fix comma declarations like:
+    #      int i=0, err=0;
+    #
+    # The strategy:
+    #   - detect lines with "int ... , err"
+    #   - rewrite them into:
+    #       int i=0;
+    #       fint err=0;
+    if grep -qE '\bint\b.*,' "$f" && grep -qE ',[[:space:]]*err' "$f"; then
+      sed -i \
+        -e 's/\bint\(.*\),[[:space:]]*err[[:space:]]*=\([^;]*\);/int\1;\nfint err=\2;/g' \
+        -e 's/\bint\(.*\),[[:space:]]*err;/int\1;\nfint err;/g' \
+        "$f"
+      echo "  - Split comma declarations containing err"
+    fi
+  done
+
+  echo "ASL err patch complete."
+fi
 make $PARALLEL
 make py
 if [ ${osname} = "windows" ]
@@ -566,9 +631,7 @@ if [ ${osname} = "darwin" ]; then
   update_rpath_darwin dist/bin/clp
   update_rpath_darwin dist/bin/cbc
   update_rpath_darwin dist/bin/bonmin
-  update_rpath_darwin dist/bin/couenne  
-  update_rpath_darwin dist/bin/ipopt_l1
-  update_rpath_darwin dist/bin/ipopt_sens_l1
+  update_rpath_darwin dist/bin/couenne
   update_rpath_darwin dist/lib/libipopt.dylib
   update_rpath_darwin dist/lib/libsipopt.dylib
   update_rpath_darwin dist/lib/libipopt.3.dylib
@@ -579,7 +642,7 @@ if [ ${osname} = "darwin" ]; then
   update_library_rpath_darwin dist/lib/libipopt.3.dylib
   update_library_rpath_darwin dist/lib/libsipopt.3.dylib
   update_library_rpath_darwin dist/lib/libpynumero_ASL.dylib
-  # if no hsl k_aug and dot_snse won't exist
+  # if no hsl k_aug and dot_sens won't exist
   update_rpath_darwin dist/bin/k_aug || true 
   update_rpath_darwin dist/bin/dot_sens || true
   update_rpath_darwin dist/bin/petsc
@@ -590,6 +653,22 @@ echo "#########################################################################"
 echo "# Finish                                                                #"
 echo "#########################################################################"
 cd dist
+if [ "$osname" = "el9" ]; then
+  # Ensure our exes look in dist/lib first
+  pushd bin
+  for exe in *; do
+    patchelf --set-rpath '$ORIGIN/../lib' "$exe" 2>/dev/null || true
+  done
+  popd
+
+  # Add EL9-specific absolute symlinks
+  # There is a bug on el9 machines regarding the blas/lapack links.
+  # See: https://bugs.rockylinux.org/view.php?id=7855
+  pushd lib
+  ln -sfn /usr/lib64/libblas.so.3.9.0   libblas.so.3
+  ln -sfn /usr/lib64/liblapack.so.3.9.0 liblapack.so.3
+  popd
+fi
 tar -czvf idaes-solvers-${osname}-${MNAME}.tar.gz *
 cd $IDAES_EXT
 echo "Done"

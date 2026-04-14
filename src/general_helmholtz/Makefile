@@ -14,11 +14,10 @@ include ../Makefile.in
 #BOOST=/home/johne/local/include
 #ASL=/home/johne/local/include/asl
 
-
 ifeq ($(BOOST),)
-    CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC
+    CXXFLAGS = -c $(CFLAGS) -std=c++14 -fPIC  # Change to C++14
 else
-    CXXFLAGS = -c $(CFLAGS) -std=c++0x -fPIC -I$(BOOST)
+    CXXFLAGS = -c $(CFLAGS) -std=c++14 -fPIC -I$(BOOST)  # Change to C++14
 endif
 
 OBJECTS = read_params.o phi.o props.o sat.o delta.o state.o props_hp.o \

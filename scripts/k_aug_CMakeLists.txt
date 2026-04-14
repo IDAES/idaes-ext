@@ -12,8 +12,10 @@ if (WITH_MINGW)
 endif (WITH_MINGW)
 
 # Added to get to work on macOS
-LINK_DIRECTORIES(/usr/local/gfortran/lib/) 
-LINK_DIRECTORIES(/opt/homebrew/opt/gcc/lib/gcc/current/)
+if(DEFINED ENV{BREWLIB})
+  message(STATUS "Using BREWLIB from environment: $ENV{BREWLIB}")
+  LINK_DIRECTORIES($ENV{BREWLIB})
+endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/src/common/config_kaug.h.in" "${PROJECT_SOURCE_DIR}/config_kaug.h")
 

@@ -74,7 +74,7 @@ PetscErrorCode FormDAEJacobian(
   /* The ASL isn't setup for DAEs, but not too hard to make the right Jacobian
     From asl we have a Jacobian where t, x, and xdot are all treated the same,
     PETSc want J = sigma*F_xdot(t, x, xdot) + F_x(t, x, xdot), so we need to
-    eliminate the t column and combine the x and xdot columns appropriatly */
+    eliminate the t column and combine the x and xdot columns appropriately */
   ierr = MatZeroEntries(B); CHKERRQ(ierr); //since I'm going to add things
   for(i=n_conjac[0];i<n_conjac[1]; ++i){ /*i is constraint index */
     cg = Cgrad[i];
@@ -130,7 +130,7 @@ void dae_var_map(Solver_ctx *sol_ctx){
   } //end for i
   for(i=0;i<n_var;++i){
     // there is a derivative in xdot for all state vars, but in a dae some are
-    // just going to be zero in the function and jacobian calcualtions.
+    // just going to be zero in the function and jacobian calculations.
     if (sol_ctx->dae_suffix_var->u.i[i] == 1){
       j = sol_ctx->dae_link[i]; // index of associated derivative
       sol_ctx->dae_map_xdot[sol_ctx->dae_map_back[i]] = j;

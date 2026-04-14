@@ -10,132 +10,117 @@ for Linux and Windows are done on Windows.
 
 ## Build Environments
 
-On Windows, except for one excpetion noted below the git Bash shell can be used. 
+On Windows, except for one exception noted below the git Bash shell can be used.
+
+### CoinHSL
+
+If you have the permissions to access the official HSL source, please make sure
+that it is accessible in a `coinhsl.tar.gz` format. Place it in the
+`docker/build-scripts/extras` directory.
 
 ### Docker
 
 1. Install Docker Desktop.
-2. Get the docker files from https://github.com/IDAES/idaes-ext/tree/main/docker
-3. Go to the build-platform directory.
+3. Go to the `main-images` directory.
 4. From the a bash shell run `sh build.sh {flavor}` Replace `{flavor}` with the 
-  platform (el7, el8, ubuntu1804, ubuntu2004, ubuntu2204, or windows). On ARM64 
-  there is no el7 or windows.
+  platform (el9, el8, ubuntu2404, ubuntu2004, ubuntu2204, or windows).
   - **NOTE**: If you are behind certain corporate firewalls/proxies, you will
     need to add lines to the beginning of the Dockerfiles for your SSL certificates.
-6. Usually testing is done by GitHub actions and the testing images are built on
-  DockerHub, but ARM64 is not supported.  If you need to build testing containers,
-  go to the test-platform directory and run `sh build.sh {platform}`.  The platform
-  argument is slightly differnt than flavor.  For testing it indicates a specific
-  Linux distribution (or Windows).
+  - **NOTE**: You can only build the Windows image if you are on a Windows machine.
+    See [the official documentation](https://learn.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon).
 
 ### macOS
+
+There is logic in the `compile_solvers.sh` script to choose the correct
+gcc, g++, etc., for Mac, based on `HOMEBREW_PREFIX`.
 
 #### Apple Silicon
 
 1. Install the Xcode command line tools
 2. Install cmake (cmake.org), and set it up to run from the command line
 3. Install homebrew and a few things:
-  * brew install gcc
-  * brew install pkgconfig
-  * brew install boost
-  * brew install bash
+  * brew install cmake gcc pkgconfig boost
   
-You only need to rebuild PETSc when you want to update to a new version.  A
-recommended location for this is $HOME/src.  For now, we compile without MPI, as
-we currently aren't aiming to do super computing.
+You also need to install PETSc. The newest version that works with the custom
+code in this repository is 3.20.6.
 
-1. download https://petsc.org/release/download/
-2. extract in ~/src
-3. Go to PETSC source directory
-4. Configure PETSc (-fPIC is so we can use the Metis and Mumps builds again)
-   ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
-      --download-metis --download-mumps --with-mumps-serial=1 \
-      --prefix=$HOME/src/petsc-dist 
-5. make
-6. make install
+1. Download https://gitlab.com/petsc/petsc/-/archive/v3.20.6/petsc-v3.20.6.tar.gz
+2. Extract somewhere appropriate for you (e.g., `mkdir ~/repo/` and extract there).
+   **NOTE**: It is recommended rename the untarred directory to just `petsc`.
+4. Go to PETSC source directory
+5. Configure and build PETSc (-fPIC is so we can use the Metis and Mumps builds again)
+   ```
+   $ ./configure --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
+       --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
+       --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
+   $ make
+   $ make install
+   ```
+   **NOTE**: If the configure is having difficulty downloading MUMPS for some reason,
+   you can download it locally and point to it in the configure line instead using
+   `--download-mumps=../MUMPS_5.6.1.tar.gz`
+6. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
-#### Intel
+#### Apple Intel
 
-There is a GitHub Action, which does the build without HSL.  If you want to
-build the IDAES extensions on an Intel Mac, the GitHub actions script may
-be a good refernce.
+Apple has introduced a tool called [Rosetta](https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment)
+to assist with the transition from Intel -> Silicon. We use this, while it's still available, for
+building Apple Intel solvers.
+Ensure to complete the steps below either in a different directory than from
+Apple Silicon above **OR** delete old content from the Apple Silicon build.
+The most common build issues occur when arm64 and x86_64 are mixed together
+in your toolchain.
+
+1. Install rosetta using `sudo softwareupdate --install-rosetta`
+2. Create a new terminal and activate an x86_64 environment: `arch -x86_64 /bin/bash `
+3. Install Homebrew for x86_64: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
+   This will install brew in `/usr/local/bin/brew`.
+4. Update the PATH: `export PATH=/usr/local/bin:$PATH`. This allows the correct `brew` to be found first.
+5. Manually set the HOMEBREW_PREFIX: `export HOMEBREW_PREFIX=$(/usr/local/bin/brew --prefix)`
+6. Install required packages using the new `brew`: `brew install gcc pkgconfig boost`
+7. Download and install PETSc using the steps above.
+   **NOTE**: You may need to manually set `CC`, `CCX`, `FC`, and `F77` and use the following:
+   ```
+   ./configure CC=$CC CXX=$CXX FC=$FC F77=$F77 --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
+       --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
+       --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5' 
+   ```
+8. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
 ## Building
 
 ### Linux
 
-On Winodws make sure Docker Desktop is set to Linux mode.
+TODO: Redo this whole section.
 
-1. Go to the build-extensions directory
-2. Put coinhsl.zip in the extras directoy if you have it
+On Windows make sure Docker Desktop is set to Linux mode.
+
+1. Go to the `build-scripts` directory
+2. Put `coinhsl.tar.gz` in the `extras` directory if you have it
 3. In a bash shell (can use git bash on Windows) run 
   `sh build.sh {flavor} {arch}`, where arch is x86_64 or aarch64.
 
-### Windows 
+### Windows
 
 The `build.sh` script does not work for the Windows build. There is a PowerShell
 script that will work. Make sure Docker Desktop is set to Windows mode (only works
 on Windows).
 
-1. Go to the build-extensions directory
-2. Put coinhsl.zip in the extras directoy if you have it
+1. Go to the `build-scripts` directory
+2. Put `coinhsl.tar.gz` in the `extras` directory if you have it
 3. In powershell run `.\build.ps1 windows --no-cache`
 
 ### MacOS
 
-1. Checkout the idaes-ext repo.  
-2. In the idaes-ext directory run the script to copy the
+1. Checkout the idaes-ext repo.
+2. If installing with coinhsl, move that tarball to peer with the idaes-ext repo.
+3. In the idaes-ext directory run the script to copy the
   source files to a new build location (
-  `sh ./scripts/build_directory.sh ~/src/idaes-ext-build`).
-3. Go to the build directory.
-4. > bash ./scripts/compile_solvers.sh darwin
-5. > bash ./scripts/compile_libs.sh darwin
-6. > bash ./scripts/mac_collect.sh
-
-## Testing
-
-### x86 Windows and Linux
-
-Testing is done with GitHub actions.  There are container images on docker hub.
-
-### ARM64 Linux
-
-There is a python script `docker_linux_tests.sh` in the idaes-ext/scripts directory. 
-To run tests `sh docker_linux_tests.sh {platform}`. To help with debugging the
-`test` container is left after the script completes.  You can run the container
-interactively if needed.  Once done you will need to delete the container before
-running another test.
-
-### macOS 
-
-#### Apple Silicon
-
-Test on clean VM for now, hopfully GitHub actions runners will be available soon.
-
-#### Intel
-
-There is a GitHub actions test.
-
-## Testing a non-default branch
-
-By default, the Docker driver scripts
-(`docker/build-extensions/build.sh` and `docker\build-extentions\build.ps1`)
-checkout the `main` branch of `https://github.com/idaes/idaes-ext.git` to use
-for the build process. To test a different branch, arguments can be provided
-to the Docker driver scripts. For example, to test the `ubuntu2204` build with
-a custom branch called `mybranch` on `user`'s fork, run
-```bash
-./build.sh ubuntu2204 x86_64 https://github.com/user/idaes-ext.git mybranch
-```
-To test the Windows build, run
-```powershell
-.\build.ps1 windows --no-cache https://github.com/user/idaes-ext.git mybranch
-```
-Note that the second argument to `build.ps1` is interpreted as an argument
-to `docker build`, so to run with a custom branch and no such argument, run
-```powershell
-.\build.ps1 windows "" https://github.com/user/idaes-ext.git mybranch
-```
+  `sh ./scripts/build_directory.sh ~/repo/ext-build`).
+4. Go to the build directory.
+5. > bash ./scripts/compile_solvers.sh darwin # --with-hsl if using hsl
+6. > bash ./scripts/compile_libs.sh darwin
+7. > bash ./scripts/mac_collect.sh
 
 ## Release Hashes
 

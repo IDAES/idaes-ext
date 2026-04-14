@@ -23,7 +23,7 @@ in an AMPL nl file. Optimization solver support will be added soon.\n\n\
      -s <stub>: File name with or without extension\n\
      -show_scale_factors: Show the calculated or user specified scale factors\n\
      -show_jac: Show non-zero jacobian values at initial point\n\
-     -show_intial: Show the guess intial values \n\
+     -show_initial: Show the guess initial values \n\
      -show_cl: Show the command line input and transformation from AMPL format\n\
      -dae_solve: Run DAE solver, must provide appropriate suffixes\n\
      -ignore_scaling: ignore scaling suffixes\n\
