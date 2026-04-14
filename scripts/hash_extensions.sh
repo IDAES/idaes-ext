@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Usage: ./hash_all_tarballs.sh <release> <directory>
+# Usage: ./hash_extensions.sh <release> <directory>
 
 set -euo pipefail
 
