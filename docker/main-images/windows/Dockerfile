@@ -18,7 +18,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 WORKDIR C:/repo
 
 # Bring in HSL tarball
-# COPY ./hsl/coinhsl.tar.gz C:/repo/coinhsl.tar.gz
+# COPY ./coinhsl.tar.gz C:/repo/coinhsl.tar.gz
 
 # Download PETsc
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \

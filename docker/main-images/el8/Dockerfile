@@ -20,7 +20,7 @@ RUN dnf -y update \
 RUN mkdir -p /repo
 
 # Copy the coinhsl.tar.gz file into the repo folder
-# COPY ./hsl/coinhsl.tar.gz /repo/coinhsl.tar.gz
+# COPY ./coinhsl.tar.gz /repo/coinhsl.tar.gz
 
 # Install PETSc
 RUN cd /repo \

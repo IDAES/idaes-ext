@@ -10,7 +10,7 @@ for Linux and Windows are done on Windows.
 
 ## Build Environments
 
-On Windows, except for one exception noted below the git Bash shell can be used.
+On Windows, except for one exception noted below, the git Bash shell can be used.
 
 ### CoinHSL
 
@@ -28,6 +28,8 @@ that it is accessible in a `coinhsl.tar.gz` format. Place it in the
     need to add lines to the beginning of the Dockerfiles for your SSL certificates.
   - **NOTE**: You can only build the Windows image if you are on a Windows machine.
     See [the official documentation](https://learn.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon).
+  - **NOTE**: If you want to include `coinhsl.tar.gz`, place it in the `{flavor}`
+    directory. It copies locally from there.
 
 ### macOS
 
@@ -87,58 +89,11 @@ in your toolchain.
    ```
 8. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
-## Building
-
-### Linux
-
-TODO: Redo this whole section.
-
-On Windows make sure Docker Desktop is set to Linux mode.
-
-1. Go to the `build-scripts` directory
-2. Put `coinhsl.tar.gz` in the `extras` directory if you have it
-3. In a bash shell (can use git bash on Windows) run 
-  `sh build.sh {flavor} {arch}`, where arch is x86_64 or aarch64.
-
-### Windows
-
-The `build.sh` script does not work for the Windows build. There is a PowerShell
-script that will work. Make sure Docker Desktop is set to Windows mode (only works
-on Windows).
-
-1. Go to the `build-scripts` directory
-2. Put `coinhsl.tar.gz` in the `extras` directory if you have it
-3. In powershell run `.\build.ps1 windows --no-cache`
-
-### MacOS
-
-1. Checkout the idaes-ext repo.
-2. If installing with coinhsl, move that tarball to peer with the idaes-ext repo.
-3. In the idaes-ext directory run the script to copy the
-  source files to a new build location (
-  `sh ./scripts/build_directory.sh ~/repo/ext-build`).
-4. Go to the build directory.
-5. > bash ./scripts/compile_solvers.sh darwin # --with-hsl if using hsl
-6. > bash ./scripts/compile_libs.sh darwin
-7. > bash ./scripts/mac_collect.sh
-
 ## Release Hashes
 
 Collect all the tar files for a release in the same directory.
 
-With IDAES installed, run ``idaes hash-extensions --path <path to tar files> --release <release>``
-A text file with the hash of all the files will be written to the directory with the
-release files.
-
-## Building without HSL
-
-For testing purposes, it may be useful to build for multiple operating systems
-(via Docker) without HSL. This may be accomplished by passing the `--without-hsl`
-argument to `docker/build-extensions/build.sh`, after the OS name, architecture name,
-repository URL, and repository branch.
-This fifth positional argument to `build.sh` is interpreted as an argument (or arguments)
-to send to `compile_solvers.sh`.
-For example:
-```bash
-./build.sh ubuntu2204 x86_64 https://github.com/IDAES/idaes-ext.git main --without-hsl
-```
+Run `./scripts/hash-extensions release path-to-tar-files`.
+A text file with the hash of all the tarballs will be written to the directory
+in which the tarballs are located. They should then be copied over to the
+`releases` directory.
