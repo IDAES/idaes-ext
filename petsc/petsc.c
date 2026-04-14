@@ -27,7 +27,7 @@ int main(int argc, char **argv){
   PetscInt       its;         // Number of solver iterations
   ASL            *asl;        // ASL context
   Solver_ctx     sol_ctx;     // solver context
-  int            err;         // Error code  from ASL fulctions
+  int            err;         // Error code  from ASL functions
   int            i=0;         // Loop counters
   int            argc_new;    // new number of arguments reformatted for PETSc
   char           **argv_new;  // argv transformed to PETSc's format

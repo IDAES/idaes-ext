@@ -642,7 +642,7 @@ if [ ${osname} = "darwin" ]; then
   update_library_rpath_darwin dist/lib/libipopt.3.dylib
   update_library_rpath_darwin dist/lib/libsipopt.3.dylib
   update_library_rpath_darwin dist/lib/libpynumero_ASL.dylib
-  # if no hsl k_aug and dot_snse won't exist
+  # if no hsl k_aug and dot_sens won't exist
   update_rpath_darwin dist/bin/k_aug || true 
   update_rpath_darwin dist/bin/dot_sens || true
   update_rpath_darwin dist/bin/petsc

@@ -72,7 +72,7 @@ void print_jac_asl(ASL *asl){
   /* Print sparse Jacobian  highlight elements over u or under l*/
   cgrad          *cg;  /* sparse jacobian elements*/
   real           *Jac; /* ASL test Jacobian */
-  int            err;  /* Error code  from ASL fulctions */
+  int            err;  /* Error code  from ASL functions */
   int            i=0;
 
   Jac = (real *)Malloc(nzc*sizeof(real)); /* Jacobian space */

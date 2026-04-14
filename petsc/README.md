@@ -1,7 +1,7 @@
 # README
 
 This is a first pass at creating an AMPL executable for the PETSc solver library,
-allowing PETSc to be used with Pyomo via the AMPL Solver Library (ALS).  This
+allowing PETSc to be used with Pyomo via the AMPL Solver Library (ALSO).  This
 version supports the TS (time-stepping) and SNES (nonlinear) solvers; however in
 the future TAO (optimization) solvers and additional features may also be
 supported.
