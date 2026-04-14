@@ -1,12 +1,12 @@
 # Building IDAES Binaries
 
-The build scripts are not intended for general use. IDAES users do not 
-generally need to build IDAES binaries. 
+The build scripts are **NOT** intended for general use. IDAES users do not
+generally need to build IDAES binaries.
 
-Aside from macOS the Linux and Windows builds use Docker, and I'll assume 
-we are using Docker Desktop.  The Linux ARM64 builds are done on macOS with 
-Docker.  Since Windows Docker containers require Windows, the x86_64 builds
-for Linux and Windows are done on Windows.
+It is best to have both a Windows and a MacOS machine for this process.
+The Linux builds (all platforms) can be completed on a MacOS, and
+podman or Docker are both acceptable.
+Windows + Docker is required for the Windows build.
 
 ## Build Environments
 
