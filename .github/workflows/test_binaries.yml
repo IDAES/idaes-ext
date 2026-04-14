@@ -51,9 +51,9 @@ jobs:
 
     steps:
       - name: Checkout IDAES-ext source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
       - name: Configure curl
@@ -206,6 +206,13 @@ jobs:
           else
               $PYTHON_EXE -m pip install -v cyipopt
           fi
+      - name: Print versions
+        run: |
+          for FILE in "$IDAES_DIR/bin"/*; do
+            [[ -f "$FILE" && -x "$FILE" ]] || continue
+            echo "==> $FILE"
+            "$FILE" --version || echo "Binary did not print version correctly"
+          done
       - name: Run tests
         run: |
           $PYTHON_EXE -m pytest -v -rs `pwd`/test
@@ -241,11 +248,11 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up QEMU (host)
         if: matrix.arch == 'aarch64'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
 
