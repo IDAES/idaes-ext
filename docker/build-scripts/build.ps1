@@ -50,7 +50,7 @@ xcopy /y /E extras ${flavor}\extras\
 cd ${flavor}
 docker build --rm ${buildarg_1} --build-arg repo=${repo} --build-arg branch=${branch} -t ${flavor}_build_itmp .
 Remove-Item extras -Recurse -Force -Confirm:$false
-docker run --name ${flavor}_build_tmp -dt ${flavor}_build_itmp:latest
+docker run --name ${flavor}_build_tmp -dt ${flavor}_build_itmp:${tag}
 docker stop ${flavor}_build_tmp
 docker cp ${flavor}_build_tmp:${wdir}/idaes-ext/dist-functions/idaes-functions-${flavor}-${mname}.tar.gz .
 try{
