@@ -64,7 +64,18 @@ ipopt_test_data = [
 ]
 
 
+def _is_macos_arm64():
+    return (platform.system() == "Darwin") and (
+        platform.machine() in ("arm64", "aarch64")
+    )
+
+
 def _test_ipopt_with_options(name, exe, options):
+    if _is_macos_arm64():
+        if options.get("ma57_pivot_order", None) == 4:
+            pytest.skip(
+                "Skipping Metis-dependent ipopt tests on macOS arm64 (Ipopt not built with Metis)."
+            )
 
     m = pyo.ConcreteModel()
     m.x = pyo.Var([1, 2], initialize=1.5)

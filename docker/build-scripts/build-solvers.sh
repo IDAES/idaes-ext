@@ -5,10 +5,10 @@ repo=$3
 branch=$4
 tag=$5
 if [ ! "$repo" ]; then
-    repo="https://github.com/mrmundt/idaes-ext.git"
+    repo="https://github.com/IDAES/idaes-ext.git"
 fi
 if [ ! "$branch" ]; then
-    branch="modernize"
+    branch="main"
 fi
 if [ ! "$tag" ]; then
     # This is to support if there are non-standard images, e.g., internal ones
