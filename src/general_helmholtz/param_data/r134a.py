@@ -151,8 +151,7 @@ def viscosity_rule(m):
     delta = rho / 5017.053
     eta = (
         c[1] * delta
-        + (c[2] / tau**6 + c[3] / tau**2 + c[4] / tau**0.5 + c[5] * tau**2)
-        * delta**2
+        + (c[2] / tau**6 + c[3] / tau**2 + c[4] / tau**0.5 + c[5] * tau**2) * delta**2
         + c[6] * delta**3
         + c[7] / (delta0 - delta)
         - c[7] / delta0
@@ -169,9 +168,10 @@ def main():
         }
     )
     we.write()
-    
+
     print("ASHRAE Offset")
     print(we.calculate_reference_offset(2.79075439914, 1.60488955608, 0, 0))
+
 
 if __name__ == "__main__":
     main()

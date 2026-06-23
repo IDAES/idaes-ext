@@ -3,7 +3,7 @@
 osname=$1; shift
 if [ -z $osname ]
 then
-  echo "Must spcify plaform in {windows, darwin, el7, el8, ubuntu1804, ubuntu2004}."
+  echo "Must specify platform in {windows, darwin, el8, el9, ubuntu2004, ubuntu2204, ubuntu2404}."
   exit 1
 fi
 
@@ -26,7 +26,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$IDAES_EXT/coinbrew/dist/lib64
 export IDAES_HELMHOLTZ_DATA_PATH=$IDAES_EXT/src/general_helmholtz/param_data/
 export IDAES_HELMHOLTZ_TEST_DATA_PATH=$IDAES_EXT/src/general_helmholtz/test_data/
 
-make
+if [ ${osname} = "darwin" ]; then
+  # Homebrew boost is required
+  export BOOST=$($HOMEBREW_PREFIX/bin/brew --prefix boost)/include
+fi
+
+make BOOST=$BOOST
 cd $IDAES_EXT
 
 # Collect files
@@ -44,16 +49,19 @@ if [ ${osname} = "darwin" ]; then
   mv dist-functions/lib/general_helmholtz_external.so dist-functions/lib/general_helmholtz_external.dylib
   mv dist-functions/lib/cubic_roots.so dist-functions/lib/cubic_roots.dylib
 fi
-cp ./license.txt ./dist-functions/license_functions.txt
-cp ./version.txt ./dist-functions/version_functions.txt
 mkdir ./dist-functions/lib/helm_data
 cp ./src/dist/param_data/*.json ./dist-functions/lib/helm_data/
 cp ./src/dist/param_data/*.nl ./dist-functions/lib/helm_data/
 cp ./src/dist/param_data/*.py ./dist-functions/lib/helm_data/
-sed s/"(DATE)"/`date +%Y%m%d-%H%M`/g dist-functions/version_functions.txt > tmp
-sed s/"(PLAT)"/${osname}-${MNAME}/g tmp > tmp2
-mv tmp2 dist-functions/version_functions.txt
-rm tmp
+
+# Copy over license and version data
+cp ./LICENSE.md ./dist-functions/LICENSE_FUNCTIONS.md
+cp ./VERSION.md ./dist-functions/VERSION_FUNCTIONS.md
+build_date="$(date +%Y%m%d-%H%M)"
+build_plat="${osname}-${MNAME}"
+sed "s/(DATE)/${build_date}/g; s/(PLAT)/${build_plat}/g" \
+  "./dist-functions/VERSION_FUNCTIONS.md" > "./dist-functions/.VERSION_FUNCTIONS.md.tmp"
+mv "./dist-functions/.VERSION_FUNCTIONS.md.tmp" "./dist-functions/VERSION_FUNCTIONS.md"
 
 # here you pack files
 cd dist-functions
