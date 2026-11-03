@@ -34,7 +34,8 @@ that it is accessible in a `coinhsl.tar.gz` format. Place it in the
 There is logic in the `compile_solvers.sh` script to choose the correct
 gcc, g++, etc., for Mac, based on `HOMEBREW_PREFIX`.
 
-#### Apple Silicon
+Only Apple Silicon (arm64) is supported. Intel (x86_64) macOS builds were
+dropped in 4.0.0.
 
 1. Install the Xcode command line tools
 2. Install homebrew and a few things. Note that bash is required because the default on darwin is too old for coinbrew:
@@ -59,32 +60,6 @@ code in this repository is 3.20.6.
    you can download it locally and point to it in the configure line instead using
    `--download-mumps=../MUMPS_5.6.1.tar.gz`
 6. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
-
-#### Apple Intel
-
-Apple has introduced a tool called [Rosetta](https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment)
-to assist with the transition from Intel -> Silicon. We use this, while it's still available, for
-building Apple Intel solvers.
-Ensure to complete the steps below either in a different directory than from
-Apple Silicon above **OR** delete old content from the Apple Silicon build.
-The most common build issues occur when arm64 and x86_64 are mixed together
-in your toolchain.
-
-1. Install rosetta using `sudo softwareupdate --install-rosetta`
-2. Create a new terminal and activate an x86_64 environment: `arch -x86_64 /bin/bash `
-3. Install Homebrew for x86_64: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
-   This will install brew in `/usr/local/bin/brew`.
-4. Update the PATH: `export PATH=/usr/local/bin:$PATH`. This allows the correct `brew` to be found first.
-5. Manually set the HOMEBREW_PREFIX: `export HOMEBREW_PREFIX=$(/usr/local/bin/brew --prefix)`
-6. Install required packages using the new `brew`: `brew install gcc pkgconfig boost`
-7. Download and install PETSc using the steps above.
-   **NOTE**: You may need to manually set `CC`, `CCX`, `FC`, and `F77` and use the following:
-   ```
-   ./configure CC=$CC CXX=$CXX FC=$FC F77=$F77 --with-debug=0 --with-shared=0 --with-mpi=0 --with-fortran-bindings=0 \
-       --download-metis --download-mumps --with-mumps-serial=1 --prefix=~/repo/petsc-dist \
-       --download-metis-cmake-arguments='-DCMAKE_POLICY_VERSION_MINIMUM=3.5' 
-   ```
-8. Set the `PETSC_DIR` environment var to wherever you installed PETSc.
 
 ## Building
 

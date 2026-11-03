@@ -26,15 +26,17 @@ We currently build binaries for:
 - Windows
   - Architecture: x86_64
 - macOS
-  - Architectures: Intel (x86_64) and Apple Silicon (arm64)
+  - Architecture: Apple Silicon (arm64)
   - Note: Metis is **not** built/used on macOS arm64 due to compatibility issues.
+
+**Dropped platforms:** macOS Intel (darwin-x86_64) is no longer built as of 4.0.0; the last release with these binaries is 3.4.2.
 
 ### Test targets
 
 We currently run tests against:
 
 - Ubuntu: 20.04, 22.04, 24.04, 26.04
-- macOS: Intel (x86_64), Apple Silicon (arm64)
+- macOS: Apple Silicon (arm64)
 - Windows: 2022, 2025
 - Rocky Linux: 8, 9
 - Debian: 12, 13
