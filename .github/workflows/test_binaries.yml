@@ -20,15 +20,19 @@ defaults:
   run:
     shell: bash -l {0}
 
+# Release whose tarballs are tested
+env:
+  RELEASE_REPO: mrmundt/idaes-ext
+  RELEASE_TAG: 4.0.0rc3
+
 jobs:
   builtin:
     name: ${{ matrix.os }}/${{ matrix.TARGET }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
-
         include:
         - os: ubuntu-22.04
           TARGET: "ubuntu2204-x86_64"
@@ -36,10 +40,22 @@ jobs:
         - os: ubuntu-24.04
           TARGET: "ubuntu2404-x86_64"
           SHORTOS: ubuntu
-        - os: macos-15-intel
-          TARGET: "darwin-x86_64"
-          SHORTOS: osx
+        - os: ubuntu-26.04
+          TARGET: "ubuntu2604-x86_64"
+          SHORTOS: ubuntu
+        - os: ubuntu-22.04-arm
+          TARGET: "ubuntu2204-aarch64"
+          SHORTOS: ubuntu
+        - os: ubuntu-24.04-arm
+          TARGET: "ubuntu2404-aarch64"
+          SHORTOS: ubuntu
+        - os: ubuntu-26.04-arm
+          TARGET: "ubuntu2604-aarch64"
+          SHORTOS: ubuntu
         - os: macos-15
+          TARGET: "darwin-arm64"
+          SHORTOS: osx
+        - os: macos-26
           TARGET: "darwin-arm64"
           SHORTOS: osx
         - os: windows-2022
@@ -112,10 +128,9 @@ jobs:
             FUNCTIONS_TAR=${DOWNLOAD_DIR}/idaes-functions.tar.gz
             if test ! -e $SOLVERS_TAR; then
                 echo "...downloading idaes-solvers"
-                BASE_URL=https://github.com/IDAES/idaes-ext
-
-                SOLVERS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${{ matrix.TARGET }}.tar.gz
-                FUNCTIONS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${{ matrix.TARGET }}.tar.gz
+                BASE_URL=https://github.com/$RELEASE_REPO/releases/download/$RELEASE_TAG
+                SOLVERS_URL=$BASE_URL/idaes-solvers-${{ matrix.TARGET }}.tar.gz
+                FUNCTIONS_URL=$BASE_URL/idaes-functions-${{ matrix.TARGET }}.tar.gz
 
                 echo "...downloading idaes-solvers from $SOLVERS_URL"
                 curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
@@ -220,12 +235,12 @@ jobs:
   docker:
     name: ${{ matrix.container }}/${{ matrix.TARGET }}-${{ matrix.arch }}
     runs-on: ubuntu-latest
-
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         arch: [x86_64, aarch64]
-        container: ["rockylinux:8", "rockylinux:9", "debian:11", "debian:12", "debian:13", "ubuntu:20.04"]
+        container: ["rockylinux:8", "rockylinux:9", "debian:12", "debian:13", "ubuntu:20.04"]
         include:
           - container: "ubuntu:20.04"
             TARGET: "ubuntu2004"
@@ -236,9 +251,6 @@ jobs:
           - container: "rockylinux:9"
             TARGET: "el9"
             SHORTOS: el
-          - container: "debian:11"
-            TARGET: "ubuntu2004"
-            SHORTOS: deb
           - container: "debian:12"
             TARGET: "ubuntu2204"
             SHORTOS: deb
@@ -273,6 +285,8 @@ jobs:
             -e TARGET="${{ matrix.TARGET }}" \
             -e SHORTOS="${{ matrix.SHORTOS }}" \
             -e DISTRO="${{ matrix.arch }}" \
+            -e RELEASE_REPO \
+            -e RELEASE_TAG \
             "${{ matrix.container }}" \
             bash -lc '
               set -euo pipefail
@@ -321,9 +335,9 @@ jobs:
 
               SOLVERS_TAR="$DOWNLOAD_DIR/idaes-solvers.tar.gz"
               FUNCTIONS_TAR="$DOWNLOAD_DIR/idaes-functions.tar.gz"
-              BASE_URL="https://github.com/IDAES/idaes-ext"
-              SOLVERS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
-              FUNCTIONS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
+              BASE_URL="https://github.com/$RELEASE_REPO/releases/download/$RELEASE_TAG"
+              SOLVERS_URL="$BASE_URL/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
+              FUNCTIONS_URL="$BASE_URL/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
 
               curl -fL --max-time 150 --retry 8 "$SOLVERS_URL" -o "$SOLVERS_TAR"
               curl -fL --max-time 150 --retry 8 "$FUNCTIONS_URL" -o "$FUNCTIONS_TAR"

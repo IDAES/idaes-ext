@@ -26,10 +26,10 @@ correctly applied.
 location. If you are compiling locally, you have probably installed it
 in your own preferred location. To override the default, set the `PETSC_DIR`
 environment variable to the location where you have installed Petsc.
-- By default, we look for a `coinhsl.zip` file in the parent of the original
+- By default, we look for a `coinhsl.tar.gz` file in the parent of the original
 working directory. If this file is not found, we attempt to compile Ipopt with an
 installed coinhsl library in a linker-accessible location. If no coinhsl library
-can be found (or compiled from source in `coinhsl.zip`), the `compile_solvers.sh`
+can be found (or compiled from source in `coinhsl.tar.gz`), the `compile_solvers.sh`
 script will fail attempting to build `k_aug`, which cannot be built without HSL.
 To avoid this failure, send the `--without-hsl` argument to `compile_solvers.sh`
 after the OS name.

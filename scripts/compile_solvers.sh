@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # These scripts are not meant to be used for general builds.  They
-# are taylor only to specific build systems.  They may provide some
+# are tailored only to specific build systems.  They may provide some
 # hints on how to build the solvers, but are limited.
 
 # Set to exit on error
@@ -12,7 +12,7 @@ osname=$1;
 if [ -z $osname ]
 then
   echo "Must specify platform in {windows, darwin, el8, el9, "
-  echo "  ubuntu2004, ubuntu2204, ubuntu2404}."
+  echo "  ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604}."
   exit 1
 fi
 
@@ -74,6 +74,37 @@ if [ -z $PETSC_DIR ]; then
     echo "the PETSC_DIR environment variable before running this script."
 fi
 export PETSC_ARCH=""
+
+# The newer MinGW-w64 toolchain links binaries against symbols (e.g.
+# nanosleep64) that only exist in its matching libwinpthread-1.dll. If an
+# older libwinpthread-1.dll is resolved first at runtime, the binary fails to
+# launch with an "entry point not found" error (and, for the solver exes,
+# shows up downstream as an empty version string / IndexError in Pyomo's ASL
+# driver). Incorporating the GCC/MinGW runtime into each artifact removes that
+# external dependency entirely.
+#
+# All are empty on non-Windows platforms, so the configure/cmake lines below
+# are unchanged there (static glibc + dynamic BLAS/LAPACK would break Linux,
+# and -static is unsupported on macOS).
+if [ "$osname" = "windows" ]; then
+  # COIN solvers: gcc-valid runtime flags in LDFLAGS ...
+  STATIC_EXE_LDFLAGS="-static-libgcc -static-libstdc++"
+  # ... and the libtool-only fully-static flag in LT_LDFLAGS.
+  STATIC_EXE_LTFLAGS="-all-static"
+  # cmake/raw-gcc executables (k_aug): gcc's own -static.
+  STATIC_CMAKE_EXE_LDFLAGS="-static -static-libgcc -static-libstdc++"
+  # Libraries that must be appended at the end of a static link line
+  STATIC_CMAKE_END_LIBS="-lquadmath"
+  # Shared objects (libpynumero_ASL, etc.): fold in GCC runtime only.
+  STATIC_LIB_LDFLAGS="-static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -lgfortran -lquadmath -Wl,-Bdynamic"
+else
+  STATIC_EXE_LDFLAGS=""
+  STATIC_EXE_LTFLAGS=""
+  STATIC_CMAKE_EXE_LDFLAGS=""
+  STATIC_CMAKE_END_LIBS=""
+  STATIC_LIB_LDFLAGS=""
+fi
+# ----------------------------------------------------------------------------
 
 if [ "$osname" = "darwin" ]; then
   if [ -n "$HOMEBREW_PREFIX" ]; then
@@ -140,12 +171,14 @@ bash coinbrew fetch Cbc --no-prompt --skip "$SKIP_PKGS"
 SKIP_PKGS="$SKIP_PKGS Cbc Clp Cgl Osi"
 bash coinbrew fetch Bonmin --no-prompt --skip "$SKIP_PKGS"
 bash coinbrew fetch Couenne --no-prompt --skip "$SKIP_PKGS"
-# Patch Couenne to fix: error: static assertion failed: comparison object must be invocable as const
+# Couenne <= 0.5.8 needs const comparators; fixed upstream in 0.5.9
 cd Couenne
-cp $IDAES_EXT/scripts/CouenneMatrix.hpp.patch ./
-cp $IDAES_EXT/scripts/CouenneProblem.hpp.patch ./
-patch Couenne/src/problem/CouenneProblem.hpp < CouenneProblem.hpp.patch
-patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < CouenneMatrix.hpp.patch
+if ! grep -q 'const Node &b) const' Couenne/src/problem/CouenneProblem.hpp; then
+  patch Couenne/src/problem/CouenneProblem.hpp < $IDAES_EXT/scripts/CouenneProblem.hpp.patch
+fi
+if ! grep -q 'const &b) const' Couenne/src/cut/sdpcuts/CouenneMatrix.hpp; then
+  patch Couenne/src/cut/sdpcuts/CouenneMatrix.hpp < $IDAES_EXT/scripts/CouenneMatrix.hpp.patch
+fi
 cd ..
 # We don't want to coin-or Ipopt
 rm -rf Ipopt
@@ -269,7 +302,8 @@ echo "# Ipopt ampl executables                                                #"
 echo "#########################################################################"
 cd Ipopt
 ./configure --disable-shared --enable-static --with-mumps $hslflag \
-  --prefix=$IDAES_EXT/coinbrew/dist
+  --prefix=$IDAES_EXT/coinbrew/dist \
+  LDFLAGS="$STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 make $PARALLEL
 make install
 cd $IDAES_EXT/coinbrew
@@ -311,9 +345,10 @@ cd Clp
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
-   --prefix=$IDAES_EXT/coinbrew/dist
+   --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS="$STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 else
-  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+   LDFLAGS="$STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 fi
 make $PARALLEL
 make install
@@ -341,9 +376,10 @@ cd Cbc
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
-    --prefix=$IDAES_EXT/coinbrew/dist
+    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS="$STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 else
-  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist
+  ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
+    LDFLAGS="$STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 fi
 make $PARALLEL
 make install
@@ -363,10 +399,10 @@ mv atmpfile Bonmin/src/Interfaces/BonBranchingTQP.cpp
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
-    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS="-fopenmp $STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
-    LDFLAGS=-fopenmp
+    LDFLAGS="-fopenmp $STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 fi
 make $PARALLEL
 make install
@@ -379,10 +415,10 @@ cd Couenne
 if [ "$MNAME" = "aarch64" ]; then
   # MNAME of darwin is arm64, so this is linux only
   ./configure --build=aarch64-unknown-linux-gnu --disable-shared --enable-static \
-    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS=-fopenmp
+    --prefix=$IDAES_EXT/coinbrew/dist LDFLAGS="-fopenmp $STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 else
   ./configure --disable-shared --enable-static --prefix=$IDAES_EXT/coinbrew/dist \
-    LDFLAGS=-fopenmp
+    LDFLAGS="-fopenmp $STATIC_EXE_LDFLAGS" LT_LDFLAGS="$STATIC_EXE_LTFLAGS"
 fi
 make $PARALLEL
 make install
@@ -391,6 +427,8 @@ cd $IDAES_EXT/coinbrew
 echo "#########################################################################"
 echo "# Ipopt Shared Libraries                                                #"
 echo "#########################################################################"
+# NOTE: This build deliberately produces shared libipopt*.dll, so it must NOT
+# be linked with -all-static. Left unchanged.
 cd Ipopt_share
 ./configure --enable-shared --disable-static --without-asl --disable-java \
   --with-mumps $hslflag --enable-relocatable --prefix=$IDAES_EXT/coinbrew/dist-share
@@ -464,6 +502,11 @@ mv "./dist/.VERSION_SOLVERS.md.tmp" "./dist/VERSION_SOLVERS.md"
 # exception https://www.gnu.org/licenses/gcc-exception-3.1.en.html license
 # info is included in the license text file.
 #
+# NOTE: Keep copying these even after the static-linking changes above. The
+# hardened executables no longer need them, but the in-process shared objects
+# (libpynumero_ASL*, libipopt*.dll) may still rely on them until each has been
+# verified clean. Remove only what an import-table check proves is unused.
+#
 echo "#########################################################################"
 echo "# Copy GCC/MinGW Runtime Libraries to dist-solvers                      #"
 echo "#########################################################################"
@@ -517,7 +560,10 @@ mkdir build
 cd build
 if [ ${osname} = "windows" ]
 then
-  cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist -G"MSYS Makefiles" ..
+  # libpynumero_ASL is a shared object loaded into the Python process, so it
+  # gets the shared-object runtime flags (can't be fully static).
+  cmake -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist \
+    -DCMAKE_SHARED_LINKER_FLAGS="$STATIC_LIB_LDFLAGS" -G"MSYS Makefiles" ..
 else
   cmake .. -DENABLE_HSL=no -DIPOPT_DIR=$IDAES_EXT/coinbrew/dist
 fi
@@ -545,7 +591,14 @@ if [ $with_hsl = "YES" ]; then
   git checkout $K_AUG_BRANCH
   if [ ${osname} = "windows" ]
   then
-    cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC -G"MSYS Makefiles" .
+    # k_aug and dot_sens are executables run as subprocesses.
+    # cmake links via raw gcc (no libtool), so use gcc's own -static.
+    # CMAKE_C_STANDARD_LIBRARIES appends -lquadmath at the end of the link so
+    # the static libgfortran.a can resolve quadmath_snprintf
+    cmake -DWITH_MINGW=ON -DCMAKE_C_COMPILER=$CC \
+      -DCMAKE_EXE_LINKER_FLAGS="$STATIC_CMAKE_EXE_LDFLAGS" \
+      -DCMAKE_C_STANDARD_LIBRARIES="$STATIC_CMAKE_END_LIBS" \
+      -G"MSYS Makefiles" .
   else
     cmake -DCMAKE_C_COMPILER=$CC .
   fi
@@ -598,7 +651,14 @@ then
 
   echo "ASL err patch complete."
 fi
-make $PARALLEL
+# PETSc links through its own makefile (raw gcc CLINKER, not libtool), so it
+# uses the plain -static spelling via STATIC_RUNTIME. This was verified to
+# produce a self-contained petsc.exe (no libwinpthread/libgfortran imports).
+if [ ${osname} = "windows" ]; then
+  make $PARALLEL STATIC_RUNTIME="-static -static-libgcc -static-libstdc++"
+else
+  make $PARALLEL
+fi
 make py
 if [ ${osname} = "windows" ]
 then

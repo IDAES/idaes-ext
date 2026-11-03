@@ -16,12 +16,12 @@ from pyomo.contrib.pynumero.interfaces.pyomo_nlp import PyomoNLP
 
 """In addition to the above Python dependencies, the following environment must be
 set up to run these tests:
-- IDAES binaries have been downloaded to $HOME/.idaes/bin
-- This directory should be on: PATH and (DY)LD_LIBRARY_PATH
+- IDAES binaries have been extracted to $IDAES_DIR (default: $HOME/.idaes)
+- $IDAES_DIR/bin should be on PATH and $IDAES_DIR/lib on (DY)LD_LIBRARY_PATH
 - CyIpopt is installed with `pip install cyipopt`. If a wheel doesn't build, maybe
   it needs to be removed from the pip cache with `pip cache remove cyipopt`
 - To test the Helmholtz EOS external functions, the IDAES_HELMHOLTZ_DATA_PATH environment
-  variable needs to be set to $HOME/.idaes/bin/helm_data/ (Note that the trailing '/'
+  variable needs to be set to $IDAES_DIR/lib/helm_data/ (Note that the trailing '/'
   appears to be necessary)
 - The newest builds for MacOS arm64 do NOT include Metis within HSL/Ipopt due
   to incompatibilities that cause massive memory-related failures

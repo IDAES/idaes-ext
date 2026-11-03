@@ -7,8 +7,8 @@ to the IDAES build environment and not intended for general use.
 
 ## Documentation
 
-- More detailed build docs: [doc/build.md](doc/build.md)
-- For more information on building binaries: [doc/build.md](doc/build.md)
+- Building binaries: [doc/build.md](doc/build.md)
+- Building locally, outside the build images: [doc/build-local.md](doc/build-local.md)
 - For more information about the contents of binary releases:
   https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/binaries.html#binary-packages
 - For installation instructions:
@@ -21,20 +21,22 @@ to the IDAES build environment and not intended for general use.
 We currently build binaries for:
 
 - Linux
-  - Distributions: el8, el9, ubuntu2004, ubuntu2204, ubuntu2404
+  - Distributions: el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604
   - Architectures: x86_64 and aarch64 (for all listed Linux distributions)
 - Windows
   - Architecture: x86_64
 - macOS
-  - Architectures: Intel (x86_64) and Apple Silicon (arm64)
+  - Architecture: Apple Silicon (arm64)
   - Note: Metis is **not** built/used on macOS arm64 due to compatibility issues.
+
+**Dropped platforms:** macOS Intel (darwin-x86_64) is no longer built as of 4.0.0; the last release with these binaries is 3.4.2.
 
 ### Test targets
 
 We currently run tests against:
 
-- Ubuntu: 20.04, 22.04, 24.04
-- macOS: Intel (x86_64), Apple Silicon (arm64)
+- Ubuntu: 20.04, 22.04, 24.04, 26.04
+- macOS: Apple Silicon (arm64)
 - Windows: 2022, 2025
 - Rocky Linux: 8, 9
-- Debian: 11, 12, 13
+- Debian: 12, 13

@@ -3,9 +3,9 @@
 #   variable to point to the ASL build and this should be good to go.
 include Makefile.in
 
-ALL: general_helmholtz cubic functions dist
+.PHONY: all general_helmholtz general_helmholtz_clean cubic cubic_clean functions functions_clean dist dist_clean install clean iapws95 iapws95_clean
 
-.PHONY: iapws95 iapws95_clean
+all: general_helmholtz cubic functions dist
 
 general_helmholtz:
 	$(MAKE) -C ./general_helmholtz
@@ -14,21 +14,18 @@ general_helmholtz:
 general_helmholtz_clean:
 	$(MAKE) -C ./general_helmholtz clean
 
-.PHONY: cubic
 cubic:
 	$(MAKE) -C ./cubic
 
 cubic_clean:
 	$(MAKE) -C ./cubic clean
 
-.PHONY: functions
 functions:
 	$(MAKE) -C ./functions
 
 functions_clean:
 	$(MAKE) -C ./functions clean
 
-.PHONY: dist
 dist:
 	$(RM) -rf dist
 	$(MKDIR) dist/
@@ -37,11 +34,9 @@ dist:
 	$(CP) general_helmholtz/param_data/*.json dist/param_data/
 	$(CP) general_helmholtz/param_data/*.nl dist/param_data/
 	$(CP) general_helmholtz/param_data/*.py dist/param_data/
-
 	$(CP) cubic/*.so dist/
 	$(CP) functions/*.so dist/
 
-.PHONY: install
 install:
 	idaes lib-directory --create
 	$(CP) dist/* `idaes lib-directory`
@@ -49,4 +44,4 @@ install:
 dist_clean:
 	$(RM) -rf dist
 
-clean: general_helmholtz_clean cubic_clean functions_clean dist_clean dist_clean
+clean: general_helmholtz_clean cubic_clean functions_clean dist_clean
