@@ -37,9 +37,8 @@ gcc, g++, etc., for Mac, based on `HOMEBREW_PREFIX`.
 #### Apple Silicon
 
 1. Install the Xcode command line tools
-2. Install cmake (cmake.org), and set it up to run from the command line
-3. Install homebrew and a few things:
-  * brew install cmake gcc pkgconfig boost
+2. Install homebrew and a few things. Note that bash is required because the default on darwin is too old for coinbrew:
+  * brew install cmake gcc pkgconfig boost bash
   
 You also need to install PETSc. The newest version that works with the custom
 code in this repository is 3.20.6.
