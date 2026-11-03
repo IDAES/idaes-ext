@@ -1,71 +1,93 @@
-flavor=$1
-mname=$2
+#!/usr/bin/env bash
+# Build tarballs (written to tarballs/) in a Linux build image.
+# Pass "" to use the default repo/branch/image. Extra args go to compile_solvers.sh.
+# Put coinhsl.tar.gz in extras/ to build with HSL.
+# Uses podman if available, else docker (override: CONTAINER_ENGINE).
 
-repo=$3
-branch=$4
-tag=$5
-if [ ! "$repo" ]; then
-    repo="https://github.com/IDAES/idaes-ext.git"
-fi
-if [ ! "$branch" ]; then
-    branch="main"
-fi
-if [ ! "$tag" ]; then
-    # This is to support if there are non-standard images, e.g., internal ones
-    tag="latest"
-fi
+set -euo pipefail
 
-# Most common options are `--with-hsl` and `--without-hsl`
-solver_buildargs=$6
+FLAVORS="el8 el9 ubuntu2004 ubuntu2204 ubuntu2404 ubuntu2604"
 
-echo "build.sh script arguments:
-    OS: $flavor
-    Arch: $mname
-    Repo: $repo
-    Branch: $branch
-    tag: $tag
-    Args to compile_solvers.sh: $solver_buildargs
-"
+usage() {
+  echo "Usage: $(basename "$0") <flavor> <arch> [repo] [branch] [image] [compile_solvers args...]"
+  echo "  flavor: one of {${FLAVORS// /, }}"
+  echo "  arch:   x86_64 or aarch64"
+}
 
-if [ "$flavor" = "windows" ]; then
-  image="idaes-ext-windows-build:$tag"
-  wdir="c:/repo"
-elif [ "$flavor" = "el8" ]; then
-  image="idaes-ext-el8-build:$tag"
-  wdir="/repo"
-elif [ "$flavor" = "el9" ]; then
-  image="idaes-ext-el9-build:$tag"
-  wdir="/repo"
-elif [ "$flavor" = "ubuntu2004" ]; then
-  image="idaes-ext-ubuntu2004-build:$tag"
-  wdir="/repo"
-elif [ "$flavor" = "ubuntu2204" ]; then
-  image="idaes-ext-ubuntu2204-build:$tag"
-  wdir="/repo"
-elif [ "$flavor" = "ubuntu2404" ]; then
-  image="idaes-ext-ubuntu2404-build:$tag"
-  wdir="/repo"
-elif [ "$flavor" = "ubuntu2604" ]; then
-  image="idaes-ext-ubuntu2604-build:$tag"
-  wdir="/repo"
-else
-  echo "Specify flavor in {el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604, windows}."
+if [ $# -lt 2 ]; then
+  usage
   exit 1
 fi
 
+flavor=$1
+mname=$2
+repo=${3:-https://github.com/IDAES/idaes-ext.git}
+branch=${4:-main}
+image=${5:-idaes-ext-${flavor}:${mname}}
+if [ $# -gt 5 ]; then
+  shift 5
+  solver_buildargs="$*"
+else
+  solver_buildargs=""
+fi
 
-docker run --name "$flavor"_"$mname"_build_tmp -dt "$image"
-docker cp ./extras/ "$flavor"_"$mname"_build_tmp:"$wdir"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "cp ${wdir}/extras/* ${wdir}"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/extras && pwd"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir} && git clone ${repo} && cd idaes-ext && git checkout ${branch}"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_solvers.sh ${flavor} ${solver_buildargs}"
-docker exec "$flavor"_"$mname"_build_tmp sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_libs.sh ${flavor}"
-docker stop "$flavor"_"$mname"_build_tmp
+if [ "$flavor" = "windows" ]; then
+  echo "windows is not supported; see doc/build.md." >&2
+  exit 1
+fi
 
-docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist-functions/idaes-functions-"$flavor"-"$mname".tar.gz .
-docker cp "$flavor"_"$mname"_build_tmp:"$wdir"/idaes-ext/dist/idaes-solvers-"$flavor"-"$mname".tar.gz .
+case " $FLAVORS " in
+  *" $flavor "*) ;;
+  *) echo "Unknown flavor: $flavor" >&2; usage; exit 1 ;;
+esac
 
-docker rm "$flavor"_"$mname"_build_tmp
+case "$mname" in
+  x86_64)  platform="linux/amd64" ;;
+  aarch64) platform="linux/arm64" ;;
+  *) echo "Unknown arch: $mname" >&2; usage; exit 1 ;;
+esac
 
-mv *.tar.gz ./tarballs/
+if [ -n "${CONTAINER_ENGINE:-}" ]; then
+  engine=$CONTAINER_ENGINE
+elif command -v podman >/dev/null 2>&1; then
+  engine=podman
+elif command -v docker >/dev/null 2>&1; then
+  engine=docker
+else
+  echo "Neither podman nor docker was found." >&2
+  exit 1
+fi
+
+wdir="/repo"
+container="idaes-ext-${flavor}-${mname}-build-tmp"
+here="$(cd "$(dirname "$0")" && pwd)"
+
+echo "build-solvers.sh arguments:
+    OS: $flavor
+    Arch: $mname ($platform)
+    Repo: $repo
+    Branch: $branch
+    Image: $image
+    Engine: $engine
+    Args to compile_solvers.sh: $solver_buildargs
+"
+
+cleanup() {
+  "$engine" rm -f "$container" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+cleanup
+
+"$engine" run --platform "$platform" --name "$container" -dt "$image"
+"$engine" cp "$here/extras/" "$container:$wdir"
+"$engine" exec "$container" sh -c "cp ${wdir}/extras/* ${wdir}"
+"$engine" exec "$container" sh -c "cd ${wdir} && git clone ${repo} && cd idaes-ext && git checkout ${branch}"
+"$engine" exec "$container" sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_solvers.sh ${flavor} ${solver_buildargs}"
+"$engine" exec "$container" sh -c "cd ${wdir}/idaes-ext && bash scripts/compile_libs.sh ${flavor}"
+"$engine" stop "$container"
+
+mkdir -p "$here/tarballs"
+"$engine" cp "$container:$wdir/idaes-ext/dist-functions/idaes-functions-${flavor}-${mname}.tar.gz" "$here/tarballs/"
+"$engine" cp "$container:$wdir/idaes-ext/dist/idaes-solvers-${flavor}-${mname}.tar.gz" "$here/tarballs/"
+
+echo "Tarballs written to $here/tarballs/"
