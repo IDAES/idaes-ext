@@ -7,8 +7,8 @@ to the IDAES build environment and not intended for general use.
 
 ## Documentation
 
-- More detailed build docs: [doc/build.md](doc/build.md)
-- For more information on building binaries: [doc/build.md](doc/build.md)
+- Building binaries: [doc/build.md](doc/build.md)
+- Building locally, outside the build images: [doc/build-local.md](doc/build-local.md)
 - For more information about the contents of binary releases:
   https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/binaries.html#binary-packages
 - For installation instructions:
