@@ -20,7 +20,10 @@ Options:
   -h, --help   Show this help message and exit
 
 Example:
-  $(basename "$0") v1.2.3 /path/to/artifacts
+  $(basename "$0") 4.0.0 /path/to/artifacts
+
+  Copy the resulting file into the releases/ directory of this repository.
+  idaes-pse downloads it from there to verify the binaries.
 EOF
 }
 
@@ -45,13 +48,20 @@ DIR="$2"
 
 OUTFILE="${DIR}/sha256sum_${RELEASE}.txt"
 
+# macOS ships shasum rather than sha256sum
+if command -v sha256sum >/dev/null 2>&1; then
+    SHA256="sha256sum"
+else
+    SHA256="shasum -a 256"
+fi
+
 echo "Writing hashes to: ${OUTFILE}"
 rm -f "$OUTFILE"
 touch "$OUTFILE"
 
 shopt -s nullglob
 for f in "$DIR"/*.tar.gz; do
-    hash=$(sha256sum "$f" | awk '{print $1}')
+    hash=$($SHA256 "$f" | awk '{print $1}')
     filename=$(basename "$f")
     echo "${hash}  ${filename}" >> "$OUTFILE"
 done
