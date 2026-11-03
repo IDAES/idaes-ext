@@ -32,7 +32,7 @@ else
 fi
 
 if [ "$flavor" = "windows" ]; then
-  echo "windows is not supported; see doc/build.md." >&2
+  echo "windows is not supported; use build.ps1 on a Windows host." >&2
   exit 1
 fi
 
