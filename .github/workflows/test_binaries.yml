@@ -245,9 +245,6 @@ jobs:
           - container: "ubuntu:20.04"
             TARGET: "ubuntu2004"
             SHORTOS: ub
-          - container: "ubuntu:26.04"
-            TARGET: "ubuntu2604"
-            SHORTOS: ub
           - container: "rockylinux:8"
             TARGET: "el8"
             SHORTOS: el
