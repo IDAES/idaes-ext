@@ -20,6 +20,11 @@ defaults:
   run:
     shell: bash -l {0}
 
+# Release whose tarballs are tested
+env:
+  RELEASE_REPO: mrmundt/idaes-ext
+  RELEASE_TAG: 4.0.0rc3
+
 jobs:
   builtin:
     name: ${{ matrix.os }}/${{ matrix.TARGET }}
@@ -115,10 +120,9 @@ jobs:
             FUNCTIONS_TAR=${DOWNLOAD_DIR}/idaes-functions.tar.gz
             if test ! -e $SOLVERS_TAR; then
                 echo "...downloading idaes-solvers"
-                BASE_URL=https://github.com/mrmundt/idaes-ext
-
-                SOLVERS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${{ matrix.TARGET }}.tar.gz
-                FUNCTIONS_URL=$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${{ matrix.TARGET }}.tar.gz
+                BASE_URL=https://github.com/$RELEASE_REPO/releases/download/$RELEASE_TAG
+                SOLVERS_URL=$BASE_URL/idaes-solvers-${{ matrix.TARGET }}.tar.gz
+                FUNCTIONS_URL=$BASE_URL/idaes-functions-${{ matrix.TARGET }}.tar.gz
 
                 echo "...downloading idaes-solvers from $SOLVERS_URL"
                 curl --max-time 150 --retry 8 -L "$SOLVERS_URL" > "$SOLVERS_TAR"
@@ -276,6 +280,8 @@ jobs:
             -e TARGET="${{ matrix.TARGET }}" \
             -e SHORTOS="${{ matrix.SHORTOS }}" \
             -e DISTRO="${{ matrix.arch }}" \
+            -e RELEASE_REPO \
+            -e RELEASE_TAG \
             "${{ matrix.container }}" \
             bash -lc '
               set -euo pipefail
@@ -324,9 +330,9 @@ jobs:
 
               SOLVERS_TAR="$DOWNLOAD_DIR/idaes-solvers.tar.gz"
               FUNCTIONS_TAR="$DOWNLOAD_DIR/idaes-functions.tar.gz"
-              BASE_URL="https://github.com/mrmundt/idaes-ext"
-              SOLVERS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
-              FUNCTIONS_URL="$BASE_URL/releases/download/4.0.0rc2/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
+              BASE_URL="https://github.com/$RELEASE_REPO/releases/download/$RELEASE_TAG"
+              SOLVERS_URL="$BASE_URL/idaes-solvers-${TARGET}-${DISTRO}.tar.gz"
+              FUNCTIONS_URL="$BASE_URL/idaes-functions-${TARGET}-${DISTRO}.tar.gz"
 
               curl -fL --max-time 150 --retry 8 "$SOLVERS_URL" -o "$SOLVERS_TAR"
               curl -fL --max-time 150 --retry 8 "$FUNCTIONS_URL" -o "$FUNCTIONS_TAR"
