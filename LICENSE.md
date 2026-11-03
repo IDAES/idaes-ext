@@ -16,18 +16,18 @@ be used together.
 Typically contains:
 - `lib/` — IDAES "functions" shared libraries (platform extensions vary: `.so`, `.dylib`, `.dll`)
 - `lib/helm_data/` — Helmholtz/EOS data and helpers (e.g., `*.json`, `*.py`, `*.nl`)
-- `license_functions.txt` or `LICENSE.md` (this file)
-- `version_functions.txt`
+- `LICENSE_FUNCTIONS.md` (this file)
+- `VERSION_FUNCTIONS.md`
 
 ### `idaes-solvers-<platform>.tar.gz`
 Typically contains:
-- `bin/` — solver executables (e.g., `ipopt`, `bonmin`, `couenne`, `cbc`, `clp`, `petsc`, and platform variants like `.exe`)
+- `bin/` — solver executables (e.g., `ipopt`, `ipopt_sens`, `bonmin`, `couenne`, `cbc`, `clp`, `k_aug`, `dot_sens`, `petsc`, and platform variants like `.exe`)
 - `lib/` — shared libraries and runtime dependencies (e.g., `libipopt*`, `libsipopt*`, `libpynumero_ASL*`, `petscpy/`)
 - `include/` — headers (notably COIN-OR / Ipopt headers under `include/coin-or/`)
 - `lib/pkgconfig/` — pkg-config metadata (e.g., `ipopt.pc`)
 - `share/` — documentation installed by upstream projects (e.g., `share/doc/ipopt/`)
-- `license.txt` or `LICENSE.md` (this file)
-- `version_solvers.txt`
+- `LICENSE.md` (this file)
+- `VERSION_SOLVERS.md`
 
 > **Platform variability**: Not all components are present on all platforms; some
 > optional features (notably HSL and METIS) depend on availability, compatibility,
@@ -74,6 +74,15 @@ Examples (names vary by platform):
 
 ---
 
+## k_aug / dot_sens
+
+- **License**: BSD 3-Clause
+- **Source**: https://github.com/IDAES/k_aug
+
+`k_aug` and `dot_sens` require HSL and are not present in builds without it.
+
+---
+
 ## AMPL Solver Library (ASL)
 
 - **Source**: https://ampl.com/netlib/ampl/solvers/index.html
@@ -115,18 +124,24 @@ https://petsc.org/main/install/license/#doc-license
 
 - **License**: CeCILL-C
 https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
-- **Source**: http://mumps.enseeiht.fr/
+- **Source**: https://mumps-solver.org/
 
 ---
 
-## METIS (platform-dependent)
+## METIS
 
-- **METIS 5.x License**: Apache 2.0
-https://github.com/KarypisLab/METIS/blob/master/LICENSE
-**Source**: https://github.com/KarypisLab/METIS
+Two versions of METIS are used:
 
-> **Note**: METIS support is not included on macOS arm64 (Apple Silicon) in
-> this distribution due to compatibility issues.
+- **METIS 5.x** (built by PETSc, linked into `petsc`; all platforms)
+  - **License**: Apache 2.0
+    https://github.com/KarypisLab/METIS/blob/master/LICENSE
+  - **Source**: https://github.com/KarypisLab/METIS
+- **METIS 4.0.3** (built via COIN-OR ThirdParty-Metis, used by HSL in Ipopt;
+  not included on macOS arm64 due to compatibility issues)
+  - **License**: METIS source is copyright the Regents of the University of
+    Minnesota (see the METIS 4.0.3 distribution for terms); the COIN-OR
+    ThirdParty-Metis build files are Eclipse Public License 1.0 (EPL-1.0)
+  - **Source**: https://github.com/coin-or-tools/ThirdParty-Metis
 
 ---
 
@@ -143,22 +158,39 @@ https://github.com/KarypisLab/METIS/blob/master/LICENSE
 
 ## GCC Libraries
 
-GCC runtime libraries are covered by the GCC runtime exception, so they can
-be linked and distributed. The libraries were used unmodified.
+GCC runtime libraries (`libgcc_s`, `libstdc++`, `libgfortran`, `libgomp`,
+`libssp`) are covered by the GCC runtime exception, so they can be linked and
+distributed. `libquadmath` is licensed under the GNU LGPL v2.1 or later. The
+libraries were used unmodified.
 
 - **Source**: https://gcc.gnu.org/
 - **License**:
   - https://www.gnu.org/licenses/gpl-3.0.en.html
   - https://www.gnu.org/licenses/gcc-exception-3.1-faq.en.html
+  - https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html (`libquadmath`)
 
 ---
 
 ## MinGW
 
-For Windows, MinGW runtime libraries are included.
+For Windows, the following MinGW-w64/MSYS2 libraries are also included,
+unmodified:
 
-**MinGW-w64**: https://www.mingw-w64.org/
-**MSYS2 (common build environment)**: https://www.msys2.org/
+- `libwinpthread` — MIT: https://www.mingw-w64.org/
+- `liblapack`, `libblas` (Reference LAPACK/BLAS) — modified BSD:
+  https://www.netlib.org/lapack/LICENSE.txt
+- `libbz2` (bzip2) — bzip2 license: https://sourceware.org/bzip2/
+- `zlib1` (zlib) — zlib license: https://zlib.net/zlib_license.html
+
+**MSYS2 (build environment)**: https://www.msys2.org/
+
+---
+
+## Boost
+
+Header-only Boost libraries are compiled into `general_helmholtz_external`.
+
+- **License**: Boost Software License 1.0: https://www.boost.org/LICENSE_1_0.txt
 
 ---
 
