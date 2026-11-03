@@ -12,8 +12,10 @@ elif [ "$flavor" = "ubuntu2004" ]; then
   image="idaes-ext-ubuntu2004-build:latest"
 elif [ "$flavor" = "ubuntu2204" ]; then
   image="idaes-ext-ubuntu2204-build:latest"
+elif [ "$flavor" = "ubuntu2604" ]; then
+  image="idaes-ext-ubuntu2604-build:latest"
 else
-  echo "Specify flavor in {el9, el8, ubuntu2404, ubuntu2004, ubuntu2204, windows}."
+  echo "Specify flavor in {el9, el8, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604, windows}."
   exit 1
 fi
 

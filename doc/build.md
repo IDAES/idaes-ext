@@ -23,7 +23,7 @@ that it is accessible in a `coinhsl.tar.gz` format. Place it in the
 1. Install Docker Desktop.
 3. Go to the `main-images` directory.
 4. From the a bash shell run `sh build.sh {flavor}` Replace `{flavor}` with the 
-  platform (el9, el8, ubuntu2404, ubuntu2004, ubuntu2204, or windows).
+  platform (el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604, or windows).
   - **NOTE**: If you are behind certain corporate firewalls/proxies, you will
     need to add lines to the beginning of the Dockerfiles for your SSL certificates.
   - **NOTE**: You can only build the Windows image if you are on a Windows machine.

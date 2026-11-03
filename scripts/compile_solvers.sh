@@ -12,7 +12,7 @@ osname=$1;
 if [ -z $osname ]
 then
   echo "Must specify platform in {windows, darwin, el8, el9, "
-  echo "  ubuntu2004, ubuntu2204, ubuntu2404}."
+  echo "  ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604}."
   exit 1
 fi
 

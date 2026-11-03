@@ -45,8 +45,11 @@ elif [ "$flavor" = "ubuntu2204" ]; then
 elif [ "$flavor" = "ubuntu2404" ]; then
   image="idaes-ext-ubuntu2404-build:$tag"
   wdir="/repo"
+elif [ "$flavor" = "ubuntu2604" ]; then
+  image="idaes-ext-ubuntu2604-build:$tag"
+  wdir="/repo"
 else
-  echo "Specify flavor in {el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, windows}."
+  echo "Specify flavor in {el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604, windows}."
   exit 1
 fi
 

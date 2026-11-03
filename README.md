@@ -21,7 +21,7 @@ to the IDAES build environment and not intended for general use.
 We currently build binaries for:
 
 - Linux
-  - Distributions: el8, el9, ubuntu2004, ubuntu2204, ubuntu2404
+  - Distributions: el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604
   - Architectures: x86_64 and aarch64 (for all listed Linux distributions)
 - Windows
   - Architecture: x86_64
@@ -33,7 +33,7 @@ We currently build binaries for:
 
 We currently run tests against:
 
-- Ubuntu: 20.04, 22.04, 24.04
+- Ubuntu: 20.04, 22.04, 24.04, 26.04
 - macOS: Intel (x86_64), Apple Silicon (arm64)
 - Windows: 2022, 2025
 - Rocky Linux: 8, 9

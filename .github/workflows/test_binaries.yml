@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15-intel, macos-15, windows-2022, windows-2025]
+        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-26.04, macos-15-intel, macos-15, windows-2022, windows-2025]
 
         include:
         - os: ubuntu-22.04
@@ -35,6 +35,9 @@ jobs:
           SHORTOS: ubuntu
         - os: ubuntu-24.04
           TARGET: "ubuntu2404-x86_64"
+          SHORTOS: ubuntu
+        - os: ubuntu-26.04
+          TARGET: "ubuntu2604-x86_64"
           SHORTOS: ubuntu
         - os: macos-15-intel
           TARGET: "darwin-x86_64"
@@ -231,10 +234,13 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, aarch64]
-        container: ["rockylinux:8", "rockylinux:9", "debian:12", "debian:13", "ubuntu:20.04"]
+        container: ["rockylinux:8", "rockylinux:9", "debian:12", "debian:13", "ubuntu:20.04", "ubuntu:26.04"]
         include:
           - container: "ubuntu:20.04"
             TARGET: "ubuntu2004"
+            SHORTOS: ub
+          - container: "ubuntu:26.04"
+            TARGET: "ubuntu2604"
             SHORTOS: ub
           - container: "rockylinux:8"
             TARGET: "el8"
