@@ -67,9 +67,11 @@ jobs:
 
     steps:
       - name: Checkout IDAES-ext source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs['git-ref'] || github.ref }}
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: 3.11
       - name: Configure curl
@@ -259,9 +261,10 @@ jobs:
             SHORTOS: deb
 
     steps:
-      - name: Check out source
-        uses: actions/checkout@v6
-
+      - name: Checkout IDAES-ext source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs['git-ref'] || github.ref }}
       - name: Set up QEMU (host)
         if: matrix.arch == 'aarch64'
         uses: docker/setup-qemu-action@v4
