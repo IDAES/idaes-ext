@@ -31,7 +31,11 @@ if [ ${osname} = "darwin" ]; then
   export BOOST=$($HOMEBREW_PREFIX/bin/brew --prefix boost)/include
 fi
 
-make BOOST=$BOOST
+if [ -n "${BOOST:-}" ]; then
+  make BOOST="$BOOST"
+else
+  make
+fi
 cd $IDAES_EXT
 
 # Collect files
