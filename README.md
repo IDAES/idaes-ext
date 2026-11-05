@@ -1,47 +1,42 @@
 # README
 
-This repository contains scripts and source code for compiling IDAES extensions
-these consist of IDAES property libraries and third party solvers. IDAES users
-generally do not need to access this repo.  The build scripts are specific
+This repository contains scripts and source code for compiling IDAES extensions.
+These consist of IDAES property libraries and third party solvers. IDAES users
+generally do not need to access this repo. The build scripts are specific
 to the IDAES build environment and not intended for general use.
 
-More detailed build docs are here https://github.com/IDAES/idaes-ext/blob/main/doc/build.md.
+## Documentation
 
-For more information on building binaries see ./doc/build.md.  For more information
-about the content of binary releases see https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/binaries.html#binary-packages.
-For installation instructions see https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/index.html.
+- Building binaries: [doc/build.md](doc/build.md)
+- Building locally, outside the build images: [doc/build-local.md](doc/build-local.md)
+- For more information about the contents of binary releases:
+  https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/binaries.html#binary-packages
+- For installation instructions:
+  https://idaes-pse.readthedocs.io/en/stable/tutorials/getting_started/index.html
 
-## Testing status
+## Platforms
 
-Currently, since the builds must be done off-line and uploaded to a release, the
-test status does not necessarily reflect the status of the code currently in the
-repository or any third-party repository.  This just shows the status of the most
-recently tested builds.
+### Build targets
 
-### Windows
+We currently build binaries for:
 
-[![Windows Test IDAES-PSE Main](https://github.com/IDAES/idaes-ext/actions/workflows/test_windows_main.yml/badge.svg)](https://github.com/IDAES/idaes-ext/actions/workflows/test_windows_main.yml)
+- Linux
+  - Distributions: el8, el9, ubuntu2004, ubuntu2204, ubuntu2404, ubuntu2604
+  - Architectures: x86_64 and aarch64 (for all listed Linux distributions)
+- Windows
+  - Architecture: x86_64
+- macOS
+  - Architecture: Apple Silicon (arm64)
+  - Note: Metis is **not** built/used on macOS arm64 due to compatibility issues.
 
-### Linux
+**Dropped platforms:** macOS Intel (darwin-x86_64) is no longer built as of 4.0.0; the last release with these binaries is 3.4.2.
 
-Currently Testing:
-* CentOS 7
-* Rocky Linlux 8
-* Ubuntu 18.04
-* Ubuntu 20.04
-* Ubuntu 22.04
-* Debian 9
-* Debian 10
-* Debian 11
+### Test targets
 
-[![Linux Test IDAES-PSE Main](https://github.com/IDAES/idaes-ext/actions/workflows/test_linux.yml/badge.svg)](https://github.com/IDAES/idaes-ext/actions/workflows/test_linux.yml)
+We currently run tests against:
 
-### macOS
-
-#### Intel
-
-[![macOS Test IDAES-PSE Main](https://github.com/IDAES/idaes-ext/actions/workflows/test_macos_main.yml/badge.svg)](https://github.com/IDAES/idaes-ext/actions/workflows/test_macos_main.yml)
-
-#### Apple Silicon
-
-Coming Soon.
+- Ubuntu: 20.04, 22.04, 24.04, 26.04
+- macOS: Apple Silicon (arm64)
+- Windows: 2022, 2025
+- Rocky Linux: 8, 9
+- Debian: 12, 13

@@ -327,7 +327,7 @@ void funcadd(AmplExports *ae){
      * 4) Number of arguments (the -1 is variable arg list length)
      * 5) Void pointer to function info
      */
-    //Real value function, and suppress anoying warings that, I think
+    //Real value function, and suppress annoying warnings that, I think
     //happen when this gets called on an already loaded library.
     int t = FUNCADD_REAL_VALUED;
     addfunc("cubic_root_l", (rfunc)cubic_root_l, t, -1, NULL);

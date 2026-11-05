@@ -27,9 +27,9 @@ int main(int argc, char **argv){
   PetscInt       its;         // Number of solver iterations
   ASL            *asl;        // ASL context
   Solver_ctx     sol_ctx;     // solver context
-  int            err;         // Error code  from ASL fulctions
+  int            err;         // Error code  from ASL functions
   int            i=0;         // Loop counters
-  int            argc_new;    // new number of arguments reformated for PETSc
+  int            argc_new;    // new number of arguments reformatted for PETSc
   char           **argv_new;  // argv transformed to PETSc's format
   static SufDecl suftab[] = { // suffixes to read in
     //doc for this at https://ampl.com/netlib/ampl/solvers/README.suf
@@ -72,7 +72,7 @@ int main(int argc, char **argv){
   PetscOptionsHasName(NULL, NULL, "-show_cl", &sol_ctx.opt.show_cl);
   PetscOptionsHasName(NULL, NULL, "-ignore_scaling", &sol_ctx.opt.ignore_scaling);
 
-  // If show_cl otion, show the original and transformed command line
+  // If show_cl option, show the original and transformed command line
   if(sol_ctx.opt.show_cl){
     PetscPrintf(PETSC_COMM_SELF, "-----------------------------------------------------------------\n");
     print_commandline("Original Exec:\n  ", argc, argv);

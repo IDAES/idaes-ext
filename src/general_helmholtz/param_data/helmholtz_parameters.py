@@ -102,11 +102,13 @@ class WriteParameters(object):
             phi_ideal_type = parameters["eos"].get("phi_ideal_type", 0)
             if phi_ideal_type > 0:
                 self.add(
-                    phi_ideal_types[phi_ideal_type](model=self.model, parameters=parameters)
+                    phi_ideal_types[phi_ideal_type](
+                        model=self.model, parameters=parameters
+                    )
                 )
         except KeyError:
             pass
-    
+
         try:
             phi_residual_type = parameters["eos"].get("phi_residual_type", 0)
             if phi_residual_type > 0:
@@ -161,8 +163,8 @@ class WriteParameters(object):
             )
 
     def calculate_pressure(self, rho, T):
-        tau = self.T_star/T
-        delta = rho/self.rho_star
+        tau = self.T_star / T
+        delta = rho / self.rho_star
         self.model.delta = delta
         self.model.tau = tau
         return pyo.value(rho * self.R * T * (1 + self.model.delta * self.model.phir_d))
@@ -237,9 +239,21 @@ class WriteParameters(object):
     def calculate_reference_offset(self, delta, tau, s0, h0):
         self.model.tau = tau
         self.model.delta = delta
-        s1 = pyo.value(self.model.tau * (self.model.phii_t + self.model.phir_t) - self.model.phii - self.model.phir)
+        s1 = pyo.value(
+            self.model.tau * (self.model.phii_t + self.model.phir_t)
+            - self.model.phii
+            - self.model.phir
+        )
         n1_off = s1 - s0
-        h1 = pyo.value(1.0 / self.model.tau * (1 + self.model.tau*(self.model.phii_t + self.model.phir_t) + self.model.delta*self.model.phir_d))
+        h1 = pyo.value(
+            1.0
+            / self.model.tau
+            * (
+                1
+                + self.model.tau * (self.model.phii_t + self.model.phir_t)
+                + self.model.delta * self.model.phir_d
+            )
+        )
         n2_off = h0 - h1
         return (n1_off, n2_off)
 
@@ -328,15 +342,18 @@ class WriteParameters(object):
             trng.append(t)
         self.approx_sat_curves(trng)
 
+
 def surface_tension_type01(model, parameters):
     s = parameters["transport"]["surface_tension"]["s"]
     n = parameters["transport"]["surface_tension"]["n"]
     tc = parameters["transport"]["surface_tension"]["Tc"]
     return sum(s[i] * (1 - model.T_star / model.tau / tc) ** n[i] for i in s)
 
+
 def sat_delta_from_parameters(model, name, parameters):
     etype = parameters["aux"][name]["type"]
     return delta_sat_types[etype](model, name, parameters)
+
 
 def sat_delta_type01(model, name, parameters):
     c = parameters["aux"][name]["c"]
@@ -351,8 +368,10 @@ def sat_delta_type02(model, name, parameters):
     t = parameters["aux"][name]["t"]
     return c * pyo.exp(sum(n[i] * (1 - 1 / model.tau) ** t[i] for i in n))
 
+
 def phi_ideal_expressions_from_parameters(model, parameters):
     return phi_ideal_types[parameters["eos"]["phi_ideal_type"]](model, parameters)
+
 
 def phi_ideal_expressions_type01(model, parameters):
     last_term = parameters["eos"]["last_term_ideal"]
@@ -435,8 +454,10 @@ def phi_ideal_expressions_type03(model, parameters):
         "phii_dt": 0,
     }
 
+
 def phi_residual_expressions_from_parameters(model, parameters):
     return phi_residual_types[parameters["eos"]["phi_residual_type"]](model, parameters)
+
 
 def phi_residual_expressions_type01(model, parameters):
     last_term = parameters["eos"]["last_term_residual"]

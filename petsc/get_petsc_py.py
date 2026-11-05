@@ -14,7 +14,9 @@ from petsc_conf import get_conf
 
 if __name__ == "__main__":
     c = get_conf()
-    with open(os.path.join("petscpy","petsc_conf.json"), "w") as f:
+    with open(os.path.join("petscpy", "petsc_conf.json"), "w") as f:
         json.dump(list(c), f)
     for f in ["PetscBinaryIO.py", "PetscBinaryIOTrajectory.py"]:
-        shutil.copyfile(os.path.join(petsc_py, f), os.path.join(os.getcwd(), "petscpy", f))
+        shutil.copyfile(
+            os.path.join(petsc_py, f), os.path.join(os.getcwd(), "petscpy", f)
+        )

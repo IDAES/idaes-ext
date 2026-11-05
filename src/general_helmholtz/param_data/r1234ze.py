@@ -86,9 +86,7 @@ def viscosity_rule(m):
     M = 114.0415928
     NA = 6.0221408e23
     Ts = T / eok
-    eta0 = (a[0] + a[1] * T + a[2] * T**2 + a[3] * T**3) / (
-        a[4] + a[5] * T + T**2
-    )
+    eta0 = (a[0] + a[1] * T + a[2] * T**2 + a[3] * T**3) / (a[4] + a[5] * T + T**2)
     Bs = (
         sum(b[i] * Ts ** (-0.25 * i) for i in range(0, 7))
         + b[7] * Ts**-2.5
@@ -129,6 +127,7 @@ def main():
 
     print("ASHRAE Offset")
     print(we.calculate_reference_offset(2.7584034882, 1.64063049539, 0, 0))
+
 
 if __name__ == "__main__":
     main()
